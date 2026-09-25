@@ -173,9 +173,31 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# Cursor  
-#  Cursor is an AI-powered code editor.`.cursorignore` specifies files/directories to 
+# Cursor
+#  Cursor is an AI-powered code editor.`.cursorignore` specifies files/directories to
 #  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# --- CURC Alpine conventions ---
+# Data and large artifacts live on /scratch or /pl/active, not in git.
+data/**
+!data/**/.gitkeep
+*.tif
+*.nc
+*.zarr/
+*.npy
+*.pt
+*.ckpt
+checkpoints/
+
+# Logs ARE tracked: they are how job results reach Claude and collaborators.
+# Keep this directory in git; don't add logs/ or *.out to the ignore list.
+!logs/
+!logs/*.out
+# ...but not per-job GPU traces if they get big:
+logs/*.gpu.csv
+
+# Stray Slurm logs from jobs submitted without --output=logs/...
+/slurm-*.out
