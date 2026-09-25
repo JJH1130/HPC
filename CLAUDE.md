@@ -1,0 +1,37 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project status
+
+This repository is an early-stage project (MIT licensed, Jaeheon Jung) for computational work on CU
+Boulder's Alpine HPC cluster. Structure so far: `sbatch/` (Slurm submission scripts + `cluster_env.sh`,
+the one place this repo's Alpine paths live), `logs/` (tracked job logs pulled back from the cluster),
+and `src/` (project code, still empty). There are no build/lint/test commands yet beyond
+`python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh` to lint sbatch scripts.
+
+When more code is added, update this file with:
+- Commands to build, lint, and run tests (including running a single test)
+- The high-level architecture/module layout, focused on things not obvious from reading one file
+
+## 작업 방식: Claude ↔ Alpine 클러스터
+
+이 저장소의 코드는 CU Boulder Alpine HPC 클러스터에서 `sbatch`로 실행된다. **Claude는 클러스터에 직접
+접속할 수 없다** (SSH, `sbatch`, `/scratch`, 로그 열람 전부 불가) — 사용자가 유일한 다리다.
+
+워크플로:
+1. Claude가 로컬 저장소에서 코드, sbatch 스크립트, 러너북을 작성한다.
+2. 사용자가 로컬에서 커밋/푸시 → 클러스터에서 `git pull` → Claude가 준 명령어를 Alpine 터미널에 그대로
+   붙여넣어 실행한다.
+3. 잡이 `logs/`에 로그를 쓴다 (작은 결과 파일은 결과 폴더로).
+4. 사용자가 클러스터에서 `logs/`(+작은 결과물)를 커밋·푸시하면, Claude가 로컬에서 `git pull`해서 읽고
+   분석한다.
+
+Claude는 로그/결과를 직접 pull해서 읽기 전까지는 잡이 실행됐다거나 성공했다거나 어떤 수치가 나왔다고
+단정하지 않는다.
+
+클러스터 관련 작업(온보딩, sbatch 스크립트 작성, conda 환경, 하드웨어/파티션 선택, 잡 체이닝, 스토리지
+경로, 러너북 작성, 잡 상태 확인·트러블슈팅 등)은 `CURC_Alpine` 스킬을 따른다.
+
+클러스터 온보딩(로그인, GitHub SSH, `/projects` clone 등) 절차는 `docs/runbooks/Cluster_Setup.md`
+참고.
