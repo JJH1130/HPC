@@ -4,7 +4,8 @@ Builds a private miniforge and the project's `analysis` env (numpy, pandas, matp
 from `environment.yml`, then checks it with a batch job. Prerequisite: `Cluster_Setup.md` done
 (repo at `/projects/jaju1407/HPC`).
 
-**Last run / verified:** not yet.
+**Last run / verified:** 2026-09-28, job 33114601 on `c3cpu-e2-u1` — `ENV OK` in 17 s
+(python 3.12.14, numpy 2.5.3, pandas 3.0.6, matplotlib 3.11.2, JupyterLab 4.6.4).
 
 ## Where things go (and why)
 
@@ -173,4 +174,5 @@ conda env update -p /projects/jaju1407/software/envs/analysis -f /projects/jaju1
 
 ## Notes
 
-- 2026-09-29: runbook written; env not yet built.
+- 2026-09-29: runbook written.
+- 2026-09-28 (cluster time): env built; test job 33114601 passed (`logs/test_env_analysis.33114601.out`).
