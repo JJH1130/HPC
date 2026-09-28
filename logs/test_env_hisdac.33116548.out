@@ -1,0 +1,14 @@
+== job 33116548 (test_env_hisdac) on c3cpu-e2-u1 at 2026-09-28T16:23:30-06:00
+== cores=1 gpus=none restart=0
+== git 06dcf4b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+python 3.12.14 | numpy 2.5.3 | pandas 3.0.6
+rasterio 1.5.1 (GDAL 3.13.3) | geopandas 1.2.0 | pyogrio 0.13.0 | pyarrow 25.0.0
+scikit-learn 1.9.1 | lightgbm 4.7.0 | shap 0.52.0 | pyyaml 6.0.3 | matplotlib 3.11.2 | ipykernel 7.3.0
+rasterio GeoTIFF ok: EPSG:5070 50x50
+geopandas ok: reprojected to EPSG:5070, x[0]=-783099 m
+lightgbm ok: train R2=0.991
+shap ok: values (100, 5), top feature = x0 (expected x0)
+yaml + matplotlib ok: /scratch/alpine/jaju1407/HPC/test_env_hisdac_33116548/test.png (21485 bytes)
+ENV OK
+== done 2026-09-28T16:23:44-06:00
