@@ -1,0 +1,5 @@
+== job 33113981 (test_hello_cpu) on c3cpu-e2-u1 at 2026-09-28T14:45:54-06:00
+== cores=1
+hello from Alpine, jaju1407
+Python 3.6.8
+== done 2026-09-28T14:45:54-06:00
