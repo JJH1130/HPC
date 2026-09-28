@@ -1,0 +1,15 @@
+== job 33114601 (test_env_analysis) on c3cpu-e2-u1 at 2026-09-28T15:18:46-06:00
+== cores=1 gpus=none restart=0
+== git 4126508
+== python: /projects/jaju1407/software/envs/analysis/bin/python
+== jupyter lab 4.6.4
+python 3.12.14 | numpy 2.5.3 | pandas 3.0.6 | matplotlib 3.11.2 | ipykernel 7.3.0
+numpy matmul trace: 250480.0
+pandas groupby mean:
+group
+0   -0.024
+1    0.036
+2   -0.046
+matplotlib figure: /scratch/alpine/jaju1407/HPC/test_env_analysis_33114601.png (9333 bytes)
+ENV OK
+== done 2026-09-28T15:19:03-06:00
