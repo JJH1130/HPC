@@ -1,0 +1,27 @@
+# envs/hisdac/environment.yml — conda env "hisdac": geospatial + ML stack for the
+# HISDAC_US_V2 work. Separate from "analysis" (root environment.yml) so the GDAL
+# stack can't disturb that validated env. conda-forge only.
+#
+# Alpine (inside sinteractive; see docs/runbooks/Creating_Cluster_Envs.md, "hisdac"):
+#   cd /projects/jaju1407/HPC/envs/hisdac
+#   conda env create -f environment.yml -p /projects/jaju1407/software/envs/hisdac
+# Laptop:
+#   conda env create -f envs/hisdac/environment.yml      # creates an env named "hisdac"
+# After editing this file:
+#   conda env update -p <env-path> -f environment.yml --prune
+name: hisdac
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - rasterio
+  - geopandas
+  - pyogrio
+  - scikit-learn
+  - lightgbm
+  - shap=*=cpu*   # CPU build; the CUDA build drags in GBs of CUDA libs we don't use
+  - pyyaml
+  - pyarrow
+  - matplotlib
+  - ipykernel   # lets Jupyter run this env as a kernel (register: see runbook)

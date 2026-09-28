@@ -11,7 +11,11 @@ the one place this repo's Alpine paths live), `logs/` (tracked job logs pulled b
 matplotlib, JupyterLab; conda-forge only). On Alpine the env lives at
 `/projects/jaju1407/software/envs/analysis`; build/update steps are in
 `docs/runbooks/Creating_Cluster_Envs.md`, and `sbatch/test_env_analysis.sh` checks it. Locally:
-`conda env create -f environment.yml`. There are no build/lint/test commands yet beyond
+`conda env create -f environment.yml`. A second env, `hisdac` (rasterio/geopandas/LightGBM/SHAP
+stack for the HISDAC_US_V2 work), is defined in `envs/hisdac/environment.yml`, lives at
+`/projects/jaju1407/software/envs/hisdac`, is built per `docs/runbooks/Creating_Env_hisdac.md`, and
+is checked by `sbatch/test_env_hisdac.sh`. Env changes go through the yml files + `conda env update
+--prune`, never ad-hoc `mamba install`. There are no build/lint/test commands yet beyond
 `python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh` to lint sbatch scripts.
 
 When more code is added, update this file with:
