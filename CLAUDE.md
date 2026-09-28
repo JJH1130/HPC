@@ -7,7 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository is an early-stage project (MIT licensed, Jaeheon Jung) for computational work on CU
 Boulder's Alpine HPC cluster. Structure so far: `sbatch/` (Slurm submission scripts + `cluster_env.sh`,
 the one place this repo's Alpine paths live), `logs/` (tracked job logs pulled back from the cluster),
-and `src/` (project code, still empty). There are no build/lint/test commands yet beyond
+`src/` (project code, still empty), and `environment.yml` (the `analysis` conda env: numpy, pandas,
+matplotlib, JupyterLab; conda-forge only). On Alpine the env lives at
+`/projects/jaju1407/software/envs/analysis`; build/update steps are in
+`docs/runbooks/Creating_Cluster_Envs.md`, and `sbatch/test_env_analysis.sh` checks it. Locally:
+`conda env create -f environment.yml`. There are no build/lint/test commands yet beyond
 `python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh` to lint sbatch scripts.
 
 When more code is added, update this file with:

@@ -40,8 +40,14 @@ export OPENBLAS_NUM_THREADS=$OMP_NUM_THREADS
 export NUMEXPR_NUM_THREADS=$OMP_NUM_THREADS
 
 activate_env() {
+    # conda's hook and packages' activate.d scripts can read unset variables,
+    # which kills a `set -u` job script; relax nounset just for activation.
+    local had_u=0
+    [[ $- == *u* ]] && had_u=1
+    set +u
     eval "$("$CONDA_ROOT/bin/conda" shell.bash hook)"
     conda activate "$ENVS/$1"
+    if (( had_u )); then set -u; fi
 }
 
 # ROCm (AMD MI100) jobs: MIOpen must write a kernel DB. Per-job dir avoids two

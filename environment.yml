@@ -1,0 +1,21 @@
+# environment.yml — conda env "analysis": basic data analysis (numpy/pandas/matplotlib/Jupyter).
+# conda-forge only ("nodefaults" blocks the Anaconda defaults channel even if a
+# machine's .condarc lists it).
+#
+# Alpine (inside sinteractive; see docs/runbooks/Creating_Cluster_Envs.md):
+#   conda env create -p /projects/jaju1407/software/envs/analysis -f environment.yml
+# Laptop:
+#   conda env create -f environment.yml        # creates an env named "analysis"
+# After editing this file, update an existing env with:
+#   conda env update -p <env-path> -f environment.yml --prune
+name: analysis
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - numpy
+  - pandas
+  - matplotlib
+  - jupyterlab   # `jupyter lab` / `jupyter notebook` front ends
+  - ipykernel    # lets Jupyter run this env's Python as a kernel

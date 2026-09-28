@@ -16,7 +16,7 @@ PetaLibrary: `/pl/active/Leyk_Lab` (not in use until PI approves), GitHub owner 
 4. **Paste with right-click** in PuTTY (Ctrl-V does not work); selecting text copies automatically.
 
 You land on a login node — fine for editing, git, and `sbatch`; never for computation or conda
-installs (CURC kills heavy processes there; see `Creating_Cluster_Envs.md` once it exists).
+installs (CURC kills heavy processes there; see `Creating_Cluster_Envs.md`).
 
 **Status: done (terminal chosen).**
 
@@ -127,7 +127,7 @@ git push
 
 Check: the log ends with `hello from Alpine, jaju1407` and `== done`. Then Claude pulls and reads it.
 
-**Status: current step.**
+**Status: done — job 33113981 on `c3cpu-e2-u1`, 2026-09-28 (log `logs/test_hello_cpu.33113981.out`).**
 
 ## Notes
 
@@ -135,3 +135,6 @@ Check: the log ends with `hello from Alpine, jaju1407` and `== done`. Then Claud
   pushed from the laptop before cluster access was set up.
 - 2026-09-29: moved to a new laptop; clone on Alpine confirmed. PetaLibrary name recorded
   (Leyk_Lab), pending PI approval. Next: CPU smoke test (`sbatch/test_hello_cpu.sh`).
+- 2026-09-28: smoke test job 33113981 succeeded. System `python3` is 3.6.8 (too old for real
+  work) — next step is installing miniforge + a project conda env.
+- 2026-09-29: next step moved to `Creating_Cluster_Envs.md` (miniforge + `analysis` env).
