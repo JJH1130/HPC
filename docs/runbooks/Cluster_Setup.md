@@ -4,7 +4,7 @@ One-time onboarding for CU Boulder's Alpine HPC cluster. Run each step in order;
 each ends with a check so we both know it worked (Claude can't see the cluster).
 
 **Profile:** IdentiKey `jaju1407`, allocation: none — runs on `ucb-general`,
-PetaLibrary: yes, lab name TBD, GitHub owner `JJH1130`, repo `HPC`, terminal: PuTTY.
+PetaLibrary: `/pl/active/Leyk_Lab` (not in use until PI approves), GitHub owner `JJH1130`, repo `HPC`, terminal: PuTTY.
 
 ## 1. Log in (PuTTY)
 
@@ -74,7 +74,7 @@ git status
 
 Confirms: the commit hash matches what was last pushed from the laptop.
 
-**Status: current step.**
+**Status: done — reported by user 2026-09-29 (repo cloned at `/projects/jaju1407/HPC`).**
 
 ## 4. Allocation (optional — already recorded)
 
@@ -85,8 +85,8 @@ This project has no compute allocation; jobs run on the free default `ucb-genera
 sacctmgr -nP show assoc user=$USER format=account,partition,qos
 ```
 
-PetaLibrary: this project has an allocation but the lab/allocation name isn't recorded yet — once
-known, tell Claude so `sbatch/cluster_env.sh`'s `PL_ROOT` and this doc can be filled in.
+PetaLibrary: `/pl/active/Leyk_Lab`. **Do not write there until the PI approves** — until then
+`sbatch/cluster_env.sh` keeps `PL_ROOT` empty and all outputs stay on `/scratch/alpine/jaju1407`.
 
 ## 5. The local ↔ cluster loop (ongoing habit)
 
@@ -96,7 +96,42 @@ known, tell Claude so `sbatch/cluster_env.sh`'s `PL_ROOT` and this doc can be fi
   pushed from there before Claude's next local change.
 - After a job: commit `logs/` + small results on the cluster, push, then tell Claude to pull.
 
+## 6. CPU smoke test (first sbatch job)
+
+Confirms submission, the `acpu` + `cpu-normal` pair, and the `logs/` round trip before any real job.
+
+*Login node.*
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+sbatch sbatch/test_hello_cpu.sh
+```
+
+*Login node.* Watch it (usually minutes; `PD` = pending, `R` = running, gone = finished):
+
+```bash
+squeue -u jaju1407
+```
+
+*Login node.* When it's gone from `squeue`, check it and send the log back:
+
+```bash
+cd /projects/jaju1407/HPC
+cat logs/test_hello_cpu.*.out
+git add logs/test_hello_cpu.*.out
+git commit -m "run: test_hello_cpu smoke test log"
+git push
+```
+
+Check: the log ends with `hello from Alpine, jaju1407` and `== done`. Then Claude pulls and reads it.
+
+**Status: current step.**
+
 ## Notes
 
 - 2026-09-26: onboarding started. Repo folder structure (`sbatch/`, `logs/`, `src/`) created and
   pushed from the laptop before cluster access was set up.
+- 2026-09-29: moved to a new laptop; clone on Alpine confirmed. PetaLibrary name recorded
+  (Leyk_Lab), pending PI approval. Next: CPU smoke test (`sbatch/test_hello_cpu.sh`).
