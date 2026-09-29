@@ -130,6 +130,7 @@ x0`, `yaml + matplotlib ok`, `ENV OK`, `== done`. Well under a minute once runni
 cd /projects/jaju1407/HPC
 git add logs/test_env_hisdac.$jid.out
 git commit -m "run: test_env_hisdac $jid"
+git pull --rebase
 git push
 ```
 

@@ -22,7 +22,7 @@ Written to `/projects/jaju1407/data/processed/census/`.
 | File | Content |
 |---|---|
 | `counties_{YEAR}.gpkg` | One layer per year. CRS **ESRI:102039** (same as HISDAC-US). Columns: `GISJOIN`, `year`, `state`, `name`, `pop`, `status`, `area_km2`, `geometry` |
-| `qa_report.csv` | Per year: number of polygons, population rows, unmatched units, CONUS population total, population dropped (count and %) |
+| `qa_report.csv` | Per year: number of polygons, population rows, unmatched units, CONUS population total, population dropped (count and %), and the difference from the published CONUS total in `configs/census_official_totals.csv` (blank years are skipped) |
 | `dropped_rows.csv` | Every population row or polygon removed, with year, GISJOIN, name, population and reason |
 
 ### `status` values
@@ -177,6 +177,10 @@ limitation in Chapter 1 and carried into Chapter 2 exposure estimates.
 - [ ] Review 1830–1910 "population only" rows not listed above (1–7 per year).
 - [x] Manual fills cross-checked against Forstall (1996).
 - [ ] Decide whether to merge `nodata_zero` counties into their parent counties.
+- [ ] 1820 state totals differ from the published figures (U.S. Census Bureau, 1990 CPH-2-1,
+  Table 16): Alabama NHGIS 144,317 vs. 127,901 (+16,416), Vermont −217, Tennessee −10. The
+  1820 CONUS total is 9,654,655 vs. 9,638,453 (+16,202); these three states explain +16,189.
+  NHGIS values are used; cause not identified.
 
 ## Sources
 

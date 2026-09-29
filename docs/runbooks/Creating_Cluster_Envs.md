@@ -146,6 +146,7 @@ versions, a pandas groupby table, a figure path under `/scratch/alpine/jaju1407/
 cd /projects/jaju1407/HPC
 git add logs/test_env_analysis.$jid.out
 git commit -m "run: test_env_analysis $jid"
+git pull --rebase
 git push
 ```
 

@@ -41,7 +41,6 @@ YEARS = list(range(1810, 2021, 10))
 NON_CONUS_PREFIXES = ("G020", "G150", "G720")  # Alaska, Hawaii, Puerto Rico
 NON_CONUS_NAMES = re.compile(r"alaska|hawaii|puerto rico", re.IGNORECASE)
 GROUP_PATTERN = "multi-county group"
-EXPECTED_TOTALS = {1810: 7_239_881}  # published U.S. totals, for the QA log
 STATE_COLS = ("STATENAM", "STATE_NAME", "STATENAME", "STATE")
 NAME_COLS = ("NHGISNAM", "NAMELSAD", "NAME")
 OUT_COLS = ["GISJOIN", "year", "state", "name", "pop", "status", "area_km2", "geometry"]
@@ -59,6 +58,8 @@ def parse_args(argv=None):
     p.add_argument("--manual-fills", type=Path, required=True, help="year,gisjoin,pop,source")
     p.add_argument("--reconstructed", type=Path, required=True,
                    help="year,gisjoin,state,name,donor_year,donor_gisjoins,note")
+    p.add_argument("--official-totals", type=Path,
+                   help="year,official_conus_total,source,note — adds diff columns to qa_report.csv")
     p.add_argument("--years", type=int, nargs="+", default=YEARS, help="subset of years (default: all 22)")
     return p.parse_args(argv)
 
@@ -382,15 +383,29 @@ def process_year(year, pop_all, shapefiles, crosswalk, fills, recon, out_dir, tm
         "pop_dropped_no_boundary": pop_no_bnd,
         "pop_dropped_pct": 100 * pop_no_bnd / (total + pop_no_bnd) if total + pop_no_bnd else 0.0,
         "pop_dropped_multi_county_group": pop_group,
-        "expected_total": EXPECTED_TOTALS.get(year),
     }
-    msg = (f"  wrote {out_path} ({len(gdf)} units, {out_path.stat().st_size / 1e6:.1f} MB) | "
-           f"CONUS pop {total:,.0f} | dropped no-boundary {pop_no_bnd:,.0f} ({qa['pop_dropped_pct']:.3f}%)")
-    if year in EXPECTED_TOTALS:
-        exp = EXPECTED_TOTALS[year]
-        msg += f" | expected ~{exp:,} (diff {total - exp:+,.0f}, {100 * (total - exp) / exp:+.3f}%)"
-    log.info(msg)
+    log.info("  wrote %s (%d units, %.1f MB) | CONUS pop %s | dropped no-boundary %s (%.3f%%)",
+             out_path, len(gdf), out_path.stat().st_size / 1e6, f"{total:,.0f}", f"{pop_no_bnd:,.0f}",
+             qa["pop_dropped_pct"])
     return qa, dropped
+
+
+def compare_official(qa: pd.DataFrame, path: Path | None) -> pd.DataFrame:
+    """Add published CONUS totals and the differences. Blank years stay NaN.
+    residual_after_dropped = what the no-boundary drops don't explain (0 = fully explained)."""
+    if path is None:
+        return qa
+    off = read_config(path, ["year", "official_conus_total", "source", "note"])
+    off["official_conus_total"] = pd.to_numeric(off["official_conus_total"].str.replace(",", ""))
+    qa = qa.merge(off[["year", "official_conus_total"]], on="year", how="left")
+    qa["diff_vs_official"] = qa["conus_pop_total"] - qa["official_conus_total"]
+    qa["diff_pct"] = 100 * qa["diff_vs_official"] / qa["official_conus_total"]
+    qa["residual_after_dropped"] = qa["diff_vs_official"] + qa["pop_dropped_no_boundary"]
+    for r in qa[qa["official_conus_total"].notna()].itertuples():
+        log.info("official %d: ours %s vs %s -> diff %s (%+.4f%%), residual after dropped rows %s",
+                 r.year, f"{r.conus_pop_total:,.0f}", f"{r.official_conus_total:,.0f}",
+                 f"{r.diff_vs_official:+,.0f}", r.diff_pct, f"{r.residual_after_dropped:+,.0f}")
+    return qa
 
 
 def main(argv=None):
@@ -432,7 +447,7 @@ def main(argv=None):
         qa_rows.append(qa)
         dropped.extend(d)
 
-    qa_df = pd.DataFrame(qa_rows)
+    qa_df = compare_official(pd.DataFrame(qa_rows), args.official_totals)
     qa_df.to_csv(args.out_dir / "qa_report.csv", index=False)
     drop_df = pd.concat(dropped, ignore_index=True) if dropped else pd.DataFrame(columns=DROP_COLS)
     drop_df.to_csv(args.out_dir / "dropped_rows.csv", index=False)

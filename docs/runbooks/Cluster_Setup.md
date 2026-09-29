@@ -94,7 +94,10 @@ PetaLibrary: `/pl/active/Leyk_Lab`. **Do not write there until the PI approves**
 - On the cluster: `cd /projects/jaju1407/HPC && git pull`, then run the relevant runbook.
 - Never edit the same file on both sides between pulls; a cluster-side hotfix gets committed and
   pushed from there before Claude's next local change.
-- After a job: commit `logs/` + small results on the cluster, push, then tell Claude to pull.
+- After a job: commit `logs/` + small results on the cluster, `git pull --rebase`, push, then tell
+  Claude to pull. The `pull --rebase` is needed because Claude often pushes a runbook update while the
+  job runs; without it the cluster push is rejected. Your commit only touches `logs/`/`results/`, so
+  the rebase doesn't conflict.
 
 ## 6. CPU smoke test (first sbatch job)
 
@@ -122,6 +125,7 @@ cd /projects/jaju1407/HPC
 cat logs/test_hello_cpu.*.out
 git add logs/test_hello_cpu.*.out
 git commit -m "run: test_hello_cpu smoke test log"
+git pull --rebase
 git push
 ```
 

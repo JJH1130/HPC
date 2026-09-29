@@ -6,6 +6,8 @@ dropped row. Code: `src/census/prepare_census.py`; job: `sbatch/census_prepare.s
 (acpu, 2 cores, 1 h, env `hisdac`). The rules and the evidence behind each manual fix are in
 `docs/census_preprocessing.md`. Manual fixes live in `configs/nhgis_crosswalk.csv`,
 `configs/nhgis_manual_fills.csv` and `configs/nhgis_reconstructed.csv`. Edit those, not the code.
+Published CONUS totals for the QA comparison go in `configs/census_official_totals.csv`. Blank years
+**Status:** full 22-year run done — job 33163853, 2026-09-29 cluster time (code ea8aae6). Rerun needed only to add the official-total columns to qa_report.csv.
 
 **Status:** quick test (1810, 1820, 1900) passed on Alpine with the node-local write: job 33163472, 2026-09-29 cluster time. Full 22-year run not yet confirmed.
 
@@ -88,6 +90,7 @@ echo "submitted $jid"
 cd /projects/jaju1407/HPC
 git add logs/census_prepare.$jid.out results/census/
 git commit -m "run: census_prepare $jid"
+git pull --rebase
 git push
 ```
 
@@ -100,3 +103,5 @@ Then tell Claude to pull.
 - 2026-09-29 (cluster time), job 33163282 on `c3cpu-e2-u8`, `--years 1810 1820 1900`: took 1 min 15 s. GPKGs are 81 / 90 / 193 MB (full-resolution TIGER), so all 22 years should be a few GB. 1810: 7,238,667 = 7,239,881 − 1,214 (Walton GA, Hopefield–St Francis LA have no boundary); the Massachusetts multi-county groups sum to 700,745, equal to the county rows. 1900: 75,979,351 + 15,224 dropped = 75,994,575. Alaska and Hawaii (217,593) were removed by the name check, because their territorial GISJOINs are G025/G155, not G020/G150.
 - 2026-09-30: a rerun failed writing `counties_1810.gpkg` (`Failed to commit transaction`, SQLite on the /projects network filesystem). The write now goes to node-local disk first, then copy + rename. Half-written GPKGs and journals for the requested years are deleted at start.
 - 2026-09-29 (cluster time), job 33163472 on `c3cpu-c15-u1-2` (code 04424c9): quick test passed. GPKGs were written to `/scratch/local/<jobid>/` and copied, with no commit error. It took 34 s, and the numbers match job 33163282. The output folder also held counties_1830–2020 from another job running at 13:56–14:00, whose log wasn't pushed. Don't run two census_prepare jobs at the same time: they write the same files.
+- 2026-09-29 (cluster time), job 33163853 on `c3cpu-c15-u11-1`: all 22 years in 4 min 20 s, 4.1 GB of GPKGs. Dropped no-boundary pop is under 0.02% in every year. User's check against published totals: 1810 and 1900 match exactly after the dropped rows. 1820 is +16,202 because of NHGIS source values (mostly Alabama; see Open items in `docs/census_preprocessing.md`).
+- 2026-09-30: added `configs/census_official_totals.csv` and `--official-totals`. qa_report.csv gets `official_conus_total`, `diff_vs_official`, `diff_pct`, `residual_after_dropped`. Close-the-loop steps now `git pull --rebase` before `git push`: the user's push was rejected after Claude pushed first.
