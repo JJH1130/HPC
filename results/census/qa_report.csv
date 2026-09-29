@@ -1,0 +1,4 @@
+year,n_boundaries,n_pop_rows,n_pop_rows_conus,n_boundary_without_pop,n_pop_without_boundary,n_ok,n_nodata_unenumerated,n_nodata_zero,n_manual_fill,conus_pop_total,pop_dropped_no_boundary,pop_dropped_pct,pop_dropped_multi_county_group,expected_total
+1810,587,582,582,9,2,578,9,0,0,7238667.0,1214,0.016768231411538395,700745.0,7239881.0
+1820,780,761,761,17,0,761,17,0,2,9654655.0,0,0.0,0.0,
+1900,2840,2857,2849,1,10,2838,1,0,1,75979351.0,15224,0.02003300893517728,0.0,
