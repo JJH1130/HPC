@@ -79,6 +79,7 @@ echo "submitted $jid"
 | `ERROR: ... missing columns` | the CSV has a different layout than expected (e.g. wide); send Claude the columns listed in the error |
 | `ERROR: manual fill ... has no boundary` | that GISJOIN doesn't exist in that year's shapefile; fix `configs/nhgis_manual_fills.csv` |
 | `ERROR: donor polygons missing` | a 1830 GISJOIN in `configs/nhgis_reconstructed.csv` isn't in the 1830 shapefile; fix the ID |
+| `DataSourceError: Failed to commit transaction` on the GPKG write | SQLite locking on the /projects network filesystem. Fixed 2026-09-30: GPKGs are written to node-local disk (`$SLURM_SCRATCH`) and then copied. If it comes back, check the log line `GPKGs are written in ...` to make sure it points at a node-local path, not /scratch/alpine or /projects |
 | `CANCELLED ... DUE TO TIME LIMIT` | raise `--time` in `sbatch/census_prepare.sh` |
 
 ## 6. Close the loop (login node)
@@ -97,3 +98,4 @@ Then tell Claude to pull.
 - 2026-09-30: runbook written.
 - 2026-09-30: updated to the final `docs/census_preprocessing.md`. Alexandria County target is `G5100035` (confirmed by the user from the 1900 CSV). 1820 D.C. is now two units: `G1100010` (present-day area, 23,336) and `G5100035` (Alexandria side, 9,703). `G5100035` was chosen because NHGIS uses that code for the same area as a Virginia county in 1900. Sources: Forstall (1996).
 - 2026-09-29 (cluster time), job 33163282 on `c3cpu-e2-u8`, `--years 1810 1820 1900`: took 1 min 15 s. GPKGs are 81 / 90 / 193 MB (full-resolution TIGER), so all 22 years should be a few GB. 1810: 7,238,667 = 7,239,881 − 1,214 (Walton GA, Hopefield–St Francis LA have no boundary); the Massachusetts multi-county groups sum to 700,745, equal to the county rows. 1900: 75,979,351 + 15,224 dropped = 75,994,575. Alaska and Hawaii (217,593) were removed by the name check, because their territorial GISJOINs are G025/G155, not G020/G150.
+- 2026-09-30: a rerun failed writing `counties_1810.gpkg` (`Failed to commit transaction`, SQLite on the /projects network filesystem). The write now goes to node-local disk first, then copy + rename. Half-written GPKGs and journals for the requested years are deleted at start.

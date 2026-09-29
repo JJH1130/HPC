@@ -24,8 +24,11 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import re
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 import geopandas as gpd
@@ -219,7 +222,34 @@ def drop_rows(df, year, source, reason, detail=""):
     return out[DROP_COLS]
 
 
-def process_year(year, pop_all, shapefiles, crosswalk, fills, recon, out_dir):
+def local_tmp_dir() -> Path:
+    """Node-local scratch for GPKG writes: SQLite locking fails on the /projects network
+    filesystem ("Failed to commit transaction"). $SLURM_SCRATCH is Alpine's node-local
+    disk; $TMPDIR comes last because cluster_env.sh points it at /scratch/alpine (GPFS)."""
+    for var in ("SLURM_TMPDIR", "SLURM_SCRATCH", "TMPDIR"):
+        if os.environ.get(var):
+            return Path(os.environ[var]) / "prepare_census"
+    return Path(tempfile.gettempdir()) / "prepare_census"
+
+
+def gpkg_leftovers(path: Path):
+    """The GPKG plus the SQLite side files a failed write can leave behind."""
+    return [path, *(path.with_name(path.name + s) for s in ("-journal", "-wal", "-shm", ".part"))]
+
+
+def write_gpkg(gdf: gpd.GeoDataFrame, out_path: Path, tmp_dir: Path):
+    tmp_path = tmp_dir / out_path.name
+    for f in gpkg_leftovers(tmp_path):
+        f.unlink(missing_ok=True)
+    gdf.to_file(tmp_path, layer="counties", driver="GPKG", engine="pyogrio", promote_to_multi=True)
+    # copy next to the target, then rename: the final name only ever holds a complete file
+    part = out_path.with_name(out_path.name + ".part")
+    shutil.copyfile(tmp_path, part)
+    os.replace(part, out_path)
+    tmp_path.unlink()
+
+
+def process_year(year, pop_all, shapefiles, crosswalk, fills, recon, out_dir, tmp_dir):
     log.info("===== %d =====", year)
     dropped = []
     pop = pop_all[pop_all["year"] == year].copy()
@@ -242,12 +272,11 @@ def process_year(year, pop_all, shapefiles, crosswalk, fills, recon, out_dir):
         g_sum = g["pop"].sum()
         log.info("  multi-county group, %s: state county-row sum=%s; group rows sum=%s (equal=%s)",
                  state, f"{county_sum:,.0f}", f"{g_sum:,.0f}", county_sum == g_sum)
-        details = []
         for r in g.itertuples():
-            details.append(f"group pop={r.pop:,.0f}; state county-row sum={county_sum:,.0f}; "
-                           f"equal={r.pop == county_sum}; all group rows sum={g_sum:,.0f}")
-            log.info("    %s %s: %s", r.GISJOIN, r.name, details[-1])
-        dropped.append(drop_rows(g, year, "csv", "multi_county_group", details))
+            log.info("    %s %s: pop %s", r.GISJOIN, r.name, f"{r.pop:,.0f}")
+        detail = (f"{state} group rows sum={g_sum:,.0f}; county-row sum={county_sum:,.0f}; "
+                  f"equal={county_sum == g_sum}")
+        dropped.append(drop_rows(g, year, "csv", "multi_county_group", detail))
         pop_group += g_sum
     pop = pop[~grp]
 
@@ -334,8 +363,7 @@ def process_year(year, pop_all, shapefiles, crosswalk, fills, recon, out_dir):
     gdf = gdf[OUT_COLS].sort_values("GISJOIN").reset_index(drop=True)
 
     out_path = out_dir / f"counties_{year}.gpkg"
-    out_path.unlink(missing_ok=True)
-    gdf.to_file(out_path, layer="counties", driver="GPKG", engine="pyogrio", promote_to_multi=True)
+    write_gpkg(gdf, out_path, tmp_dir)
 
     total = gdf["pop"].sum()
     counts = gdf["status"].value_counts()
@@ -372,6 +400,16 @@ def main(argv=None):
     for flag, value in vars(args).items():
         log.info("arg %s = %s", flag, value)
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    tmp_dir = local_tmp_dir()
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    log.info("GPKGs are written in %s, then copied to %s", tmp_dir, args.out_dir)
+    # a failed earlier run can leave a half-written GPKG (+ SQLite journal) at the final path
+    stale = [f for y in set(args.years) for f in gpkg_leftovers(args.out_dir / f"counties_{y}.gpkg")
+             if f.exists()]
+    for f in stale:
+        f.unlink()
+    if stale:
+        log.info("removed %d files from an earlier run: %s", len(stale), sorted(f.name for f in stale))
 
     pop_all = read_population(args.pop_csv)
     crosswalk = read_config(args.crosswalk, ["year", "csv_gisjoin", "shp_gisjoin", "note"])
@@ -390,7 +428,7 @@ def main(argv=None):
 
     qa_rows, dropped = [], []
     for year in sorted(set(args.years)):
-        qa, d = process_year(year, pop_all, shapefiles, crosswalk, fills, recon, args.out_dir)
+        qa, d = process_year(year, pop_all, shapefiles, crosswalk, fills, recon, args.out_dir, tmp_dir)
         qa_rows.append(qa)
         dropped.extend(d)
 
