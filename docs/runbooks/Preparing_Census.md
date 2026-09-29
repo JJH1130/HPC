@@ -7,7 +7,7 @@ dropped row. Code: `src/census/prepare_census.py`; job: `sbatch/census_prepare.s
 `docs/census_preprocessing.md`. Manual fixes live in `configs/nhgis_crosswalk.csv`,
 `configs/nhgis_manual_fills.csv` and `configs/nhgis_reconstructed.csv`. Edit those, not the code.
 
-**Status:** code written 2026-09-30, tested only on synthetic data on the laptop. Not yet run on Alpine.
+**Status:** quick test (1810, 1820, 1900) passed on Alpine — job 33163282, 2026-09-29 cluster time. Full 22-year run not yet done.
 
 ## Inputs / outputs
 
@@ -96,3 +96,4 @@ Then tell Claude to pull.
 
 - 2026-09-30: runbook written.
 - 2026-09-30: updated to the final `docs/census_preprocessing.md`. Alexandria County target is `G5100035` (confirmed by the user from the 1900 CSV). 1820 D.C. is now two units: `G1100010` (present-day area, 23,336) and `G5100035` (Alexandria side, 9,703). `G5100035` was chosen because NHGIS uses that code for the same area as a Virginia county in 1900. Sources: Forstall (1996).
+- 2026-09-29 (cluster time), job 33163282 on `c3cpu-e2-u8`, `--years 1810 1820 1900`: took 1 min 15 s. GPKGs are 81 / 90 / 193 MB (full-resolution TIGER), so all 22 years should be a few GB. 1810: 7,238,667 = 7,239,881 − 1,214 (Walton GA, Hopefield–St Francis LA have no boundary); the Massachusetts multi-county groups sum to 700,745, equal to the county rows. 1900: 75,979,351 + 15,224 dropped = 75,994,575. Alaska and Hawaii (217,593) were removed by the name check, because their territorial GISJOINs are G025/G155, not G020/G150.
