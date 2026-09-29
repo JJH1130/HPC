@@ -1,0 +1,56 @@
+{
+  "name": "massachusetts",
+  "states": [
+    "Massachusetts"
+  ],
+  "config_years": [
+    1810,
+    1820,
+    1830,
+    1840,
+    1850,
+    1860,
+    1870,
+    1880,
+    1890,
+    1900,
+    1910,
+    1920,
+    1930,
+    1940,
+    1950,
+    1960,
+    1970,
+    1980,
+    1990,
+    2000,
+    2010,
+    2020
+  ],
+  "col_off": 16748,
+  "row_off": 639,
+  "width": 1711,
+  "height": 2842,
+  "bounds": [
+    1830601.2407,
+    2302749.2873629997,
+    2258351.2407,
+    3013249.2873629997
+  ],
+  "county_bounds": [
+    1830830.450699999,
+    2302825.8754773373,
+    2258243.9970999993,
+    3013008.4868773334
+  ],
+  "transform": [
+    250.0,
+    0.0,
+    1830601.2407,
+    0.0,
+    -250.0,
+    3013249.2873629997
+  ],
+  "crs_wkt": "PROJCS[\"USA_Contiguous_Albers_Equal_Area_Conic_USGS_version\",GEOGCS[\"NAD83\",DATUM[\"North_American_Datum_1983\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"6269\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4269\"]],PROJECTION[\"Albers_Conic_Equal_Area\"],PARAMETER[\"latitude_of_center\",23],PARAMETER[\"longitude_of_center\",-96],PARAMETER[\"standard_parallel_1\",29.5],PARAMETER[\"standard_parallel_2\",45.5],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"ESRI\",\"102039\"]]",
+  "reference_raster": "/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1810_BUI.tif"
+}

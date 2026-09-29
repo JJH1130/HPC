@@ -1,0 +1,81 @@
+== job 33165456 (grid_cutout) on c3cpu-e2-u10 at 2026-09-29T15:06:56-06:00
+== cores=2 gpus=none restart=0
+== git a0ba5ad
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/study_area.yaml (name=massachusetts)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  extra args: --years 1810 1940
+15:07:41 INFO arg config = configs/study_area.yaml
+15:07:41 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+15:07:41 INFO arg census_dir = /projects/jaju1407/data/processed/census
+15:07:41 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+15:07:41 INFO arg years = [1810, 1940]
+15:07:41 INFO study area 'massachusetts': states=['Massachusetts'] | 22 config years 1810-2020 | writing 2 years -> /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+15:07:41 INFO layer BUI            years 1810-2020        resampling none     int32 | files to write: 2
+15:07:41 INFO layer BUPL           years 1810-2020        resampling none     int32 | files to write: 2
+15:07:41 INFO layer BUPR           years 1810-2020        resampling none     int32 | files to write: 2
+15:07:41 INFO layer BUA            years 1810-2020        resampling none     int32 | files to write: 2
+15:07:41 INFO layer FBUY           single file            resampling none     int32 | files to write: 1
+15:07:41 INFO layer NobuiltYear    single file            resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_A     years 1940-2020        resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_C     years 1940-2020        resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_GV    years 1940-2020        resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_I     years 1940-2020        resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_RC    years 1940-2020        resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_RI    years 1940-2020        resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_RO    years 1940-2020        resampling none     int32 | files to write: 1
+15:07:41 INFO layer Land_Use_VL    years 1940-2020        resampling none     int32 | files to write: 1
+15:07:42 INFO reference grid: 1810_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+15:07:43 INFO 18 rasters on the HISDAC grid (window read), 0 to warp onto it
+15:07:44 INFO 1810: 20 counties, bounds [1830833.0, 2302826.0, 2258244.0, 3013008.0]
+15:07:46 INFO 1820: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:07:48 INFO 1830: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:07:49 INFO 1840: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:07:51 INFO 1850: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:07:53 INFO 1860: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:07:55 INFO 1870: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:07:58 INFO 1880: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:00 INFO 1890: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:02 INFO 1900: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:05 INFO 1910: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:07 INFO 1920: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:10 INFO 1930: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:12 INFO 1940: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:15 INFO 1950: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:18 INFO 1960: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:20 INFO 1970: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:22 INFO 1980: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:25 INFO 1990: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:27 INFO 2000: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:29 INFO 2010: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+15:08:31 INFO 2020: 14 counties, bounds [1830830.0, 2302826.0, 2137714.0, 2477929.0]
+15:08:31 INFO window: col_off 16748 row_off 639 | 1711 x 2842 cells | bounds [1830601, 2302749, 2258351, 3013249] (counties [1830830, 2302826, 2258244, 3013008])
+15:08:31 INFO cutting 18 rasters
+15:08:31 INFO   BUI 1810           float64, window read -> int32 nodata=None | min 0.0 max 156834.0 | zeros 4859546 | nodata cells 0 | 0.1 MB
+15:08:31 INFO   BUI 1940           float64, window read -> int32 nodata=None | min 0.0 max 4826708.0 | zeros 4703906 | nodata cells 0 | 0.8 MB
+15:08:32 INFO   BUPL 1810          float64, window read -> int32 nodata=None | min 0.0 max 19.0 | zeros 4859695 | nodata cells 0 | 0.0 MB
+15:08:32 INFO   BUPL 1940          float64, window read -> int32 nodata=None | min 0.0 max 372.0 | zeros 4701997 | nodata cells 0 | 0.3 MB
+15:08:32 INFO   BUPR 1810          float64, window read -> int32 nodata=None | min 0.0 max 30.0 | zeros 4859308 | nodata cells 0 | 0.0 MB
+15:08:33 INFO   BUPR 1940          float64, window read -> int32 nodata=None | min 0.0 max 1276.0 | zeros 4695053 | nodata cells 0 | 0.4 MB
+15:08:33 INFO   BUA 1810           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4859308 | nodata cells 0 | 0.0 MB
+15:08:33 INFO   BUA 1940           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4695053 | nodata cells 0 | 0.2 MB
+15:08:34 INFO   FBUY               float64, window read -> int32 nodata=None | min 0.0 max 2021.0 | zeros 4434850 | nodata cells 0 | 1.0 MB
+15:08:34 INFO   NobuiltYear        float64, window read -> int32 nodata=None | min 0.0 max 2744.0 | zeros 4190200 | nodata cells 0 | 1.0 MB
+15:08:34 INFO   Land_Use_A 1940    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4860013 | nodata cells 0 | 0.0 MB
+15:08:34 INFO   Land_Use_C 1940    int16, window read -> int32 nodata=None | min 0 max 269 | zeros 4826529 | nodata cells 0 | 0.1 MB
+15:08:35 INFO   Land_Use_GV 1940   int16, window read -> int32 nodata=None | min 0 max 155 | zeros 4852844 | nodata cells 0 | 0.1 MB
+15:08:35 INFO   Land_Use_I 1940    int16, window read -> int32 nodata=None | min 0 max 11 | zeros 4862459 | nodata cells 0 | 0.0 MB
+15:08:35 INFO   Land_Use_RC 1940   int16, window read -> int32 nodata=None | min 0 max 30 | zeros 4861995 | nodata cells 0 | 0.0 MB
+15:08:35 INFO   Land_Use_RI 1940   int16, window read -> int32 nodata=None | min 0 max 329 | zeros 4815477 | nodata cells 0 | 0.1 MB
+15:08:35 INFO   Land_Use_RO 1940   int16, window read -> int32 nodata=None | min 0 max 1183 | zeros 4709691 | nodata cells 0 | 0.3 MB
+15:08:35 INFO   Land_Use_VL 1940   int16, window read -> int32 nodata=None | min 0 max 44 | zeros 4855713 | nodata cells 0 | 0.0 MB
+15:08:35 INFO zone grids
+15:08:37 INFO   zones 1810: 20 counties, 1681989 cells assigned | area ratio min 0.997 median 1.000 max 1.007
+15:08:38 INFO   zones 1940: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+15:08:38 INFO QA by year:
+      counties  zero_cell  ratio_min  ratio_median  ratio_max
+year                                                         
+1810        20          0      0.997           1.0      1.007
+1940        14          0      0.997           1.0      1.002
+15:08:38 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+15:08:38 INFO DONE
+1.6M	/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+== done 2026-09-29T15:08:39-06:00
