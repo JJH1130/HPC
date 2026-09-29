@@ -7,7 +7,7 @@ dropped row. Code: `src/census/prepare_census.py`; job: `sbatch/census_prepare.s
 `docs/census_preprocessing.md`. Manual fixes live in `configs/nhgis_crosswalk.csv`,
 `configs/nhgis_manual_fills.csv` and `configs/nhgis_reconstructed.csv`. Edit those, not the code.
 
-**Status:** quick test (1810, 1820, 1900) passed on Alpine — job 33163282, 2026-09-29 cluster time. Full 22-year run not yet done.
+**Status:** quick test (1810, 1820, 1900) passed on Alpine with the node-local write: job 33163472, 2026-09-29 cluster time. Full 22-year run not yet confirmed.
 
 ## Inputs / outputs
 
@@ -99,3 +99,4 @@ Then tell Claude to pull.
 - 2026-09-30: updated to the final `docs/census_preprocessing.md`. Alexandria County target is `G5100035` (confirmed by the user from the 1900 CSV). 1820 D.C. is now two units: `G1100010` (present-day area, 23,336) and `G5100035` (Alexandria side, 9,703). `G5100035` was chosen because NHGIS uses that code for the same area as a Virginia county in 1900. Sources: Forstall (1996).
 - 2026-09-29 (cluster time), job 33163282 on `c3cpu-e2-u8`, `--years 1810 1820 1900`: took 1 min 15 s. GPKGs are 81 / 90 / 193 MB (full-resolution TIGER), so all 22 years should be a few GB. 1810: 7,238,667 = 7,239,881 − 1,214 (Walton GA, Hopefield–St Francis LA have no boundary); the Massachusetts multi-county groups sum to 700,745, equal to the county rows. 1900: 75,979,351 + 15,224 dropped = 75,994,575. Alaska and Hawaii (217,593) were removed by the name check, because their territorial GISJOINs are G025/G155, not G020/G150.
 - 2026-09-30: a rerun failed writing `counties_1810.gpkg` (`Failed to commit transaction`, SQLite on the /projects network filesystem). The write now goes to node-local disk first, then copy + rename. Half-written GPKGs and journals for the requested years are deleted at start.
+- 2026-09-29 (cluster time), job 33163472 on `c3cpu-c15-u1-2` (code 04424c9): quick test passed. GPKGs were written to `/scratch/local/<jobid>/` and copied, with no commit error. It took 34 s, and the numbers match job 33163282. The output folder also held counties_1830–2020 from another job running at 13:56–14:00, whose log wasn't pushed. Don't run two census_prepare jobs at the same time: they write the same files.
