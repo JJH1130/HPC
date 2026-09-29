@@ -8,13 +8,44 @@ name: massachusetts
 states: [Massachusetts]
 # states: all
 
-years: {start: 1810, stop: 2020, step: 10}   # inclusive -> 22 years
+years: {start: 1810, stop: 2020, step: 10}   # inclusive -> 22 study years
 
-hisdac:
-  # relative to --hisdac-dir; {LAYER} and {YEAR} are filled in
-  yearly_pattern: "{LAYER}/{YEAR}_{LAYER}.tif"
-  yearly_layers: [BUI, BUPL, BUPR, BUA]
-  # one file per layer, no year; a glob relative to --hisdac-dir that must match exactly one file
-  static_layers:
-    FBUY: "**/*FBUY*.tif"
-    NobuiltYear: "**/*NobuiltYear*.tif"
+# The cutout grid (origin, 250 m cells, CRS ESRI:102039) is taken from this layer's first file.
+grid_reference: BUI
+
+# Every raster to cut — the ONLY place layers are listed. Fields:
+#   name        label; default output folder under layers/
+#   path        relative = under --hisdac-dir, absolute = as is. {YEAR} and {CLASS} are filled in.
+#               Glob characters (* ? **) are allowed but must match exactly one file.
+#               Always quote paths ("...") — {YEAR} inside a {...} one-line entry breaks YAML otherwise.
+#   years       all  = every study year
+#               none = a single file without a year, cut once
+#               {start, stop, step} or [list] = the years the layer exists; study years outside
+#               it are skipped. The layer's first year is always checked at start, even when
+#               --years doesn't include it.
+#   classes     optional list; the entry is repeated once per {CLASS}
+#   resampling  none = must already be on the HISDAC grid: direct window read, stop otherwise.
+#               Anything else warps the raster onto the grid with that GDAL method:
+#               bilinear / average (continuous), sum (counts), nearest / mode (categories).
+#   dtype       int32 (default) or float32
+#   out         optional output path under layers/
+#               (default {name}/{YEAR}_{name}.tif; {name}/{FILENAME} for years: none)
+layers:
+  - {name: BUI,  path: "BUI/{YEAR}_BUI.tif",   years: all, resampling: none}
+  - {name: BUPL, path: "BUPL/{YEAR}_BUPL.tif", years: all, resampling: none}
+  - {name: BUPR, path: "BUPR/{YEAR}_BUPR.tif", years: all, resampling: none}
+  - {name: BUA,  path: "BUA/{YEAR}_BUA.tif",   years: all, resampling: none}
+  - {name: FBUY,        path: "**/*FBUY*.tif",        years: none, resampling: none}
+  - {name: NobuiltYear, path: "**/*NobuiltYear*.tif", years: none, resampling: none}
+  # Land use counts per class. The Count_{YEAR}_Theme*.tif files in the same folders duplicate
+  # the class files (RO == Theme6, checked 2026-09-30) and are not used.
+  - name: Land_Use
+    path: "Land_Use/{CLASS}/Count_{YEAR}_{CLASS}.tif"
+    classes: [A, C, GV, I, RC, RI, RO, VL]
+    years: {start: 1940, stop: 2020, step: 10}
+    resampling: none
+    out: "Land_Use/{CLASS}/{YEAR}_{CLASS}.tif"
+  # External rasters on other grids: one line each, e.g.
+  # - {name: DEM, path: "/projects/jaju1407/data/raw/dem/dem.tif", years: none, resampling: average, dtype: float32}
+  # - {name: NTL, path: "/projects/jaju1407/data/raw/ntl/ntl_{YEAR}.tif", years: [2000, 2010, 2020], resampling: average, dtype: float32}
+  # - {name: LandCover, path: "/projects/jaju1407/data/raw/nlcd/nlcd_{YEAR}.tif", years: [2000, 2010, 2020], resampling: mode}
