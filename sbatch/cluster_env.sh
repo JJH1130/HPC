@@ -16,6 +16,7 @@ export PROJ_ROOT=/projects/$CURC_USER
 export REPO=$PROJ_ROOT/HPC
 export CONDA_ROOT=$PROJ_ROOT/software/miniforge3
 export ENVS=$PROJ_ROOT/software/envs
+export DATA_ROOT=$PROJ_ROOT/data   # raw/ inputs + processed/ outputs (backed up)
 
 # Working space: fast, big, NOT backed up, purged 90 days after creation.
 export SCRATCH=/scratch/alpine/${USER:-$(whoami)}/HPC
