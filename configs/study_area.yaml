@@ -1,0 +1,20 @@
+# Study area for the Chapter 1 cutout (src/grid/make_cutout.py; rules in docs/cutout.md).
+# Output: <--out-root>/<name>/ — on Alpine $HISDAC_SCRATCH/cutouts/<name>/.
+name: massachusetts
+
+# State names as they appear in the `state` column of counties_{YEAR}.gpkg
+# (case-insensitive). `all` = every CONUS county. State areas change by year:
+# 1810 Massachusetts includes Maine.
+states: [Massachusetts]
+# states: all
+
+years: {start: 1810, stop: 2020, step: 10}   # inclusive -> 22 years
+
+hisdac:
+  # relative to --hisdac-dir; {LAYER} and {YEAR} are filled in
+  yearly_pattern: "{LAYER}/{YEAR}_{LAYER}.tif"
+  yearly_layers: [BUI, BUPL, BUPR, BUA]
+  # one file per layer, no year; a glob relative to --hisdac-dir that must match exactly one file
+  static_layers:
+    FBUY: "**/*FBUY*.tif"
+    NobuiltYear: "**/*NobuiltYear*.tif"

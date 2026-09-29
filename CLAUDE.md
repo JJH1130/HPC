@@ -17,7 +17,11 @@ stack for the HISDAC_US_V2 work), is defined in `envs/hisdac/environment.yml`, l
 is checked by `sbatch/test_env_hisdac.sh`. First pipeline stage: `src/census/prepare_census.py` (NHGIS
 county pop + boundaries → `counties_{YEAR}.gpkg` in ESRI:102039; manual fixes in `configs/nhgis_*.csv`, rules in `docs/census_preprocessing.md`),
 run by `sbatch/census_prepare.sh` per `docs/runbooks/Preparing_Census.md`. Raw/processed data live under
-`/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Env changes go through the yml files + `conda env update
+`/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
+(study area in `configs/study_area.yaml` → HISDAC layers clipped to one shared 250 m window + per-year
+county zone grids), run by `sbatch/grid_cutout.sh` per `docs/runbooks/Making_Cutout.md`, rules in
+`docs/cutout.md`. HISDAC is read from `$HISDAC_DIR` (PetaLibrary, read only); cutouts go to
+`$HISDAC_SCRATCH/cutouts/<name>` (scratch, 90-day purge). Env changes go through the yml files + `conda env update
 --prune`, never ad-hoc `mamba install`. There are no build/lint/test commands yet beyond
 `python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh` to lint sbatch scripts.
 

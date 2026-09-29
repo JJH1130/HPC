@@ -17,6 +17,10 @@ export REPO=$PROJ_ROOT/HPC
 export CONDA_ROOT=$PROJ_ROOT/software/miniforge3
 export ENVS=$PROJ_ROOT/software/envs
 export DATA_ROOT=$PROJ_ROOT/data   # raw/ inputs + processed/ outputs (backed up)
+# HISDAC-US V2 source rasters: READ ONLY (PetaLibrary; nothing is written there until the PI approves)
+export HISDAC_DIR=/pl/active/Leyk_Lab/data/HISDAC_US_V2
+# HISDAC working outputs (cutouts etc.): scratch, purged 90 days after creation
+export HISDAC_SCRATCH=/scratch/alpine/${USER:-$(whoami)}/hisdac
 
 # Working space: fast, big, NOT backed up, purged 90 days after creation.
 export SCRATCH=/scratch/alpine/${USER:-$(whoami)}/HPC
