@@ -1,6 +1,6 @@
 year,source,GISJOIN,state,name,pop,reason,detail
-1810,csv,G2509993,Massachusetts,Massachusetts [ME part] - multi-county group,228705.0,multi_county_group,"group pop=228,705; state county-row sum=700,745; equal=False; all group rows sum=700,745"
-1810,csv,G2509997,Massachusetts,Massachusetts [non-ME part] - multi-county group,472040.0,multi_county_group,"group pop=472,040; state county-row sum=700,745; equal=False; all group rows sum=700,745"
+1810,csv,G2509993,Massachusetts,Massachusetts [ME part] - multi-county group,228705.0,multi_county_group,"Massachusetts group rows sum=700,745; county-row sum=700,745; equal=True"
+1810,csv,G2509997,Massachusetts,Massachusetts [non-ME part] - multi-county group,472040.0,multi_county_group,"Massachusetts group rows sum=700,745; county-row sum=700,745; equal=True"
 1810,csv,G1302970,Georgia,Walton,1026.0,no_boundary,
 1810,csv,G2258005,Louisiana Territory,Hopefield - St Francis,188.0,no_boundary,
 1900,csv,G0250055,Alaska Territory,Northern District,30569.0,non_conus,
