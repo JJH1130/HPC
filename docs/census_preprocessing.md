@@ -96,32 +96,49 @@ Massachusetts county-level data for 1810 are complete; only the aggregate rows a
 | Year | CSV GISJOIN | CSV name | Polygon GISJOIN | Polygon name | Note |
 |---|---|---|---|---|---|
 | 1900 | G1789177 | Quapaw Indian Reservation | G1789175 | Quapaw Agency | Code mismatch |
-| 1900 | G5105100 | Alexandria city | *(Alexandria County polygon, to confirm)* | Alexandria County | Independent city without its own polygon; merge into county |
+| 1900 | G5105100 | Alexandria city | G5100035 | Alexandria County | Independent city without its own polygon; merge into county. G5100035 appears in the 1900 CSV (pop. 6,430) and matched a polygon. NHGIS codes differ from modern FIPS (Arlington = 013) |
 
 ### Manual population fills (rule 4)
 
-D.C. (`G1100010`) is missing from the population table in four census years.
+D.C. is missing from the population table in four census years.
 
-| Year | Population | Source |
-|---|---|---|
-| 1820 | 23,336 | U.S. Census; see Sources |
-| 1860 | 75,080 | U.S. Census; see Sources |
-| 1880 | 177,624 | U.S. Census; see Sources |
-| 1900 | 278,718 | U.S. Census; see Sources |
+| Year | Unit | Population | Source (Forstall 1996) |
+|---|---|---|---|
+| 1820 | D.C., present-day area (reconstructed, see below) | 23,336 | "Population of Subdivisions – District of Columbia" table |
+| 1820 | Alexandria side of 1791–1846 D.C. (reconstructed, see below) | 9,703 | Virginia counties table, Arlington row (includes Alexandria city) |
+| 1860 | G1100010 | 75,080 | "Population of Subdivisions – District of Columbia" table |
+| 1880 | G1100010 | 177,624 | same |
+| 1900 | G1100010 | 278,718 | District of Columbia state total |
 
-Values should be cross-checked against Census Bureau publications before final use.
+The Census Bureau reports D.C. for all years **within its present-day boundaries**.
+The part of D.C. southwest of the Potomac (Alexandria County, today's Arlington
+County and Alexandria city) was returned to Virginia in 1846, and its 1800–1840
+populations appear in the **Virginia** table (Arlington row) instead.
 
 ### Reconstructed polygon (rule 5): D.C. 1820
 
 In 1820 the NHGIS boundary file has a hole where D.C. should be, and the population
 table has no D.C. row. D.C. boundaries did not change between 1801 and 1846 (the
-original 10-mile square, including Alexandria). The 1820 unit is built by dissolving
-the five 1830 D.C. polygons (GISJOIN starting with `G110`: Alexandria, Georgetown,
-Rural Alexandria County, Rural Washington County, Washington City) into one polygon,
-with `pop = 23,336` and `status = manual_fill`.
+original 10-mile square, including Alexandria), so 1830 polygons are reused:
 
-For reference, the five D.C. units sum to the D.C. total in years where they are
-reported separately (1810: 24,023; 1830: 39,834).
+| 1830 polygons dissolved | GISJOINs | 1820 unit | `pop` | `status` |
+|---|---|---|---|---|
+| Washington City, Georgetown, Rural Washington County | G1100115, G1100017, G1100075 | D.C., present-day area | 23,336 | `manual_fill` |
+| Alexandria, Rural Alexandria County | G1100005, G1100035 | Alexandria side | 9,703 | `manual_fill` |
+
+Two units are used instead of one because both populations are known. The 1820 D.C.
+total within its 1791–1846 boundaries is 23,336 + 9,703 = 33,039.
+
+Check with years where NHGIS reports the five units separately:
+
+| Year | Present-day D.C. part (NHGIS) | Census 1996, D.C. table | Alexandria side (NHGIS) | Census 1996, Virginia Arlington row |
+|---|---|---|---|---|
+| 1810 | 8,208 + 4,948 + 2,315 = 15,471 | 15,471 | 7,227 + 1,325 = 8,552 | 8,552 |
+| 1830 | 18,826 + 8,441 + 2,994 = 30,261 | 30,261 | 8,241 + 1,332 = 9,573 | 9,573 |
+| 1850 | 40,001 + 8,366 + 3,320 = 51,687 | 51,687 | (returned to Virginia in 1846) | |
+
+The NHGIS sums match the Census Bureau figures exactly, which confirms the
+correspondence between polygons and published totals.
 
 ### Unenumerated polygons (rule 6), examples
 
@@ -155,13 +172,16 @@ limitation in Chapter 1 and carried into Chapter 2 exposure estimates.
 
 ## Open items
 
-- [ ] Confirm the Alexandria County polygon GISJOIN for the 1900 crosswalk entry.
+- [x] Alexandria County GISJOIN for the 1900 crosswalk: G5100035.
+- [x] 1820 Alexandria side population: 9,703 (Forstall 1996, Virginia table, Arlington row).
 - [ ] Review 1830–1910 "population only" rows not listed above (1–7 per year).
-- [ ] Cross-check manual fills against Census Bureau publications.
+- [x] Manual fills cross-checked against Forstall (1996).
 - [ ] Decide whether to merge `nodata_zero` counties into their parent counties.
 
 ## Sources
 
 - IPUMS NHGIS: https://www.nhgis.org
-- 1810 United States census: https://en.wikipedia.org/wiki/1810_United_States_census
-- Demographics of Washington, D.C. (historical census populations): https://en.wikipedia.org/wiki/Demographics_of_Washington,_D.C.
+- Forstall, R. L. (1996). *Population of States and Counties of the United States: 1790–1990*. U.S. Bureau of the Census, Washington, DC. https://www2.census.gov/library/publications/decennial/1990/population-of-states-and-counties-us-1790-1990/population-of-states-and-counties-of-the-united-states-1790-1990.pdf
+  - D.C.: "Population of Subdivisions – District of Columbia: 1800–1880"
+  - Alexandria side: "Population of Counties Including Associated Independent Cities – Virginia: 1790–1880", Arlington row
+- 1810 U.S. total (7,239,881): to be cited from the Census Bureau (e.g., Forstall 1996, U.S. total table)

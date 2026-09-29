@@ -1,0 +1,3 @@
+year,gisjoin,state,name,donor_year,donor_gisjoins,note
+1820,G1100010,District Of Columbia,"District of Columbia (present-day area)",1830,G1100115 G1100017 G1100075,"Washington City + Georgetown + Rural Washington County; pop in nhgis_manual_fills.csv"
+1820,G5100035,District Of Columbia,"Alexandria County (D.C. side, 1791-1846)",1830,G1100005 G1100035,"Alexandria + Rural Alexandria County; GISJOIN = NHGIS code of the same area as a Virginia county (1900); pop in nhgis_manual_fills.csv"

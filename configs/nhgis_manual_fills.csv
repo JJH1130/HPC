@@ -1,5 +1,6 @@
 year,gisjoin,pop,source
-1820,G1100010,23336,U.S. Census 1820 (boundary = 1830 G110* polygons dissolved; see BORROWED_BOUNDARIES in src/census/prepare_census.py)
-1860,G1100010,75080,U.S. Census 1860
-1880,G1100010,177624,U.S. Census 1880
-1900,G1100010,278718,U.S. Census 1900
+1820,G1100010,23336,"Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census"
+1820,G5100035,9703,"Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census"
+1860,G1100010,75080,"Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census"
+1880,G1100010,177624,"Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census"
+1900,G1100010,278718,"Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census"

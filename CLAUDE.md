@@ -15,7 +15,7 @@ matplotlib, JupyterLab; conda-forge only). On Alpine the env lives at
 stack for the HISDAC_US_V2 work), is defined in `envs/hisdac/environment.yml`, lives at
 `/projects/jaju1407/software/envs/hisdac`, is built per `docs/runbooks/Creating_Env_hisdac.md`, and
 is checked by `sbatch/test_env_hisdac.sh`. First pipeline stage: `src/census/prepare_census.py` (NHGIS
-county pop + boundaries → `counties_{YEAR}.gpkg` in ESRI:102039; manual fixes in `configs/nhgis_*.csv`),
+county pop + boundaries → `counties_{YEAR}.gpkg` in ESRI:102039; manual fixes in `configs/nhgis_*.csv`, rules in `docs/census_preprocessing.md`),
 run by `sbatch/census_prepare.sh` per `docs/runbooks/Preparing_Census.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Env changes go through the yml files + `conda env update
 --prune`, never ad-hoc `mamba install`. There are no build/lint/test commands yet beyond

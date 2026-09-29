@@ -3,8 +3,9 @@
 Turns the NHGIS county population time series + county boundary shapefiles into one
 GeoPackage per decade in HISDAC's CRS (ESRI:102039), with a QA report and a list of every
 dropped row. Code: `src/census/prepare_census.py`; job: `sbatch/census_prepare.sh`
-(acpu, 2 cores, 1 h, env `hisdac`). Manual fixes live in `configs/nhgis_crosswalk.csv` and
-`configs/nhgis_manual_fills.csv` — edit those, not the code.
+(acpu, 2 cores, 1 h, env `hisdac`). The rules and the evidence behind each manual fix are in
+`docs/census_preprocessing.md`. Manual fixes live in `configs/nhgis_crosswalk.csv`,
+`configs/nhgis_manual_fills.csv` and `configs/nhgis_reconstructed.csv`. Edit those, not the code.
 
 **Status:** code written 2026-09-30, tested only on synthetic data on the laptop. Not yet run on Alpine.
 
@@ -37,7 +38,7 @@ If one year matches two files, the job stops and lists them.
 
 ## 2. Quick test: 1810, 1820, 1900 (login node)
 
-These three years exercise every special rule (multi-county groups, the borrowed 1820 D.C. boundary, the crosswalk, manual fills).
+These three years exercise every special rule: multi-county groups, the two reconstructed 1820 D.C. units, the crosswalk, and the manual fills.
 
 ```bash
 cd /projects/jaju1407/HPC
@@ -53,9 +54,9 @@ tail -n 60 logs/census_prepare.$jid.out
 ```
 
 Check these lines in the log:
-- `crosswalk 1900: G5105100 (Alexandria city) -> G5100130 (...)`: the name after `G5100130` should be Alexandria County. The candidates list on the same line shows the other Virginia boundaries whose names contain "Alexandria".
-- `multi-county group, Massachusetts: ...` and one line per group row with `equal=True/False`.
-- `borrowed boundary G1100010: dissolved 5 1830 polygons [...]`
+- `crosswalk 1900: G5105100 (Alexandria city) -> G5100035 (Alexandria...)`, and later `summed 2 CSV rows into G5100035` (6,430 + Alexandria city).
+- `multi-county group, Massachusetts: state county-row sum=700,745; group rows sum=700,745 (equal=True)`
+- `reconstructed G1100010 ...: dissolved 3 1830 polygons` and `reconstructed G5100035 ...: dissolved 2 1830 polygons`, then manual fills of 23,336 and 9,703.
 - the 1810 `wrote ...` line: `CONUS pop ... | expected ~7,239,881 (diff ...)`
 - `DONE` then `== done`
 
@@ -77,6 +78,7 @@ echo "submitted $jid"
 | `ERROR: need exactly one US_county_{YEAR}*.shp` | unzip the missing year, or remove the duplicate |
 | `ERROR: ... missing columns` | the CSV has a different layout than expected (e.g. wide); send Claude the columns listed in the error |
 | `ERROR: manual fill ... has no boundary` | that GISJOIN doesn't exist in that year's shapefile; fix `configs/nhgis_manual_fills.csv` |
+| `ERROR: donor polygons missing` | a 1830 GISJOIN in `configs/nhgis_reconstructed.csv` isn't in the 1830 shapefile; fix the ID |
 | `CANCELLED ... DUE TO TIME LIMIT` | raise `--time` in `sbatch/census_prepare.sh` |
 
 ## 6. Close the loop (login node)
@@ -92,5 +94,5 @@ Then tell Claude to pull.
 
 ## Notes
 
-- 2026-09-30: runbook written. The Alexandria County GISJOIN `G5100130` is inferred from FIPS 013 (Alexandria County is today's Arlington). The job checks it against the 1900 shapefile before doing any processing.
-- 2026-09-30: the 1820 D.C. fill (23,336) is Washington County, D.C. alone. The published 1820 D.C. total is 33,039, which includes Alexandria County (9,703). The dissolved 1830 boundary covers both. Kept at 23,336 as specified; to be decided by the user.
+- 2026-09-30: runbook written.
+- 2026-09-30: updated to the final `docs/census_preprocessing.md`. Alexandria County target is `G5100035` (confirmed by the user from the 1900 CSV). 1820 D.C. is now two units: `G1100010` (present-day area, 23,336) and `G5100035` (Alexandria side, 9,703). `G5100035` was chosen because NHGIS uses that code for the same area as a Virginia county in 1900. Sources: Forstall (1996).

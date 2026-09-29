@@ -1,3 +1,3 @@
 year,csv_gisjoin,shp_gisjoin,note
-1900,G1789177,G1789175,Quapaw Indian Reservation -> Quapaw Agency
-1900,G5105100,G5100130,Alexandria city -> Alexandria County (G5100130 = FIPS 013 Arlington/Alexandria Co.; checked against the 1900 shapefile at job start)
+1900,G1789177,G1789175,Quapaw Indian Reservation -> Quapaw Agency (code mismatch)
+1900,G5105100,G5100035,Alexandria city -> Alexandria County (G5100035 in the 1900 CSV with pop 6430; NHGIS code differs from FIPS)

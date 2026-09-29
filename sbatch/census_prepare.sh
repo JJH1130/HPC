@@ -35,6 +35,7 @@ python -u src/census/prepare_census.py \
     --out-dir "$OUT" \
     --crosswalk configs/nhgis_crosswalk.csv \
     --manual-fills configs/nhgis_manual_fills.csv \
+    --reconstructed configs/nhgis_reconstructed.csv \
     "$@"
 
 mkdir -p results/census

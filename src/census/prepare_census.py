@@ -11,9 +11,12 @@ Rules, applied in this order per year:
   3. Manual crosswalk (configs/nhgis_crosswalk.csv): CSV GISJOIN -> shapefile GISJOIN;
      several CSV rows landing on one boundary have their pop summed.
   4. Manual pop fills (configs/nhgis_manual_fills.csv) -> status manual_fill.
-     1820 D.C. has no boundary: the 1830 G110* polygons are dissolved into one unit.
-  5. Boundary without pop -> nodata_unenumerated (kept); pop == 0 -> nodata_zero (kept);
+  5. Reconstructed units (configs/nhgis_reconstructed.csv): a year whose shapefile lacks
+     a unit gets one by dissolving named polygons from a donor year (1820 D.C. from 1830);
+     its pop comes from a manual fill.
+  6-8. Boundary without pop -> nodata_unenumerated (kept); pop == 0 -> nodata_zero (kept);
      pop without boundary -> dropped (dropped_rows.csv).
+See docs/census_preprocessing.md for the rules and the evidence behind each manual fix.
 
 Paths come from CLI flags (the sbatch script fills them from sbatch/cluster_env.sh).
 """
@@ -35,9 +38,6 @@ YEARS = list(range(1810, 2021, 10))
 NON_CONUS_PREFIXES = ("G020", "G150", "G720")  # Alaska, Hawaii, Puerto Rico
 NON_CONUS_NAMES = re.compile(r"alaska|hawaii|puerto rico", re.IGNORECASE)
 GROUP_PATTERN = "multi-county group"
-# year -> (new GISJOIN, name, state, donor year, donor GISJOIN prefix): years whose
-# NHGIS shapefile lacks a unit, rebuilt by dissolving the donor year's polygons.
-BORROWED_BOUNDARIES = {1820: ("G1100010", "District of Columbia", "District Of Columbia", 1830, "G110")}
 EXPECTED_TOTALS = {1810: 7_239_881}  # published U.S. totals, for the QA log
 STATE_COLS = ("STATENAM", "STATE_NAME", "STATENAME", "STATE")
 NAME_COLS = ("NHGISNAM", "NAMELSAD", "NAME")
@@ -54,6 +54,8 @@ def parse_args(argv=None):
     p.add_argument("--out-dir", type=Path, required=True)
     p.add_argument("--crosswalk", type=Path, required=True, help="year,csv_gisjoin,shp_gisjoin,note")
     p.add_argument("--manual-fills", type=Path, required=True, help="year,gisjoin,pop,source")
+    p.add_argument("--reconstructed", type=Path, required=True,
+                   help="year,gisjoin,state,name,donor_year,donor_gisjoins,note")
     p.add_argument("--years", type=int, nargs="+", default=YEARS, help="subset of years (default: all 22)")
     return p.parse_args(argv)
 
@@ -187,6 +189,23 @@ def validate_crosswalk(crosswalk: pd.DataFrame, pop: pd.DataFrame, shapefiles: d
                  "(fix configs/nhgis_crosswalk.csv):\n" + "\n".join(bad))
 
 
+def validate_reconstructed(recon: pd.DataFrame, shapefiles: dict[int, Path]):
+    """Fail before the long loop if a donor polygon listed in the config doesn't exist."""
+    bad = []
+    for donor_year, rows in recon.groupby("donor_year"):
+        attrs = read_boundary_attrs(shapefiles[donor_year])
+        for r in rows.itertuples():
+            ids = r.donor_gisjoins.split()
+            missing = sorted(set(ids) - set(attrs["GISJOIN"]))
+            found = attrs[attrs["GISJOIN"].isin(ids)]
+            log.info("reconstructed %d %s (%s) <- %d %s", r.year, r.gisjoin, r.name, donor_year,
+                     list(zip(found["GISJOIN"], found["shp_name"])))
+            if missing:
+                bad.append(f"  {r.year} {r.gisjoin}: {missing} not in {shapefiles[donor_year].name}")
+    if bad:
+        sys.exit("ERROR: donor polygons missing (fix configs/nhgis_reconstructed.csv):\n" + "\n".join(bad))
+
+
 # ---------------------------------------------------------------- one year
 
 def drop_rows(df, year, source, reason, detail=""):
@@ -200,7 +219,7 @@ def drop_rows(df, year, source, reason, detail=""):
     return out[DROP_COLS]
 
 
-def process_year(year, pop_all, shapefiles, crosswalk, fills, out_dir):
+def process_year(year, pop_all, shapefiles, crosswalk, fills, recon, out_dir):
     log.info("===== %d =====", year)
     dropped = []
     pop = pop_all[pop_all["year"] == year].copy()
@@ -247,24 +266,19 @@ def process_year(year, pop_all, shapefiles, crosswalk, fills, out_dir):
         log.info("  shapefile: dropped %d non-CONUS features", nc.sum())
     bnd = bnd[~nc]
 
-    if year in BORROWED_BOUNDARIES:
-        gj, name, state, donor_year, prefix = BORROWED_BOUNDARIES[year]
-        if bnd["GISJOIN"].str.startswith(prefix).any():
-            log.info("  %s already has %s* boundaries — no borrowed unit needed", year, prefix)
-        else:
-            donor = read_boundaries(shapefiles[donor_year])  # main() adds the donor year
-            parts = donor[donor["GISJOIN"].str.startswith(prefix)]
-            log.info("  borrowed boundary %s: dissolved %d %d polygons %s", gj, len(parts), donor_year,
-                     list(zip(parts["GISJOIN"], parts["shp_name"])))
-            bnd = pd.concat([bnd, gpd.GeoDataFrame(
-                [{"GISJOIN": gj, "shp_state": state, "shp_name": name, "geometry": dissolve(parts.geometry)}],
-                crs=bnd.crs)], ignore_index=True)
-            # CSV rows for this area have no boundary of their own: fold them into the new unit
-            fold = pop["GISJOIN"].str.startswith(prefix) & (pop["GISJOIN"] != gj)
-            if fold.any():
-                log.info("  folded %d CSV rows into %s: %s", fold.sum(), gj,
-                         list(zip(pop.loc[fold, "GISJOIN"], pop.loc[fold, "name"], pop.loc[fold, "pop"])))
-                pop.loc[fold, "GISJOIN"] = gj
+    # 5. reconstructed units: dissolve donor-year polygons (main() loaded the donor years)
+    recon_year = recon[recon["year"] == year]
+    donors = {y: read_boundaries(shapefiles[y]) for y in recon_year["donor_year"].unique()}
+    for r in recon_year.itertuples():
+        if (bnd["GISJOIN"] == r.gisjoin).any():
+            sys.exit(f"ERROR: reconstructed unit {year} {r.gisjoin} already exists in {shapefiles[year].name}")
+        ids = r.donor_gisjoins.split()
+        parts = donors[r.donor_year][donors[r.donor_year]["GISJOIN"].isin(ids)]
+        log.info("  reconstructed %s (%s): dissolved %d %d polygons %s", r.gisjoin, r.name, len(parts),
+                 r.donor_year, list(zip(parts["GISJOIN"], parts["shp_name"])))
+        bnd = pd.concat([bnd, gpd.GeoDataFrame(
+            [{"GISJOIN": r.gisjoin, "shp_state": r.state, "shp_name": r.name, "geometry": dissolve(parts.geometry)}],
+            crs=bnd.crs)], ignore_index=True)
 
     pop["own_row"] = pop["GISJOIN"] == pop["src_gisjoin"]
     pop = pop.sort_values("own_row", ascending=False, kind="stable")  # target's own row names the unit
@@ -291,9 +305,8 @@ def process_year(year, pop_all, shapefiles, crosswalk, fills, out_dir):
     use_shp = gdf["own_row"].ne(True) & gdf["shp_name"].notna()
     gdf["name"] = gdf["name"].mask(use_shp, gdf["shp_name"])
     gdf["state"] = gdf["state"].fillna(gdf["shp_state"])
-    if year in BORROWED_BOUNDARIES:  # the rebuilt unit is named for the whole area, not a CSV row
-        gj, name, state = BORROWED_BOUNDARIES[year][:3]
-        gdf.loc[gdf["GISJOIN"] == gj, ["name", "state"]] = [name, state]
+    for r in recon_year.itertuples():  # a rebuilt unit is named by the config, not a CSV row
+        gdf.loc[gdf["GISJOIN"] == r.gisjoin, ["name", "state"]] = [r.name, r.state]
     gdf["status"] = "ok"
 
     # 4. manual fills
@@ -366,14 +379,18 @@ def main(argv=None):
     shapefiles = find_shapefiles(args.shape_dir, sorted(set(args.years)))
     for year, path in shapefiles.items():
         log.info("shapefile %d: %s", year, path)
-    for year in set(BORROWED_BOUNDARIES) & set(shapefiles):
-        donor_year = BORROWED_BOUNDARIES[year][3]
-        shapefiles.setdefault(donor_year, find_shapefiles(args.shape_dir, [donor_year])[donor_year])
+    recon = read_config(args.reconstructed,
+                        ["year", "gisjoin", "state", "name", "donor_year", "donor_gisjoins", "note"])
+    recon["donor_year"] = recon["donor_year"].astype(int)
+    recon = recon[recon["year"].isin(shapefiles)]
+    for donor_year in set(recon["donor_year"]) - set(shapefiles):
+        shapefiles[donor_year] = find_shapefiles(args.shape_dir, [donor_year])[donor_year]
     validate_crosswalk(crosswalk, pop_all, shapefiles)
+    validate_reconstructed(recon, shapefiles)
 
     qa_rows, dropped = [], []
     for year in sorted(set(args.years)):
-        qa, d = process_year(year, pop_all, shapefiles, crosswalk, fills, args.out_dir)
+        qa, d = process_year(year, pop_all, shapefiles, crosswalk, fills, recon, args.out_dir)
         qa_rows.append(qa)
         dropped.extend(d)
 
