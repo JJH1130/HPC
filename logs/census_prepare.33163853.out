@@ -1,0 +1,261 @@
+== job 33163853 (census_prepare) on c3cpu-c15-u11-1 at 2026-09-29T14:05:36-06:00
+== cores=2 gpus=none restart=0
+== git ea8aae6
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== raw: /projects/jaju1407/data/raw/nhgis  out: /projects/jaju1407/data/processed/census  extra args: 
+14:05:51 INFO arg pop_csv = /projects/jaju1407/data/raw/nhgis/nhgis0001_ts_nominal_county.csv
+14:05:51 INFO arg shape_dir = /projects/jaju1407/data/raw/nhgis/nhgis0001_shape
+14:05:51 INFO arg out_dir = /projects/jaju1407/data/processed/census
+14:05:51 INFO arg crosswalk = configs/nhgis_crosswalk.csv
+14:05:51 INFO arg manual_fills = configs/nhgis_manual_fills.csv
+14:05:51 INFO arg reconstructed = configs/nhgis_reconstructed.csv
+14:05:51 INFO arg years = [1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+14:05:51 INFO GPKGs are written in /scratch/local/33163853/prepare_census, then copied to /projects/jaju1407/data/processed/census
+14:05:51 INFO removed 22 files from an earlier run: ['counties_1810.gpkg', 'counties_1820.gpkg', 'counties_1830.gpkg', 'counties_1840.gpkg', 'counties_1850.gpkg', 'counties_1860.gpkg', 'counties_1870.gpkg', 'counties_1880.gpkg', 'counties_1890.gpkg', 'counties_1900.gpkg', 'counties_1910.gpkg', 'counties_1920.gpkg', 'counties_1930.gpkg', 'counties_1940.gpkg', 'counties_1950.gpkg', 'counties_1960.gpkg', 'counties_1970.gpkg', 'counties_1980.gpkg', 'counties_1990.gpkg', 'counties_2000.gpkg', 'counties_2010.gpkg', 'counties_2020.gpkg']
+14:05:52 INFO population CSV: 55375 rows, years [1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+14:05:52 INFO shapefile 1810: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1810/US_county_1810_conflated.shp
+14:05:52 INFO shapefile 1820: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1820/US_county_1820_conflated.shp
+14:05:52 INFO shapefile 1830: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1830/US_county_1830_conflated.shp
+14:05:52 INFO shapefile 1840: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1840/US_county_1840_conflated.shp
+14:05:52 INFO shapefile 1850: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1850/US_county_1850_conflated.shp
+14:05:52 INFO shapefile 1860: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1860/US_county_1860_conflated.shp
+14:05:52 INFO shapefile 1870: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1870/US_county_1870_conflated.shp
+14:05:52 INFO shapefile 1880: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1880/US_county_1880_conflated.shp
+14:05:52 INFO shapefile 1890: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1890/US_county_1890_conflated.shp
+14:05:52 INFO shapefile 1900: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1900/US_county_1900_conflated.shp
+14:05:52 INFO shapefile 1910: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1910/US_county_1910_conflated.shp
+14:05:52 INFO shapefile 1920: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1920/US_county_1920_conflated.shp
+14:05:52 INFO shapefile 1930: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1930/US_county_1930_conflated.shp
+14:05:52 INFO shapefile 1940: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1940/US_county_1940_conflated.shp
+14:05:52 INFO shapefile 1950: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1950/US_county_1950_conflated.shp
+14:05:52 INFO shapefile 1960: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1960/US_county_1960_conflated.shp
+14:05:52 INFO shapefile 1970: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1970/US_county_1970_conflated.shp
+14:05:52 INFO shapefile 1980: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1980/US_county_1980_conflated.shp
+14:05:52 INFO shapefile 1990: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1990/US_county_1990_conflated.shp
+14:05:52 INFO shapefile 2000: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_2000/US_county_2000_conflated.shp
+14:05:52 INFO shapefile 2010: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2010_us_county_2010/US_county_2010.shp
+14:05:52 INFO shapefile 2020: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2020_us_county_2020/US_county_2020.shp
+14:05:52 INFO crosswalk 1900: G1789177 (Quapaw Indian Reservation) -> G1789175 (Quapaw Agency) | same-state boundaries matching 'Quapaw': [('G1789175', 'Quapaw Agency')]
+14:05:52 INFO crosswalk 1900: G5105100 (Alexandria City) -> G5100035 (Alexandria) | same-state boundaries matching 'Alexandria': [('G5100035', 'Alexandria')]
+14:05:52 INFO reconstructed 1820 G1100010 (District of Columbia (present-day area)) <- 1830 [('G1100017', 'Georgetown'), ('G1100075', 'Rural Washington county'), ('G1100115', 'Washington City')]
+14:05:52 INFO reconstructed 1820 G5100035 (Alexandria County (D.C. side, 1791-1846)) <- 1830 [('G1100005', 'Alexandria'), ('G1100035', 'Rural Alexandria County')]
+14:05:52 INFO ===== 1810 =====
+14:05:52 INFO   multi-county group, Massachusetts: state county-row sum=700,745; group rows sum=700,745 (equal=True)
+14:05:52 INFO     G2509993 Massachusetts [ME part] - multi-county group: pop 228,705
+14:05:52 INFO     G2509997 Massachusetts [non-ME part] - multi-county group: pop 472,040
+14:05:54 INFO   boundaries: US_county_1810_conflated.shp (587 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:05:55 INFO   2 CSV units have no boundary (pop 1,214) -> dropped: ['Walton', 'Hopefield - St Francis']
+14:05:55 INFO   nodata_unenumerated: 9 units [('G2250025', 'Indian lands'), ('G1301535', 'Indian Lands'), ('G1850113', 'Indian Lands'), ('G2650165', 'Indian Lands'), ('G2850097', 'Indian Lands'), ('G3700955', 'Indian Lands'), ('G4700855', 'Indian Lands (No Population)'), ('G2250115', 'Unattached'), ('G4500875', 'Unorganized (No Data)')]
+14:05:56 INFO Created 587 records
+14:05:57 INFO   wrote /projects/jaju1407/data/processed/census/counties_1810.gpkg (587 units, 80.7 MB) | CONUS pop 7,238,667 | dropped no-boundary 1,214 (0.017%) | expected ~7,239,881 (diff -1,214, -0.017%)
+14:05:57 INFO ===== 1820 =====
+14:05:58 INFO   boundaries: US_county_1820_conflated.shp (778 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:03 INFO   boundaries: US_county_1830_conflated.shp (1001 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:05 INFO   reconstructed G1100010 (District of Columbia (present-day area)): dissolved 3 1830 polygons [('G1100017', 'Georgetown'), ('G1100075', 'Rural Washington county'), ('G1100115', 'Washington City')]
+14:06:05 INFO   reconstructed G5100035 (Alexandria County (D.C. side, 1791-1846)): dissolved 2 1830 polygons [('G1100005', 'Alexandria'), ('G1100035', 'Rural Alexandria County')]
+14:06:05 INFO   manual fill G1100010 (District of Columbia (present-day area)): pop nan -> 23336 [Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census]
+14:06:05 INFO   manual fill G5100035 (Alexandria County (D.C. side, 1791-1846)): pop nan -> 9703 [Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census]
+14:06:05 INFO   nodata_unenumerated: 17 units [('G0550017', 'Cherokee Indian Tract'), ('G0100715', 'Indian Lands'), ('G0550137', 'Indian Lands'), ('G1301535', 'Indian Lands'), ('G1700737', 'Indian Lands'), ('G2650165', 'Indian Lands'), ('G2800535', 'Indian Lands'), ('G3700955', 'Indian Lands'), ('G1800695', 'Indian Lands - no population'), ('G2950077', 'Indian Lands - No Population'), ('G4700855', 'Indian Lands (No Population)'), ('G0100730', 'Jefferson'), ('G0100930', 'Marion'), ('G0550377', 'Quapaw Indian Tract'), ('G0550433', 'Unassigned'), ('G4701695', 'Unattached (No population)'), ('G2950257', 'Unattached No Population')]
+14:06:05 INFO Created 780 records
+14:06:06 INFO   wrote /projects/jaju1407/data/processed/census/counties_1820.gpkg (780 units, 90.2 MB) | CONUS pop 9,654,655 | dropped no-boundary 0 (0.000%)
+14:06:06 INFO ===== 1830 =====
+14:06:09 INFO   boundaries: US_county_1830_conflated.shp (1001 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:11 INFO   1 CSV units have no boundary (pop 356) -> dropped: ['Miller']
+14:06:11 INFO   nodata_unenumerated: 8 units [('G0100715', 'Indian Lands'), ('G1250185', 'Indian Lands'), ('G2800535', 'Indian Lands'), ('G3700955', 'Indian Lands'), ('G4700855', 'Indian Lands (No Population)'), ('G2902157', 'Unattached'), ('G4850000', 'Unorganized'), ('G1801615', 'Unorganized - no population')]
+14:06:11 INFO Created 1,001 records
+14:06:13 INFO   wrote /projects/jaju1407/data/processed/census/counties_1830.gpkg (1001 units, 114.2 MB) | CONUS pop 12,860,136 | dropped no-boundary 356 (0.003%)
+14:06:13 INFO ===== 1840 =====
+14:06:15 INFO   boundaries: US_county_1840_conflated.shp (1285 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:17 INFO   nodata_unenumerated: 5 units [('G1950137', 'Indian Lands'), ('G5550177', 'Indian Lands (no data)'), ('G2902157', 'Unattached'), ('G4850000', 'Unorganized'), ('G2601575', 'Unwattin')]
+14:06:18 INFO Created 1,285 records
+14:06:19 INFO   wrote /projects/jaju1407/data/processed/census/counties_1840.gpkg (1285 units, 122.5 MB) | CONUS pop 17,063,353 | dropped no-boundary 0 (0.000%)
+14:06:19 INFO ===== 1850 =====
+14:06:23 INFO   boundaries: US_county_1850_conflated.shp (1632 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:25 INFO   nodata_unenumerated: 9 units [('G0600130', 'Contra Costa'), ('G4801410', 'El Paso'), ('G1901590', 'Ringgold'), ('G0600750', 'San Francisco'), ('G0600850', 'Santa Clara'), ('G4950655', 'Unincorporated Territory'), ('G3550553', 'Unorganized'), ('G4850000', 'Unorganized'), ('G1901755', 'Unorganized (No Data)')]
+14:06:26 INFO Created 1,632 records
+14:06:27 INFO   wrote /projects/jaju1407/data/processed/census/counties_1850.gpkg (1632 units, 150.9 MB) | CONUS pop 23,191,876 | dropped no-boundary 0 (0.000%)
+14:06:27 INFO ===== 1860 =====
+14:06:31 INFO   boundaries: US_county_1860_conflated.shp (2126 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:33 INFO   1 CSV units have no boundary (pop 782) -> dropped: ['Platte-Madison (multi-county reporting area)']
+14:06:33 INFO   manual fill G1100010 (District Of Columbia): pop nan -> 75080 [Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census]
+14:06:33 INFO   nodata_unenumerated: 49 units [('G4800090', 'Archer'), ('G4800230', 'Baylor'), ('G1900215', 'Buncombe'), ('G4800590', 'Callahan'), ('G4800830', 'Coleman'), ('G4800950', 'Concho'), ('G2600390', 'Crawford'), ('G0950000', 'Dakota Territory - Unorganized'), ('G4950135', 'Desert'), ('G4801270', 'Dimmit'), ('G4801310', 'Duval'), ('G4801370', 'Edwards'), ('G3150265', 'Fillmore (no data)'), ('G4950215', 'Greasewood'), ('G4801970', 'Hardeman'), ('G4802070', 'Haskell'), ('G1780000', 'Indian Territory - no counties'), ('G3150325', 'Izard (no data)'), ('G4802530', 'Jones'), ('G2600790', 'Kalkaska'), ('G4802670', 'Kimble'), ('G4802750', 'Knox'), ('G4802830', 'La Salle'), ('G4803070', 'Mcculloch'), ('G4803110', 'Mcmullen'), ('G4803270', 'Menard'), ('G2601130', 'Missaukee'), ('G2601190', 'Montmorency'), ('G2601290', 'Ogemaw'), ('G3150505', 'Omaha Indian Reservation'), ('G1901430', 'Osceola'), ('G2601350', 'Oscoda'), ('G2601370', 'Otsego'), ('G3150555', 'Pawnee Reservation'), ('G3150565', 'Pierce (no data)'), ('G3150575', 'Platte'), ('G2701335', 'Rock (old)'), ('G2601430', 'Roscommon'), ('G4803990', 'Runnels'), ('G4804410', 'Taylor')]
+14:06:34 INFO Created 2,126 records
+14:06:36 INFO   wrote /projects/jaju1407/data/processed/census/counties_1860.gpkg (2126 units, 165.1 MB) | CONUS pop 31,437,702 | dropped no-boundary 782 (0.002%)
+14:06:36 INFO ===== 1870 =====
+14:06:39 INFO   boundaries: US_county_1870_conflated.shp (2334 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:42 INFO   5 CSV units have no boundary (pop 1,161) -> dropped: ['Grant (old)', 'Lyon', 'Taylor', 'Unorganized NW Territory', 'Rio Virgin']
+14:06:42 INFO   nodata_unenumerated: 48 units [('G4800090', 'Archer'), ('G2405100', 'Baltimore City'), ('G2000075', 'Barbour'), ('G4800230', 'Baylor'), ('G4800590', 'Callahan'), ('G2000255', 'Clark(Old)'), ('G4800770', 'Clay'), ('G2000330', 'Comanche'), ('G4800950', 'Concho'), ('G2600390', 'Crawford'), ('G4801370', 'Edwards'), ('G2600510', 'Gladwin'), ('G2000630', 'Gove'), ('G2000650', 'Graham'), ('G3100750', 'Grant'), ('G0950695', 'Gregory'), ('G4801970', 'Hardeman'), ('G2000770', 'Harper'), ('G4802070', 'Haskell'), ('G2000830', 'Hodgeman'), ('G3100890', 'Holt'), ('G1780000', 'Indian Territory - no counties'), ('G4802530', 'Jones'), ('G2000975', 'Kiowa (Old)'), ('G4802750', 'Knox'), ('G2601190', 'Montmorency'), ('G2001365', 'Norten'), ('G1901430', 'Osceola'), ('G2601370', 'Otsego'), ('G0450177', 'Pah-Ute'), ('G4803630', 'Palo Pinto'), ('G2001470', 'Phillips'), ('G2701170', 'Pipestone'), ('G2001510', 'Pratt'), ('G2001550', 'Reno'), ('G2001630', 'Rooks'), ('G2601430', 'Roscommon'), ('G4803990', 'Runnels'), ('G2001650', 'Rush'), ('G2601530', 'Schoolcraft')]
+14:06:42 INFO   nodata_zero: 1 units [('G2701190', 'Polk')]
+14:06:42 INFO Created 2,334 records
+14:06:45 INFO   wrote /projects/jaju1407/data/processed/census/counties_1870.gpkg (2334 units, 174.1 MB) | CONUS pop 38,557,210 | dropped no-boundary 1,161 (0.003%)
+14:06:45 INFO ===== 1880 =====
+14:06:45 INFO   CSV: dropped 2 non-CONUS rows (pop 33,426)
+14:06:52 INFO   boundaries: US_county_1880_conflated.shp (2614 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:06:55 INFO   shapefile: dropped 2 non-CONUS features
+14:06:55 INFO   1 CSV units have no boundary (pop 134) -> dropped: ['Fort Sisseton']
+14:06:55 INFO   manual fill G1100010 (District Of Columbia): pop nan -> 177624 [Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census]
+14:06:56 INFO   nodata_unenumerated: 2 units [('G1780000', 'Indian Territory - no counties'), ('G2701545', 'Unattached')]
+14:06:56 INFO   nodata_zero: 42 units [('G4800030', 'Andrews'), ('G4800170', 'Bailey'), ('G0950115', 'Bottineau'), ('G4800650', 'Carson'), ('G4800690', 'Castro'), ('G0950275', 'Cavalier'), ('G0950315', 'Cheyenne'), ('G4800790', 'Cochran'), ('G4801110', 'Dallam'), ('G0950455', 'Delano'), ('G0950475', 'Desmet'), ('G0950535', 'Edmunds'), ('G0950595', 'Forsythe'), ('G0950635', 'Gingras'), ('G0950695', 'Gregory'), ('G4801890', 'Hale'), ('G4802190', 'Hockley'), ('G0950835', 'Hyde'), ('G4802790', 'Lamb'), ('G0950995', 'Logan'), ('G0951015', 'Lugenbeel'), ('G0951055', 'Mandan'), ('G0951095', 'Mchenry'), ('G0951115', 'Mcpherson'), ('G0951135', 'Mercer'), ('G4803410', 'Moore'), ('G4803570', 'Ochiltree'), ('G4803690', 'Parmer'), ('G0951315', 'Potter'), ('G0951335', 'Pratt'), ('G0951355', 'Presho'), ('G0951415', 'Renville'), ('G0951455', 'Rolette'), ('G0951515', 'Sheridan'), ('G4804210', 'Sherman'), ('G0951575', 'Stark'), ('G4804450', 'Terry'), ('G0951695', 'Tripp'), ('G0951755', 'Unorganized Territory'), ('G0951815', 'White River')]
+14:06:56 INFO Created 2,612 records
+14:06:58 INFO   wrote /projects/jaju1407/data/processed/census/counties_1880.gpkg (2612 units, 184.6 MB) | CONUS pop 50,155,649 | dropped no-boundary 134 (0.000%)
+14:06:58 INFO ===== 1890 =====
+14:06:58 INFO   CSV: dropped 2 non-CONUS rows (pop 32,052)
+14:07:06 INFO   boundaries: US_county_1890_conflated.shp (2799 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:07:10 INFO   shapefile: dropped 2 non-CONUS features
+14:07:10 INFO   7 CSV units have no boundary (pop 0) -> dropped: ['Klamath', 'Greenwood', 'Carroll', 'Unorganized Territory', 'Rio Virgin', 'Roop (annexed by Washoe 1886)', 'Bexar District']
+14:07:10 INFO   nodata_unenumerated: 4 units [('G1780000', 'Indian Territory - no counties'), ('G3800973', 'Unattached'), ('G4050425', 'Unattached'), ('G5600470', 'Yellowstone National Park in Wyoming')]
+14:07:10 INFO   nodata_zero: 16 units [('G3800015', 'Alred'), ('G4800170', 'Bailey'), ('G4600095', 'Boreman'), ('G4800450', 'Briscoe'), ('G4800790', 'Cochran'), ('G4600410', 'Dewey'), ('G4802190', 'Hockley'), ('G4600835', 'Lugenbeel'), ('G4600955', 'Meyer'), ('G4601079', 'Rinehart'), ('G4601113', 'Schnasse'), ('G4601130', 'Shannon'), ('G4601230', 'Tripp'), ('G4601265', 'Unorganized Territory'), ('G4601277', 'Wagner'), ('G4601310', 'Washabaugh')]
+14:07:11 INFO Created 2,797 records
+14:07:13 INFO   wrote /projects/jaju1407/data/processed/census/counties_1890.gpkg (2797 units, 189.6 MB) | CONUS pop 62,622,250 | dropped no-boundary 0 (0.000%)
+14:07:13 INFO ===== 1900 =====
+14:07:13 INFO   CSV: dropped 8 non-CONUS rows (pop 217,593)
+14:07:13 INFO   crosswalk: G1789177 -> G1789175 (1 row(s), pop 800) Quapaw Indian Reservation -> Quapaw Agency (code mismatch)
+14:07:13 INFO   crosswalk: G5105100 -> G5100035 (1 row(s), pop 14,528) Alexandria city -> Alexandria County (G5100035 in the 1900 CSV with pop 6430; NHGIS code differs from FIPS)
+14:07:20 INFO   boundaries: US_county_1900_conflated.shp (2848 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:07:24 INFO   shapefile: dropped 8 non-CONUS features
+14:07:24 INFO   summed 2 CSV rows into G5100035: [('G5100035', 'Alexandria', 6430), ('G5105100', 'Alexandria City', 14528)]
+14:07:24 INFO   10 CSV units have no boundary (pop 15,224) -> dropped: ['San Carlos Indian Reservation', 'Modoc Indian Reservation', 'Ottawa Indian Reservation', 'Peroria Indian Reservation', 'Seneca Indian Reservation', 'Shawnee Indian Reservation', 'Wyandotte Indian Reservation', 'White Earth Indian Reservation', 'Crow Indian Reservation', 'Armstrong']
+14:07:24 INFO   manual fill G1100010 (District Of Columbia): pop nan -> 278718 [Forstall (1996), Population of States and Counties of the United States: 1790-1990, U.S. Bureau of the Census]
+14:07:24 INFO   nodata_unenumerated: 1 units [('G4059095', 'Ponca And Otoe Indian Reservation')]
+14:07:25 INFO Created 2,840 records
+14:07:27 INFO   wrote /projects/jaju1407/data/processed/census/counties_1900.gpkg (2840 units, 193.2 MB) | CONUS pop 75,979,351 | dropped no-boundary 15,224 (0.020%)
+14:07:27 INFO ===== 1910 =====
+14:07:27 INFO   CSV: dropped 5 non-CONUS rows (pop 191,909)
+14:07:35 INFO   boundaries: US_county_1910_conflated.shp (2963 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:07:38 INFO   shapefile: dropped 9 non-CONUS features
+14:07:38 INFO   2 CSV units have no boundary (pop 0) -> dropped: ['Shannon', 'Washington']
+14:07:38 INFO   nodata_unenumerated: 2 units [('G4601265', 'Unorganized Territory'), ('G5108300', 'Williamsburg City')]
+14:07:38 INFO   nodata_zero: 1 units [('G4601310', 'Washabaugh')]
+14:07:39 INFO Created 2,954 records
+14:07:42 INFO   wrote /projects/jaju1407/data/processed/census/counties_1910.gpkg (2954 units, 195.9 MB) | CONUS pop 91,972,266 | dropped no-boundary 0 (0.000%)
+14:07:42 INFO ===== 1920 =====
+14:07:42 INFO   CSV: dropped 9 non-CONUS rows (pop 310,948)
+14:07:49 INFO   boundaries: US_county_1920_conflated.shp (3075 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:07:53 INFO   shapefile: dropped 9 non-CONUS features
+14:07:53 INFO   nodata_unenumerated: 1 units [('G5108300', 'Williamsburg City')]
+14:07:53 INFO Created 3,066 records
+14:07:56 INFO   wrote /projects/jaju1407/data/processed/census/counties_1920.gpkg (3066 units, 199.1 MB) | CONUS pop 105,710,620 | dropped no-boundary 0 (0.000%)
+14:07:56 INFO ===== 1930 =====
+14:07:56 INFO   CSV: dropped 8 non-CONUS rows (pop 427,614)
+14:08:03 INFO   boundaries: US_county_1930_conflated.shp (3110 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:08:07 INFO   shapefile: dropped 8 non-CONUS features
+14:08:07 INFO   nodata_unenumerated: 1 units [('G1600875', 'Yellowstone National Park in Idaho')]
+14:08:08 INFO Created 3,102 records
+14:08:10 INFO   wrote /projects/jaju1407/data/processed/census/counties_1930.gpkg (3102 units, 200.4 MB) | CONUS pop 122,775,046 | dropped no-boundary 0 (0.000%)
+14:08:10 INFO ===== 1940 =====
+14:08:10 INFO   CSV: dropped 8 non-CONUS rows (pop 495,854)
+14:08:16 INFO   boundaries: US_county_1940_conflated.shp (3108 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:08:20 INFO   shapefile: dropped 8 non-CONUS features
+14:08:20 INFO   nodata_zero: 1 units [('G1600875', 'Yellowstone National Park')]
+14:08:21 INFO Created 3,100 records
+14:08:23 INFO   wrote /projects/jaju1407/data/processed/census/counties_1940.gpkg (3100 units, 200.5 MB) | CONUS pop 131,669,275 | dropped no-boundary 0 (0.000%)
+14:08:23 INFO ===== 1950 =====
+14:08:23 INFO   CSV: dropped 8 non-CONUS rows (pop 628,437)
+14:08:29 INFO   boundaries: US_county_1950_conflated.shp (3111 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:08:33 INFO   shapefile: dropped 8 non-CONUS features
+14:08:33 INFO   nodata_zero: 1 units [('G1600875', 'Yellowstone National Park')]
+14:08:34 INFO Created 3,103 records
+14:08:38 INFO   wrote /projects/jaju1407/data/processed/census/counties_1950.gpkg (3103 units, 200.7 MB) | CONUS pop 150,697,361 | dropped no-boundary 0 (0.000%)
+14:08:38 INFO ===== 1960 =====
+14:08:38 INFO   CSV: dropped 29 non-CONUS rows (pop 858,939)
+14:08:42 INFO   boundaries: US_county_1960_conflated.shp (3134 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:08:46 INFO   shapefile: dropped 29 non-CONUS features
+14:08:46 INFO   nodata_unenumerated: 1 units [('G1600875', 'Yellowstone National Park in Idaho')]
+14:08:47 INFO Created 3,105 records
+14:08:49 INFO   wrote /projects/jaju1407/data/processed/census/counties_1960.gpkg (3105 units, 200.9 MB) | CONUS pop 178,464,236 | dropped no-boundary 0 (0.000%)
+14:08:49 INFO ===== 1970 =====
+14:08:49 INFO   CSV: dropped 33 non-CONUS rows (pop 1,068,943)
+14:08:53 INFO   boundaries: US_county_1970_conflated.shp (3141 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:08:57 INFO   shapefile: dropped 33 non-CONUS features
+14:08:58 INFO Created 3,108 records
+14:09:00 INFO   wrote /projects/jaju1407/data/processed/census/counties_1970.gpkg (3108 units, 201.1 MB) | CONUS pop 202,142,983 | dropped no-boundary 0 (0.000%)
+14:09:00 INFO ===== 1980 =====
+14:09:00 INFO   CSV: dropped 28 non-CONUS rows (pop 1,366,542)
+14:09:05 INFO   boundaries: US_county_1980_conflated.shp (3137 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:09:08 INFO   shapefile: dropped 28 non-CONUS features
+14:09:09 INFO Created 3,109 records
+14:09:11 INFO   wrote /projects/jaju1407/data/processed/census/counties_1980.gpkg (3109 units, 201.1 MB) | CONUS pop 225,179,263 | dropped no-boundary 0 (0.000%)
+14:09:11 INFO ===== 1990 =====
+14:09:11 INFO   CSV: dropped 30 non-CONUS rows (pop 1,658,272)
+14:09:15 INFO   boundaries: US_county_1990_conflated.shp (3141 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:09:19 INFO   shapefile: dropped 30 non-CONUS features
+14:09:20 INFO Created 3,111 records
+14:09:22 INFO   wrote /projects/jaju1407/data/processed/census/counties_1990.gpkg (3111 units, 201.2 MB) | CONUS pop 247,051,601 | dropped no-boundary 0 (0.000%)
+14:09:22 INFO ===== 2000 =====
+14:09:22 INFO   CSV: dropped 32 non-CONUS rows (pop 1,838,469)
+14:09:26 INFO   boundaries: US_county_2000_conflated.shp (3141 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:09:30 INFO   shapefile: dropped 32 non-CONUS features
+14:09:31 INFO Created 3,109 records
+14:09:33 INFO   wrote /projects/jaju1407/data/processed/census/counties_2000.gpkg (3109 units, 201.2 MB) | CONUS pop 279,583,437 | dropped no-boundary 0 (0.000%)
+14:09:33 INFO ===== 2010 =====
+14:09:33 INFO   CSV: dropped 112 non-CONUS rows (pop 5,796,321)
+14:09:39 INFO   boundaries: US_county_2010.shp (3221 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:09:43 INFO   shapefile: dropped 112 non-CONUS features
+14:09:44 INFO Created 3,109 records
+14:09:46 INFO   wrote /projects/jaju1407/data/processed/census/counties_2010.gpkg (3109 units, 196.3 MB) | CONUS pop 306,675,006 | dropped no-boundary 0 (0.000%)
+14:09:46 INFO ===== 2020 =====
+14:09:46 INFO   CSV: dropped 113 non-CONUS rows (pop 5,474,536)
+14:09:48 INFO   boundaries: US_county_2020.shp (3221 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+14:09:52 INFO   shapefile: dropped 113 non-CONUS features
+14:09:53 INFO Created 3,108 records
+14:09:55 INFO   wrote /projects/jaju1407/data/processed/census/counties_2020.gpkg (3108 units, 204.9 MB) | CONUS pop 329,260,619 | dropped no-boundary 0 (0.000%)
+14:09:55 INFO QA report:
+ year  n_boundaries  n_pop_rows  n_pop_rows_conus  n_boundary_without_pop  n_pop_without_boundary  n_ok  n_nodata_unenumerated  n_nodata_zero  n_manual_fill  conus_pop_total  pop_dropped_no_boundary  pop_dropped_pct  pop_dropped_multi_county_group  expected_total
+ 1810           587         582               582                       9                       2   578                      9              0              0        7238667.0                     1214         0.016768                        700745.0       7239881.0
+ 1820           780         761               761                      17                       0   761                     17              0              2        9654655.0                        0         0.000000                             0.0             NaN
+ 1830          1001         994               994                       8                       1   993                      8              0              0       12860136.0                      356         0.002768                             0.0             NaN
+ 1840          1285        1280              1280                       5                       0  1280                      5              0              0       17063353.0                        0         0.000000                             0.0             NaN
+ 1850          1632        1623              1623                       9                       0  1623                      9              0              0       23191876.0                        0         0.000000                             0.0             NaN
+ 1860          2126        2077              2077                      49                       1  2076                     49              0              1       31437702.0                      782         0.002487                             0.0             NaN
+ 1870          2334        2291              2291                      48                       5  2285                     48              1              0       38557210.0                     1161         0.003011                             0.0             NaN
+ 1880          2612        2612              2610                       2                       1  2567                      2             42              1       50155649.0                      134         0.000267                             0.0             NaN
+ 1890          2797        2802              2800                       4                       7  2777                      4             16              0       62622250.0                        0         0.000000                             0.0             NaN
+ 1900          2840        2857              2849                       1                      10  2838                      1              0              1       75979351.0                    15224         0.020033                             0.0             NaN
+ 1910          2954        2959              2954                       2                       2  2951                      2              1              0       91972266.0                        0         0.000000                             0.0             NaN
+ 1920          3066        3074              3065                       1                       0  3065                      1              0              0      105710620.0                        0         0.000000                             0.0             NaN
+ 1930          3102        3109              3101                       1                       0  3101                      1              0              0      122775046.0                        0         0.000000                             0.0             NaN
+ 1940          3100        3108              3100                       0                       0  3099                      0              1              0      131669275.0                        0         0.000000                             0.0             NaN
+ 1950          3103        3111              3103                       0                       0  3102                      0              1              0      150697361.0                        0         0.000000                             0.0             NaN
+ 1960          3105        3133              3104                       1                       0  3104                      1              0              0      178464236.0                        0         0.000000                             0.0             NaN
+ 1970          3108        3141              3108                       0                       0  3108                      0              0              0      202142983.0                        0         0.000000                             0.0             NaN
+ 1980          3109        3137              3109                       0                       0  3109                      0              0              0      225179263.0                        0         0.000000                             0.0             NaN
+ 1990          3111        3141              3111                       0                       0  3111                      0              0              0      247051601.0                        0         0.000000                             0.0             NaN
+ 2000          3109        3141              3109                       0                       0  3109                      0              0              0      279583437.0                        0         0.000000                             0.0             NaN
+ 2010          3109        3221              3109                       0                       0  3109                      0              0              0      306675006.0                        0         0.000000                             0.0             NaN
+ 2020          3108        3221              3108                       0                       0  3108                      0              0              0      329260619.0                        0         0.000000                             0.0             NaN
+14:09:55 INFO dropped rows by reason:
+reason              source
+multi_county_group  csv         2
+no_boundary         csv        29
+non_conus           csv       427
+                    shp       431
+14:09:55 INFO wrote /projects/jaju1407/data/processed/census/qa_report.csv and /projects/jaju1407/data/processed/census/dropped_rows.csv
+14:09:55 INFO DONE
+total 5051336
+drwxr-sr-x 2 jaju1407 jaju1407grp       857 Sep 29 14:09 .
+drwxr-sr-x 3 jaju1407 jaju1407grp        24 Sep 29 13:52 ..
+-rw-r--r-- 1 jaju1407 jaju1407grp  80683008 Sep 29 14:05 counties_1810.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp  90185728 Sep 29 14:06 counties_1820.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 114167808 Sep 29 14:06 counties_1830.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 122531840 Sep 29 14:06 counties_1840.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 150888448 Sep 29 14:06 counties_1850.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 165081088 Sep 29 14:06 counties_1860.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 174104576 Sep 29 14:06 counties_1870.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 184623104 Sep 29 14:06 counties_1880.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 189624320 Sep 29 14:07 counties_1890.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 193220608 Sep 29 14:07 counties_1900.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 195928064 Sep 29 14:07 counties_1910.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 199106560 Sep 29 14:07 counties_1920.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 200364032 Sep 29 14:08 counties_1930.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 200454144 Sep 29 14:08 counties_1940.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 200704000 Sep 29 14:08 counties_1950.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 200851456 Sep 29 14:08 counties_1960.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 201129984 Sep 29 14:08 counties_1970.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 201101312 Sep 29 14:09 counties_1980.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 201183232 Sep 29 14:09 counties_1990.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 201179136 Sep 29 14:09 counties_2000.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Sep 29 14:09 counties_2010.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 204906496 Sep 29 14:09 counties_2020.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp     51580 Sep 29 14:09 dropped_rows.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp      1643 Sep 29 14:09 qa_report.csv
+== done 2026-09-29T14:09:56-06:00
