@@ -1,0 +1,29 @@
+== job 33217130 (dasymetric_train) on c3cpu-e2-u1 at 2026-10-01T15:17:24-06:00
+== cores=4 gpus=none restart=0
+== git 8d93125
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v1)  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1  n_jobs: 4  extra args: 
+15:18:11 INFO arg config = configs/model.yaml
+15:18:11 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+15:18:11 INFO arg n_jobs = 4
+15:18:11 INFO training rows: 314 county-years | 22 counties (groups) | 22 years | features ['bui', 'bupl', 'bupr', 'bua', 'mu_ratio', 'age', 'year']
+15:18:11 INFO model rf | search 20 of 400 candidates | GroupKFold(5) by GISJOIN | scoring neg_root_mean_squared_error | n_jobs 4
+15:18:26 INFO   fold 0: CV RMSE 0.2335 | R2 0.958
+15:18:26 INFO   fold 1: CV RMSE 1.4052 | R2 0.557
+15:18:26 INFO   fold 2: CV RMSE 0.3269 | R2 0.896
+15:18:26 INFO   fold 3: CV RMSE 0.9749 | R2 0.361
+15:18:26 INFO   fold 4: CV RMSE 0.8910 | R2 0.650
+15:18:26 INFO best params {'n_estimators': 200, 'min_samples_leaf': 2, 'max_features': 1.0, 'max_depth': 20}
+15:18:26 INFO CV RMSE 0.7663 +/- 0.4346 | CV R2 0.684 +/- 0.220 | train RMSE 0.2621 | sd(y) 1.5518
+15:18:27 INFO feature importance (permutation = increase in RMSE when shuffled):
+ feature  impurity  permutation_mean  permutation_sd
+     bui    0.6566            1.9693          0.0592
+    year    0.0700            0.7350          0.0236
+     bua    0.0490            0.3330          0.0215
+     age    0.0227            0.1477          0.0049
+mu_ratio    0.0773            0.1279          0.0089
+    bupl    0.0620            0.1139          0.0042
+    bupr    0.0625            0.1130          0.0087
+15:18:27 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/model
+15:18:27 INFO DONE
+== done 2026-10-01T15:18:27-06:00

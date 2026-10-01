@@ -1,0 +1,42 @@
+== job 33217131 (dasymetric_predict) on c3cpu-c15-u5-3 at 2026-10-01T15:18:57-06:00
+== cores=8 gpus=none restart=0
+== git 8d93125
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v1)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1  n_jobs: 8  extra args: 
+15:19:57 INFO arg config = configs/model.yaml
+15:19:57 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+15:19:57 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+15:19:57 INFO arg years = None
+15:19:57 INFO arg map_years = [1810, 1900, 2020]
+15:19:57 INFO arg n_jobs = 8
+15:20:32 INFO model rf (/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/model/rf.joblib) | features ['bui', 'bupl', 'bupr', 'bua', 'mu_ratio', 'age', 'year'] | use_status ['ok', 'manual_fill'] | 22 years -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1
+15:20:38 INFO   1810: 20 counties, 1681989 cells | y_hat 0.162..7.689 | pop 700745 -> cells 700745 | cell max 6289.0 | max rel diff 3.35e-08 | bad cells 0
+15:20:53 INFO   map /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/maps/pop_1810.png
+15:20:54 INFO   1820: 14 counties, 336164 cells | y_hat 0.161..7.877 | pop 523287 -> cells 523287 | cell max 5072.5 | max rel diff 8.78e-09 | bad cells 0
+15:20:55 INFO   1830: 14 counties, 336164 cells | y_hat 0.161..8.496 | pop 610408 -> cells 610408 | cell max 5416.1 | max rel diff 5.63e-09 | bad cells 0
+15:20:57 INFO   1840: 14 counties, 336164 cells | y_hat 0.161..8.493 | pop 737699 -> cells 737699 | cell max 5375.3 | max rel diff 6.23e-09 | bad cells 0
+15:20:58 INFO   1850: 14 counties, 336164 cells | y_hat 0.161..8.519 | pop 994514 -> cells 994514 | cell max 4086.9 | max rel diff 4.42e-09 | bad cells 0
+15:20:59 INFO   1860: 14 counties, 336164 cells | y_hat 0.161..8.519 | pop 1231066 -> cells 1231066 | cell max 4239.4 | max rel diff 1.77e-09 | bad cells 0
+15:21:00 INFO   1870: 14 counties, 335900 cells | y_hat 0.161..8.516 | pop 1457351 -> cells 1457351 | cell max 2835.5 | max rel diff 7.29e-09 | bad cells 0
+15:21:01 INFO   1880: 14 counties, 335900 cells | y_hat 0.161..8.534 | pop 1783085 -> cells 1783085 | cell max 1710.9 | max rel diff 4.27e-09 | bad cells 0
+15:21:02 INFO   1890: 14 counties, 335900 cells | y_hat 0.161..8.534 | pop 2238943 -> cells 2238943 | cell max 1280.2 | max rel diff 3.51e-09 | bad cells 0
+15:21:03 INFO   1900: 14 counties, 335900 cells | y_hat 0.161..8.541 | pop 2805346 -> cells 2805346 | cell max 905.9 | max rel diff 3.33e-09 | bad cells 0
+15:21:03 INFO   map /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/maps/pop_1900.png
+15:21:05 INFO   1910: 14 counties, 335900 cells | y_hat 0.161..8.540 | pop 3366416 -> cells 3366416 | cell max 877.7 | max rel diff 5.03e-09 | bad cells 0
+15:21:06 INFO   1920: 14 counties, 335900 cells | y_hat 0.161..8.540 | pop 3852356 -> cells 3852356 | cell max 847.8 | max rel diff 6.45e-09 | bad cells 0
+15:21:07 INFO   1930: 14 counties, 335900 cells | y_hat 0.161..8.553 | pop 4249614 -> cells 4249614 | cell max 852.8 | max rel diff 1.88e-09 | bad cells 0
+15:21:08 INFO   1940: 14 counties, 335900 cells | y_hat 0.161..8.556 | pop 4316721 -> cells 4316721 | cell max 815.3 | max rel diff 3.31e-09 | bad cells 0
+15:21:09 INFO   1950: 14 counties, 335900 cells | y_hat 0.161..8.553 | pop 4690514 -> cells 4690514 | cell max 803.7 | max rel diff 3.85e-09 | bad cells 0
+15:21:10 INFO   1960: 14 counties, 335900 cells | y_hat 0.161..8.543 | pop 5148578 -> cells 5148578 | cell max 674.7 | max rel diff 1.80e-09 | bad cells 0
+15:21:11 INFO   1970: 14 counties, 335900 cells | y_hat 0.161..8.524 | pop 5689170 -> cells 5689170 | cell max 600.9 | max rel diff 3.29e-09 | bad cells 0
+15:21:12 INFO   1980: 14 counties, 335900 cells | y_hat 0.161..8.509 | pop 5737037 -> cells 5737037 | cell max 525.9 | max rel diff 1.09e-09 | bad cells 0
+15:21:13 INFO   1990: 14 counties, 335900 cells | y_hat 0.161..8.504 | pop 6016425 -> cells 6016425 | cell max 506.8 | max rel diff 2.86e-09 | bad cells 0
+15:21:14 INFO   2000: 14 counties, 335900 cells | y_hat 0.161..8.509 | pop 6349097 -> cells 6349097 | cell max 532.2 | max rel diff 2.87e-09 | bad cells 0
+15:21:15 INFO   2010: 14 counties, 335899 cells | y_hat 0.161..8.506 | pop 6547629 -> cells 6547629 | cell max 545.8 | max rel diff 4.48e-09 | bad cells 0
+15:21:16 INFO   2020: 14 counties, 335850 cells | y_hat 0.161..8.505 | pop 7029917 -> cells 7029917 | cell max 592.0 | max rel diff 1.91e-09 | bad cells 0
+15:21:17 INFO   map /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/maps/pop_2020.png
+15:21:17 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/qa/reallocation_qa.csv
+15:21:17 INFO mass check: 314 county-years, max rel diff 3.35e-08 (tolerance 1e-06), 0 fail | bad cells 0
+15:21:17 INFO DONE
+== done 2026-10-01T15:21:18-06:00
+8.3M	/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/predictions
