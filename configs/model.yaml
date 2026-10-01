@@ -1,0 +1,50 @@
+# Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md).
+# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v1/.
+version: v1
+
+# Study name and years come from here; inputs are that study's cutout (docs/cutout.md).
+study_area: configs/study_area.yaml
+
+# `status` values (zones_{YEAR}.csv) of the counties used for training AND reallocation.
+# Cells of other counties are NoData in the predictions.
+use_status: [ok, manual_fill]
+
+# Cell features, defined in src/dasymetric/common.py (docs/dasymetric_v1.md, "Cell features").
+# County feature = mean of the cell feature over all cells of the county.
+features: [bui, bupl, bupr, bua, mu_ratio, age, year]
+
+# Which entry under models: to train. Switching models is a config change only.
+model: rf
+
+# Hyperparameter search: RandomizedSearchCV over the model's space, GroupKFold with groups = GISJOIN
+# (all years of a county stay in one fold). The best parameters are refit on all training rows.
+search:
+  n_iter: 20
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error   # on y = log(pop / area_km2)
+
+# Permutation importance of the refit model on the training rows.
+permutation: {n_repeats: 10, random_state: 42}
+
+# One entry per model: `fixed` = constructor arguments, `space` = candidates for the search.
+# null = Python None.
+models:
+  rf:          # sklearn.ensemble.RandomForestRegressor
+    fixed: {random_state: 42}
+    space:
+      n_estimators: [200, 300, 500, 800, 1000]
+      max_depth: [null, 5, 10, 15, 20]
+      min_samples_leaf: [1, 2, 4, 8]
+      max_features: [sqrt, 0.33, 0.5, 1.0]
+  # Placeholders: not implemented in v1 (train.py stops with a message). Fill `space` when added;
+  # xgboost and catboost must first be added to envs/hisdac/environment.yml.
+  lgbm:        # lightgbm.LGBMRegressor
+    fixed: {random_state: 42}
+    space: {}
+  xgb:         # xgboost.XGBRegressor
+    fixed: {random_state: 42}
+    space: {}
+  catboost:    # catboost.CatBoostRegressor
+    fixed: {random_seed: 42}
+    space: {}
