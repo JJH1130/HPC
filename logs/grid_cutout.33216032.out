@@ -1,0 +1,265 @@
+== job 33216032 (grid_cutout) on c3cpu-e2-u1 at 2026-10-01T14:45:11-06:00
+== cores=2 gpus=none restart=0
+== git da4b1dc
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/study_area.yaml (name=massachusetts)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  extra args: 
+14:46:11 INFO arg config = configs/study_area.yaml
+14:46:11 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+14:46:11 INFO arg census_dir = /projects/jaju1407/data/processed/census
+14:46:11 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+14:46:11 INFO arg years = None
+14:46:11 INFO study area 'massachusetts': states=['Massachusetts'] | 22 config years 1810-2020 | writing 22 years -> /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+14:46:11 INFO layer BUI            years 1810-2020        resampling none     int32 | files to write: 22
+14:46:11 INFO layer BUPL           years 1810-2020        resampling none     int32 | files to write: 22
+14:46:11 INFO layer BUPR           years 1810-2020        resampling none     int32 | files to write: 22
+14:46:11 INFO layer BUA            years 1810-2020        resampling none     int32 | files to write: 22
+14:46:12 INFO layer FBUY           single file            resampling none     int32 | files to write: 1
+14:46:12 INFO layer NobuiltYear    single file            resampling none     int32 | files to write: 1
+14:46:12 INFO layer Land_Use_A     years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO layer Land_Use_C     years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO layer Land_Use_GV    years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO layer Land_Use_I     years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO layer Land_Use_RC    years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO layer Land_Use_RI    years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO layer Land_Use_RO    years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO layer Land_Use_VL    years 1940-2020        resampling none     int32 | files to write: 9
+14:46:12 INFO reference grid: 1810_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+14:46:19 INFO 162 rasters on the HISDAC grid (window read), 0 to warp onto it
+14:46:22 INFO 1810: 20 counties, bounds [1830833.0, 2302826.0, 2258244.0, 3013008.0]
+14:46:24 INFO 1820: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:26 INFO 1830: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:28 INFO 1840: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:31 INFO 1850: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:33 INFO 1860: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:36 INFO 1870: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:39 INFO 1880: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:42 INFO 1890: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:45 INFO 1900: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:48 INFO 1910: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:51 INFO 1920: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:54 INFO 1930: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:46:57 INFO 1940: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:00 INFO 1950: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:03 INFO 1960: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:06 INFO 1970: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:09 INFO 1980: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:12 INFO 1990: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:15 INFO 2000: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:17 INFO 2010: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:47:20 INFO 2020: 14 counties, bounds [1830830.0, 2302826.0, 2137714.0, 2477929.0]
+14:47:20 INFO window: col_off 16748 row_off 639 | 1711 x 2842 cells | bounds [1830601, 2302749, 2258351, 3013249] (counties [1830830, 2302826, 2258244, 3013008])
+14:47:20 INFO cutting 162 rasters
+14:47:20 INFO   BUI 1810           float64, window read -> int32 nodata=None | min 0.0 max 156834.0 | zeros 4859546 | nodata cells 0 | 0.1 MB
+14:47:20 INFO   BUI 1820           float64, window read -> int32 nodata=None | min 0.0 max 329603.0 | zeros 4853316 | nodata cells 0 | 0.1 MB
+14:47:21 INFO   BUI 1830           float64, window read -> int32 nodata=None | min 0.0 max 329603.0 | zeros 4845607 | nodata cells 0 | 0.2 MB
+14:47:21 INFO   BUI 1840           float64, window read -> int32 nodata=None | min 0.0 max 844952.0 | zeros 4838592 | nodata cells 0 | 0.2 MB
+14:47:21 INFO   BUI 1850           float64, window read -> int32 nodata=None | min 0.0 max 1061365.0 | zeros 4824371 | nodata cells 0 | 0.3 MB
+14:47:21 INFO   BUI 1860           float64, window read -> int32 nodata=None | min 0.0 max 1531048.0 | zeros 4817521 | nodata cells 0 | 0.3 MB
+14:47:22 INFO   BUI 1870           float64, window read -> int32 nodata=None | min 0.0 max 1531048.0 | zeros 4810378 | nodata cells 0 | 0.4 MB
+14:47:22 INFO   BUI 1880           float64, window read -> int32 nodata=None | min 0.0 max 1780890.0 | zeros 4796641 | nodata cells 0 | 0.4 MB
+14:47:22 INFO   BUI 1890           float64, window read -> int32 nodata=None | min 0.0 max 1790470.0 | zeros 4786359 | nodata cells 0 | 0.5 MB
+14:47:23 INFO   BUI 1900           float64, window read -> int32 nodata=None | min 0.0 max 2682901.0 | zeros 4758632 | nodata cells 0 | 0.6 MB
+14:47:23 INFO   BUI 1910           float64, window read -> int32 nodata=None | min 0.0 max 2969745.0 | zeros 4750622 | nodata cells 0 | 0.6 MB
+14:47:23 INFO   BUI 1920           float64, window read -> int32 nodata=None | min 0.0 max 3865614.0 | zeros 4737231 | nodata cells 0 | 0.7 MB
+14:47:24 INFO   BUI 1930           float64, window read -> int32 nodata=None | min 0.0 max 4826708.0 | zeros 4721628 | nodata cells 0 | 0.8 MB
+14:47:24 INFO   BUI 1940           float64, window read -> int32 nodata=None | min 0.0 max 4826708.0 | zeros 4703906 | nodata cells 0 | 0.8 MB
+14:47:24 INFO   BUI 1950           float64, window read -> int32 nodata=None | min 0.0 max 4826708.0 | zeros 4677218 | nodata cells 0 | 1.0 MB
+14:47:25 INFO   BUI 1960           float64, window read -> int32 nodata=None | min 0.0 max 4826708.0 | zeros 4644473 | nodata cells 0 | 1.1 MB
+14:47:25 INFO   BUI 1970           float64, window read -> int32 nodata=None | min 0.0 max 6025533.0 | zeros 4604433 | nodata cells 0 | 1.2 MB
+14:47:25 INFO   BUI 1980           float64, window read -> int32 nodata=None | min 0.0 max 6529908.0 | zeros 4560635 | nodata cells 0 | 1.4 MB
+14:47:26 INFO   BUI 1990           float64, window read -> int32 nodata=None | min 0.0 max 8256434.0 | zeros 4510645 | nodata cells 0 | 1.6 MB
+14:47:26 INFO   BUI 2000           float64, window read -> int32 nodata=None | min 0.0 max 8278442.0 | zeros 4475756 | nodata cells 0 | 1.7 MB
+14:47:26 INFO   BUI 2010           float64, window read -> int32 nodata=None | min 0.0 max 8278442.0 | zeros 4453803 | nodata cells 0 | 1.7 MB
+14:47:27 INFO   BUI 2020           float64, window read -> int32 nodata=None | min 0.0 max 8280240.0 | zeros 4446147 | nodata cells 0 | 1.8 MB
+14:47:27 INFO   BUPL 1810          float64, window read -> int32 nodata=None | min 0.0 max 19.0 | zeros 4859695 | nodata cells 0 | 0.0 MB
+14:47:27 INFO   BUPL 1820          float64, window read -> int32 nodata=None | min 0.0 max 23.0 | zeros 4853789 | nodata cells 0 | 0.1 MB
+14:47:28 INFO   BUPL 1830          float64, window read -> int32 nodata=None | min 0.0 max 29.0 | zeros 4846368 | nodata cells 0 | 0.1 MB
+14:47:28 INFO   BUPL 1840          float64, window read -> int32 nodata=None | min 0.0 max 35.0 | zeros 4839509 | nodata cells 0 | 0.1 MB
+14:47:28 INFO   BUPL 1850          float64, window read -> int32 nodata=None | min 0.0 max 87.0 | zeros 4825392 | nodata cells 0 | 0.1 MB
+14:47:29 INFO   BUPL 1860          float64, window read -> int32 nodata=None | min 0.0 max 92.0 | zeros 4818621 | nodata cells 0 | 0.1 MB
+14:47:29 INFO   BUPL 1870          float64, window read -> int32 nodata=None | min 0.0 max 117.0 | zeros 4811404 | nodata cells 0 | 0.1 MB
+14:47:29 INFO   BUPL 1880          float64, window read -> int32 nodata=None | min 0.0 max 186.0 | zeros 4797641 | nodata cells 0 | 0.2 MB
+14:47:29 INFO   BUPL 1890          float64, window read -> int32 nodata=None | min 0.0 max 218.0 | zeros 4787234 | nodata cells 0 | 0.2 MB
+14:47:30 INFO   BUPL 1900          float64, window read -> int32 nodata=None | min 0.0 max 329.0 | zeros 4758636 | nodata cells 0 | 0.2 MB
+14:47:30 INFO   BUPL 1910          float64, window read -> int32 nodata=None | min 0.0 max 358.0 | zeros 4750356 | nodata cells 0 | 0.3 MB
+14:47:31 INFO   BUPL 1920          float64, window read -> int32 nodata=None | min 0.0 max 368.0 | zeros 4736569 | nodata cells 0 | 0.3 MB
+14:47:31 INFO   BUPL 1930          float64, window read -> int32 nodata=None | min 0.0 max 372.0 | zeros 4720308 | nodata cells 0 | 0.3 MB
+14:47:31 INFO   BUPL 1940          float64, window read -> int32 nodata=None | min 0.0 max 372.0 | zeros 4701997 | nodata cells 0 | 0.3 MB
+14:47:32 INFO   BUPL 1950          float64, window read -> int32 nodata=None | min 0.0 max 372.0 | zeros 4674416 | nodata cells 0 | 0.4 MB
+14:47:32 INFO   BUPL 1960          float64, window read -> int32 nodata=None | min 0.0 max 372.0 | zeros 4640532 | nodata cells 0 | 0.4 MB
+14:47:32 INFO   BUPL 1970          float64, window read -> int32 nodata=None | min 0.0 max 372.0 | zeros 4598819 | nodata cells 0 | 0.5 MB
+14:47:33 INFO   BUPL 1980          float64, window read -> int32 nodata=None | min 0.0 max 374.0 | zeros 4553187 | nodata cells 0 | 0.5 MB
+14:47:33 INFO   BUPL 1990          float64, window read -> int32 nodata=None | min 0.0 max 378.0 | zeros 4500898 | nodata cells 0 | 0.6 MB
+14:47:33 INFO   BUPL 2000          float64, window read -> int32 nodata=None | min 0.0 max 394.0 | zeros 4464058 | nodata cells 0 | 0.6 MB
+14:47:34 INFO   BUPL 2010          float64, window read -> int32 nodata=None | min 0.0 max 396.0 | zeros 4440994 | nodata cells 0 | 0.7 MB
+14:47:34 INFO   BUPL 2020          float64, window read -> int32 nodata=None | min 0.0 max 400.0 | zeros 4432734 | nodata cells 0 | 0.7 MB
+14:47:35 INFO   BUPR 1810          float64, window read -> int32 nodata=None | min 0.0 max 30.0 | zeros 4859308 | nodata cells 0 | 0.0 MB
+14:47:35 INFO   BUPR 1820          float64, window read -> int32 nodata=None | min 0.0 max 72.0 | zeros 4852632 | nodata cells 0 | 0.1 MB
+14:47:35 INFO   BUPR 1830          float64, window read -> int32 nodata=None | min 0.0 max 116.0 | zeros 4844415 | nodata cells 0 | 0.1 MB
+14:47:36 INFO   BUPR 1840          float64, window read -> int32 nodata=None | min 0.0 max 132.0 | zeros 4836899 | nodata cells 0 | 0.1 MB
+14:47:36 INFO   BUPR 1850          float64, window read -> int32 nodata=None | min 0.0 max 261.0 | zeros 4821746 | nodata cells 0 | 0.1 MB
+14:47:36 INFO   BUPR 1860          float64, window read -> int32 nodata=None | min 0.0 max 327.0 | zeros 4814558 | nodata cells 0 | 0.1 MB
+14:47:36 INFO   BUPR 1870          float64, window read -> int32 nodata=None | min 0.0 max 378.0 | zeros 4807024 | nodata cells 0 | 0.2 MB
+14:47:37 INFO   BUPR 1880          float64, window read -> int32 nodata=None | min 0.0 max 607.0 | zeros 4792591 | nodata cells 0 | 0.2 MB
+14:47:37 INFO   BUPR 1890          float64, window read -> int32 nodata=None | min 0.0 max 856.0 | zeros 4781806 | nodata cells 0 | 0.2 MB
+14:47:37 INFO   BUPR 1900          float64, window read -> int32 nodata=None | min 0.0 max 1070.0 | zeros 4752384 | nodata cells 0 | 0.3 MB
+14:47:38 INFO   BUPR 1910          float64, window read -> int32 nodata=None | min 0.0 max 1126.0 | zeros 4743946 | nodata cells 0 | 0.3 MB
+14:47:38 INFO   BUPR 1920          float64, window read -> int32 nodata=None | min 0.0 max 1243.0 | zeros 4729993 | nodata cells 0 | 0.3 MB
+14:47:38 INFO   BUPR 1930          float64, window read -> int32 nodata=None | min 0.0 max 1251.0 | zeros 4713561 | nodata cells 0 | 0.3 MB
+14:47:39 INFO   BUPR 1940          float64, window read -> int32 nodata=None | min 0.0 max 1276.0 | zeros 4695053 | nodata cells 0 | 0.4 MB
+14:47:39 INFO   BUPR 1950          float64, window read -> int32 nodata=None | min 0.0 max 1323.0 | zeros 4667420 | nodata cells 0 | 0.4 MB
+14:47:39 INFO   BUPR 1960          float64, window read -> int32 nodata=None | min 0.0 max 1325.0 | zeros 4633702 | nodata cells 0 | 0.5 MB
+14:47:40 INFO   BUPR 1970          float64, window read -> int32 nodata=None | min 0.0 max 1620.0 | zeros 4592205 | nodata cells 0 | 0.5 MB
+14:47:40 INFO   BUPR 1980          float64, window read -> int32 nodata=None | min 0.0 max 1620.0 | zeros 4546870 | nodata cells 0 | 0.6 MB
+14:47:41 INFO   BUPR 1990          float64, window read -> int32 nodata=None | min 0.0 max 2351.0 | zeros 4495457 | nodata cells 0 | 0.7 MB
+14:47:41 INFO   BUPR 2000          float64, window read -> int32 nodata=None | min 0.0 max 2351.0 | zeros 4459443 | nodata cells 0 | 0.7 MB
+14:47:42 INFO   BUPR 2010          float64, window read -> int32 nodata=None | min 0.0 max 2351.0 | zeros 4436915 | nodata cells 0 | 0.8 MB
+14:47:42 INFO   BUPR 2020          float64, window read -> int32 nodata=None | min 0.0 max 2351.0 | zeros 4429170 | nodata cells 0 | 0.8 MB
+14:47:42 INFO   BUA 1810           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4859308 | nodata cells 0 | 0.0 MB
+14:47:43 INFO   BUA 1820           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4852632 | nodata cells 0 | 0.0 MB
+14:47:43 INFO   BUA 1830           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4844415 | nodata cells 0 | 0.1 MB
+14:47:43 INFO   BUA 1840           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4836899 | nodata cells 0 | 0.1 MB
+14:47:44 INFO   BUA 1850           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4821746 | nodata cells 0 | 0.1 MB
+14:47:44 INFO   BUA 1860           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4814558 | nodata cells 0 | 0.1 MB
+14:47:44 INFO   BUA 1870           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4807024 | nodata cells 0 | 0.1 MB
+14:47:44 INFO   BUA 1880           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4792591 | nodata cells 0 | 0.1 MB
+14:47:45 INFO   BUA 1890           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4781806 | nodata cells 0 | 0.1 MB
+14:47:45 INFO   BUA 1900           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4752384 | nodata cells 0 | 0.2 MB
+14:47:45 INFO   BUA 1910           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4743946 | nodata cells 0 | 0.2 MB
+14:47:46 INFO   BUA 1920           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4729993 | nodata cells 0 | 0.2 MB
+14:47:46 INFO   BUA 1930           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4713561 | nodata cells 0 | 0.2 MB
+14:47:46 INFO   BUA 1940           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4695053 | nodata cells 0 | 0.2 MB
+14:47:47 INFO   BUA 1950           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4667420 | nodata cells 0 | 0.2 MB
+14:47:47 INFO   BUA 1960           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4633702 | nodata cells 0 | 0.2 MB
+14:47:48 INFO   BUA 1970           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4592205 | nodata cells 0 | 0.2 MB
+14:47:48 INFO   BUA 1980           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4546870 | nodata cells 0 | 0.2 MB
+14:47:48 INFO   BUA 1990           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4495457 | nodata cells 0 | 0.3 MB
+14:47:49 INFO   BUA 2000           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4459443 | nodata cells 0 | 0.3 MB
+14:47:49 INFO   BUA 2010           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4436915 | nodata cells 0 | 0.3 MB
+14:47:49 INFO   BUA 2020           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 4429170 | nodata cells 0 | 0.3 MB
+14:47:50 INFO   FBUY               float64, window read -> int32 nodata=None | min 0.0 max 2021.0 | zeros 4434850 | nodata cells 0 | 1.0 MB
+14:47:51 INFO   NobuiltYear        float64, window read -> int32 nodata=None | min 0.0 max 2744.0 | zeros 4190200 | nodata cells 0 | 1.0 MB
+14:47:51 INFO   Land_Use_A 1940    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4860013 | nodata cells 0 | 0.0 MB
+14:47:51 INFO   Land_Use_A 1950    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4859413 | nodata cells 0 | 0.0 MB
+14:47:51 INFO   Land_Use_A 1960    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4858851 | nodata cells 0 | 0.0 MB
+14:47:51 INFO   Land_Use_A 1970    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4858228 | nodata cells 0 | 0.0 MB
+14:47:51 INFO   Land_Use_A 1980    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4857730 | nodata cells 0 | 0.0 MB
+14:47:52 INFO   Land_Use_A 1990    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4857157 | nodata cells 0 | 0.0 MB
+14:47:52 INFO   Land_Use_A 2000    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4856660 | nodata cells 0 | 0.0 MB
+14:47:52 INFO   Land_Use_A 2010    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4856300 | nodata cells 0 | 0.0 MB
+14:47:52 INFO   Land_Use_A 2020    int16, window read -> int32 nodata=None | min 0 max 71 | zeros 4856055 | nodata cells 0 | 0.0 MB
+14:47:52 INFO   Land_Use_C 1940    int16, window read -> int32 nodata=None | min 0 max 269 | zeros 4826529 | nodata cells 0 | 0.1 MB
+14:47:52 INFO   Land_Use_C 1950    int16, window read -> int32 nodata=None | min 0 max 269 | zeros 4818284 | nodata cells 0 | 0.1 MB
+14:47:52 INFO   Land_Use_C 1960    int16, window read -> int32 nodata=None | min 0 max 269 | zeros 4810158 | nodata cells 0 | 0.1 MB
+14:47:53 INFO   Land_Use_C 1970    int16, window read -> int32 nodata=None | min 0 max 280 | zeros 4800703 | nodata cells 0 | 0.2 MB
+14:47:53 INFO   Land_Use_C 1980    int16, window read -> int32 nodata=None | min 0 max 282 | zeros 4791715 | nodata cells 0 | 0.2 MB
+14:47:53 INFO   Land_Use_C 1990    int16, window read -> int32 nodata=None | min 0 max 282 | zeros 4781146 | nodata cells 0 | 0.2 MB
+14:47:53 INFO   Land_Use_C 2000    int16, window read -> int32 nodata=None | min 0 max 282 | zeros 4773129 | nodata cells 0 | 0.2 MB
+14:47:53 INFO   Land_Use_C 2010    int16, window read -> int32 nodata=None | min 0 max 284 | zeros 4768403 | nodata cells 0 | 0.2 MB
+14:47:54 INFO   Land_Use_C 2020    int16, window read -> int32 nodata=None | min 0 max 288 | zeros 4766185 | nodata cells 0 | 0.2 MB
+14:47:54 INFO   Land_Use_GV 1940   int16, window read -> int32 nodata=None | min 0 max 155 | zeros 4852844 | nodata cells 0 | 0.1 MB
+14:47:54 INFO   Land_Use_GV 1950   int16, window read -> int32 nodata=None | min 0 max 155 | zeros 4850521 | nodata cells 0 | 0.1 MB
+14:47:54 INFO   Land_Use_GV 1960   int16, window read -> int32 nodata=None | min 0 max 155 | zeros 4847745 | nodata cells 0 | 0.1 MB
+14:47:54 INFO   Land_Use_GV 1970   int16, window read -> int32 nodata=None | min 0 max 155 | zeros 4844752 | nodata cells 0 | 0.1 MB
+14:47:54 INFO   Land_Use_GV 1980   int16, window read -> int32 nodata=None | min 0 max 155 | zeros 4842630 | nodata cells 0 | 0.1 MB
+14:47:54 INFO   Land_Use_GV 1990   int16, window read -> int32 nodata=None | min 0 max 202 | zeros 4840470 | nodata cells 0 | 0.1 MB
+14:47:55 INFO   Land_Use_GV 2000   int16, window read -> int32 nodata=None | min 0 max 204 | zeros 4838392 | nodata cells 0 | 0.1 MB
+14:47:55 INFO   Land_Use_GV 2010   int16, window read -> int32 nodata=None | min 0 max 204 | zeros 4837168 | nodata cells 0 | 0.1 MB
+14:47:55 INFO   Land_Use_GV 2020   int16, window read -> int32 nodata=None | min 0 max 204 | zeros 4836753 | nodata cells 0 | 0.1 MB
+14:47:55 INFO   Land_Use_I 1940    int16, window read -> int32 nodata=None | min 0 max 11 | zeros 4862459 | nodata cells 0 | 0.0 MB
+14:47:55 INFO   Land_Use_I 1950    int16, window read -> int32 nodata=None | min 0 max 13 | zeros 4862359 | nodata cells 0 | 0.0 MB
+14:47:55 INFO   Land_Use_I 1960    int16, window read -> int32 nodata=None | min 0 max 20 | zeros 4862212 | nodata cells 0 | 0.0 MB
+14:47:55 INFO   Land_Use_I 1970    int16, window read -> int32 nodata=None | min 0 max 20 | zeros 4862074 | nodata cells 0 | 0.0 MB
+14:47:56 INFO   Land_Use_I 1980    int16, window read -> int32 nodata=None | min 0 max 20 | zeros 4861954 | nodata cells 0 | 0.0 MB
+14:47:56 INFO   Land_Use_I 1990    int16, window read -> int32 nodata=None | min 0 max 20 | zeros 4861838 | nodata cells 0 | 0.0 MB
+14:47:56 INFO   Land_Use_I 2000    int16, window read -> int32 nodata=None | min 0 max 20 | zeros 4861716 | nodata cells 0 | 0.0 MB
+14:47:56 INFO   Land_Use_I 2010    int16, window read -> int32 nodata=None | min 0 max 20 | zeros 4861642 | nodata cells 0 | 0.0 MB
+14:47:56 INFO   Land_Use_I 2020    int16, window read -> int32 nodata=None | min 0 max 20 | zeros 4861618 | nodata cells 0 | 0.0 MB
+14:47:56 INFO   Land_Use_RC 1940   int16, window read -> int32 nodata=None | min 0 max 30 | zeros 4861995 | nodata cells 0 | 0.0 MB
+14:47:57 INFO   Land_Use_RC 1950   int16, window read -> int32 nodata=None | min 0 max 62 | zeros 4861771 | nodata cells 0 | 0.0 MB
+14:47:57 INFO   Land_Use_RC 1960   int16, window read -> int32 nodata=None | min 0 max 90 | zeros 4861510 | nodata cells 0 | 0.0 MB
+14:47:57 INFO   Land_Use_RC 1970   int16, window read -> int32 nodata=None | min 0 max 94 | zeros 4861204 | nodata cells 0 | 0.0 MB
+14:47:57 INFO   Land_Use_RC 1980   int16, window read -> int32 nodata=None | min 0 max 106 | zeros 4860959 | nodata cells 0 | 0.0 MB
+14:47:57 INFO   Land_Use_RC 1990   int16, window read -> int32 nodata=None | min 0 max 218 | zeros 4860674 | nodata cells 0 | 0.0 MB
+14:47:57 INFO   Land_Use_RC 2000   int16, window read -> int32 nodata=None | min 0 max 316 | zeros 4860386 | nodata cells 0 | 0.0 MB
+14:47:57 INFO   Land_Use_RC 2010   int16, window read -> int32 nodata=None | min 0 max 426 | zeros 4860233 | nodata cells 0 | 0.0 MB
+14:47:58 INFO   Land_Use_RC 2020   int16, window read -> int32 nodata=None | min 0 max 430 | zeros 4860153 | nodata cells 0 | 0.0 MB
+14:47:58 INFO   Land_Use_RI 1940   int16, window read -> int32 nodata=None | min 0 max 329 | zeros 4815477 | nodata cells 0 | 0.1 MB
+14:47:58 INFO   Land_Use_RI 1950   int16, window read -> int32 nodata=None | min 0 max 329 | zeros 4812317 | nodata cells 0 | 0.1 MB
+14:47:59 INFO   Land_Use_RI 1960   int16, window read -> int32 nodata=None | min 0 max 329 | zeros 4809144 | nodata cells 0 | 0.2 MB
+14:47:59 INFO   Land_Use_RI 1970   int16, window read -> int32 nodata=None | min 0 max 329 | zeros 4804747 | nodata cells 0 | 0.2 MB
+14:48:00 INFO   Land_Use_RI 1980   int16, window read -> int32 nodata=None | min 0 max 329 | zeros 4801153 | nodata cells 0 | 0.2 MB
+14:48:00 INFO   Land_Use_RI 1990   int16, window read -> int32 nodata=None | min 0 max 329 | zeros 4797230 | nodata cells 0 | 0.2 MB
+14:48:00 INFO   Land_Use_RI 2000   int16, window read -> int32 nodata=None | min 0 max 333 | zeros 4795066 | nodata cells 0 | 0.2 MB
+14:48:00 INFO   Land_Use_RI 2010   int16, window read -> int32 nodata=None | min 0 max 333 | zeros 4793949 | nodata cells 0 | 0.2 MB
+14:48:00 INFO   Land_Use_RI 2020   int16, window read -> int32 nodata=None | min 0 max 333 | zeros 4793373 | nodata cells 0 | 0.2 MB
+14:48:01 INFO   Land_Use_RO 1940   int16, window read -> int32 nodata=None | min 0 max 1183 | zeros 4709691 | nodata cells 0 | 0.3 MB
+14:48:01 INFO   Land_Use_RO 1950   int16, window read -> int32 nodata=None | min 0 max 1183 | zeros 4675933 | nodata cells 0 | 0.4 MB
+14:48:01 INFO   Land_Use_RO 1960   int16, window read -> int32 nodata=None | min 0 max 1183 | zeros 4642902 | nodata cells 0 | 0.5 MB
+14:48:01 INFO   Land_Use_RO 1970   int16, window read -> int32 nodata=None | min 0 max 1595 | zeros 4601371 | nodata cells 0 | 0.5 MB
+14:48:02 INFO   Land_Use_RO 1980   int16, window read -> int32 nodata=None | min 0 max 1595 | zeros 4559332 | nodata cells 0 | 0.6 MB
+14:48:02 INFO   Land_Use_RO 1990   int16, window read -> int32 nodata=None | min 0 max 2343 | zeros 4511713 | nodata cells 0 | 0.7 MB
+14:48:02 INFO   Land_Use_RO 2000   int16, window read -> int32 nodata=None | min 0 max 2343 | zeros 4476498 | nodata cells 0 | 0.7 MB
+14:48:03 INFO   Land_Use_RO 2010   int16, window read -> int32 nodata=None | min 0 max 2343 | zeros 4460301 | nodata cells 0 | 0.7 MB
+14:48:03 INFO   Land_Use_RO 2020   int16, window read -> int32 nodata=None | min 0 max 2343 | zeros 4454897 | nodata cells 0 | 0.7 MB
+14:48:03 INFO   Land_Use_VL 1940   int16, window read -> int32 nodata=None | min 0 max 44 | zeros 4855713 | nodata cells 0 | 0.0 MB
+14:48:03 INFO   Land_Use_VL 1950   int16, window read -> int32 nodata=None | min 0 max 44 | zeros 4853644 | nodata cells 0 | 0.0 MB
+14:48:03 INFO   Land_Use_VL 1960   int16, window read -> int32 nodata=None | min 0 max 44 | zeros 4851595 | nodata cells 0 | 0.1 MB
+14:48:04 INFO   Land_Use_VL 1970   int16, window read -> int32 nodata=None | min 0 max 44 | zeros 4849435 | nodata cells 0 | 0.1 MB
+14:48:04 INFO   Land_Use_VL 1980   int16, window read -> int32 nodata=None | min 0 max 47 | zeros 4847331 | nodata cells 0 | 0.1 MB
+14:48:04 INFO   Land_Use_VL 1990   int16, window read -> int32 nodata=None | min 0 max 120 | zeros 4844753 | nodata cells 0 | 0.1 MB
+14:48:04 INFO   Land_Use_VL 2000   int16, window read -> int32 nodata=None | min 0 max 120 | zeros 4842676 | nodata cells 0 | 0.1 MB
+14:48:04 INFO   Land_Use_VL 2010   int16, window read -> int32 nodata=None | min 0 max 120 | zeros 4841396 | nodata cells 0 | 0.1 MB
+14:48:04 INFO   Land_Use_VL 2020   int16, window read -> int32 nodata=None | min 0 max 120 | zeros 4840310 | nodata cells 0 | 0.1 MB
+14:48:04 INFO zone grids
+14:48:06 INFO   zones 1810: 20 counties, 1681989 cells assigned | area ratio min 0.997 median 1.000 max 1.007
+14:48:06 INFO   zones 1820: 14 counties, 336164 cells assigned | area ratio min 0.997 median 1.000 max 1.007
+14:48:07 INFO   zones 1830: 14 counties, 336164 cells assigned | area ratio min 0.997 median 1.000 max 1.007
+14:48:08 INFO   zones 1840: 14 counties, 336164 cells assigned | area ratio min 0.997 median 1.000 max 1.007
+14:48:09 INFO   zones 1850: 14 counties, 336164 cells assigned | area ratio min 0.997 median 1.000 max 1.008
+14:48:10 INFO   zones 1860: 14 counties, 336164 cells assigned | area ratio min 0.997 median 1.000 max 1.008
+14:48:11 INFO   zones 1870: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.005
+14:48:12 INFO   zones 1880: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.003
+14:48:13 INFO   zones 1890: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.003
+14:48:14 INFO   zones 1900: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.003
+14:48:15 INFO   zones 1910: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.003
+14:48:17 INFO   zones 1920: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:18 INFO   zones 1930: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:20 INFO   zones 1940: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:21 INFO   zones 1950: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:22 INFO   zones 1960: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:24 INFO   zones 1970: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:25 INFO   zones 1980: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:26 INFO   zones 1990: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:28 INFO   zones 2000: 14 counties, 335900 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:29 INFO   zones 2010: 14 counties, 335899 cells assigned | area ratio min 0.997 median 1.000 max 1.002
+14:48:30 INFO   zones 2020: 14 counties, 335850 cells assigned | area ratio min 0.997 median 1.000 max 1.003
+14:48:31 INFO QA by year:
+      counties  zero_cell  ratio_min  ratio_median  ratio_max
+year                                                         
+1810        20          0      0.997           1.0      1.007
+1820        14          0      0.997           1.0      1.007
+1830        14          0      0.997           1.0      1.007
+1840        14          0      0.997           1.0      1.007
+1850        14          0      0.997           1.0      1.008
+1860        14          0      0.997           1.0      1.008
+1870        14          0      0.997           1.0      1.005
+1880        14          0      0.997           1.0      1.003
+1890        14          0      0.997           1.0      1.003
+1900        14          0      0.997           1.0      1.003
+1910        14          0      0.997           1.0      1.003
+1920        14          0      0.997           1.0      1.002
+1930        14          0      0.997           1.0      1.002
+1940        14          0      0.997           1.0      1.002
+1950        14          0      0.997           1.0      1.002
+1960        14          0      0.997           1.0      1.002
+1970        14          0      0.997           1.0      1.002
+1980        14          0      0.997           1.0      1.002
+1990        14          0      0.997           1.0      1.002
+2000        14          0      0.997           1.0      1.002
+2010        14          0      0.997           1.0      1.002
+2020        14          0      0.997           1.0      1.003
+14:48:31 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+14:48:31 INFO DONE
+60M	/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+== done 2026-10-01T14:48:31-06:00
