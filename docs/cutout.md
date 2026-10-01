@@ -107,6 +107,6 @@ its population cannot be allocated. These cases need a decision; see Open items.
 ## Open items
 
 - [ ] Decide how to handle counties with 0 cells (e.g., assign the cell nearest the centroid).
-- [ ] Review counties with `area_ratio` far from 1 after the first Massachusetts run.
+- [x] Review counties with `area_ratio` far from 1 after the first Massachusetts run. Full run (job 33216032): 0.997–1.008 in every year; the largest deviation is Suffolk (small county, ±1 cell). No action needed.
 - [ ] Before switching to `states: all`, raise `--ntasks` and `--time` in `sbatch/grid_cutout.sh`
   (the CONUS window is about 1 GB per layer-year).

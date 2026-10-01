@@ -5,7 +5,7 @@ per-year county zone grids. Rules are in `docs/cutout.md`. Code: `src/grid/make_
 job: `sbatch/grid_cutout.sh` (acpu, 2 cores, 1 h, env `hisdac`). Prerequisite: the full
 census_prepare run (`Preparing_Census.md`), because this job reads `counties_{YEAR}.gpkg`.
 
-**Status:** quick test (`--years 1810 1940`) passed on Alpine: job 33165456, 2026-09-29 cluster time. Full run not yet done.
+**Status:** full run (22 years) passed on Alpine: job 33216032, 2026-10-01 cluster time. Quick test: job 33165456.
 
 HISDAC is read from `/pl/active/Leyk_Lab/data/HISDAC_US_V2` (**read only**; nothing is written
 to PetaLibrary). Output goes to `/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/`.
@@ -98,3 +98,4 @@ Then tell Claude to pull.
 - 2026-09-30: runbook written. The FBUY/NobuiltYear file names aren't known yet; the config uses the globs `**/*FBUY*.tif` and `**/*NobuiltYear*.tif`, which must each match exactly one file.
 - 2026-09-30: added Land_Use (8 classes, 1940–2020; Theme files not used). Layers are now listed only in the config, each with a `resampling` method, so external rasters (DEM, NTL, land cover) can be added with one line. Tested on synthetic data only.
 - 2026-09-29 (cluster time), job 33165456 on `c3cpu-e2-u10` (code a0ba5ad), `--years 1810 1940`: took 1 min 43 s, about 50 s of it reading the 22 county files for the window. Output was 1.6 MB. The HISDAC grid is 18459 x 11615 cells, origin (-2356398.7593, 3172999.2874). The window is 1711 x 2842 cells (col_off 16748, row_off 639). Its height comes from 1810 (Massachusetts including Maine); from 1820 on, Massachusetts uses only ~7% of the window. HISDAC sources are float64 with no nodata declared, all whole numbers. All 18 rasters were on the grid. Area ratio was 0.997–1.007, and no county got 0 cells (20 counties in 1810, 14 in 1940).
+- 2026-10-01 (cluster time), job 33216032 on `c3cpu-e2-u1` (code da4b1dc), full run: took 3 min 20 s and wrote 162 rasters (60 MB). All were window reads with no nodata cells and no negative values. NobuiltYear max is 2744; it is a count (see `docs/cutout.md`). QA: 314 county-years, no county got 0 cells, and area ratio was 0.997–1.008 in every year. The largest deviation was Suffolk at 1.0077 in 1850/1860 (about 60 km², so ±1 cell matters). The 1810 window has 20 counties and later years 14. Assigned cells: 336164 in 1820–1860, 335900 in 1870–2000, 335899 in 2010, 335850 in 2020.
