@@ -16,7 +16,7 @@ Each stage runs on its own and reads only what the stage before it wrote, so a s
 alone (e.g., only stage 3 after changing the map years). The small outputs are copied to
 `results/dasymetric/massachusetts/v1/` for git. The rasters stay on scratch.
 
-**Status:** tested on fake data only (laptop, 2026-10-02). Not yet run on Alpine.
+**Status:** first full run passed on Alpine: jobs 33217129 / 33217130 / 33217131 (features / train / predict), 2026-10-01 cluster time.
 
 ## 1. Sync + preflight (login node)
 
@@ -96,3 +96,17 @@ Then tell Claude to pull.
   cells outside the counties were NoData, and the lgbm placeholder and a used county with 0 cells
   stopped with clear errors. The PNG maps were checked in a separate Python environment, because
   matplotlib crashes when saving PNGs in the laptop env.
+- 2026-10-01 (cluster time), jobs 33217129 / 33217130 / 33217131 (code 8d93125). Features took 20 s,
+  training 1 min, and prediction 2.5 min, including about 1.5 min loading the model. 314 training rows
+  from 22 counties (GISJOIN) over 22 years. Best params: n_estimators 200, max_depth 20,
+  min_samples_leaf 2, max_features 1.0. CV RMSE 0.766 +/- 0.435 and CV R2 0.684 +/- 0.220; training
+  RMSE 0.262; sd(y) 1.552. Fold RMSE: 0.23 / 1.41 / 0.33 / 0.97 / 0.89. Reproducing the folds on the
+  laptop showed that the large errors come from the extremes. Suffolk, the densest county, is
+  under-predicted by about 2 when it is held out, because RF can't predict past the training range.
+  The 1810 Maine counties (Somerset, Washington, Hancock, Oxford; y near 0) are over-predicted by
+  2-3. Dukes and Nantucket (islands) are over-predicted. Mainland counties have per-county RMSE
+  0.05-0.5. Permutation importance: bui 1.97, year 0.74, bua 0.33, others 0.11-0.15. Reallocation: all 314
+  county-years were preserved (max relative difference 3.4e-8), with no negative or NaN cells. y_hat
+  ranges 0.16-8.5; the floor 0.161 is the unbuilt cell. Max cell population falls from 6289 (1810)
+  to 592 (2020): in early years, the few HISDAC-built cells take most of a county's population.
+  Predictions take 8.3 MB on scratch.
