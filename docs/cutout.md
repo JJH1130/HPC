@@ -3,7 +3,7 @@
 Rules for cutting a test region out of the HISDAC-US V2 rasters and building the
 per-year county zone grids that link each 250 m cell to its census county.
 
-Last updated: 2026-09-30
+Last updated: 2026-10-02
 
 Code: `src/grid/make_cutout.py` · Config: `configs/study_area.yaml` · Job:
 `sbatch/grid_cutout.sh` · Runbook: `docs/runbooks/Making_Cutout.md`
@@ -51,7 +51,7 @@ purged 90 days after creation, so rerun the job to rebuild them.
 | `layers/{LAYER}/{YEAR}_{LAYER}.tif` | Yearly layers clipped to the window. int32 (or float32 if configured), deflate |
 | `layers/{LAYER}/<source file name>` | Single-file layers (FBUY, NobuiltYear) |
 | `layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif` | Land use counts, 1940–2020 |
-| `zones/zones_{YEAR}.tif` | County ID per cell (uint16). 0 = nodata |
+| `zones/zones_{YEAR}.tif` | County ID per cell (uint16). 0 = nodata (outside the selected counties) |
 | `zones/zones_{YEAR}.csv` | `zone_id`, `GISJOIN`, `state`, `name`, `pop`, `status`, `area_km2` for the selected counties |
 | `cutout_qa.csv` | Per year and county: `n_cells`, `cell_area_km2` = n_cells × 0.0625, `area_ratio` = cell_area_km2 / area_km2 |
 
@@ -87,6 +87,14 @@ Copies of `window.json`, `cutout_qa.csv` and `zones/*.csv` are also saved to `re
    not selected, and cells outside all counties, are 0 (nodata).
 8. **QA.** For every year and county, record the number of cells assigned and the ratio of
    cell area to polygon area in `cutout_qa.csv`. Counties with 0 cells trigger a warning.
+
+**NobuiltYear is a count, not a year.** Each cell holds the number of built structures (records)
+with no built year (HISDAC README: "built structures without built year"). Values are whole-number
+counts (0–733 checked around Boston; a maximum of 2744 is normal), so int32 is correct.
+
+**Downstream stages use only cells with zone > 0.** In the layers, 0 mixes "no building" with
+"outside the study counties", so the two are always told apart with `zones/zones_{YEAR}.tif`,
+never with the layer values.
 
 ## Interpreting `area_ratio`
 

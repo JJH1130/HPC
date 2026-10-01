@@ -29,6 +29,10 @@ When more code is added, update this file with:
 - Commands to build, lint, and run tests (including running a single test)
 - The high-level architecture/module layout, focused on things not obvious from reading one file
 
+## 언어 규칙
+
+사용자에게 하는 답변은 항상 한국어로 한다. 코드, 주석, 커밋 메시지, docs 문서는 영어로 유지한다.
+
 ## 작업 방식: Claude ↔ Alpine 클러스터
 
 이 저장소의 코드는 CU Boulder Alpine HPC 클러스터에서 `sbatch`로 실행된다. **Claude는 클러스터에 직접
