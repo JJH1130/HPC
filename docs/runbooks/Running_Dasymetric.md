@@ -25,7 +25,7 @@ skipped with a warning and the run still finishes. Stage 3 also reads
 `/projects/jaju1407/data/processed/census/counties_2020.gpkg` for the state background of the maps.
 
 **Status:** v1 passed on Alpine: jobs 33217129 / 33217130 / 33217131 (features / train / predict), 2026-10-01 cluster time.
-v2: tested on fake data only; not yet run on Alpine.
+v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster time.
 
 ## 1. Sync + preflight (login node)
 
@@ -111,6 +111,43 @@ Then tell Claude to pull.
 
 ## Notes
 
+- 2026-10-05 (cluster time), v2 jobs 33445813 / 33445814 / 33445815 (code 38ed1e2). Features took
+  1.5 min, training 2 min, and prediction 1.5 min. Predictions take 19 MB on scratch. There were 314
+  training rows (22 GISJOIN, 22 years). Each county has one GISJOIN in every year, so the folds don't
+  leak. Fold 4 holds Bristol, Nantucket, Somerset and all seven 1810-only Maine counties.
+  - CV on the same folds: v2 RMSE 0.756 +/- 0.438, R2 0.699 +/- 0.202, against v1 0.766 / 0.684.
+    v1 recomputed on the v2 folds reproduced v1's reported values exactly, so the comparison is like
+    for like. v2 is not worse, but the gain is small. Fold RMSE: 0.23 / 1.43 / 0.32 / 0.92 / 0.88.
+    Best params: n_estimators 1000, max_depth 10, min_samples_leaf 2, max_features 0.5. Training
+    RMSE was 0.254.
+  - Per county (out-of-fold, recomputed on the laptop from the results CSVs): the large errors are the
+    same as in v1. 1810 Somerset, Washington, Hancock and Oxford are over-predicted by 2.2-3.0
+    (v1: the same to within 0.02). Their county-mean dist_built is 38-96 km, and no other training
+    county is above 7 km. They are all in fold 4, so when they are held out the model has never
+    seen a remote county. Suffolk is under-predicted by about 1.9-2.5, as in v1, because RF can't
+    predict above the training range. Dukes is over-predicted by 1.1-2.2. v2 improved Barnstable,
+    Dukes, Nantucket, Plymouth and Norfolk by 0.1-0.3, and was worse for Hampden, Franklin and
+    Berkshire County (2010/2020) by 0.15-0.3.
+  - Correlation (Spearman, county features): the design expected no |rho| > 0.8 within Building,
+    and that did not hold. bldg_size-mu_ratio is 0.989, bui-bldg_size 0.984 and bui-mu_ratio 0.979.
+    age-year is 0.950. All features have |rho| >= 0.80 with each other except year with the
+    building ratios (0.86-0.88). The county means are ordered by development level in both space
+    and time, so ratios computed per cell still move together once averaged to the county.
+  - SHAP (mean |SHAP|): bldg_size 0.52, bui 0.46, dist_built 0.39, year 0.19, age 0.12,
+    mu_ratio 0.07. Grouped: Building 1.01, Settlement context 0.34, Period 0.19. Permutation importance
+    gives the same order for the top three. By year: age falls from 0.30 (1810) to 0.04-0.09 (after
+    1900). year is about 0.3 before 1900, 0.06 in 1900-1950 and 0.18 after 1980. dist_built is steady
+    at 0.32-0.44 after 1820 (0.72 in 1810).
+  - Maps: in 1810 v2, cells in inland Maine vary with distance to the nearest built cell (rings around
+    isolated built cells), and population is denser along the coast and at built cells in
+    Massachusetts. The straight county boundaries in inland Maine are weaker but still visible.
+    Reallocation keeps each county's census total, so a step at a boundary between counties of
+    different density stays. Cell y_hat bottoms out at 0.629 in every year from 1820 on (0.101 in
+    1810), so the most remote cells share one value.
+  - Reallocation: all 314 county-years were preserved (max relative difference 9.4e-9), with no
+    negative or NaN cells. Max cell population was 7231 (1810) and 750 (2020).
+  - mu_ratio (BUPR / BUPL) goes up to 2.9 as a county mean. BUPR can be greater than BUPL in a
+    cell, so it is not a share bounded by 1.
 - 2026-10-06: v2 implemented (`docs/dasymetric_v2.md`). Tested on a fake 3-year cutout (13 counties,
   one `nodata_zero` in 1900, built cells outside the counties). v1 was run first with the committed
   v1 code (eaebf31), then v2 with the new code. All three v2 stages ran. Mass was preserved (max relative

@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-06 (v2 design delivered)
+Last updated: 2026-10-06 (v2 first run)
 
 ## Open items
 
@@ -25,9 +25,12 @@ Last updated: 2026-10-06 (v2 design delivered)
 
 ### Dasymetric v2 design delivered
 
-- **Status:** design delivered (`docs/dasymetric_v2.md`), implemented and
-  tested on fake data; waiting for the first Alpine run
-  (`docs/runbooks/Running_Dasymetric.md`).
+- **Status:** design delivered (`docs/dasymetric_v2.md`) and implemented.
+  First Alpine run passed 2026-10-05 (jobs 33445813-33445815); results are in
+  `docs/runbooks/Running_Dasymetric.md` (Notes). Waiting on the user's review.
+- Run results that need a decision: the Building features are still highly
+  correlated (|rho| 0.98-0.99, against the design's "none above 0.8"), and
+  age-year rho is 0.950 with age at mean |SHAP| 0.12.
 - Focal (neighborhood) means were rejected in the design; v2 adds
   `bldg_size` and `dist_built` instead, drops `bupl`, `bupr`, `bua`, and uses
   SHAP (per feature, grouped by concept, by year) as the main importance.
