@@ -1,0 +1,43 @@
+{
+  "model": "rf",
+  "version": "v3_1",
+  "era": "E2",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "dist_built",
+    "year",
+    "res_share",
+    "rent_share"
+  ],
+  "n_rows": 84,
+  "n_counties": 14,
+  "n_years": 6,
+  "cv": "5 folds, v2/model/folds.csv by GISJOIN",
+  "scoring": "neg_root_mean_squared_error",
+  "cv_rmse_mean": 0.560296023971798,
+  "cv_rmse_sd": 0.34546041588583937,
+  "cv_rmse_folds": [
+    0.3539894584408268,
+    1.24823353512537,
+    0.3709536156447893,
+    0.44826358888993345,
+    0.380039921758071
+  ],
+  "cv_r2_mean": 0.7284144231230497,
+  "cv_r2_sd": 0.19379271438421294,
+  "cv_r2_folds": [
+    0.8604729822745976,
+    0.6009941711447147,
+    0.40639931643957494,
+    0.8918436939237842,
+    0.8823619518325778
+  ],
+  "train_rmse": 0.10146231872137551,
+  "train_r2": 0.9947582316395767,
+  "y_sd": 1.4014121244068083,
+  "target": "log(pop / (0.0625 x unmasked cells))",
+  "oof_pooled_rmse": 0.6737256573503078,
+  "oof_pooled_r2": 0.7688816477168683
+}

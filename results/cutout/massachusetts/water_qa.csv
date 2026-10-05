@@ -1,0 +1,27 @@
+item,value
+window_cells,4862662
+window_nodata_cells,0
+study_cells,1682644
+study_uncovered_cells,0
+min,0.0
+max,1.0
+study_mean,0.02075587585568428
+study_share_gt0,0.05276576625834104
+study_share_eq1,0.007241579323968707
+jrc_pixels,850456482
+jrc_nodata_pixels,153352118
+water_pixels,85735864
+reservoir_pixels_removed,6220333
+jrc_nodata_share,0.18031741922804229
+Quabbin Reservoir: cells,441
+Quabbin Reservoir: mean,0.0027598501183092594
+Quabbin Reservoir: max,0.2110099494457245
+Quabbin Reservoir: share_eq0,0.9183673469387755
+Quabbin Reservoir: n_eq1,0
+Quabbin Reservoir: expect dry,ok
+Connecticut River (Springfield): cells,169
+Connecticut River (Springfield): mean,0.1013341024518013
+Connecticut River (Springfield): max,0.9727271795272827
+Connecticut River (Springfield): share_eq0,0.7692307692307693
+Connecticut River (Springfield): n_eq1,0
+Connecticut River (Springfield): expect full_water,not met
