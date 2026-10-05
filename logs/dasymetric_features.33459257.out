@@ -1,0 +1,72 @@
+== job 33459257 (dasymetric_features) on c3cpu-c15-u3-4 at 2026-10-05T14:53:15-06:00
+== cores=2 gpus=none restart=0
+== git 8e6c35e
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v3)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3  extra args: 
+14:53:25 INFO arg config = configs/model.yaml
+14:53:25 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+14:53:25 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+14:53:25 INFO study 'massachusetts' v3 | 22 years 1810-2020 | use_status ['ok', 'manual_fill'] -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3
+14:53:25 INFO era E1 | 13 years 1810-1930 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year']
+14:53:27 INFO   1810: 20 counties in the table, 20 used, 1681989 cells
+14:53:28 INFO   1820: 14 counties in the table, 14 used, 336164 cells
+14:53:29 INFO   1830: 14 counties in the table, 14 used, 336164 cells
+14:53:30 INFO   1840: 14 counties in the table, 14 used, 336164 cells
+14:53:31 INFO   1850: 14 counties in the table, 14 used, 336164 cells
+14:53:32 INFO   1860: 14 counties in the table, 14 used, 336164 cells
+14:53:34 INFO   1870: 14 counties in the table, 14 used, 335900 cells
+14:53:35 INFO   1880: 14 counties in the table, 14 used, 335900 cells
+14:53:37 INFO   1890: 14 counties in the table, 14 used, 335900 cells
+14:53:37 INFO   1900: 14 counties in the table, 14 used, 335900 cells
+14:53:39 INFO   1910: 14 counties in the table, 14 used, 335900 cells
+14:53:41 INFO   1920: 14 counties in the table, 14 used, 335900 cells
+14:53:43 INFO   1930: 14 counties in the table, 14 used, 335900 cells
+14:53:43 INFO era E1: 188 training rows | 22 counties (GISJOIN) | 13 years
+14:53:43 INFO feature summary:
+            count      mean        std       min       25%       50%       75%         max
+bui         188.0  8018.950  35259.241     0.023   252.406  1008.453  2962.892  302240.348
+bldg_size   188.0   716.592   1844.287     0.023   110.147   267.352   669.518   13515.822
+mu_ratio    188.0     0.199      0.318     0.000     0.043     0.099     0.222       2.025
+dist_built  188.0     2.680     10.788     0.142     0.619     0.941     1.478      96.460
+year        188.0  1868.085     38.398  1810.000  1830.000  1870.000  1900.000    1930.000
+y           188.0     3.959      1.473    -0.331     3.096     3.568     4.586       8.633
+14:53:43 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3/E1/features/county_features.csv
+14:53:43 INFO era E2 | 6 years 1940-1990 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year', 'res_share', 'rent_share']
+14:53:46 INFO   1940: 14 counties in the table, 14 used, 335900 cells
+14:53:48 INFO   1950: 14 counties in the table, 14 used, 335900 cells
+14:53:51 INFO   1960: 14 counties in the table, 14 used, 335900 cells
+14:53:53 INFO   1970: 14 counties in the table, 14 used, 335900 cells
+14:53:55 INFO   1980: 14 counties in the table, 14 used, 335900 cells
+14:53:58 INFO   1990: 14 counties in the table, 14 used, 335900 cells
+14:53:58 INFO era E2: 84 training rows | 14 counties (GISJOIN) | 6 years
+14:53:58 INFO feature summary:
+            count       mean        std       min       25%        50%        75%         max
+bui          84.0  43079.268  89987.040  2209.653  5827.288  15424.074  30156.492  399301.885
+bldg_size    84.0   2936.857   4178.150   320.812   898.528   1705.896   2842.568   20143.632
+mu_ratio     84.0      0.739      0.546     0.163     0.379      0.600      0.896       2.625
+dist_built   84.0      0.404      0.253     0.106     0.215      0.345      0.525       1.372
+year         84.0   1965.000     17.181  1940.000  1950.000   1965.000   1980.000    1990.000
+res_share    84.0      0.342      0.153     0.098     0.213      0.329      0.459       0.619
+rent_share   84.0      0.043      0.065     0.003     0.010      0.024      0.044       0.284
+y            84.0      5.076      1.412     2.978     3.931      5.056      5.929       8.652
+14:53:58 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3/E2/features/county_features.csv
+14:53:58 INFO era E3 | 3 years 2000-2020 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year', 'res_share', 'rent_share', 'ntl']
+14:54:01 INFO   2000: 14 counties in the table, 14 used, 335900 cells
+14:54:04 INFO   2010: 14 counties in the table, 14 used, 335899 cells
+14:54:07 INFO   2020: 14 counties in the table, 14 used, 335850 cells
+14:54:07 INFO era E3: 42 training rows | 14 counties (GISJOIN) | 3 years
+14:54:07 INFO feature summary:
+            count       mean         std       min        25%        50%        75%         max
+bui          42.0  68574.535  123920.630  4958.074  16514.829  31588.499  65871.287  535040.105
+bldg_size    42.0   5361.224    5937.884  1000.317   1702.103   3444.818   6063.611   26735.399
+mu_ratio     42.0      1.146       0.612     0.390      0.622      1.169      1.417       2.904
+dist_built   42.0      0.283       0.199     0.083      0.136      0.261      0.329       0.869
+year         42.0   2010.000       8.264  2000.000   2000.000   2010.000   2020.000    2020.000
+res_share    42.0      0.479       0.136     0.227      0.400      0.485      0.584       0.654
+rent_share   42.0      0.040       0.062     0.006      0.014      0.022      0.040       0.258
+ntl          42.0     30.635      17.068     5.475     13.085     30.529     43.923      61.469
+y            42.0      5.465       1.246     3.634      4.452      5.464      6.313       8.534
+14:54:07 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3/E3/features/county_features.csv
+14:54:07 INFO county-years: 314 before status filtering (expected 314 for massachusetts), 314 training rows over 3 era(s)
+14:54:07 INFO DONE
+== done 2026-10-05T14:54:07-06:00

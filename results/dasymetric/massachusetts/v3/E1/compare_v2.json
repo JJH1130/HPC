@@ -1,0 +1,43 @@
+{
+  "version": "v2",
+  "model": "rf",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "age",
+    "dist_built",
+    "year"
+  ],
+  "best_params": {
+    "n_estimators": 1000,
+    "min_samples_leaf": 2,
+    "max_features": 0.5,
+    "max_depth": 10
+  },
+  "n_rows_fit": 314,
+  "n_rows_scored": 188,
+  "folds": "same as this model (folds.csv)",
+  "cv_rmse_mean": 0.7741895331785462,
+  "cv_rmse_sd": 0.4815380006072532,
+  "cv_rmse_folds": [
+    0.22795624034094095,
+    1.555016001061038,
+    0.34908634116845283,
+    0.7074666267238319,
+    1.031422456598467
+  ],
+  "cv_r2_mean": 0.6320073000427138,
+  "cv_r2_sd": 0.21845407071873532,
+  "cv_r2_folds": [
+    0.9407201846770928,
+    0.47764990956530895,
+    0.8423509420775797,
+    0.38357491186612247,
+    0.5157405520274653
+  ],
+  "pooled_rmse": 0.9113699144590689,
+  "pooled_r2": 0.6149159462471151,
+  "all_rows_reported_cv_rmse_mean": 0.7554744388924967,
+  "all_rows_reported_cv_r2_mean": 0.6986427105770279
+}

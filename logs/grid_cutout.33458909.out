@@ -1,0 +1,46 @@
+== job 33458909 (grid_cutout) on c3cpu-e2-u2 at 2026-10-05T14:46:39-06:00
+== cores=2 gpus=none restart=0
+== git 8e6c35e
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/study_area.yaml (name=massachusetts)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  extra args: --layers NTL
+14:47:43 INFO arg config = configs/study_area.yaml
+14:47:43 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+14:47:43 INFO arg census_dir = /projects/jaju1407/data/processed/census
+14:47:43 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+14:47:43 INFO arg years = None
+14:47:43 INFO arg layers = ['NTL']
+14:47:43 INFO study area 'massachusetts': states=['Massachusetts'] | 22 config years 1810-2020 | writing 22 years -> /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+14:47:53 INFO layer NTL            years 2000-2020        resampling nearest  int16 | files to write: 3
+14:47:54 INFO reference grid: 1810_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+14:47:55 INFO 0 rasters on the HISDAC grid (window read), 3 to warp onto it
+14:47:59 INFO 1810: 20 counties, bounds [1830833.0, 2302826.0, 2258244.0, 3013008.0]
+14:48:01 INFO 1820: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:04 INFO 1830: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:05 INFO 1840: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:08 INFO 1850: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:11 INFO 1860: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:14 INFO 1870: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:16 INFO 1880: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:19 INFO 1890: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:22 INFO 1900: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:25 INFO 1910: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:28 INFO 1920: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:30 INFO 1930: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:34 INFO 1940: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:36 INFO 1950: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:41 INFO 1960: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:45 INFO 1970: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:50 INFO 1980: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:55 INFO 1990: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:48:59 INFO 2000: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:49:02 INFO 2010: 14 counties, bounds [1830833.0, 2302826.0, 2137763.0, 2477978.0]
+14:49:05 INFO 2020: 14 counties, bounds [1830830.0, 2302826.0, 2137714.0, 2477929.0]
+14:49:05 INFO window: col_off 16748 row_off 639 | 1711 x 2842 cells | bounds [1830601, 2302749, 2258351, 3013249] (counties [1830830, 2302826, 2258244, 3013008])
+14:49:05 INFO --layers ['NTL']: window matches /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/window.json; zones, window.json and cutout_qa.csv are kept
+14:49:05 INFO cutting 3 rasters
+14:49:09 INFO   NTL 2000           float64, warped (nearest) -> int16 nodata=None | min 0.0 max 62.0 | zeros 2636268 | nodata cells 0 | 0.7 MB
+14:49:10 INFO   NTL 2010           float64, warped (nearest) -> int16 nodata=None | min 0.0 max 59.0 | zeros 2645102 | nodata cells 0 | 0.6 MB
+14:49:11 INFO   NTL 2020           float64, warped (nearest) -> int16 nodata=None | min 0.0 max 63.0 | zeros 2914736 | nodata cells 0 | 0.4 MB
+14:49:11 INFO DONE
+60M	/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+== done 2026-10-05T14:49:12-06:00

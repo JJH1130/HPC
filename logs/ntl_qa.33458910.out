@@ -1,0 +1,19 @@
+== job 33458910 (ntl_qa) on c3cpu-e2-u2 at 2026-10-05T14:49:42-06:00
+== cores=2 gpus=none restart=0
+== git 8e6c35e
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/study_area.yaml (name=massachusetts)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  extra args: 
+14:50:03 INFO arg config = configs/study_area.yaml
+14:50:03 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+14:50:03 INFO arg layer = NTL
+14:50:03 INFO arg lon = -71.06
+14:50:03 INFO arg lat = 42.36
+14:50:03 INFO arg box_km = 20.0
+14:50:03 INFO arg bright = 60
+14:50:03 INFO cutout /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts | NTL years [2000, 2010, 2020] | box 20 km around (-71.06, 42.36) | DN >= 60
+14:50:04 INFO   2000: DN 0..62 | nodata 0 | zero share 0.542 | box: 5055 bright of 6400 cells, centroid (-71.0839, 42.3615), shift - km | Spearman ntl~bui 0.528 over 335900 zone cells
+14:50:05 INFO   2010: DN 0..59 | nodata 0 | zero share 0.544 | box: 0 bright of 6400 cells, centroid (nan, nan), shift - km | Spearman ntl~bui 0.540 over 335899 zone cells
+14:50:05 INFO   2020: DN 0..63 | nodata 0 | zero share 0.599 | box: 4354 bright of 6400 cells, centroid (-71.0897, 42.3576), shift 0.646 km | Spearman ntl~bui 0.516 over 335850 zone cells
+14:50:05 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/qa/ntl_qa.csv
+ERROR: NTL QA failed:
+  2010: no cell with DN >= 60 in the box
