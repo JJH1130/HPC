@@ -53,3 +53,22 @@ layers:
   # External rasters on other grids: one line each, e.g.
   # - {name: DEM, path: "/projects/jaju1407/data/raw/dem/dem.tif", years: none, resampling: average, dtype: float32}
   # - {name: LandCover, path: "/projects/jaju1407/data/raw/nlcd/nlcd_{YEAR}.tif", years: [2000, 2010, 2020], resampling: mode}
+
+# Static water fraction for the v3.1 water mask (src/grid/water_frac.py, docs/dasymetric_v3_1.md;
+# sources in docs/data_sources.md). Writes layers/<out> in the existing cutout.
+#   JRC Global Surface Water occurrence v1.4 (1984-2021), 30 m, EPSG:4326: every jrc_glob file in jrc_dir
+#   whose bounds overlap the window is used (tile names are not hard-coded). occurrence >= occurrence_min =
+#   permanent water. HydroLAKES v1.0 polygons with Lake_type in reservoir_types are set to land
+#   (reservoir years are deferred). The 0/1 mask is averaged onto the 250 m grid (area-weighted share of
+#   30 m pixels), `block` cells at a time. QA points: dry = box mean <= 0.1, full_water = some cell = 1.
+water:
+  jrc_dir: /projects/jaju1407/data/raw/water/jrc_occurrence
+  jrc_glob: "occurrence_*.tif"
+  occurrence_min: 75
+  hydrolakes: /projects/jaju1407/data/raw/water/HydroLAKES_polys_v10_shp/HydroLAKES_polys_v10.shp
+  reservoir_types: [2]
+  out: water_frac/water_frac.tif
+  block: 256
+  qa_points:
+    - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: dry}
+    - {name: Connecticut River (Springfield), lon: -72.60, lat: 42.10, box_km: 3, expect: full_water}

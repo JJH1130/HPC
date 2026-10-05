@@ -39,4 +39,6 @@ for ERA in "${ERAS[@]:-}"; do
     mkdir -p "$RESULTS/$ERA"
     cp "$OUT_ROOT/$NAME/$VERSION/$ERA/features/county_features.csv" "$RESULTS/$ERA/"
 done
+Q=$OUT_ROOT/$NAME/$VERSION/qa/water_mask_by_year.csv   # with water_mask: true (v3.1)
+if [[ -f $Q ]]; then cp "$Q" "$RESULTS/"; fi
 echo "== done $(date -Is)"

@@ -16,6 +16,8 @@ Code: `src/grid/make_cutout.py` · Config: `configs/study_area.yaml` · Job:
 | Single-file HISDAC layers | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/**/*FBUY*.tif`, `**/*NobuiltYear*.tif` | No year; cut once. Each glob must match exactly one file |
 | Land use counts | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/{CLASS}/Count_{YEAR}_{CLASS}.tif` | 8 classes: A, C, GV, I, RC, RI, RO, VL. 1940–2020 only. `Count_{YEAR}_Theme*.tif` in the same folders duplicate the class files (RO = Theme6) and are **not used** |
 | Night lights (NTL) | `/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif` | Li et al. (2020) harmonized DMSP/VIIRS, extended release. 2000, 2010 (`calDMSP`), 2020 (`simVIIRS`). EPSG:4326, 30 arc-seconds, uint8 DN 0–63, no nodata. Warped with `nearest` to int16 (`docs/dasymetric_v3.md`) |
+| Surface water (JRC occurrence) | `/projects/jaju1407/data/raw/water/jrc_occurrence/occurrence_*.tif` | JRC GSW v1.4 (1984–2021), 30 m, EPSG:4326, 10° tiles; the tiles overlapping the window are found automatically. Not a `layers` entry: built by `src/grid/water_frac.py` (settings: `water:` block) |
+| Reservoirs (HydroLAKES) | `/projects/jaju1407/data/raw/water/HydroLAKES_polys_v10_shp/HydroLAKES_polys_v10.shp` | v1.0; polygons with `Lake_type = 2` are removed from the water mask (`docs/dasymetric_v3_1.md`) |
 | External rasters (later) | any path | e.g. DEM, land cover; one config line each |
 | County units | `/projects/jaju1407/data/processed/census/counties_{YEAR}.gpkg` | Output of `docs/census_preprocessing.md` |
 
@@ -54,11 +56,24 @@ purged 90 days after creation, so rerun the job to rebuild them.
 | `layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif` | Land use counts, 1940–2020 |
 | `layers/NTL/{YEAR}_NTL.tif` | Night lights, 2000, 2010, 2020 (int16) |
 | `qa/ntl_qa.csv` | NTL QA (`src/grid/ntl_qa.py`): range, bright-core centroid near Boston per year, Spearman NTL–BUI |
+| `layers/water_frac/water_frac.tif` | Static share of permanent-water 30 m pixels per 250 m cell (float32, 0–1, NaN = no JRC tile), from `src/grid/water_frac.py` |
+| `qa/water_qa.csv` | Water layer QA: range, shares in the study counties, JRC no-data share, reservoir pixels removed, QA points |
 | `zones/zones_{YEAR}.tif` | County ID per cell (uint16). 0 = nodata (outside the selected counties) |
 | `zones/zones_{YEAR}.csv` | `zone_id`, `GISJOIN`, `state`, `name`, `pop`, `status`, `area_km2` for the selected counties |
 | `cutout_qa.csv` | Per year and county: `n_cells`, `cell_area_km2` = n_cells × 0.0625, `area_ratio` = cell_area_km2 / area_km2 |
 
-Copies of `window.json`, `cutout_qa.csv`, `zones/*.csv` and `qa/ntl_qa.csv` are also saved to `results/cutout/{name}/` in git.
+Copies of `window.json`, `cutout_qa.csv`, `zones/*.csv`, `qa/ntl_qa.csv` and `qa/water_qa.csv` are also saved to `results/cutout/{name}/` in git.
+
+**Water fraction (v3.1).** `src/grid/water_frac.py` adds `layers/water_frac/water_frac.tif` to an existing
+cutout (`docs/dasymetric_v3_1.md`). Rules: (1) permanent water = JRC occurrence ≥ 75; JRC values above
+100 (no data) count as not water. (2) 30 m pixels whose centre is inside a HydroLAKES polygon with
+`Lake_type = 2` (reservoir) are set to not water, in all years. (3) `water_frac` = area-weighted share of
+water pixels in each 250 m cell. Every 30 m pixel centre is assigned to the cell it falls in, weighted by
+cos(latitude). GDAL `average` is not used: on the Albers grid, rotated against lon/lat (about 16° at
+71°W), it also counts pixels outside the cell. (4) Only the JRC tiles and HydroLAKES features
+overlapping the window are read, and the window is processed in blocks of `block` cells. The job
+stops without writing the layer if a study-county cell has no JRC coverage (it names the missing
+tiles) or a value is outside 0–1.
 
 **Adding a layer later.** `make_cutout.py --layers NAME ...` (e.g. `sbatch sbatch/grid_cutout.sh --layers NTL`)
 cuts only the named config layers into an existing cutout. It stops unless the window it computes equals

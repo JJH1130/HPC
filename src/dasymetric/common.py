@@ -1,5 +1,5 @@
-"""Shared pieces of the dasymetric pipeline (design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md
-and docs/dasymetric_v3.md).
+"""Shared pieces of the dasymetric pipeline (design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md,
+docs/dasymetric_v3.md and docs/dasymetric_v3_1.md).
 
 Stages (each runs on its own):
   county_features.py  cutout -> [<era>/]features/county_features.csv
@@ -8,7 +8,9 @@ Stages (each runs on its own):
 
 Settings: configs/model.yaml (version, statuses, eras or one feature list, feature groups, model +
 search space). With `eras:`, each era has its own years, features and model under <version>/<era>/;
-without it, one pooled model sits directly under <version>/ (v1, v2). The study area name and years
+without it, one pooled model sits directly under <version>/ (v1, v2). `water_mask: true` (v3.1) drops the
+cells that are all water and have no building in that year (water_frac == 1 and BUI == 0): county area and
+features use the other cells only, and masked cells get no people. The study area name and years
 come from the study-area config it points to (configs/study_area.yaml).
 Paths come from CLI flags (the sbatch scripts fill them from sbatch/cluster_env.sh).
 """
@@ -35,6 +37,7 @@ LAYER_FEATURES = {"bui": "BUI", "bupl": "BUPL", "bupr": "BUPR", "bua": "BUA", "n
 DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share"}
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
 LAND_USE = ["A", "C", "GV", "I", "RC", "RI", "RO", "VL"]  # cutout layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif
+WATER_LAYER = "water_frac"  # cutout layers/water_frac/water_frac.tif (static)
 NODATA_OUT = -9999.0
 CELL_KM = 0.25  # HISDAC cell size
 
@@ -199,6 +202,19 @@ def dist_built(cutout: Path, year: int, grid: dict) -> np.ndarray:
         log.info("  %d: BUA has %d nodata cells in the window (treated as unbuilt for dist_built)",
                  year, int(bad.sum()))
     return ndimage.distance_transform_edt(~built) * CELL_KM
+
+
+def water_mask(cutout: Path, year: int, grid: dict, mask: np.ndarray):
+    """Year-specific water mask of the masked cells (docs/dasymetric_v3_1.md): True where the cell is all
+    permanent water (water_frac == 1, layers/water_frac/ from src/grid/water_frac.py) and has no building in
+    that year (BUI == 0). Cells with buildings are never masked. Returns (masked, n_water_built), the second
+    being the all-water cells kept because BUI > 0 (QA). Water is never a feature."""
+    wf = read_layer(cutout, WATER_LAYER, None, grid, mask)
+    if wf.size and (wf.min() < 0 or wf.max() > 1):
+        sys.exit(f"ERROR: water_frac outside 0-1 ({wf.min()}..{wf.max()}); rerun src/grid/water_frac.py")
+    bui = read_layer(cutout, "BUI", year, grid, mask)
+    full = wf >= 1
+    return full & (bui == 0), int((full & (bui > 0)).sum())
 
 
 def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names) -> pd.DataFrame:

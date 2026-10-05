@@ -136,14 +136,46 @@ def fold_metrics(df: pd.DataFrame, col: str) -> dict:
             "pooled_rmse": float(root_mean_squared_error(df["y"], df[col])), "pooled_r2": float(r2_score(df["y"], df[col]))}
 
 
+def compare_era(cfg: dict, prev: str, edir: Path, rows: pd.DataFrame, mdir: Path):
+    """compare_with is a version with the same era: read its saved out-of-fold predictions (no refit). Each
+    version is scored on its own target y (v3.1's y uses the unmasked cell area, v3's the polygon area)."""
+    need = [edir / "model" / "oof_predictions.csv", edir / "model" / "metrics.json"]
+    missing = [str(f) for f in need if not f.exists()]
+    if missing:
+        log.warning("compare_with %s skipped: missing %s", prev, missing)
+        return None, None
+    po = pd.read_csv(need[0]).rename(columns={"oof": f"oof_{prev}", "fold": "fold_prev"})
+    pmet = json.loads(need[1].read_text())
+    on = rows[["GISJOIN", "year", "fold"]].merge(po[["GISJOIN", "year", "fold_prev", "y", f"oof_{prev}"]],
+                                                on=["GISJOIN", "year"], how="inner")
+    if len(on) != len(rows):
+        log.warning("compare_with %s: only %d of %d rows found in its predictions", prev, len(on), len(rows))
+    if (on["fold"] != on["fold_prev"]).any():
+        sys.exit(f"ERROR: compare_with {prev}: its folds differ from these ({int((on['fold'] != on['fold_prev']).sum())}"
+                 " rows); use the same folds_from")
+    res = {"version": prev, "model": pmet["model"], "features": pmet["features"], "n_rows_scored": len(on),
+           "folds": "same as this model (checked)", "predictions": f"{prev}/{edir.name}/model/oof_predictions.csv",
+           "target": f"{prev}'s own y", **fold_metrics(on, f"oof_{prev}"),
+           "reported_cv_rmse_mean": pmet.get("cv_rmse_mean"), "reported_cv_r2_mean": pmet.get("cv_r2_mean")}
+    (mdir / f"compare_{prev}.json").write_text(json.dumps(res, indent=2))
+    log.info("%s (its saved out-of-fold predictions, same folds, %d rows, its own target): CV RMSE %.4f +/- %.4f | "
+             "CV R2 %.3f +/- %.3f | pooled RMSE %.4f R2 %.3f (reported: RMSE %s, R2 %s)", prev, len(on),
+             res["cv_rmse_mean"], res["cv_rmse_sd"], res["cv_r2_mean"], res["cv_r2_sd"], res["pooled_rmse"],
+             res["pooled_r2"], pmet.get("cv_rmse_mean"), pmet.get("cv_r2_mean"))
+    return res, on[["GISJOIN", "year", f"oof_{prev}"]].assign(**{f"y_{prev}": on["y"]})
+
+
 def compare_previous(cfg: dict, out_root: Path, folds: pd.DataFrame, rows: pd.DataFrame, s: dict, n_jobs: int,
-                     mdir: Path):
-    """The `compare_with` version's out-of-fold predictions (its own features + best params, refit on these
-    folds over all its rows), scored on `rows` (GISJOIN, year, fold) only. Returns (summary, predictions)."""
+                     mdir: Path, era: str = ""):
+    """The `compare_with` version scored on `rows` (GISJOIN, year, fold) only. If that version has the same
+    era, its saved out-of-fold predictions are used (compare_era); otherwise (a pooled version) it is refit with
+    its own features + best params on these folds over all its rows. Returns (summary, predictions)."""
     prev = cfg.get("compare_with")
     if not prev:
         return None, None
     pdir = out_root / cfg["name"] / prev
+    if era and (pdir / era).is_dir():
+        return compare_era(cfg, prev, pdir / era, rows, mdir)
     need = [pdir / "features" / "county_features.csv", pdir / "model" / "best_params.json",
             pdir / "model" / "metrics.json"]
     missing = [str(f) for f in need if not f.exists()]
@@ -159,8 +191,8 @@ def compare_previous(cfg: dict, out_root: Path, folds: pd.DataFrame, rows: pd.Da
     est = MODELS[pmet["model"]](cfg["models"][pmet["model"]].get("fixed") or {}).set_params(**params)
     cv = splits_from_folds(pdf["GISJOIN"], folds, f"compare_with {prev}")
     pdf[f"oof_{prev}"] = cross_val_predict(est, pdf[pmet["features"]], pdf["y"], cv=cv, n_jobs=n_jobs)
-    on = rows[["GISJOIN", "year", "fold", "y"]].merge(pdf[["GISJOIN", "year", f"oof_{prev}"]],
-                                                     on=["GISJOIN", "year"], how="inner")
+    on = rows[["GISJOIN", "year", "fold"]].merge(pdf[["GISJOIN", "year", "y", f"oof_{prev}"]],
+                                                on=["GISJOIN", "year"], how="inner")  # scored on its own y
     if len(on) != len(rows):
         log.warning("compare_with %s: only %d of %d rows found in its features", prev, len(on), len(rows))
     res = {"version": prev, "model": pmet["model"], "features": pmet["features"], "best_params": params,
@@ -173,7 +205,7 @@ def compare_previous(cfg: dict, out_root: Path, folds: pd.DataFrame, rows: pd.Da
              len(on), res["cv_rmse_mean"], res["cv_rmse_sd"], res["cv_r2_mean"], res["cv_r2_sd"],
              res["pooled_rmse"], res["pooled_r2"], " / ".join(f"{v:.3f}" for v in res["cv_rmse_folds"]), prev,
              pmet.get("cv_rmse_mean"), pmet.get("cv_r2_mean"))
-    return res, on[["GISJOIN", "year", f"oof_{prev}"]]
+    return res, on[["GISJOIN", "year", f"oof_{prev}"]].assign(**{f"y_{prev}": on["y"]})
 
 
 # ---------------------------------------------------------------- SHAP
@@ -263,6 +295,8 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
         "cv_r2_mean": float(np.mean(r2_folds)), "cv_r2_sd": float(np.std(r2_folds)), "cv_r2_folds": r2_folds,
         "train_rmse": float(root_mean_squared_error(y, pred)), "train_r2": float(r2_score(y, pred)),
         "y_sd": float(y.std(ddof=0)),
+        "target": ("log(pop / (0.0625 x unmasked cells))" if cfg.get("water_mask")
+                   else "log(pop / polygon area_km2)"),
     }
     log.info("%sbest params %s", tag, search.best_params_)
     log.info("%sCV RMSE %.4f +/- %.4f | CV R2 %.3f +/- %.3f | train RMSE %.4f | sd(y) %.4f", tag,
@@ -280,7 +314,8 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
              imp.round(4).to_string(index=False))
 
     joblib.dump({"model": model, "features": feats, "name": cfg["model"], "version": cfg["version"],
-                 "era": era or None, "years": cfg["eras"][era]["years"], "use_status": cfg["use_status"]},
+                 "era": era or None, "years": cfg["eras"][era]["years"], "use_status": cfg["use_status"],
+                 "water_mask": bool(cfg.get("water_mask"))},
                 mdir / f"{cfg['model']}.joblib")
     cvr = pd.DataFrame(res)
     cvr["params"] = cvr["params"].astype(str)
@@ -294,7 +329,7 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
     oof["fold"] = groups.map(dict(zip(folds["GISJOIN"], folds["fold"]))).to_numpy()
     oof["oof"] = cross_val_predict(clone(model), X, y, cv=cv, n_jobs=args.n_jobs)
     metrics.update({f"oof_{k}": v for k, v in fold_metrics(oof, "oof").items() if k.startswith("pooled")})
-    prev, prev_oof = compare_previous(cfg, args.out_root, all_folds, oof, s, args.n_jobs, mdir)
+    prev, prev_oof = compare_previous(cfg, args.out_root, all_folds, oof, s, args.n_jobs, mdir, era)
     if prev_oof is not None:
         oof = oof.merge(prev_oof, on=["GISJOIN", "year"], how="left")
     oof.to_csv(mdir / "oof_predictions.csv", index=False)

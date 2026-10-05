@@ -4,7 +4,8 @@ eras: docs/dasymetric_v3.md).
 Each year is predicted with the model of its era (<version>/<era>/model/; without eras, <version>/model/).
 For each year and each used county c (status in `use_status`):
   1. cell features (the era model's features) for all cells of c
-  2. y_hat per cell, weight w = exp(y_hat) (predicted density, > 0)
+  2. y_hat per cell, weight w = exp(y_hat) (predicted density, > 0); with `water_mask: true`, w = 0 on
+     cells that are all water with no building that year (water_frac == 1 and BUI == 0; docs/dasymetric_v3_1.md)
   3. pop_cell = pop_c * w_cell / sum_{cells in c} w
 
 Writes to <out-root>/<name>/<version>/:
@@ -15,7 +16,7 @@ Writes to <out-root>/<name>/<version>/:
 Map years come from `maps:` in configs/model.yaml (default 1810, 1900, 2020 and 1810); the flags override it.
 
 Checks (the job fails after writing everything if one fails): |sum pop_cell - pop_c| / pop_c < 1e-6
-for every county-year, and no negative or NaN cell values in used counties.
+for every county-year, no negative or NaN cell values in used counties, and no people on masked cells.
 """
 from __future__ import annotations
 
@@ -30,7 +31,7 @@ import rasterio
 
 import plots
 from common import (NODATA_OUT, add_common_args, cell_features, county_selection, era_of, load_config, log,
-                    log_args, out_dir, read_zones, setup_logging, write_tif)
+                    log_args, out_dir, read_zones, setup_logging, water_mask, write_tif)
 
 MASS_TOL = 1e-6
 MAP_DEFAULTS = {"years": [1810, 1900, 2020], "compare_years": [1810]}
@@ -59,9 +60,15 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path):
     y_hat = bundle["model"].predict(X)
     w = np.exp(y_hat)
     z = zones[mask]
+    # v3.1: all-water cells without a building this year get weight 0 (docs/dasymetric_v3_1.md)
+    masked = water_mask(cutout, year, grid, mask)[0] if cfg.get("water_mask") else np.zeros(len(z), bool)
+    w[masked] = 0.0
     pop = np.zeros(int(zones.max()) + 1)
     pop[used["zone_id"].to_numpy()] = used["pop"].to_numpy()
     w_sum = np.bincount(z, weights=w, minlength=len(pop))
+    empty = used[~(w_sum[used["zone_id"].to_numpy()] > 0)]
+    if len(empty):
+        sys.exit(f"ERROR: {year}: counties with no unmasked cell (weights sum to 0):\n{empty.to_string()}")
     cells = pop[z] * w / w_sum[z]
 
     arr = np.full(zones.shape, NODATA_OUT, dtype="float32")
@@ -76,11 +83,13 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path):
     qa["pop_cells"] = cell_sum
     qa["diff"] = qa["pop_cells"] - qa["pop"]
     qa["rel_diff"] = qa["diff"].abs() / qa["pop"]
-    n_bad = int((~np.isfinite(stored) | (stored < 0)).sum())
-    log.info("  %d%s: %d counties, %d cells | y_hat %.3f..%.3f | pop %.0f -> cells %.0f | cell max %.1f | "
-             "max rel diff %.2e | bad cells %d", year, f" ({bundle['era']})" if bundle.get("era") else "",
-             len(used), int(mask.sum()), y_hat.min(), y_hat.max(),
-             qa["pop"].sum(), stored.sum(), stored.max(), qa["rel_diff"].max(), n_bad)
+    qa["n_masked"] = np.bincount(z[masked], minlength=len(pop))[used["zone_id"].to_numpy()]
+    # bad: negative or NaN, or people on a masked cell
+    n_bad = int((~np.isfinite(stored) | (stored < 0) | (masked & (stored != 0))).sum())
+    log.info("  %d%s: %d counties, %d cells (%d masked) | y_hat %.3f..%.3f | pop %.0f -> cells %.0f | "
+             "cell max %.1f | max rel diff %.2e | bad cells %d", year,
+             f" ({bundle['era']})" if bundle.get("era") else "", len(used), int(mask.sum()), int(masked.sum()),
+             y_hat.min(), y_hat.max(), qa["pop"].sum(), stored.sum(), stored.max(), qa["rel_diff"].max(), n_bad)
     return qa, n_bad, (arr, mask, grid)
 
 
@@ -137,6 +146,9 @@ def main(argv=None):
         if bundle["features"] != cfg["eras"][era]["features"]:
             sys.exit(f"ERROR: {mpath} was trained on {bundle['features']}, the config says "
                      f"{cfg['eras'][era]['features']}; rerun stages 1-2")
+        if bool(bundle.get("water_mask")) != bool(cfg.get("water_mask")):
+            sys.exit(f"ERROR: {mpath} was trained with water_mask={bundle.get('water_mask', False)}, "
+                     f"the config says {cfg.get('water_mask', False)}; rerun stages 1-2")
         bundles[era] = bundle
         log.info("model %s%s (%s) | features %s | use_status %s", bundle["name"], f" era {era}" if era else "",
                  mpath, bundle["features"], bundle["use_status"])

@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-06 (v3 first run)
+Last updated: 2026-10-06 (v3.1 water mask)
 
 ## Open items
 
@@ -58,6 +58,23 @@ Last updated: 2026-10-06 (v3 first run)
   collinearity and `age` there), Ascent allocation (submitted), DEM, water,
   PLURAL, fine-scale validation.
 
+### Dasymetric v3.1 (water mask)
+
+- **Status:** design delivered (`docs/dasymetric_v3_1.md`, third revision),
+  implemented and tested on fake data; waiting for the Alpine runs:
+  1. water fraction layer (`docs/runbooks/Making_Cutout.md`, section 8)
+  2. v3_1 features → train → predict (`docs/runbooks/Running_Dasymetric.md`)
+- Rule: per year, mask only cells with water_frac = 1 **and** BUI = 0 (weight 0,
+  left out of county area and county feature means). Dry unbuilt cells and
+  partly-water cells are not masked; features are raw (no land-share scaling);
+  water is not a feature.
+- JRC tiles are selected by overlap with the window (Massachusetts: 80W_50N
+  and 70W_50N; all 21 CONUS tiles are on Alpine).
+- Check after the run: a river narrower than 250 m never fills a cell, so it is
+  never masked (the Connecticut River QA point may warn).
+- Deferred (design): occurrence threshold sensitivity, reservoir construction
+  years (GRanD), distance to water as a feature.
+
 ## Decision log
 
 | Date | Decision |
@@ -70,4 +87,6 @@ Last updated: 2026-10-06 (v3 first run)
 | 2026-10-06 | From v2 results: **keep `bui`, `bldg_size`, `mu_ratio`** despite county-level rho 0.98-0.99 (only 22 counties in Massachusetts); re-check on CONUS; interpret grouped SHAP for now. |
 | 2026-10-06 | From v2 results: **no fold changes**; the 1810 Maine errors come from extreme `dist_built`, not from fold assignment. Keep `dist_built`. |
 | 2026-10-06 | NTL QA: 2010 failure on the fixed DN >= 60 rule accepted as a rule artifact (layer correct); QA rule change on hold. |
+| 2026-10-06 | New external data must first be added (row + citation) to `docs/data_sources.md`; rule also in CLAUDE.md. |
+| 2026-10-06 | v3.1 water: final design = mask only (water_frac = 1 and BUI = 0, per year); earlier drafts (weights x land share, BUI / land share) dropped. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |

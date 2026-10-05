@@ -1,13 +1,20 @@
 """Stage 1: county features + target from the study-area cutout (design: docs/dasymetric_v1.md;
-v2 features: docs/dasymetric_v2.md; eras: docs/dasymetric_v3.md).
+v2 features: docs/dasymetric_v2.md; eras: docs/dasymetric_v3.md; water mask: docs/dasymetric_v3_1.md).
 
 Writes <out-root>/<name>/<version>/[<era>/]features/county_features.csv, one row per county-year of
 the era (all years without eras):
-  year, zone_id, GISJOIN, state, name, status, n_cells, <era features>, pop, area_km2, y
+  year, zone_id, GISJOIN, state, name, status, n_cells, [n_masked, area_km2_polygon,] <era features>, pop,
+  area_km2, y
+and, with `water_mask: true`, <version>/qa/water_mask_by_year.csv (masked cells per year).
 
 Only counties whose status is in `use_status` (configs/model.yaml) are kept. County feature =
 mean of the cell feature over all cells of the county (zone == county, including 0 cells).
 Target y = log(pop / area_km2), area from the census polygons.
+
+With `water_mask: true` (v3.1), cells that are all water with no building that year (water_frac == 1 and
+BUI == 0) are removed first: county feature = mean over the unmasked cells, area_km2 = 0.0625 x unmasked
+cells (the polygon area is kept as area_km2_polygon), y = log(pop / area_km2). Stops if a county has no
+unmasked cell. Features are raw values; nothing is rescaled by water.
 """
 from __future__ import annotations
 
@@ -18,8 +25,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common import (add_common_args, cell_features, county_selection, load_config, log, log_args,
-                    out_dir, read_zones, setup_logging)
+from common import (CELL_KM, add_common_args, cell_features, county_selection, era_of, load_config, log,
+                    log_args, out_dir, read_zones, setup_logging, water_mask)
 
 
 def parse_args(argv=None):
@@ -29,23 +36,41 @@ def parse_args(argv=None):
     return p.parse_args(argv)
 
 
-def year_rows(cutout: Path, year: int, features, cfg: dict) -> tuple[pd.DataFrame, int]:
+def year_rows(cutout: Path, year: int, features, cfg: dict):
+    """County rows of one year + water-mask QA (None without water_mask) + the table size."""
     zones, table, grid = read_zones(cutout, year)
     used = county_selection(table, zones, cfg["use_status"], year)
     mask = np.isin(zones, used["zone_id"].to_numpy())
     feats = cell_features(cutout, year, grid, mask, features)
     z = zones[mask]
-    n = np.bincount(z)
     rows = used[["zone_id", "GISJOIN", "state", "name", "status", "n_cells"]].copy()
     rows.insert(0, "year", year)
     zid = rows["zone_id"].to_numpy()
+    qa = None
+    keep = np.ones(len(z), bool)
+    if cfg.get("water_mask"):
+        masked, n_water_built = water_mask(cutout, year, grid, mask)
+        keep = ~masked
+        rows["n_masked"] = np.bincount(z[masked], minlength=len(np.bincount(z)))[zid]
+        qa = {"year": year, "era": era_of(cfg, year), "study_cells": len(z), "masked_cells": int(masked.sum()),
+              "masked_share": float(masked.mean()), "water_with_bui_kept": n_water_built}
+        log.info("  %d: water mask %d of %d cells (%.4f) | all-water cells with BUI > 0 kept: %d", year,
+                 qa["masked_cells"], len(z), qa["masked_share"], n_water_built)
+    n = np.bincount(z[keep], minlength=len(np.bincount(z)))
+    empty = rows[n[zid] == 0]
+    if len(empty):
+        sys.exit(f"ERROR: {year}: counties with no unmasked cell:\n{empty.to_string()}")
     for f in features:
-        rows[f] = np.bincount(z, weights=feats[f].to_numpy())[zid] / n[zid]
+        rows[f] = np.bincount(z[keep], weights=feats[f].to_numpy()[keep], minlength=len(n))[zid] / n[zid]
     rows["pop"] = used["pop"].to_numpy()
-    rows["area_km2"] = used["area_km2"].to_numpy()
+    if cfg.get("water_mask"):
+        rows.insert(rows.columns.get_loc("n_masked") + 1, "area_km2_polygon", used["area_km2"].to_numpy())
+        rows["area_km2"] = n[zid] * CELL_KM ** 2
+    else:
+        rows["area_km2"] = used["area_km2"].to_numpy()
     rows["y"] = np.log(rows["pop"] / rows["area_km2"])
     log.info("  %d: %d counties in the table, %d used, %d cells", year, len(table), len(rows), int(mask.sum()))
-    return rows, len(table)
+    return rows, qa, len(table)
 
 
 def main(argv=None):
@@ -58,15 +83,18 @@ def main(argv=None):
              len(cfg["years"]), cfg["years"][0], cfg["years"][-1], cfg["use_status"], out_dir(cfg, args.out_root))
 
     n_all = n_rows = 0
+    mask_qa = []
     for era, e in cfg["eras"].items():
         feats = e["features"]
         log.info("era %s | %d years %d-%d | features %s", era or "(none)", len(e["years"]), e["years"][0],
                  e["years"][-1], feats)
         parts = []
         for year in e["years"]:
-            rows, n_table = year_rows(cutout, year, feats, cfg)
+            rows, qa, n_table = year_rows(cutout, year, feats, cfg)
             parts.append(rows)
             n_all += n_table
+            if qa:
+                mask_qa.append(qa)
         df = pd.concat(parts, ignore_index=True)
         if not np.isfinite(df[feats + ["y"]].to_numpy()).all():
             sys.exit(f"ERROR: era {era}: non-finite county features or target")
@@ -79,6 +107,11 @@ def main(argv=None):
         df.to_csv(path, index=False)
         log.info("wrote %s", path)
 
+    if mask_qa:
+        path = out_dir(cfg, args.out_root) / "qa" / "water_mask_by_year.csv"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(mask_qa).to_csv(path, index=False)
+        log.info("wrote %s", path)
     log.info("county-years: %d before status filtering (expected 314 for massachusetts), %d training rows "
              "over %d era(s)", n_all, n_rows, len(cfg["eras"]))
     log.info("DONE")

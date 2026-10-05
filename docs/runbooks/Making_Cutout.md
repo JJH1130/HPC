@@ -8,6 +8,7 @@ census_prepare run (`Preparing_Census.md`), because this job reads `counties_{YE
 **Status:** full run (22 years) passed on Alpine: job 33216032, 2026-10-01 cluster time. Quick test: job 33165456.
 NTL (section 7): cut on Alpine, job 33458909 (2026-10-05 cluster time). NTL QA job 33458910 failed only on
 the fixed DN >= 60 rule for 2010 (see Notes); the layer was judged correct and the rule is kept as is for now.
+Water fraction (section 8): tested on fake data only; not yet run on Alpine.
 
 HISDAC is read from `/pl/active/Leyk_Lab/data/HISDAC_US_V2` (**read only**; nothing is written
 to PetaLibrary). Output goes to `/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/`.
@@ -143,7 +144,56 @@ git pull --rebase
 git push
 ```
 
+## 8. Add the water fraction (v3.1) (login node)
+
+`src/grid/water_frac.py` (`sbatch/water_frac.sh`, acpu, 2 cores, 1 h) writes
+`layers/water_frac/water_frac.tif` into the existing cutout and `qa/water_qa.csv` (copied to
+`results/cutout/massachusetts/`, also on failure). Rules: `docs/cutout.md`, "Water fraction"; sources:
+`docs/data_sources.md`. It reads `window.json` and the zones, so the cutout must exist.
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+ls /projects/jaju1407/data/raw/water/jrc_occurrence/ | head -25
+ls -l /projects/jaju1407/data/raw/water/HydroLAKES_polys_v10_shp/HydroLAKES_polys_v10.shp
+ls /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/window.json
+jw=$(sbatch --parsable sbatch/water_frac.sh)
+echo "water_frac $jw"
+```
+
+Good: `jrc_occurrence` lists the `occurrence_*v1_4_2021.tif` tiles (21 for CONUS) and the HydroLAKES `.shp` exists.
+
+Check (`tail -n 25 logs/water_frac.$jw.out`):
+- `JRC: N files in ..., 2 overlap the window ...: ['occurrence_70W_50Nv1_4_2021.tif', 'occurrence_80W_50Nv1_4_2021.tif']`
+- `HydroLAKES: N polygons with Lake_type in [2] intersect the window (...)`, then `block .../...` lines
+- `water_frac 0.0..1.0 | study counties: ... cells, mean ..., share > 0 ..., share = 1 ..., uncovered 0 | ...`
+- `QA point Quabbin Reservoir ...: mean ... | expect dry: ok` (reservoir removed)
+- `QA point Connecticut River (Springfield) ...: cells = 1 N | expect full_water: ok`. A `NOT MET` here is a
+  warning, not an error: a river narrower than a 250 m cell never fills one, so it is never masked. Tell Claude.
+- `wrote .../water_frac.tif`, `DONE`
+
+| Symptom | Fix |
+|---|---|
+| `study-county cells have no JRC coverage; missing tiles [...]` | put those tiles in `jrc_occurrence/`; the layer was not written |
+| `no file matches 'occurrence_*.tif'` | check `jrc_dir` in the `water:` block of `configs/study_area.yaml` |
+| `HydroLAKES_polys_v10.shp not found` | download HydroLAKES v1.0 (`docs/data_sources.md`) or fix the path |
+| `CANCELLED ... DUE TO TIME LIMIT` / out of memory | raise `--time` or lower `block` in the `water:` block |
+
+Close the loop: `git add logs/water_frac.$jw.out results/cutout/`, commit, push (or together with the
+dasymetric v3.1 run, `Running_Dasymetric.md`).
+
 ## Notes
+
+- 2026-10-06: added `src/grid/water_frac.py` (v3.1 water fraction). Tested on the fake Boston-area cutout
+  with fake JRC tiles: two tiles meeting at 71°W plus an unrelated tile that was correctly ignored, and a
+  fake HydroLAKES shapefile. The natural lake was kept (1.0) and the reservoir removed (box mean 0.000).
+  A seasonal patch (occurrence 40) and a JRC no-data patch (255) gave 0, and the tile seam showed no gap.
+  The ~200 m fake river gave 0.84 of a cell per row, matching its width across the rotated grid.
+  GDAL `average` had given 7 % too much and two cells of 1.0, so it was replaced by exact area weighting.
+  A missing tile stopped the job with the tile's name, and the layer was not written. Only
+  `layers/water_frac/` was added to the cutout; zones and other layers were byte-identical.
 
 - 2026-10-05 (cluster time), jobs 33458909 (`--layers NTL`) / 33458910 (NTL QA), code 8e6c35e.
   - Cutout: 2.5 min, about 1 min of it reading the 22 county files for the window. The window matched

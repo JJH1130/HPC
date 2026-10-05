@@ -20,12 +20,14 @@ run by `sbatch/census_prepare.sh` per `docs/runbooks/Preparing_Census.md`. Raw/p
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
 (study area + the only layer list in `configs/study_area.yaml` → HISDAC/Land_Use/NTL layers clipped to one shared 250 m window + per-year
 county zone grids; `--layers NAME` adds one layer to an existing cutout), run by `sbatch/grid_cutout.sh` per `docs/runbooks/Making_Cutout.md`, rules in
-`docs/cutout.md`; `src/grid/ntl_qa.py` (`sbatch/ntl_qa.sh`) checks the NTL layer. HISDAC is read from `$HISDAC_DIR` (PetaLibrary, read only); cutouts go to
+`docs/cutout.md`; `src/grid/ntl_qa.py` (`sbatch/ntl_qa.sh`) checks the NTL layer, and `src/grid/water_frac.py`
+(`sbatch/water_frac.sh`; `water:` block of `configs/study_area.yaml`) adds the static water-fraction layer from JRC tiles
+(auto-selected by overlap) minus HydroLAKES reservoirs. External data sources are listed in `docs/data_sources.md`. HISDAC is read from `$HISDAC_DIR` (PetaLibrary, read only); cutouts go to
 `$HISDAC_SCRATCH/cutouts/<name>` (scratch, 90-day purge). Third stage: `src/dasymetric/` (design
-`docs/dasymetric_v1.md`, changes in `docs/dasymetric_v2.md`, current version v3: `docs/dasymetric_v3.md`), three separately runnable steps sharing `common.py` (config, cell features, raster
+`docs/dasymetric_v1.md`, changes in `docs/dasymetric_v2.md`, v3: `docs/dasymetric_v3.md`, current version v3.1 (water mask): `docs/dasymetric_v3_1.md`), three separately runnable steps sharing `common.py` (config, cell features, raster
 I/O) and `plots.py` (correlation/SHAP plots, maps): `county_features.py` → `train.py` → `predict.py`, run by `sbatch/dasymetric_{features,train,predict}.sh`
 per `docs/runbooks/Running_Dasymetric.md`. Model choice, search space, eras (years + features per era; or one `features` list = one
-pooled model), SHAP groups, used statuses, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
+pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
 years live in `configs/model.yaml` (model registry `MODELS` in `train.py`; only `rf` is implemented). Outputs go to
 `$HISDAC_SCRATCH/dasymetric/<name>/<version>[/<era>]`; small files are copied to `results/dasymetric/`. Env changes go through the yml files + `conda env update
 --prune`, never ad-hoc `mamba install`. There are no build/lint/test commands yet beyond
@@ -60,6 +62,11 @@ Claude는 로그/결과를 직접 pull해서 읽기 전까지는 잡이 실행�
 
 클러스터 온보딩(로그인, GitHub SSH, `/projects` clone 등) 절차는 `docs/runbooks/Cluster_Setup.md`
 참고.
+
+## 데이터 출처
+
+외부 데이터는 `docs/data_sources.md`에 등록돼 있다. 새 데이터를 파이프라인에서 쓰기 전에 먼저 그 문서에 행(요약
+표)과 인용·다운로드 정보(Details)를 추가한다.
 
 ## 보류 사항과 결정 기록
 

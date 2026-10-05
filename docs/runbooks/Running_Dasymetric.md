@@ -1,21 +1,23 @@
 # Running dasymetric (county features → model → cell population)
 
 Runs the three stages of `docs/dasymetric_v1.md` (changes: `docs/dasymetric_v2.md`,
-`docs/dasymetric_v3.md`) on the study-area cutout. Code: `src/dasymetric/`; settings:
+`docs/dasymetric_v3.md`, `docs/dasymetric_v3_1.md`) on the study-area cutout. Code: `src/dasymetric/`; settings:
 `configs/model.yaml` (version, eras with their years and features, feature groups, model, search
-space, statuses, `compare_with`, `folds_from`, map years); study area and years come from
-`configs/study_area.yaml`. The current version is **v3**: one model per era (E1 1810–1930,
-E2 1940–1990, E3 2000–2020). v1 and v2 settings are in git history (8d93125, 38ed1e2).
+space, statuses, `water_mask`, `compare_with`, `folds_from`, map years); study area and years come from
+`configs/study_area.yaml`. The current version is **v3.1** (`v3_1`): v3's eras (E1 1810–1930,
+E2 1940–1990, E3 2000–2020) plus a per-year water mask. Cells that are all water and have no building
+that year get no people, and county area and features use the other cells. v1, v2 and v3 settings are in
+git history (8d93125, 38ed1e2, 8e6c35e).
 Prerequisite: the full grid_cutout run plus NTL (`Making_Cutout.md`, sections 4 and 7), because every
 stage reads `/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/` (E3 needs `layers/NTL`, E2 and E3
-need `layers/Land_Use`). Scratch is purged 90 days after creation;
+need `layers/Land_Use`, and v3.1 needs `layers/water_frac` from `Making_Cutout.md` section 8). Scratch is purged 90 days after creation;
 if the cutout is gone, rerun grid_cutout first.
 
 | Stage | Script | Job | Resources | Writes (under `/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/<version>/`) |
 |---|---|---|---|---|
-| 1 | `county_features.py` | `sbatch/dasymetric_features.sh` | acpu, 2 cores, 30 min | `<era>/features/county_features.csv` |
-| 2 | `train.py` | `sbatch/dasymetric_train.sh` | acpu, 4 cores, 30 min | `<era>/model/` (rf.joblib, folds, feature_correlation, cv_results, best_params, metrics, feature_importance, shap_*, oof_predictions, compare_v2.json), `cv_summary.csv` |
-| 3 | `predict.py` | `sbatch/dasymetric_predict.sh` | acpu, 8 cores, 1 h | `predictions/pop_{YEAR}.tif` (each year with its era's model), `qa/reallocation_qa.csv`, `maps/pop_{1810,1950,2020}.png`, `maps/pop_2020_v2_vs_v3.png` |
+| 1 | `county_features.py` | `sbatch/dasymetric_features.sh` | acpu, 2 cores, 30 min | `<era>/features/county_features.csv`, `qa/water_mask_by_year.csv` (v3.1) |
+| 2 | `train.py` | `sbatch/dasymetric_train.sh` | acpu, 4 cores, 30 min | `<era>/model/` (rf.joblib, folds, feature_correlation, cv_results, best_params, metrics, feature_importance, shap_*, oof_predictions, compare_v3.json), `cv_summary.csv` |
+| 3 | `predict.py` | `sbatch/dasymetric_predict.sh` | acpu, 8 cores, 1 h | `predictions/pop_{YEAR}.tif` (each year with its era's model), `qa/reallocation_qa.csv` (with `n_masked`), `maps/pop_{1810,1950,2020}.png`, `maps/pop_2020_v3_vs_v3_1.png` |
 
 Without `eras:` in the config (v1, v2), there is no `<era>/` level and one pooled model.
 
@@ -34,6 +36,7 @@ outputs are skipped with a warning and the run still finishes. Stage 3 also read
 **Status:** v1 passed on Alpine: jobs 33217129 / 33217130 / 33217131 (features / train / predict), 2026-10-01 cluster time.
 v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster time.
 v3 passed on Alpine: jobs 33459257 / 33459258 / 33459259, 2026-10-05 cluster time.
+v3.1: tested on fake data only; not yet run on Alpine.
 
 ## 1. Sync + preflight (login node)
 
@@ -124,7 +127,37 @@ git push
 
 Then tell Claude to pull.
 
+## v3.1 (water mask): what changes in the steps above
+
+- Preflight: also `ls /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/layers/water_frac` (one `.tif`) and
+  `ls /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3/E1/model/oof_predictions.csv`.
+  `configs/model.yaml` shows `version: v3_1`, `water_mask: true`, `compare_with: v3`, `folds_from: v2`.
+- v3.1 only reads v3: per era, its saved `oof_predictions.csv` and `metrics.json` (same folds, checked),
+  and `v3/predictions/pop_2020.tif` for the side-by-side map.
+- features log: per year `water mask N of M cells (share) | all-water cells with BUI > 0 kept: K`; then
+  `wrote .../qa/water_mask_by_year.csv`.
+- train log, per era: `v3 (its saved out-of-fold predictions, same folds, N rows, its own target): ...` and
+  `era Ex: CV v3_1 vs v3 (same folds and rows): ...`. The targets differ slightly: v3.1 divides by
+  0.0625 x unmasked cells, v3 by the polygon area.
+- predict log, per year: `... cells (N masked) | ... | bad cells 0` (masked cells with people count as bad).
+
+| Symptom | Fix |
+|---|---|
+| `expected exactly one .tif in .../layers/water_frac` | run `Making_Cutout.md` section 8 first |
+| `counties with no unmasked cell` | a county is all water with no building; send Claude the rows |
+| `rf.joblib was trained with water_mask=...` | config changed after training; rerun stages 1-2 |
+
 ## Notes
+
+- 2026-10-06: v3.1 implemented (`docs/dasymetric_v3_1.md`, third revision: mask only, no land-share
+  weights, features unchanged). Tested on the fake Boston-area cutout, with the v2/v3 outputs from the v3
+  test and the fake water layer. All three stages ran. Masked cells (water 100 % and BUI = 0; 7795 in
+  1810, 5327 in 2020) got exactly 0 people. All-water cells with BUI > 0 were kept (0 in 1810, 100 in
+  2020) and got people. County area came from the unmasked cells (one lake county: polygon 675.8 km²,
+  area 400.6 km²). Mass was preserved (max relative difference 2.8e-8). The v3 values read for the
+  comparison equalled v3's reported CV, and the v2/v3 output folders were byte-identical afterwards.
+  A county with no unmasked cell, a missing water layer, and a model trained with a different
+  `water_mask` all stopped with clear errors.
 
 - 2026-10-05 (cluster time), v3 jobs 33459257 / 33459258 / 33459259 (code 8e6c35e). Features took
   1 min, training 2 min, and prediction 1.3 min. Predictions take 20 MB on scratch. Rows: E1 188

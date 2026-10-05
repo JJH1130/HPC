@@ -1,18 +1,27 @@
-# Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md
-# and docs/dasymetric_v3.md).
-# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v3/
-# (one model per era under v3/<era>/; predictions, QA and maps for all years under v3/).
-# Earlier settings are in git history: v1 = commit 8d93125, v2 = commit 38ed1e2
-# (v2: one pooled model, features [bui, bldg_size, mu_ratio, age, dist_built, year]).
-version: v3
+# Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md,
+# docs/dasymetric_v3.md and docs/dasymetric_v3_1.md).
+# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v3_1/
+# (one model per era under v3_1/<era>/; predictions, QA and maps for all years under v3_1/).
+# Earlier settings are in git history: v1 = commit 8d93125, v2 = commit 38ed1e2, v3 = commit 8e6c35e
+# (v2: one pooled model, features [bui, bldg_size, mu_ratio, age, dist_built, year];
+#  v3: these eras and features, compare_with v2, no water_correction).
+version: v3_1
 
-# Earlier version under the same out-root to compare with (read only; null = no comparison):
-# train.py recomputes its out-of-fold predictions on the same folds and compares them on each era's rows;
-# predict.py draws side-by-side maps for maps.compare_years. It must be a version without eras.
-compare_with: v2
+# Water mask (docs/dasymetric_v3_1.md), per year: a cell is masked if it is all permanent water and has no
+# building that year (water_frac == 1 and BUI == 0; layers/water_frac/water_frac.tif from src/grid/water_frac.py).
+# Masked cells get weight 0; county features are means over the unmasked cells and area_km2 = 0.0625 x unmasked
+# cells (y = log(pop / area_km2)). Partly-water cells, dry unbuilt cells and features are not changed; water is
+# not a feature. false/absent = v1-v3 behaviour (all cells, polygon area).
+water_mask: true
+
+# Earlier version under the same out-root to compare with (read only; null = no comparison). A version with
+# the same eras (v3): its saved out-of-fold predictions are read per era (no refit) and each version is scored
+# on its own target. A pooled version (v2): refit with its features + best params on the same folds and scored
+# on each era's rows. predict.py draws side-by-side maps for maps.compare_years.
+compare_with: v3
 
 # Reuse this version's GISJOIN -> fold mapping (<version>/model/folds.csv), filtered to each era's counties,
-# so the comparison runs on identical folds (null = new GroupKFold folds per era).
+# so the comparison runs on identical folds (null = new GroupKFold folds per era). v3 used the same table.
 folds_from: v2
 
 # Study name and years come from here; inputs are that study's cutout (docs/cutout.md).
