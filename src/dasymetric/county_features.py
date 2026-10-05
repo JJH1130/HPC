@@ -1,4 +1,5 @@
-"""Stage 1: county features + target from the study-area cutout (design: docs/dasymetric_v1.md).
+"""Stage 1: county features + target from the study-area cutout (design: docs/dasymetric_v1.md;
+v2 features: docs/dasymetric_v2.md).
 
 Writes <out-root>/<name>/<version>/features/county_features.csv, one row per county-year:
   year, zone_id, GISJOIN, state, name, status, n_cells, <features>, pop, area_km2, y

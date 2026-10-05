@@ -1,8 +1,9 @@
 #!/bin/bash
 # Dasymetric stage 3: cell prediction + mass-preserving reallocation of county population
-# (src/dasymetric/predict.py; design docs/dasymetric_v1.md).
+# (src/dasymetric/predict.py; design docs/dasymetric_v1.md + v2.md).
 # Input: model/<model>.joblib (stage 2) + the cutout. Output: $HISDAC_SCRATCH/dasymetric/<name>/<version>/
-# predictions/pop_{YEAR}.tif (scratch only), qa/reallocation_qa.csv, maps/pop_{YEAR}.png.
+# predictions/pop_{YEAR}.tif (scratch only), qa/reallocation_qa.csv, maps/*.png (state background from
+# $DATA_ROOT/processed/census/counties_2020.gpkg; 1810 also side by side with compare_with).
 # The QA CSV and the PNGs are copied to results/dasymetric/<name>/<version>/.
 #
 # Submit from the repo root (logs/ must exist). Extra args go to the Python script:
@@ -45,6 +46,7 @@ python -u src/dasymetric/predict.py \
     --config "$CONFIG" \
     --cutout-root "$HISDAC_SCRATCH/cutouts" \
     --out-root "$OUT_ROOT" \
+    --counties-gpkg "$DATA_ROOT/processed/census/counties_2020.gpkg" \
     --n-jobs "$NJOBS" \
     "$@"
 

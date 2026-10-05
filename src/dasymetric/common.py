@@ -1,11 +1,11 @@
-"""Shared pieces of the dasymetric pipeline (design: docs/dasymetric_v1.md).
+"""Shared pieces of the dasymetric pipeline (design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md).
 
 Stages (each runs on its own):
   county_features.py  cutout -> features/county_features.csv
   train.py            county_features.csv -> model/
   predict.py          model + cutout -> predictions/pop_{YEAR}.tif, qa/reallocation_qa.csv
 
-Settings: configs/model.yaml (version, statuses, features, model + search space). The study
+Settings: configs/model.yaml (version, statuses, features + groups, model + search space). The study
 area name and years come from the study-area config it points to (configs/study_area.yaml).
 Paths come from CLI flags (the sbatch scripts fill them from sbatch/cluster_env.sh).
 """
@@ -20,14 +20,17 @@ import numpy as np
 import pandas as pd
 import rasterio
 import yaml
+from scipy import ndimage
 
 log = logging.getLogger("dasymetric")
 
-# Cell features (docs/dasymetric_v1.md, "Cell features"). County feature = mean over the county's cells.
+# Cell features (docs/dasymetric_v1.md, "Cell features"; v2 adds bldg_size, dist_built). County feature =
+# mean over the county's cells. Which ones are used is set in configs/model.yaml.
 LAYER_FEATURES = {"bui": "BUI", "bupl": "BUPL", "bupr": "BUPR", "bua": "BUA"}
-DERIVED_FEATURES = {"mu_ratio", "age", "year"}
+DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year"}
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
 NODATA_OUT = -9999.0
+CELL_KM = 0.25  # HISDAC cell size
 
 
 def setup_logging():
@@ -58,6 +61,11 @@ def load_config(path: Path) -> dict:
     unknown = [f for f in cfg["features"] if f not in FEATURES]
     if unknown:
         sys.exit(f"ERROR: {path}: unknown features {unknown}; known: {sorted(FEATURES)}")
+    groups = cfg.get("feature_groups") or {}
+    grouped = [f for members in groups.values() for f in members]
+    if sorted(grouped) != sorted(cfg["features"]):
+        sys.exit(f"ERROR: {path}: feature_groups must list every feature exactly once; "
+                 f"features {cfg['features']}, grouped {grouped}")
     if cfg["model"] not in cfg["models"]:
         sys.exit(f"ERROR: {path}: model {cfg['model']!r} has no entry under models: {sorted(cfg['models'])}")
     return cfg
@@ -110,28 +118,47 @@ def layer_path(cutout: Path, layer: str, year: int | None) -> Path:
     return hits[0]
 
 
-def read_layer(cutout: Path, layer: str, year: int | None, grid: dict, mask: np.ndarray) -> np.ndarray:
-    """Layer values at the masked cells (float64). The layer must be on the zones grid, and the
-    masked cells must not be nodata (0 is a value: "no building")."""
+def read_layer_full(cutout: Path, layer: str, year: int | None, grid: dict):
+    """Whole-window layer array (float64) + its nodata mask. The layer must be on the zones grid."""
     path = layer_path(cutout, layer, year)
     if not path.exists():
         sys.exit(f"ERROR: {path} not found (run grid_cutout first)")
     with rasterio.open(path) as src:
         if (src.height, src.width) != grid["shape"] or src.transform != grid["transform"]:
             sys.exit(f"ERROR: {path} is not on the zones grid ({src.width}x{src.height} {src.transform})")
-        arr = src.read(1)
+        arr = src.read(1).astype("float64")
         nodata = src.nodata
-    vals = arr[mask].astype("float64")
-    bad = ~np.isfinite(vals)
+    bad = ~np.isfinite(arr)
     if nodata is not None:
-        bad |= vals == nodata
+        bad |= arr == nodata
+    return arr, bad, path
+
+
+def read_layer(cutout: Path, layer: str, year: int | None, grid: dict, mask: np.ndarray) -> np.ndarray:
+    """Layer values at the masked cells (float64). The masked cells must not be nodata
+    (0 is a value: "no building")."""
+    arr, bad, path = read_layer_full(cutout, layer, year, grid)
+    if bad[mask].any():
+        sys.exit(f"ERROR: {path}: {int(bad[mask].sum())} nodata cells inside the used counties")
+    return arr[mask]
+
+
+def dist_built(cutout: Path, year: int, grid: dict) -> np.ndarray:
+    """Whole-window distance (km) from each cell centre to the nearest cell with BUA_Y = 1; 0 on built
+    cells (docs/dasymetric_v2.md). Uses the full window, so built cells outside the study counties count.
+    Nodata cells count as unbuilt."""
+    bua, bad, path = read_layer_full(cutout, "BUA", year, grid)
+    built = (bua == 1) & ~bad
+    if not built.any():
+        sys.exit(f"ERROR: {path}: no built cell (BUA = 1) in the window for {year}; dist_built undefined")
     if bad.any():
-        sys.exit(f"ERROR: {path}: {int(bad.sum())} nodata cells inside the used counties")
-    return vals
+        log.info("  %d: BUA has %d nodata cells in the window (treated as unbuilt for dist_built)",
+                 year, int(bad.sum()))
+    return ndimage.distance_transform_edt(~built) * CELL_KM
 
 
 def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names) -> pd.DataFrame:
-    """Cell features (docs/dasymetric_v1.md) for the masked cells, columns in `names` order."""
+    """Cell features (docs/dasymetric_v1.md, v2) for the masked cells, columns in `names` order."""
     cache = {}
 
     def layer(name, y=year):
@@ -143,12 +170,17 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names) 
     for f in names:
         if f in LAYER_FEATURES:
             out[f] = layer(LAYER_FEATURES[f])
+        elif f == "bldg_size":  # BUI / BUPL where BUPL > 0, else 0 (mean building size)
+            ui, pl = layer("BUI"), layer("BUPL")
+            out[f] = np.divide(ui, pl, out=np.zeros_like(pl), where=pl > 0)
         elif f == "mu_ratio":  # BUPR / BUPL where BUPL > 0, else 0 (multi-unit proxy)
             pl, pr = layer("BUPL"), layer("BUPR")
             out[f] = np.divide(pr, pl, out=np.zeros_like(pl), where=pl > 0)
         elif f == "age":  # Y - FBUY where 0 < FBUY <= Y, else 0 (years since first settlement)
             fbuy = layer("FBUY", None)
             out[f] = np.where((fbuy > 0) & (fbuy <= year), year - fbuy, 0.0)
+        elif f == "dist_built":  # km to the nearest built cell (whole window), 0 for built cells
+            out[f] = dist_built(cutout, year, grid)[mask]
         elif f == "year":
             out[f] = np.full(int(mask.sum()), float(year))
     return pd.DataFrame(out, columns=list(names))

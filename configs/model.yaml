@@ -1,6 +1,11 @@
-# Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md).
-# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v1/.
-version: v1
+# Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md).
+# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v2/.
+# v1 settings: git history (commit 8d93125); v1 used features [bui, bupl, bupr, bua, mu_ratio, age, year].
+version: v2
+
+# Earlier version under the same out-root to compare with (read only; null = no comparison):
+# train.py recomputes its CV on this version's folds, predict.py draws side-by-side maps.
+compare_with: v1
 
 # Study name and years come from here; inputs are that study's cutout (docs/cutout.md).
 study_area: configs/study_area.yaml
@@ -9,9 +14,20 @@ study_area: configs/study_area.yaml
 # Cells of other counties are NoData in the predictions.
 use_status: [ok, manual_fill]
 
-# Cell features, defined in src/dasymetric/common.py (docs/dasymetric_v1.md, "Cell features").
+# Cell features, defined in src/dasymetric/common.py (docs/dasymetric_v2.md, "Features").
 # County feature = mean of the cell feature over all cells of the county.
-features: [bui, bupl, bupr, bua, mu_ratio, age, year]
+# Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year.
+features: [bui, bldg_size, mu_ratio, age, dist_built, year]
+
+# Concept groups for grouped SHAP: every feature in exactly one group.
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [age, dist_built]
+  Period: [year]
+
+# Collinearity check before training: Spearman rho of county features; pairs above this |rho| are
+# logged (nothing is dropped automatically).
+correlation_threshold: 0.8
 
 # Which entry under models: to train. Switching models is a config change only.
 model: rf
@@ -24,7 +40,7 @@ search:
   cv_folds: 5
   scoring: neg_root_mean_squared_error   # on y = log(pop / area_km2)
 
-# Permutation importance of the refit model on the training rows.
+# Permutation importance of the refit model on the training rows (secondary to SHAP since v2).
 permutation: {n_repeats: 10, random_state: 42}
 
 # One entry per model: `fixed` = constructor arguments, `space` = candidates for the search.

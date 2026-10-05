@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-06
+Last updated: 2026-10-06 (v2 design delivered)
 
 ## Open items
 
@@ -23,18 +23,24 @@ Last updated: 2026-10-06
 - On arrival: check resolution, CRS and year coverage, then add it as a layer
   in `configs/study_area.yaml` (the cutout layer list) per `docs/cutout.md`.
 
-### Dasymetric v2 design
+### Dasymetric v2 design delivered
 
-- **Status:** waiting on the user's v2 design, based on review of v1 results.
-- Expected topics: neighborhood (surrounding-cell) features, and variable
-  importance computed with the county grouping used for CV.
-- **Until the design arrives:** do not write or change dasymetric code
-  (`src/dasymetric/`, `configs/model.yaml`, `sbatch/dasymetric_*.sh`).
+- **Status:** design delivered (`docs/dasymetric_v2.md`), implemented and
+  tested on fake data; waiting for the first Alpine run
+  (`docs/runbooks/Running_Dasymetric.md`).
+- Focal (neighborhood) means were rejected in the design; v2 adds
+  `bldg_size` and `dist_built` instead, drops `bupl`, `bupr`, `bua`, and uses
+  SHAP (per feature, grouped by concept, by year) as the main importance.
+- v1 outputs (scratch `.../dasymetric/massachusetts/v1/`,
+  `results/dasymetric/massachusetts/v1/`) are read only and must not change.
+- Open after the run: keep or drop `age` (correlation with `year` + SHAP);
+  see "Open items" in `docs/dasymetric_v2.md`.
 
 ## Decision log
 
 | Date | Decision |
 |---|---|
 | 2026-10-06 | Keep nominal counties until the source for pre-1990 2010-standardized counties is confirmed. |
-| 2026-10-06 | No dasymetric code changes until the v2 design is given. |
+| 2026-10-06 | No dasymetric code changes until the v2 design is given. (Lifted the same day: design delivered.) |
+| 2026-10-06 | Implement v2 per `docs/dasymetric_v2.md`: v1 code structure kept, features and their SHAP groups in `configs/model.yaml`, v1 outputs read only. |
 | 2026-10-06 | Important decisions saved to Claude's memory are also recorded in this file. |

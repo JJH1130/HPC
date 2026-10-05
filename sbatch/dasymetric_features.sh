@@ -1,6 +1,6 @@
 #!/bin/bash
 # Dasymetric stage 1: county features + target from the study-area cutout
-# (src/dasymetric/county_features.py; design docs/dasymetric_v1.md; settings configs/model.yaml).
+# (src/dasymetric/county_features.py; design docs/dasymetric_v1.md + v2.md; settings configs/model.yaml).
 # Input: $HISDAC_SCRATCH/cutouts/<name>/ (grid_cutout). Output: $HISDAC_SCRATCH/dasymetric/<name>/<version>/features/.
 # county_features.csv is copied to results/dasymetric/<name>/<version>/ so it comes back through git.
 #

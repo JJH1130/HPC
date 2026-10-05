@@ -1,9 +1,9 @@
 #!/bin/bash
 # Dasymetric stage 2: train the county model with grouped-CV hyperparameter search
-# (src/dasymetric/train.py; design docs/dasymetric_v1.md; model + search space in configs/model.yaml).
+# (src/dasymetric/train.py; design docs/dasymetric_v1.md + v2.md; model + search space in configs/model.yaml).
 # Input: features/county_features.csv (stage 1). Output: $HISDAC_SCRATCH/dasymetric/<name>/<version>/model/.
-# metrics.json, best_params.json, feature_importance.csv, cv_results.csv are copied to
-# results/dasymetric/<name>/<version>/.
+# Everything in model/ except the model file (.json, .csv, .png: metrics, folds, correlation, SHAP,
+# comparison with compare_with) is copied to results/dasymetric/<name>/<version>/.
 #
 # Submit from the repo root (logs/ must exist):
 #   mkdir -p logs && sbatch sbatch/dasymetric_train.sh
@@ -38,5 +38,5 @@ python -u src/dasymetric/train.py \
 
 mkdir -p "$RESULTS"
 M=$OUT_ROOT/$NAME/$VERSION/model
-cp "$M/metrics.json" "$M/best_params.json" "$M/feature_importance.csv" "$M/cv_results.csv" "$RESULTS/"
+cp "$M"/*.json "$M"/*.csv "$M"/*.png "$RESULTS/"
 echo "== done $(date -Is)"
