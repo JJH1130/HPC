@@ -36,7 +36,7 @@ outputs are skipped with a warning and the run still finishes. Stage 3 also read
 **Status:** v1 passed on Alpine: jobs 33217129 / 33217130 / 33217131 (features / train / predict), 2026-10-01 cluster time.
 v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster time.
 v3 passed on Alpine: jobs 33459257 / 33459258 / 33459259, 2026-10-05 cluster time.
-v3.1: tested on fake data only; not yet run on Alpine.
+v3.1 passed on Alpine: jobs 33463269 / 33463270 / 33463271 (after water_frac 33463268), 2026-10-05 cluster time.
 
 ## 1. Sync + preflight (login node)
 
@@ -148,6 +148,22 @@ Then tell Claude to pull.
 | `rf.joblib was trained with water_mask=...` | config changed after training; rerun stages 1-2 |
 
 ## Notes
+
+- 2026-10-05 (cluster time), v3.1 jobs 33463269 / 33463270 / 33463271 (code fdd9ef0). Rows per era were
+  the same as v3 (188 / 84 / 42).
+  - Mask (`water_mask_by_year.csv`): 12,110 cells in 1810 (0.72 %, mostly Maine: Hancock 5366, Somerset
+    1747, Washington 1481, Kennebec 1041). From 1820 on, 1051-1069 cells (0.32 %, about 66 km²), mostly
+    Plymouth (about 300), Bristol and Barnstable. All-water cells kept because BUI > 0: 0-10 per year.
+    Unmasked cell area / polygon area was 0.978 (Dukes) to 1.004 for every county-year.
+  - CV on the same folds and rows (fold-mean RMSE / R2), v3.1 vs v3: E1 0.780 / 0.624 vs 0.781 / 0.626,
+    E2 0.560 / 0.728 vs 0.557 / 0.735, E3 0.500 / 0.657 vs 0.498 / 0.661. The v3 values read back
+    equalled v3's reported CV. All differences are under 0.004; the mask hardly changes the county
+    target. Grouped SHAP is as in v3.
+  - Reallocation: all 314 county-years were preserved (max relative difference 2.2e-8), with no people on
+    masked cells (bad cells 0). The cell y_hat range is unchanged from v3 (2020: 3.78-8.08), so the
+    flatter E2/E3 cell maps noted for v3 remain.
+  - 2020 map (v3 vs v3.1): almost identical. Masked ponds show as small empty spots (mainly Plymouth).
+    Rivers narrower than 250 m and coasts do not change.
 
 - 2026-10-06: v3.1 implemented (`docs/dasymetric_v3_1.md`, third revision: mask only, no land-share
   weights, features unchanged). Tested on the fake Boston-area cutout, with the v2/v3 outputs from the v3

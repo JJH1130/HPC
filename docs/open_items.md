@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-06 (v3.1 water mask)
+Last updated: 2026-10-06 (v3.1 first run)
 
 ## Open items
 
@@ -60,10 +60,16 @@ Last updated: 2026-10-06 (v3.1 water mask)
 
 ### Dasymetric v3.1 (water mask)
 
-- **Status:** design delivered (`docs/dasymetric_v3_1.md`, third revision),
-  implemented and tested on fake data; waiting for the Alpine runs:
-  1. water fraction layer (`docs/runbooks/Making_Cutout.md`, section 8)
-  2. v3_1 features → train → predict (`docs/runbooks/Running_Dasymetric.md`)
+- **Status:** run on Alpine 2026-10-05 (water_frac 33463268, v3.1
+  33463269-33463271); results in the Notes of both runbooks. Waiting on the
+  user's review.
+- Result: the mask removes 0.32 % of cells from 1820 on (0.72 % in 1810); CV
+  changes by < 0.004 in every era; the 2020 map changes only at ponds.
+- Needs a decision: HydroLAKES `Lake_type = 2` also covers large dam-raised
+  natural lakes (Moosehead, Chesuncook, Chamberlain, Eagle Lake in the 1810
+  Maine area), which v3.1 treats as land. JRC no-data is 18 % of window pixels
+  (probably ocean; counted as not water); its share inside the study counties
+  is not yet reported.
 - Rule: per year, mask only cells with water_frac = 1 **and** BUI = 0 (weight 0,
   left out of county area and county feature means). Dry unbuilt cells and
   partly-water cells are not masked; features are raw (no land-share scaling);

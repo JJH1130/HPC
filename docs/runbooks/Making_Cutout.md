@@ -8,7 +8,7 @@ census_prepare run (`Preparing_Census.md`), because this job reads `counties_{YE
 **Status:** full run (22 years) passed on Alpine: job 33216032, 2026-10-01 cluster time. Quick test: job 33165456.
 NTL (section 7): cut on Alpine, job 33458909 (2026-10-05 cluster time). NTL QA job 33458910 failed only on
 the fixed DN >= 60 rule for 2010 (see Notes); the layer was judged correct and the rule is kept as is for now.
-Water fraction (section 8): tested on fake data only; not yet run on Alpine.
+Water fraction (section 8): passed on Alpine, job 33463268 (2026-10-05 cluster time; see Notes).
 
 HISDAC is read from `/pl/active/Leyk_Lab/data/HISDAC_US_V2` (**read only**; nothing is written
 to PetaLibrary). Output goes to `/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/`.
@@ -185,6 +185,19 @@ Close the loop: `git add logs/water_frac.$jw.out results/cutout/`, commit, push 
 dasymetric v3.1 run, `Running_Dasymetric.md`).
 
 ## Notes
+
+- 2026-10-05 (cluster time), water_frac job 33463268 (code fdd9ef0): 6.8 min for 84 blocks. Of 21 JRC files,
+  2 were selected automatically (`70W_50N`, `80W_50N`). 139 HydroLAKES reservoir polygons intersect the
+  window, and 6.2 M water pixels were removed with them. There was no uncovered study cell; values were
+  0-1. Study counties (all years): mean water_frac 0.021, share > 0 5.3 %, share = 1 0.72 %.
+  - Quabbin (5 km box): mean 0.003, `expect dry: ok`, so the reservoir was removed.
+  - Connecticut River (Springfield, 3 km box): max 0.973, no cell = 1, `expect full_water: NOT MET` (warning).
+    The river never fills a 250 m cell there, so it is never masked; this is expected from the design.
+  - The removed "reservoirs" (HydroLAKES `Lake_type = 2`) include large natural lakes raised by dams:
+    Moosehead, Chesuncook, Chamberlain and Eagle Lake (Maine, inside the 1810 study area) and
+    Lake Winnipesaukee (NH, outside). They count as land in v3.1. Needs a decision before CONUS.
+  - JRC no-data (values > 100) is 18 % of the covered pixels in the window, probably mostly open ocean.
+    It counts as not water. The QA does not yet report this share inside the study counties.
 
 - 2026-10-06: added `src/grid/water_frac.py` (v3.1 water fraction). Tested on the fake Boston-area cutout
   with fake JRC tiles: two tiles meeting at 71°W plus an unrelated tile that was correctly ignored, and a
