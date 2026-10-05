@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-06 (v3 design delivered)
+Last updated: 2026-10-06 (v3 first run)
 
 ## Open items
 
@@ -34,10 +34,20 @@ Last updated: 2026-10-06 (v3 design delivered)
 
 ### Dasymetric v3 (eras + NTL)
 
-- **Status:** design delivered (`docs/dasymetric_v3.md`), implemented and
-  tested on fake data; waiting for the Alpine runs, in this order:
-  1. NTL cutout + NTL QA (`docs/runbooks/Making_Cutout.md`, section 7)
-  2. v3 features → train → predict (`docs/runbooks/Running_Dasymetric.md`)
+- **Status:** implemented and run on Alpine 2026-10-05: NTL cutout 33458909,
+  NTL QA 33458910, v3 33459257-33459259. Results are in the Notes of
+  `docs/runbooks/Making_Cutout.md` and `docs/runbooks/Running_Dasymetric.md`.
+  Waiting on the user's review.
+- NTL QA failed only because 2010 peaks at DN 59 (fixed rule DN >= 60). The user
+  judged the layer correct (NTL-BUI Spearman 0.528 / 0.540 / 0.516). **The QA
+  rule change is on hold** (do not edit `src/grid/ntl_qa.py` until decided).
+- CV vs v2 on the same rows: E1 about equal (0.781 vs 0.774), E2 better
+  (0.557 vs 0.668), E3 better (0.498 vs 0.679). Land use and Lights take a
+  visible SHAP share in E2/E3.
+- Needs a decision: in E2 and E3 the cell-level contrast shrinks (y_hat floor
+  3.07 / 3.77 against 0.63 in v2's 2020; 2020 map visibly flatter), because RF
+  can't predict below the lowest county y of the era's training rows. The
+  floor jumps at the 1930/1940 and 1990/2000 boundaries.
 - Eras (E1 1810-1930, E2 1940-1990, E3 2000-2020) and their feature lists
   live in `configs/model.yaml`; v3 reuses `v2/model/folds.csv` and compares
   each era model with v2's out-of-fold predictions on the same rows.
@@ -59,4 +69,5 @@ Last updated: 2026-10-06 (v3 design delivered)
 | 2026-10-06 | From v2 results: **drop `age`** (rho 0.95 with `year`, small SHAP; revisit in per-year CONUS models). |
 | 2026-10-06 | From v2 results: **keep `bui`, `bldg_size`, `mu_ratio`** despite county-level rho 0.98-0.99 (only 22 counties in Massachusetts); re-check on CONUS; interpret grouped SHAP for now. |
 | 2026-10-06 | From v2 results: **no fold changes**; the 1810 Maine errors come from extreme `dist_built`, not from fold assignment. Keep `dist_built`. |
+| 2026-10-06 | NTL QA: 2010 failure on the fixed DN >= 60 rule accepted as a rule artifact (layer correct); QA rule change on hold. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |

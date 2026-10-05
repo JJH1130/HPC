@@ -6,7 +6,8 @@ job: `sbatch/grid_cutout.sh` (acpu, 2 cores, 1 h, env `hisdac`). Prerequisite: t
 census_prepare run (`Preparing_Census.md`), because this job reads `counties_{YEAR}.gpkg`.
 
 **Status:** full run (22 years) passed on Alpine: job 33216032, 2026-10-01 cluster time. Quick test: job 33165456.
-NTL (section 7): tested on fake data only; not yet run on Alpine.
+NTL (section 7): cut on Alpine, job 33458909 (2026-10-05 cluster time). NTL QA job 33458910 failed only on
+the fixed DN >= 60 rule for 2010 (see Notes); the layer was judged correct and the rule is kept as is for now.
 
 HISDAC is read from `/pl/active/Leyk_Lab/data/HISDAC_US_V2` (**read only**; nothing is written
 to PetaLibrary). Output goes to `/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/`.
@@ -143,6 +144,21 @@ git push
 ```
 
 ## Notes
+
+- 2026-10-05 (cluster time), jobs 33458909 (`--layers NTL`) / 33458910 (NTL QA), code 8e6c35e.
+  - Cutout: 2.5 min, about 1 min of it reading the 22 county files for the window. The window matched
+    `window.json`. 3 files were warped (nearest) to int16, 0.4-0.7 MB each, with no nodata cells.
+    Max DN was 62 (2000), 59 (2010) and 63 (2020). About 54-60 % of the window is 0 (ocean and
+    unlit land).
+  - QA: DN stayed within 0-63 in every year. The job stopped with `ERROR: NTL QA failed: 2010: no cell
+    with DN >= 60 in the box`, because the 2010 calDMSP file peaks at 59, below the fixed threshold.
+    This is not a data error. The user judged the 2010 alignment correct, because the Spearman of
+    NTL with BUI over the 335,9xx cells in the study counties is about the same in every year: 0.528
+    (2000), 0.540 (2010), 0.516 (2020). 2000 and 2020 bright-core centroids:
+    (-71.084, 42.362) and (-71.090, 42.358), 0.65 km apart (expected well under 1 km).
+  - Decision (user, 2026-10-06): keep the QA rule unchanged for now. Observation for a later
+    revision: in 2000, 5055 of the 6400 cells in the 20 km box are at DN >= 60 (4354 in 2020).
+    The centroid of saturated cells is then close to the box centre, so it is a weak alignment test.
 
 - 2026-10-06: added NTL (`docs/dasymetric_v3.md`), `--layers` (cut only listed layers into an existing
   cutout), dtype `int16`, and `src/grid/ntl_qa.py`. Tested on a fake Boston-area setup: fake HISDAC

@@ -33,7 +33,7 @@ outputs are skipped with a warning and the run still finishes. Stage 3 also read
 
 **Status:** v1 passed on Alpine: jobs 33217129 / 33217130 / 33217131 (features / train / predict), 2026-10-01 cluster time.
 v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster time.
-v3: tested on fake data only; not yet run on Alpine.
+v3 passed on Alpine: jobs 33459257 / 33459258 / 33459259, 2026-10-05 cluster time.
 
 ## 1. Sync + preflight (login node)
 
@@ -125,6 +125,45 @@ git push
 Then tell Claude to pull.
 
 ## Notes
+
+- 2026-10-05 (cluster time), v3 jobs 33459257 / 33459258 / 33459259 (code 8e6c35e). Features took
+  1 min, training 2 min, and prediction 1.3 min. Predictions take 20 MB on scratch. Rows: E1 188
+  (22 counties, 13 years), E2 84 (14, 6), E3 42 (14, 3); 314 in total. The v2 folds were reused (E1
+  fold 4 = 10 counties, including the 7 Maine ones).
+  - CV on the same folds and rows (fold-mean RMSE / R2; pooled out-of-fold RMSE in brackets):
+
+    | Era | v3 | v2 on the same rows |
+    |---|---|---|
+    | E1 1810-1930 | 0.781 / 0.626 (0.935) | 0.774 / 0.632 (0.911) |
+    | E2 1940-1990 | 0.557 / 0.735 (0.670) | 0.668 / 0.670 (0.795) |
+    | E3 2000-2020 | 0.498 / 0.661 (0.657) | 0.679 / 0.506 (0.852) |
+
+    E1 is unchanged. Out-of-fold RMSE was lower than v2 in 1850-1870 and higher in 1900-1930
+    (0.87-0.95 against 0.71-0.79); v2 learned those years together with the later ones. E2 and E3
+    improved, mostly through Dukes (E2 1.76 -> 0.65, E3 2.22 -> 1.11), Nantucket and Franklin. Hampshire,
+    Worcester, Berkshire, Bristol (E2) and Essex, Hampden (E3) got worse by 0.1-0.2. The largest errors
+    are unchanged: Suffolk is under-predicted by about 2.0-2.8 in every era, and the 1810 Maine
+    counties are over-predicted by 2.2-3.0. Per the design, this does not justify tuning or dropping
+    features (E3 has 14 counties).
+  - Grouped SHAP (mean |SHAP|): E1 Building 0.65, Settlement 0.28, Period 0.10. E2 Land use 0.61,
+    Building 0.56, Settlement 0.06, Period 0.01; almost all of Land use is rent_share (0.61;
+    res_share 0.03). E3 Building 0.40, Land use 0.22, Lights 0.18, Settlement 0.16, Period 0.003; ntl
+    (0.18) is second only to bui (0.19). This meets the design expectation that Land use and Lights
+    take a visible share in E2 and E3.
+  - Correlation: |rho| > 0.8 pairs in every era. In E1, Building pairs are 0.96-0.99 again. In E2,
+    res_share has 0.93-0.94 with bui, bldg_size and mu_ratio. In E3, ntl has -0.905 with dist_built,
+    0.892 with rent_share and 0.871 with bui.
+  - Reallocation: all 314 county-years were preserved (max relative difference 1.5e-8), with no
+    negative or NaN cells.
+  - **Cell-level contrast shrinks in E2 and E3.** The cell y_hat range is 0.10-7.70 in 1810 and
+    1.51-8.30 in 1930 (E1), then 3.07-8.52 in 1940 (E2) and 3.77-8.09 in 2000 (E3). For comparison,
+    v2 gave 0.63-8.48 in 2020. Within a county, the densest and the emptiest cell now differ by a
+    weight factor of about e^4.3 = 75 in 2020, against about e^7.8 = 2600 in v2. The 2020 v3 map is
+    visibly flatter: the Quabbin reservoir and western forests barely stand out. RF can't predict
+    below the lowest county y in its training rows. E2 and E3 contain no low-density county, while
+    the pooled v2 model had the 1810 Maine counties (y near 0). The floor jumps at the era
+    boundaries, 1930 -> 1940 and 1990 -> 2000, so the cell maps change step-wise there. County CV
+    can't see this effect; it needs a decision and, later, fine-scale validation.
 
 - 2026-10-06: v3 implemented (`docs/dasymetric_v3.md`). The eras and their features are in
   `configs/model.yaml`; v2 and v1 configs still run unchanged (no `eras:` = one pooled model). Tested on
