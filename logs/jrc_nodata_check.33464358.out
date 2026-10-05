@@ -1,0 +1,50 @@
+== job 33464358 (jrc_nodata_check) on c3cpu-c15-u1-2 at 2026-10-05T17:34:35-06:00
+== cores=2 gpus=none restart=0
+== git 487573e
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/study_area.yaml (name=massachusetts)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  extra args: 
+17:34:44 INFO arg config = configs/study_area.yaml
+17:34:44 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+17:34:44 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census/counties_2020.gpkg
+17:34:44 INFO arg edge_km = 1.0
+17:34:45 INFO JRC: 21 files in /projects/jaju1407/data/raw/water/jrc_occurrence, 2 overlap the window (lon -73.612..-66.004, lat 40.789..47.972): ['occurrence_70W_50Nv1_4_2021.tif', 'occurrence_80W_50Nv1_4_2021.tif']
+17:37:03 INFO   block 20/84
+17:39:13 INFO   block 40/84
+17:41:13 INFO   block 60/84
+17:42:42 INFO   block 80/84
+17:42:46 INFO   block 84/84
+17:42:46 INFO window: 850456482 JRC pixels, 153352118 no-data (0.1803) | cells with any no-data 872426 of 4862662
+17:42:57 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/qa/jrc_nodata_by_county.csv
+17:42:57 INFO study counties by year (all statuses):
+        cells  cells_with_nodata  nodata_km2  inner_nodata_km2  nodata_share
+year                                                                        
+1810  1681989                  0         0.0               0.0           0.0
+1820   336164                  0         0.0               0.0           0.0
+1830   336164                  0         0.0               0.0           0.0
+1840   336164                  0         0.0               0.0           0.0
+1850   336164                  0         0.0               0.0           0.0
+1860   336164                  0         0.0               0.0           0.0
+1870   335900                  0         0.0               0.0           0.0
+1880   335900                  0         0.0               0.0           0.0
+1890   335900                  0         0.0               0.0           0.0
+1900   335900                  0         0.0               0.0           0.0
+1910   335900                  0         0.0               0.0           0.0
+1920   335900                  0         0.0               0.0           0.0
+1930   335900                  0         0.0               0.0           0.0
+1940   335900                  0         0.0               0.0           0.0
+1950   335900                  0         0.0               0.0           0.0
+1960   335900                  0         0.0               0.0           0.0
+1970   335900                  0         0.0               0.0           0.0
+1980   335900                  0         0.0               0.0           0.0
+1990   335900                  0         0.0               0.0           0.0
+2000   335900                  0         0.0               0.0           0.0
+2010   335899                  0         0.0               0.0           0.0
+2020   335850                  0         0.0               0.0           0.0
+17:42:57 INFO 1810, counties with no-data (0 of 20):
+  none
+17:42:57 INFO 2020, counties with no-data (0 of 14):
+  none
+17:42:57 INFO verdict input: no-data more than 1.0 km inside the study area: none km2 (max over years 0.000)
+17:43:05 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/qa/jrc_nodata_map.png
+17:43:05 INFO DONE
+== done 2026-10-05T17:43:06-06:00
