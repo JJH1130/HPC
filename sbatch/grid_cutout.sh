@@ -7,6 +7,7 @@
 # Submit from the repo root (logs/ must exist). Extra args go to the Python script:
 #   mkdir -p logs && sbatch sbatch/grid_cutout.sh                  # all config years
 #   mkdir -p logs && sbatch sbatch/grid_cutout.sh --years 1810     # quick test
+#   mkdir -p logs && sbatch sbatch/grid_cutout.sh --layers NTL     # add one layer to the existing cutout
 # Layers come only from the config (layers:). states: all (CONUS) reads ~1 GB per layer-year
 # window: raise --ntasks to 4 and --time before switching.
 #SBATCH --job-name=grid_cutout

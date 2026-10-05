@@ -63,10 +63,15 @@ def shap_summary(sv: np.ndarray, X, path: Path):
     _save(fig, path)
 
 
-def shap_by_year(by_year, path: Path):
+def shap_by_year(by_year, path: Path, order=None):
+    """order: all features of the config, so a feature keeps its colour in every era's chart."""
+    order = list(order or by_year.columns)
     fig, ax = plt.subplots(figsize=(9, 4.5), dpi=150)
-    for i, f in enumerate(by_year.columns):  # fixed slot order = config feature order
-        ax.plot(by_year.index, by_year[f], color=SERIES[i % len(SERIES)], lw=2, marker="o", ms=4, label=f)
+    for f in by_year.columns:  # fixed slot per feature = its position in the config
+        ax.plot(by_year.index, by_year[f], color=SERIES[order.index(f) % len(SERIES)], lw=2, marker="o", ms=4,
+                label=f)
+    if len(by_year) <= 13:  # tick the census years themselves (no 2002.5 in a 3-year era)
+        ax.set_xticks(by_year.index, [str(int(y)) for y in by_year.index])
     ax.set_title("Mean |SHAP| per feature by census year", fontsize=11, color=INK)
     ax.set_xlabel("census year", fontsize=9, color=INK2)
     ax.set_ylabel("mean |SHAP| (log people per km²)", fontsize=9, color=INK2)

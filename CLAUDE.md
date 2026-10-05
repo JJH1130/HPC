@@ -18,15 +18,16 @@ is checked by `sbatch/test_env_hisdac.sh`. First pipeline stage: `src/census/pre
 county pop + boundaries → `counties_{YEAR}.gpkg` in ESRI:102039; manual fixes in `configs/nhgis_*.csv`, rules in `docs/census_preprocessing.md`),
 run by `sbatch/census_prepare.sh` per `docs/runbooks/Preparing_Census.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
-(study area + the only layer list in `configs/study_area.yaml` → HISDAC/Land_Use layers clipped to one shared 250 m window + per-year
-county zone grids), run by `sbatch/grid_cutout.sh` per `docs/runbooks/Making_Cutout.md`, rules in
-`docs/cutout.md`. HISDAC is read from `$HISDAC_DIR` (PetaLibrary, read only); cutouts go to
+(study area + the only layer list in `configs/study_area.yaml` → HISDAC/Land_Use/NTL layers clipped to one shared 250 m window + per-year
+county zone grids; `--layers NAME` adds one layer to an existing cutout), run by `sbatch/grid_cutout.sh` per `docs/runbooks/Making_Cutout.md`, rules in
+`docs/cutout.md`; `src/grid/ntl_qa.py` (`sbatch/ntl_qa.sh`) checks the NTL layer. HISDAC is read from `$HISDAC_DIR` (PetaLibrary, read only); cutouts go to
 `$HISDAC_SCRATCH/cutouts/<name>` (scratch, 90-day purge). Third stage: `src/dasymetric/` (design
-`docs/dasymetric_v1.md`, current version v2: `docs/dasymetric_v2.md`), three separately runnable steps sharing `common.py` (config, cell features, raster
+`docs/dasymetric_v1.md`, changes in `docs/dasymetric_v2.md`, current version v3: `docs/dasymetric_v3.md`), three separately runnable steps sharing `common.py` (config, cell features, raster
 I/O) and `plots.py` (correlation/SHAP plots, maps): `county_features.py` → `train.py` → `predict.py`, run by `sbatch/dasymetric_{features,train,predict}.sh`
-per `docs/runbooks/Running_Dasymetric.md`. Model choice, search space, features + SHAP groups, used statuses and `compare_with` (earlier version read for
-comparison) live in `configs/model.yaml` (model registry `MODELS` in `train.py`; v1 implements only `rf`). Outputs go to
-`$HISDAC_SCRATCH/dasymetric/<name>/<version>`; small files are copied to `results/dasymetric/`. Env changes go through the yml files + `conda env update
+per `docs/runbooks/Running_Dasymetric.md`. Model choice, search space, eras (years + features per era; or one `features` list = one
+pooled model), SHAP groups, used statuses, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
+years live in `configs/model.yaml` (model registry `MODELS` in `train.py`; only `rf` is implemented). Outputs go to
+`$HISDAC_SCRATCH/dasymetric/<name>/<version>[/<era>]`; small files are copied to `results/dasymetric/`. Env changes go through the yml files + `conda env update
 --prune`, never ad-hoc `mamba install`. There are no build/lint/test commands yet beyond
 `python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh` to lint sbatch scripts.
 

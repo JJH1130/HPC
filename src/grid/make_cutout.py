@@ -3,7 +3,7 @@
 Reads configs/study_area.yaml (rules: docs/cutout.md) and writes to <out-root>/<name>/:
   window.json                      the shared window (HISDAC grid offsets, transform, bounds)
   layers/...                       every layer listed under `layers:` in the config
-                                   (default {name}/{YEAR}_{name}.tif), int32 or float32, deflate
+                                   (default {name}/{YEAR}_{name}.tif), int16, int32 or float32, deflate
   zones/zones_{YEAR}.tif           county id per cell (uint16, 0 = nodata), cell-center rasterize
   zones/zones_{YEAR}.csv           zone_id <-> GISJOIN, state, name, pop, status, area_km2
   cutout_qa.csv                    per year and county: cells assigned, cell area / county area
@@ -17,6 +17,9 @@ Steps:
      grids (DEM, NTL, ...): GDAL warp onto the window with the layer's `resampling`.
   4. zone_id = the county's GPKG feature id (1-based row number in counties_{YEAR}.gpkg).
      Counties not picked, and cells outside all counties, are 0.
+
+With --layers, only those layers are cut into an existing cutout: the window must equal the one
+in its window.json, and zones, window.json and cutout_qa.csv are left as they are.
 
 Paths come from CLI flags (the sbatch script fills them from sbatch/cluster_env.sh).
 """
@@ -42,7 +45,6 @@ from rasterio.features import rasterize
 from rasterio.warp import reproject
 from rasterio.windows import Window
 
-INT32 = np.iinfo(np.int32)
 ZONE_DTYPE = "uint16"
 QA_COLS = ["year", "zone_id", "GISJOIN", "state", "name", "status", "area_km2",
            "n_cells", "cell_area_km2", "area_ratio"]
@@ -58,13 +60,16 @@ def parse_args(argv=None):
     p.add_argument("--out-root", type=Path, required=True, help="cutout goes to <out-root>/<name>/")
     p.add_argument("--years", type=int, nargs="+",
                    help="only write layers/zones for these years (the window still uses all config years)")
+    p.add_argument("--layers", nargs="+",
+                   help="only cut these config layers (by name, e.g. NTL) into the existing cutout; "
+                        "zones, window.json and cutout_qa.csv are not rewritten")
     return p.parse_args(argv)
 
 
 # ---------------------------------------------------------------- config + inputs
 
 RESAMPLING = {"none", "nearest", "bilinear", "cubic", "average", "sum", "mode", "min", "max", "med"}
-DTYPES = {"int32", "float32"}
+DTYPES = {"int16", "int32", "float32"}
 
 
 def load_config(path: Path) -> dict:
@@ -143,11 +148,11 @@ def resolve(layer: dict, year, hisdac_dir: Path):
     return f"  {layer['label']} {year or ''}: missing {path} | folder contains {listing}"
 
 
-def find_inputs(cfg: dict, hisdac_dir: Path, years) -> list[tuple[dict, int | None, Path]]:
+def find_inputs(layers: list[dict], hisdac_dir: Path, years) -> list[tuple[dict, int | None, Path]]:
     """(layer, year or None, path) for every raster to cut. Each yearly layer's FIRST year is
     checked even when --years skips it, so a file-naming mismatch stops any run at the start."""
     inputs, problems = [], []
-    for layer in cfg["layers"]:
+    for layer in layers:
         if layer["years"] is None:
             wanted, check = [None], [None]
         else:
@@ -288,15 +293,16 @@ def convert(arr, nd, src_nodata, layer, warped, label):
             arr, valid = np.rint(arr), np.rint(valid)
         elif valid.size and not np.all(valid == np.round(valid)):
             sys.exit(f"ERROR: {label} has non-integer values; set dtype: float32 for this layer")
-    if valid.size and (valid.min() < INT32.min or valid.max() > INT32.max):
-        sys.exit(f"ERROR: {label} values {valid.min()}..{valid.max()} don't fit int32")
+    lim = np.iinfo(layer["dtype"])
+    if valid.size and (valid.min() < lim.min or valid.max() > lim.max):
+        sys.exit(f"ERROR: {label} values {valid.min()}..{valid.max()} don't fit {layer['dtype']}")
     out_nd = None
     if nd.any() or src_nodata is not None:
-        ok = src_nodata is not None and float(src_nodata).is_integer() and INT32.min <= src_nodata <= INT32.max
+        ok = src_nodata is not None and float(src_nodata).is_integer() and lim.min <= src_nodata <= lim.max
         out_nd = int(src_nodata) if ok else -1
         if valid.size and (valid == out_nd).any():
             sys.exit(f"ERROR: {label} uses {out_nd} both as a value and as nodata")
-    out = np.where(nd, out_nd if out_nd is not None else 0, arr).astype(np.int32)
+    out = np.where(nd, out_nd if out_nd is not None else 0, arr).astype(layer["dtype"])
     return out, out_nd, valid
 
 
@@ -354,6 +360,26 @@ def make_zones(year, cfg, args, window, ref, out_dir) -> pd.DataFrame:
     return qa[QA_COLS]
 
 
+def add_layers(args, out_dir: Path, window, transform, inputs, ref):
+    """--layers: cut only the named layers into an existing cutout with the same window."""
+    wpath = out_dir / "window.json"
+    if not wpath.exists():
+        sys.exit(f"ERROR: {wpath} not found; --layers adds to an existing cutout (run the full cutout first)")
+    old = json.loads(wpath.read_text())
+    now = {"col_off": int(window.col_off), "row_off": int(window.row_off),
+           "width": int(window.width), "height": int(window.height)}
+    diff = {k: (old.get(k), v) for k, v in now.items() if old.get(k) != v}
+    if diff:
+        sys.exit(f"ERROR: the window differs from {wpath} (old, new): {diff}; rerun the full cutout")
+    log.info("--layers %s: window matches %s; zones, window.json and cutout_qa.csv are kept",
+             args.layers, wpath)
+    log.info("cutting %d rasters", len(inputs))
+    shape = (int(window.height), int(window.width))
+    for layer, year, path in inputs:
+        cut_layer(layer, year, path, transform, shape, out_dir, ref)
+    log.info("DONE")
+
+
 # ---------------------------------------------------------------- main
 
 def main(argv=None):
@@ -364,6 +390,12 @@ def main(argv=None):
         log.info("arg %s = %s", flag, value)
     cfg = load_config(args.config)
     out_dir = args.out_root / cfg["name"]
+    if args.layers:
+        unknown = sorted(set(args.layers) - {layer["name"] for layer in cfg["layers"]})
+        if unknown:
+            sys.exit(f"ERROR: --layers {unknown} not in the config layers "
+                     f"{sorted({layer['name'] for layer in cfg['layers']})}")
+    to_cut = [layer for layer in cfg["layers"] if not args.layers or layer["name"] in args.layers]
     years = cfg["years"] if args.years is None else sorted(set(args.years))
     if not set(years) <= set(cfg["years"]):
         sys.exit(f"ERROR: --years {sorted(set(years) - set(cfg['years']))} not in the config years")
@@ -371,7 +403,7 @@ def main(argv=None):
              cfg["name"], "all" if cfg["all_states"] else cfg["states"], len(cfg["years"]),
              cfg["years"][0], cfg["years"][-1], len(years), out_dir)
 
-    inputs = find_inputs(cfg, args.hisdac_dir, years)
+    inputs = find_inputs(to_cut, args.hisdac_dir, years)
     ref = reference_grid(cfg, args.hisdac_dir)
     check_grids(inputs, ref)
 
@@ -399,6 +431,10 @@ def main(argv=None):
     log.info("window: col_off %d row_off %d | %d x %d cells | bounds %s (counties %s)",
              window.col_off, window.row_off, window.width, window.height,
              [round(v) for v in wb], [round(v) for v in union])
+
+    if args.layers:
+        add_layers(args, out_dir, window, transform, inputs, ref)
+        return
 
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "window.json").write_text(json.dumps({

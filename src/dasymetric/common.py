@@ -1,12 +1,15 @@
-"""Shared pieces of the dasymetric pipeline (design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md).
+"""Shared pieces of the dasymetric pipeline (design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md
+and docs/dasymetric_v3.md).
 
 Stages (each runs on its own):
-  county_features.py  cutout -> features/county_features.csv
-  train.py            county_features.csv -> model/
-  predict.py          model + cutout -> predictions/pop_{YEAR}.tif, qa/reallocation_qa.csv
+  county_features.py  cutout -> [<era>/]features/county_features.csv
+  train.py            county_features.csv -> [<era>/]model/
+  predict.py          model(s) + cutout -> predictions/pop_{YEAR}.tif, qa/reallocation_qa.csv, maps/
 
-Settings: configs/model.yaml (version, statuses, features + groups, model + search space). The study
-area name and years come from the study-area config it points to (configs/study_area.yaml).
+Settings: configs/model.yaml (version, statuses, eras or one feature list, feature groups, model +
+search space). With `eras:`, each era has its own years, features and model under <version>/<era>/;
+without it, one pooled model sits directly under <version>/ (v1, v2). The study area name and years
+come from the study-area config it points to (configs/study_area.yaml).
 Paths come from CLI flags (the sbatch scripts fill them from sbatch/cluster_env.sh).
 """
 from __future__ import annotations
@@ -14,6 +17,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -24,11 +28,13 @@ from scipy import ndimage
 
 log = logging.getLogger("dasymetric")
 
-# Cell features (docs/dasymetric_v1.md, "Cell features"; v2 adds bldg_size, dist_built). County feature =
-# mean over the county's cells. Which ones are used is set in configs/model.yaml.
-LAYER_FEATURES = {"bui": "BUI", "bupl": "BUPL", "bupr": "BUPR", "bua": "BUA"}
-DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year"}
+# Cell features (docs/dasymetric_v1.md, "Cell features"; v2 adds bldg_size, dist_built; v3 adds res_share,
+# rent_share, ntl). County feature = mean over the county's cells. Which ones are used is set in
+# configs/model.yaml.
+LAYER_FEATURES = {"bui": "BUI", "bupl": "BUPL", "bupr": "BUPR", "bua": "BUA", "ntl": "NTL"}
+DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share"}
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
+LAND_USE = ["A", "C", "GV", "I", "RC", "RI", "RO", "VL"]  # cutout layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif
 NODATA_OUT = -9999.0
 CELL_KM = 0.25  # HISDAC cell size
 
@@ -58,21 +64,59 @@ def load_config(path: Path) -> dict:
     study = yaml.safe_load(study_path.read_text(encoding="utf-8"))
     cfg["name"] = study["name"]
     cfg["years"] = parse_years(study["years"])
-    unknown = [f for f in cfg["features"] if f not in FEATURES]
-    if unknown:
-        sys.exit(f"ERROR: {path}: unknown features {unknown}; known: {sorted(FEATURES)}")
+    cfg["eras"] = load_eras(cfg, path)
+    used = list(dict.fromkeys(f for e in cfg["eras"].values() for f in e["features"]))  # first-use order
+    cfg["all_features"] = used
     groups = cfg.get("feature_groups") or {}
     grouped = [f for members in groups.values() for f in members]
-    if sorted(grouped) != sorted(cfg["features"]):
+    unknown = sorted({f for f in used + grouped if f not in FEATURES})
+    if unknown:
+        sys.exit(f"ERROR: {path}: unknown features {unknown}; known: {sorted(FEATURES)}")
+    twice = sorted(f for f, n in Counter(grouped).items() if n > 1)
+    ungrouped = [f for f in used if f not in grouped]
+    if twice or ungrouped:
         sys.exit(f"ERROR: {path}: feature_groups must list every feature exactly once; "
-                 f"features {cfg['features']}, grouped {grouped}")
+                 f"in no group {ungrouped}, in several groups {twice}")
     if cfg["model"] not in cfg["models"]:
         sys.exit(f"ERROR: {path}: model {cfg['model']!r} has no entry under models: {sorted(cfg['models'])}")
     return cfg
 
 
-def out_dir(cfg: dict, out_root: Path) -> Path:
-    return out_root / cfg["name"] / cfg["version"]
+def load_eras(cfg: dict, path: Path) -> dict:
+    """{era name: {years, features}}. Without `eras:` there is one unnamed era ("") with all years and the
+    top-level `features` (v1, v2). With eras, every study year must be in exactly one era."""
+    eras = cfg.get("eras")
+    if not eras:
+        return {"": {"years": list(cfg["years"]), "features": list(cfg["features"])}}
+    if "features" in cfg:
+        sys.exit(f"ERROR: {path}: give either `features` or `eras`, not both")
+    out = {}
+    for name, e in eras.items():
+        years = [y for y in parse_years(e["years"]) if y in cfg["years"]]
+        if not years:
+            sys.exit(f"ERROR: {path}: era {name} has no study year")
+        out[str(name)] = {"years": years, "features": list(e["features"])}
+    n = Counter(y for e in out.values() for y in e["years"])
+    missing = [y for y in cfg["years"] if not n[y]]
+    twice = sorted(y for y, k in n.items() if k > 1)
+    if missing or twice:
+        sys.exit(f"ERROR: {path}: every study year must be in exactly one era; in none {missing}, in several {twice}")
+    return out
+
+
+def out_dir(cfg: dict, out_root: Path, era: str = "") -> Path:
+    """<out-root>/<name>/<version>[/<era>]"""
+    return out_root / cfg["name"] / cfg["version"] / era
+
+
+def era_of(cfg: dict, year: int) -> str:
+    return next(name for name, e in cfg["eras"].items() if year in e["years"])
+
+
+def era_groups(cfg: dict, features) -> dict:
+    """feature_groups restricted to `features` (groups with none of them are left out)."""
+    groups = {g: [f for f in m if f in features] for g, m in (cfg.get("feature_groups") or {}).items()}
+    return {g: m for g, m in groups.items() if m}
 
 
 def log_args(args):
@@ -110,8 +154,8 @@ def county_selection(table: pd.DataFrame, zones: np.ndarray, use_status, year: i
 
 
 def layer_path(cutout: Path, layer: str, year: int | None) -> Path:
-    if year is not None:
-        return cutout / "layers" / layer / f"{year}_{layer}.tif"
+    if year is not None:  # layers/BUI/{YEAR}_BUI.tif; Land_Use/RO -> layers/Land_Use/RO/{YEAR}_RO.tif
+        return cutout / "layers" / layer / f"{year}_{Path(layer).name}.tif"
     hits = sorted((cutout / "layers" / layer).glob("*.tif"))  # single-file layer (FBUY)
     if len(hits) != 1:
         sys.exit(f"ERROR: expected exactly one .tif in {cutout / 'layers' / layer}, found {[h.name for h in hits]}")
@@ -179,6 +223,13 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names) 
         elif f == "age":  # Y - FBUY where 0 < FBUY <= Y, else 0 (years since first settlement)
             fbuy = layer("FBUY", None)
             out[f] = np.where((fbuy > 0) & (fbuy <= year), year - fbuy, 0.0)
+        elif f in ("res_share", "rent_share"):  # Land_Use shares (docs/dasymetric_v3.md)
+            ro, ri = layer("Land_Use/RO"), layer("Land_Use/RI")
+            if f == "res_share":  # (RO + RI) / all eight classes
+                total = sum(layer(f"Land_Use/{c}") for c in LAND_USE)
+                out[f] = np.divide(ro + ri, total, out=np.zeros_like(total), where=total > 0)
+            else:  # RI / (RO + RI)
+                out[f] = np.divide(ri, ro + ri, out=np.zeros_like(ri), where=(ro + ri) > 0)
         elif f == "dist_built":  # km to the nearest built cell (whole window), 0 for built cells
             out[f] = dist_built(cutout, year, grid)[mask]
         elif f == "year":
@@ -201,8 +252,9 @@ def write_tif(path: Path, arr, transform, crs, nodata):
 
 
 if __name__ == "__main__":
-    # sbatch helper: `python src/dasymetric/common.py --print-name-version configs/model.yaml`
-    if len(sys.argv) != 3 or sys.argv[1] != "--print-name-version":
-        sys.exit("usage: common.py --print-name-version <configs/model.yaml>")
+    # sbatch helpers: `python src/dasymetric/common.py --print-name-version configs/model.yaml`,
+    # `... --print-eras configs/model.yaml` (era names, space separated; empty line without eras)
+    if len(sys.argv) != 3 or sys.argv[1] not in ("--print-name-version", "--print-eras"):
+        sys.exit("usage: common.py --print-name-version|--print-eras <configs/model.yaml>")
     c = load_config(Path(sys.argv[2]))
-    print(c["name"], c["version"])
+    print(" ".join(c["eras"]) if sys.argv[1] == "--print-eras" else f"{c['name']} {c['version']}")

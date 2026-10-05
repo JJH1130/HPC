@@ -6,6 +6,7 @@ job: `sbatch/grid_cutout.sh` (acpu, 2 cores, 1 h, env `hisdac`). Prerequisite: t
 census_prepare run (`Preparing_Census.md`), because this job reads `counties_{YEAR}.gpkg`.
 
 **Status:** full run (22 years) passed on Alpine: job 33216032, 2026-10-01 cluster time. Quick test: job 33165456.
+NTL (section 7): tested on fake data only; not yet run on Alpine.
 
 HISDAC is read from `/pl/active/Leyk_Lab/data/HISDAC_US_V2` (**read only**; nothing is written
 to PetaLibrary). Output goes to `/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/`.
@@ -93,7 +94,65 @@ git push
 
 Then tell Claude to pull.
 
+## 7. Add a layer to the existing cutout: NTL + NTL QA (login node)
+
+`docs/dasymetric_v3.md` adds harmonized night lights (2000, 2010, 2020). `--layers NTL` cuts only that
+layer into the existing cutout: it checks that the window equals the one in `window.json` and leaves
+zones, `window.json` and `cutout_qa.csv` alone. `sbatch/ntl_qa.sh` then checks it (`src/grid/ntl_qa.py`).
+Both are small (acpu, 2 cores). The cutout must exist (scratch purges after 90 days; if
+`window.json` is gone, rerun the full cutout in section 4 first, and it will include NTL).
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+ls -l /projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{2000,2010,2020}_*.tif
+ls /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/window.json
+j1=$(sbatch --parsable sbatch/grid_cutout.sh --layers NTL)
+j2=$(sbatch --parsable --dependency=afterok:$j1 sbatch/ntl_qa.sh)
+echo "cutout NTL $j1 | NTL QA $j2"
+```
+
+Good: `ls` lists exactly one file per year (2000 and 2010 `calDMSP`, 2020 `simVIIRS`). If a year
+has more than one, the job stops with `matched 2 files`; tell Claude.
+
+Check (`tail -n 30 logs/grid_cutout.$j1.out`, `tail -n 20 logs/ntl_qa.$j2.out`):
+- cutout: `layer NTL years 2000-2020 resampling nearest int16 | files to write: 3`,
+  `0 rasters on the HISDAC grid (window read), 3 to warp onto it`, `--layers ['NTL']: window matches ...`,
+  three `NTL {YEAR} uint8, warped (nearest) -> int16 ... min 0 max 63` lines (nodata cells should be 0), `DONE`
+- QA: one line per year: `DN 0..63`, `box: N bright of M cells, centroid (lon, lat), shift X km`
+  (expect well under 1 km; a `WARNING ... moved` line means 1 km or more), `Spearman ntl~bui`, then `DONE`.
+  `ERROR: NTL QA failed` lists values outside 0-63 or a year with no DN >= 60 cell near Boston; the CSV
+  is still copied back.
+
+| Symptom | Fix |
+|---|---|
+| `window.json not found; --layers adds to an existing cutout` | the cutout was purged: run the full cutout (section 4); it includes NTL |
+| `the window differs from window.json` | the config or census changed since the cutout; run the full cutout |
+| `matched 0 files` / `matched 2 files` for NTL | check the file names in `/projects/jaju1407/data/raw/ntl/` against the `path` in `configs/study_area.yaml` |
+
+Close the loop:
+
+```bash
+cd /projects/jaju1407/HPC
+git add logs/grid_cutout.$j1.out logs/ntl_qa.$j2.out results/cutout/
+git commit -m "run: grid_cutout NTL $j1, ntl_qa $j2"
+git pull --rebase
+git push
+```
+
 ## Notes
+
+- 2026-10-06: added NTL (`docs/dasymetric_v3.md`), `--layers` (cut only listed layers into an existing
+  cutout), dtype `int16`, and `src/grid/ntl_qa.py`. Tested on a fake Boston-area setup: fake HISDAC
+  rasters + county GPKGs, and fake NTL in EPSG:4326 at 30 arc-seconds with the 2010 grid shifted half a
+  cell. The full cutout was run without NTL, then `--layers NTL`: the 3 NTL files were warped
+  (nearest) to int16 with values 0-63 and no nodata cells, and zones, `window.json` and `cutout_qa.csv`
+  were byte-identical afterwards. The QA found the fake bright core at the expected place in every
+  year (centroid shifts 0.2-0.3 km, including the half-cell-shifted 2010). It stopped with clear
+  errors for a value of 70, an unknown `--layers` name, a window that differs from `window.json`, and
+  a missing cutout.
 
 - 2026-09-30: runbook written. The FBUY/NobuiltYear file names aren't known yet; the config uses the globs `**/*FBUY*.tif` and `**/*NobuiltYear*.tif`, which must each match exactly one file.
 - 2026-09-30: added Land_Use (8 classes, 1940–2020; Theme files not used). Layers are now listed only in the config, each with a `resampling` method, so external rasters (DEM, NTL, land cover) can be added with one line. Tested on synthetic data only.

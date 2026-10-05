@@ -27,7 +27,7 @@ grid_reference: BUI
 #   resampling  none = must already be on the HISDAC grid: direct window read, stop otherwise.
 #               Anything else warps the raster onto the grid with that GDAL method:
 #               bilinear / average (continuous), sum (counts), nearest / mode (categories).
-#   dtype       int32 (default) or float32
+#   dtype       int32 (default), int16 or float32
 #   out         optional output path under layers/
 #               (default {name}/{YEAR}_{name}.tif; {name}/{FILENAME} for years: none)
 layers:
@@ -45,7 +45,11 @@ layers:
     years: {start: 1940, stop: 2020, step: 10}
     resampling: none
     out: "Land_Use/{CLASS}/{YEAR}_{CLASS}.tif"
+  # Harmonized DMSP/VIIRS night lights (Li et al. 2020, Sci. Data 7:168, extended release): EPSG:4326,
+  # 30 arc-seconds, uint8 DN 0-63, no nodata. 2000/2010 calDMSP, 2020 simVIIRS. nearest: NTL is an
+  # intensity, so each 250 m cell takes its 1 km parent's value (docs/dasymetric_v3.md).
+  # Cut into an existing cutout with: sbatch sbatch/grid_cutout.sh --layers NTL
+  - {name: NTL, path: "/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif", years: [2000, 2010, 2020], resampling: nearest, dtype: int16}
   # External rasters on other grids: one line each, e.g.
   # - {name: DEM, path: "/projects/jaju1407/data/raw/dem/dem.tif", years: none, resampling: average, dtype: float32}
-  # - {name: NTL, path: "/projects/jaju1407/data/raw/ntl/ntl_{YEAR}.tif", years: [2000, 2010, 2020], resampling: average, dtype: float32}
   # - {name: LandCover, path: "/projects/jaju1407/data/raw/nlcd/nlcd_{YEAR}.tif", years: [2000, 2010, 2020], resampling: mode}

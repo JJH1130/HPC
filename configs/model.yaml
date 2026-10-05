@@ -1,11 +1,19 @@
-# Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md).
-# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v2/.
-# v1 settings: git history (commit 8d93125); v1 used features [bui, bupl, bupr, bua, mu_ratio, age, year].
-version: v2
+# Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md
+# and docs/dasymetric_v3.md).
+# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v3/
+# (one model per era under v3/<era>/; predictions, QA and maps for all years under v3/).
+# Earlier settings are in git history: v1 = commit 8d93125, v2 = commit 38ed1e2
+# (v2: one pooled model, features [bui, bldg_size, mu_ratio, age, dist_built, year]).
+version: v3
 
 # Earlier version under the same out-root to compare with (read only; null = no comparison):
-# train.py recomputes its CV on this version's folds, predict.py draws side-by-side maps.
-compare_with: v1
+# train.py recomputes its out-of-fold predictions on the same folds and compares them on each era's rows;
+# predict.py draws side-by-side maps for maps.compare_years. It must be a version without eras.
+compare_with: v2
+
+# Reuse this version's GISJOIN -> fold mapping (<version>/model/folds.csv), filtered to each era's counties,
+# so the comparison runs on identical folds (null = new GroupKFold folds per era).
+folds_from: v2
 
 # Study name and years come from here; inputs are that study's cutout (docs/cutout.md).
 study_area: configs/study_area.yaml
@@ -14,16 +22,36 @@ study_area: configs/study_area.yaml
 # Cells of other counties are NoData in the predictions.
 use_status: [ok, manual_fill]
 
-# Cell features, defined in src/dasymetric/common.py (docs/dasymetric_v2.md, "Features").
-# County feature = mean of the cell feature over all cells of the county.
-# Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year.
-features: [bui, bldg_size, mu_ratio, age, dist_built, year]
+# Eras (docs/dasymetric_v3.md, "Eras"): one model per era, trained on that era's county-years pooled;
+# each census year is predicted with its own era's model. `years` is intersected with the study years
+# ({start, stop} or a list); every study year must be in exactly one era. Instead of `eras`, a single
+# top-level `features:` list gives one pooled model (v1, v2).
+# Cell features are defined in src/dasymetric/common.py; county feature = mean over the county's cells.
+# Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year, res_share, rent_share, ntl.
+# res_share/rent_share need the Land_Use layers (1940+), ntl the NTL layer (2000, 2010, 2020).
+eras:
+  E1:
+    years: {start: 1810, stop: 1930}
+    features: [bui, bldg_size, mu_ratio, dist_built, year]
+  E2:
+    years: {start: 1940, stop: 1990}
+    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share]
+  E3:
+    years: {start: 2000, stop: 2020}
+    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share, ntl]
 
-# Concept groups for grouped SHAP: every feature in exactly one group.
+# Concept groups for grouped SHAP: every used feature in exactly one group (per era, only its features).
 feature_groups:
   Building: [bui, bldg_size, mu_ratio]
-  Settlement context: [age, dist_built]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Lights: [ntl]
   Period: [year]
+
+# Quick-look maps (predict.py): years drawn alone, and years drawn side by side with compare_with.
+maps:
+  years: [1810, 1950, 2020]
+  compare_years: [2020]
 
 # Collinearity check before training: Spearman rho of county features; pairs above this |rho| are
 # logged (nothing is dropped automatically).

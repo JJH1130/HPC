@@ -3,7 +3,7 @@
 Rules for cutting a test region out of the HISDAC-US V2 rasters and building the
 per-year county zone grids that link each 250 m cell to its census county.
 
-Last updated: 2026-10-02
+Last updated: 2026-10-06
 
 Code: `src/grid/make_cutout.py` · Config: `configs/study_area.yaml` · Job:
 `sbatch/grid_cutout.sh` · Runbook: `docs/runbooks/Making_Cutout.md`
@@ -15,7 +15,8 @@ Code: `src/grid/make_cutout.py` · Config: `configs/study_area.yaml` · Job:
 | Yearly HISDAC layers | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/{LAYER}/{YEAR}_{LAYER}.tif` | BUI, BUPL, BUPR, BUA; 22 years, 1810–2020. **Read only** |
 | Single-file HISDAC layers | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/**/*FBUY*.tif`, `**/*NobuiltYear*.tif` | No year; cut once. Each glob must match exactly one file |
 | Land use counts | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/{CLASS}/Count_{YEAR}_{CLASS}.tif` | 8 classes: A, C, GV, I, RC, RI, RO, VL. 1940–2020 only. `Count_{YEAR}_Theme*.tif` in the same folders duplicate the class files (RO = Theme6) and are **not used** |
-| External rasters (later) | any path | e.g. DEM, night lights, land cover; one config line each |
+| Night lights (NTL) | `/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif` | Li et al. (2020) harmonized DMSP/VIIRS, extended release. 2000, 2010 (`calDMSP`), 2020 (`simVIIRS`). EPSG:4326, 30 arc-seconds, uint8 DN 0–63, no nodata. Warped with `nearest` to int16 (`docs/dasymetric_v3.md`) |
+| External rasters (later) | any path | e.g. DEM, land cover; one config line each |
 | County units | `/projects/jaju1407/data/processed/census/counties_{YEAR}.gpkg` | Output of `docs/census_preprocessing.md` |
 
 ## Configuration (`configs/study_area.yaml`)
@@ -26,7 +27,7 @@ Code: `src/grid/make_cutout.py` · Config: `configs/study_area.yaml` · Job:
 | `states` | `[Massachusetts]` | Values of the county `state` column (case-insensitive). `all` = all CONUS counties; the same code runs unchanged |
 | `years` | 1810–2020, step 10 | 22 years |
 | `grid_reference` | `BUI` | The layer whose first file defines the grid (origin, 250 m, ESRI:102039) |
-| `layers` | BUI, BUPL, BUPR, BUA, FBUY, NobuiltYear, Land_Use (8 classes) | **The only list of layers.** Adding a raster = adding one entry |
+| `layers` | BUI, BUPL, BUPR, BUA, FBUY, NobuiltYear, Land_Use (8 classes), NTL | **The only list of layers.** Adding a raster = adding one entry |
 
 Fields of a `layers` entry (details in the comments of `configs/study_area.yaml`):
 
@@ -37,7 +38,7 @@ Fields of a `layers` entry (details in the comments of `configs/study_area.yaml`
 | `years` | `all` (every study year), `none` (single file, cut once), or the layer's own years (`{start, stop, step}` or a list). Study years the layer lacks are skipped |
 | `classes` | Optional; the entry is repeated once per class |
 | `resampling` | `none` = must already be on the HISDAC grid (direct window read; stop otherwise). Otherwise the GDAL method used to warp onto the grid: `bilinear` / `average` for continuous values, `sum` for counts, `nearest` / `mode` for categories |
-| `dtype` | `int32` (default) or `float32` |
+| `dtype` | `int32` (default), `int16` or `float32` |
 | `out` | Optional output path under `layers/` |
 
 ## Outputs
@@ -51,11 +52,17 @@ purged 90 days after creation, so rerun the job to rebuild them.
 | `layers/{LAYER}/{YEAR}_{LAYER}.tif` | Yearly layers clipped to the window. int32 (or float32 if configured), deflate |
 | `layers/{LAYER}/<source file name>` | Single-file layers (FBUY, NobuiltYear) |
 | `layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif` | Land use counts, 1940–2020 |
+| `layers/NTL/{YEAR}_NTL.tif` | Night lights, 2000, 2010, 2020 (int16) |
+| `qa/ntl_qa.csv` | NTL QA (`src/grid/ntl_qa.py`): range, bright-core centroid near Boston per year, Spearman NTL–BUI |
 | `zones/zones_{YEAR}.tif` | County ID per cell (uint16). 0 = nodata (outside the selected counties) |
 | `zones/zones_{YEAR}.csv` | `zone_id`, `GISJOIN`, `state`, `name`, `pop`, `status`, `area_km2` for the selected counties |
 | `cutout_qa.csv` | Per year and county: `n_cells`, `cell_area_km2` = n_cells × 0.0625, `area_ratio` = cell_area_km2 / area_km2 |
 
-Copies of `window.json`, `cutout_qa.csv` and `zones/*.csv` are also saved to `results/cutout/{name}/` in git.
+Copies of `window.json`, `cutout_qa.csv`, `zones/*.csv` and `qa/ntl_qa.csv` are also saved to `results/cutout/{name}/` in git.
+
+**Adding a layer later.** `make_cutout.py --layers NAME ...` (e.g. `sbatch sbatch/grid_cutout.sh --layers NTL`)
+cuts only the named config layers into an existing cutout. It stops unless the window it computes equals
+the one in `window.json`, and it does not rewrite zones, `window.json` or `cutout_qa.csv`.
 
 ## Processing rules (applied in order)
 
@@ -80,7 +87,8 @@ Copies of `window.json`, `cutout_qa.csv` and `zones/*.csv` are also saved to `re
    `resampling` method. The source's declared nodata is honored, and cells the source doesn't
    cover become nodata. For int32 layers the warped values are rounded (e.g., `sum` gives
    fractional counts at partial coverage).
-6. **Store with deflate compression**, as int32 or float32 per layer.
+6. **Store with deflate compression**, as int16, int32 or float32 per layer. Integer layers stop the
+   job if a value doesn't fit the type.
 7. **Zone grids.** Each selected county is rasterized by cell center (`all_touched=False`).
    `zone_id` is the county's row number in that year's `counties_{YEAR}.gpkg` (the GPKG feature
    ID, starting at 1), so it is stable for a given census output. Cells in counties that were

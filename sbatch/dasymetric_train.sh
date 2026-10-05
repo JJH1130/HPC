@@ -1,9 +1,10 @@
 #!/bin/bash
 # Dasymetric stage 2: train the county model with grouped-CV hyperparameter search
-# (src/dasymetric/train.py; design docs/dasymetric_v1.md + v2.md; model + search space in configs/model.yaml).
-# Input: features/county_features.csv (stage 1). Output: $HISDAC_SCRATCH/dasymetric/<name>/<version>/model/.
+# (src/dasymetric/train.py; design docs/dasymetric_v1.md + v2.md + v3.md; model + search space in configs/model.yaml).
+# Input: [<era>/]features/county_features.csv (stage 1). Output: $HISDAC_SCRATCH/dasymetric/<name>/<version>/[<era>/]model/
+# (one model per era) and, with eras, <version>/cv_summary.csv.
 # Everything in model/ except the model file (.json, .csv, .png: metrics, folds, correlation, SHAP,
-# comparison with compare_with) is copied to results/dasymetric/<name>/<version>/.
+# comparison with compare_with) is copied to results/dasymetric/<name>/<version>/[<era>/].
 #
 # Submit from the repo root (logs/ must exist):
 #   mkdir -p logs && sbatch sbatch/dasymetric_train.sh
@@ -24,6 +25,7 @@ cd "$REPO"
 
 CONFIG=configs/model.yaml
 read -r NAME VERSION < <(python -u src/dasymetric/common.py --print-name-version "$CONFIG")
+read -r -a ERAS < <(python -u src/dasymetric/common.py --print-eras "$CONFIG")   # empty without eras
 OUT_ROOT=$HISDAC_SCRATCH/dasymetric
 RESULTS=results/dasymetric/$NAME/$VERSION
 NJOBS=${SLURM_CPUS_ON_NODE:-1}
@@ -36,7 +38,11 @@ python -u src/dasymetric/train.py \
     --n-jobs "$NJOBS" \
     "$@"
 
-mkdir -p "$RESULTS"
-M=$OUT_ROOT/$NAME/$VERSION/model
-cp "$M"/*.json "$M"/*.csv "$M"/*.png "$RESULTS/"
+for ERA in "${ERAS[@]:-}"; do
+    M=$OUT_ROOT/$NAME/$VERSION/$ERA/model
+    mkdir -p "$RESULTS/$ERA"
+    cp "$M"/*.json "$M"/*.csv "$M"/*.png "$RESULTS/$ERA/"
+done
+S=$OUT_ROOT/$NAME/$VERSION/cv_summary.csv
+if [[ -f $S ]]; then cp "$S" "$RESULTS/"; fi
 echo "== done $(date -Is)"

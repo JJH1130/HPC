@@ -1,15 +1,18 @@
-"""Stage 3: cell prediction + mass-preserving reallocation (design: docs/dasymetric_v1.md; maps: v2).
+"""Stage 3: cell prediction + mass-preserving reallocation (design: docs/dasymetric_v1.md; maps: v2;
+eras: docs/dasymetric_v3.md).
 
+Each year is predicted with the model of its era (<version>/<era>/model/; without eras, <version>/model/).
 For each year and each used county c (status in `use_status`):
-  1. cell features for all cells of c
+  1. cell features (the era model's features) for all cells of c
   2. y_hat per cell, weight w = exp(y_hat) (predicted density, > 0)
   3. pop_cell = pop_c * w_cell / sum_{cells in c} w
 
 Writes to <out-root>/<name>/<version>/:
   predictions/pop_{YEAR}.tif   cell population, float32, NoData = -9999 (unused counties + outside)
-  qa/reallocation_qa.csv       per county-year: census pop, sum of cell pop, difference
-  maps/pop_{YEAR}.png          quick-look maps for --map-years (state boundaries from --counties-gpkg)
-  maps/pop_{YEAR}_<prev>_vs_<version>.png   side by side with the `compare_with` version for --compare-years
+  qa/reallocation_qa.csv       per county-year: era, census pop, sum of cell pop, difference
+  maps/pop_{YEAR}.png          quick-look maps for maps.years (state boundaries from --counties-gpkg)
+  maps/pop_{YEAR}_<prev>_vs_<version>.png   side by side with the `compare_with` version for maps.compare_years
+Map years come from `maps:` in configs/model.yaml (default 1810, 1900, 2020 and 1810); the flags override it.
 
 Checks (the job fails after writing everything if one fails): |sum pop_cell - pop_c| / pop_c < 1e-6
 for every county-year, and no negative or NaN cell values in used counties.
@@ -26,10 +29,11 @@ import pandas as pd
 import rasterio
 
 import plots
-from common import (NODATA_OUT, add_common_args, cell_features, county_selection, load_config, log,
+from common import (NODATA_OUT, add_common_args, cell_features, county_selection, era_of, load_config, log,
                     log_args, out_dir, read_zones, setup_logging, write_tif)
 
 MASS_TOL = 1e-6
+MAP_DEFAULTS = {"years": [1810, 1900, 2020], "compare_years": [1810]}
 
 
 def parse_args(argv=None):
@@ -37,10 +41,10 @@ def parse_args(argv=None):
     add_common_args(p)
     p.add_argument("--cutout-root", type=Path, required=True, help="cutout is <cutout-root>/<name>/")
     p.add_argument("--years", type=int, nargs="+", help="only these years (default: all config years)")
-    p.add_argument("--map-years", type=int, nargs="*", default=[1810, 1900, 2020],
-                   help="years to draw quick-look PNGs for (if predicted)")
-    p.add_argument("--compare-years", type=int, nargs="*", default=[1810],
-                   help="years to draw side by side with the compare_with version (if predicted)")
+    p.add_argument("--map-years", type=int, nargs="*",
+                   help="years to draw quick-look PNGs for (if predicted; default: maps.years in the config)")
+    p.add_argument("--compare-years", type=int, nargs="*",
+                   help="years to draw side by side with the compare_with version (default: maps.compare_years)")
     p.add_argument("--counties-gpkg", type=Path,
                    help="counties_2020.gpkg; dissolved by state as the map background (none: no background)")
     p.add_argument("--n-jobs", type=int, default=1, help="prediction threads (sbatch: SLURM_CPUS_ON_NODE)")
@@ -67,13 +71,15 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path):
     stored = arr[mask].astype("float64")  # check what was written (float32), not the float64 values
     cell_sum = np.bincount(z, weights=stored, minlength=len(pop))[used["zone_id"].to_numpy()]
     qa = used[["zone_id", "GISJOIN", "state", "name", "status", "n_cells", "pop"]].copy()
+    qa.insert(0, "era", bundle.get("era"))
     qa.insert(0, "year", year)
     qa["pop_cells"] = cell_sum
     qa["diff"] = qa["pop_cells"] - qa["pop"]
     qa["rel_diff"] = qa["diff"].abs() / qa["pop"]
     n_bad = int((~np.isfinite(stored) | (stored < 0)).sum())
-    log.info("  %d: %d counties, %d cells | y_hat %.3f..%.3f | pop %.0f -> cells %.0f | cell max %.1f | "
-             "max rel diff %.2e | bad cells %d", year, len(used), int(mask.sum()), y_hat.min(), y_hat.max(),
+    log.info("  %d%s: %d counties, %d cells | y_hat %.3f..%.3f | pop %.0f -> cells %.0f | cell max %.1f | "
+             "max rel diff %.2e | bad cells %d", year, f" ({bundle['era']})" if bundle.get("era") else "",
+             len(used), int(mask.sum()), y_hat.min(), y_hat.max(),
              qa["pop"].sum(), stored.sum(), stored.max(), qa["rel_diff"].max(), n_bad)
     return qa, n_bad, (arr, mask, grid)
 
@@ -113,19 +119,32 @@ def main(argv=None):
     if args.counties_gpkg and not args.counties_gpkg.exists():
         sys.exit(f"ERROR: --counties-gpkg {args.counties_gpkg} not found")
     prev_dir = args.out_root / cfg["name"] / cfg["compare_with"] if cfg.get("compare_with") else None
+    maps = {**MAP_DEFAULTS, **(cfg.get("maps") or {})}
+    if args.map_years is None:
+        args.map_years = maps["years"]
+    if args.compare_years is None:
+        args.compare_years = maps["compare_years"]
+    log.info("maps: %s | side by side with %s: %s", args.map_years, cfg.get("compare_with"), args.compare_years)
 
-    mpath = out / "model" / f"{cfg['model']}.joblib"
-    if not mpath.exists():
-        sys.exit(f"ERROR: {mpath} not found (run stage 2, train.py, first)")
-    bundle = joblib.load(mpath)
-    if hasattr(bundle["model"], "n_jobs"):
-        bundle["model"].n_jobs = args.n_jobs
-    log.info("model %s (%s) | features %s | use_status %s | %d years -> %s", bundle["name"], mpath,
-             bundle["features"], bundle["use_status"], len(years), out)
+    bundles = {}
+    for era in dict.fromkeys(era_of(cfg, y) for y in years):  # load each needed era model once, up front
+        mpath = out_dir(cfg, args.out_root, era) / "model" / f"{cfg['model']}.joblib"
+        if not mpath.exists():
+            sys.exit(f"ERROR: {mpath} not found (run stage 2, train.py, first)")
+        bundle = joblib.load(mpath)
+        if hasattr(bundle["model"], "n_jobs"):
+            bundle["model"].n_jobs = args.n_jobs
+        if bundle["features"] != cfg["eras"][era]["features"]:
+            sys.exit(f"ERROR: {mpath} was trained on {bundle['features']}, the config says "
+                     f"{cfg['eras'][era]['features']}; rerun stages 1-2")
+        bundles[era] = bundle
+        log.info("model %s%s (%s) | features %s | use_status %s", bundle["name"], f" era {era}" if era else "",
+                 mpath, bundle["features"], bundle["use_status"])
+    log.info("%d years -> %s", len(years), out)
 
     parts, bad_cells = [], 0
     for year in years:
-        qa, n_bad, (arr, mask, grid) = predict_year(cutout, year, bundle, cfg, out)
+        qa, n_bad, (arr, mask, grid) = predict_year(cutout, year, bundles[era_of(cfg, year)], cfg, out)
         parts.append(qa)
         bad_cells += n_bad
         if year in args.map_years or year in args.compare_years:

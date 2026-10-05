@@ -1,31 +1,39 @@
 # Running dasymetric (county features → model → cell population)
 
-Runs the three stages of `docs/dasymetric_v1.md` (changes for v2: `docs/dasymetric_v2.md`) on the
-study-area cutout. Code: `src/dasymetric/`; settings: `configs/model.yaml` (version, features +
-groups, model, search space, statuses, `compare_with`); study area and years come from
-`configs/study_area.yaml`. The current version is **v2**; v1 settings are in git history (8d93125).
-Prerequisite: the full grid_cutout run (`Making_Cutout.md`), because every stage reads
-`/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/`. Scratch is purged 90 days after creation;
+Runs the three stages of `docs/dasymetric_v1.md` (changes: `docs/dasymetric_v2.md`,
+`docs/dasymetric_v3.md`) on the study-area cutout. Code: `src/dasymetric/`; settings:
+`configs/model.yaml` (version, eras with their years and features, feature groups, model, search
+space, statuses, `compare_with`, `folds_from`, map years); study area and years come from
+`configs/study_area.yaml`. The current version is **v3**: one model per era (E1 1810–1930,
+E2 1940–1990, E3 2000–2020). v1 and v2 settings are in git history (8d93125, 38ed1e2).
+Prerequisite: the full grid_cutout run plus NTL (`Making_Cutout.md`, sections 4 and 7), because every
+stage reads `/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/` (E3 needs `layers/NTL`, E2 and E3
+need `layers/Land_Use`). Scratch is purged 90 days after creation;
 if the cutout is gone, rerun grid_cutout first.
 
 | Stage | Script | Job | Resources | Writes (under `/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/<version>/`) |
 |---|---|---|---|---|
-| 1 | `county_features.py` | `sbatch/dasymetric_features.sh` | acpu, 2 cores, 30 min | `features/county_features.csv` |
-| 2 | `train.py` | `sbatch/dasymetric_train.sh` | acpu, 4 cores, 30 min | `model/` (rf.joblib, folds, feature_correlation, cv_results, best_params, metrics, feature_importance, shap_*, compare_v1.json) |
-| 3 | `predict.py` | `sbatch/dasymetric_predict.sh` | acpu, 8 cores, 1 h | `predictions/pop_{YEAR}.tif`, `qa/reallocation_qa.csv`, `maps/pop_{1810,1900,2020}.png`, `maps/pop_1810_v1_vs_v2.png` |
+| 1 | `county_features.py` | `sbatch/dasymetric_features.sh` | acpu, 2 cores, 30 min | `<era>/features/county_features.csv` |
+| 2 | `train.py` | `sbatch/dasymetric_train.sh` | acpu, 4 cores, 30 min | `<era>/model/` (rf.joblib, folds, feature_correlation, cv_results, best_params, metrics, feature_importance, shap_*, oof_predictions, compare_v2.json), `cv_summary.csv` |
+| 3 | `predict.py` | `sbatch/dasymetric_predict.sh` | acpu, 8 cores, 1 h | `predictions/pop_{YEAR}.tif` (each year with its era's model), `qa/reallocation_qa.csv`, `maps/pop_{1810,1950,2020}.png`, `maps/pop_2020_v2_vs_v3.png` |
+
+Without `eras:` in the config (v1, v2), there is no `<era>/` level and one pooled model.
 
 Each stage runs on its own and reads only what the stage before it wrote, so a stage can be rerun
 alone (e.g., only stage 3 after changing the map years). The small outputs are copied to
-`results/dasymetric/massachusetts/<version>/` for git. The rasters stay on scratch.
+`results/dasymetric/massachusetts/<version>/[<era>/]` for git. The rasters stay on scratch.
 
-v2 only **reads** v1 (`compare_with: v1`): stage 2 reads `v1/features/county_features.csv` and
-`v1/model/{best_params,metrics}.json` to recompute v1's CV on the v2 folds, and stage 3 reads
-`v1/predictions/pop_1810.tif` for the side-by-side map. If they are missing, those two outputs are
-skipped with a warning and the run still finishes. Stage 3 also reads
+v3 only **reads** v2. `folds_from: v2` reuses `v2/model/folds.csv`, filtered to each era's counties; the
+run stops if it is missing. With `compare_with: v2`, stage 2 refits v2 (its features and best params)
+on the same folds over all v2 rows and scores its out-of-fold predictions on each era's rows. This
+reads `v2/features/county_features.csv` and `v2/model/{best_params,metrics}.json`. Stage 3 reads
+`v2/predictions/pop_2020.tif` for the side-by-side map. If the comparison inputs are missing, those
+outputs are skipped with a warning and the run still finishes. Stage 3 also reads
 `/projects/jaju1407/data/processed/census/counties_2020.gpkg` for the state background of the maps.
 
 **Status:** v1 passed on Alpine: jobs 33217129 / 33217130 / 33217131 (features / train / predict), 2026-10-01 cluster time.
 v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster time.
+v3: tested on fake data only; not yet run on Alpine.
 
 ## 1. Sync + preflight (login node)
 
@@ -37,16 +45,18 @@ mkdir -p logs
 ls /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/zones | head -3
 ls /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/layers
 ls /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/layers/FBUY
-grep -E '^(version|compare_with|features):' configs/model.yaml
-ls /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/features /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/model
-ls /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v1/predictions/pop_1810.tif
+ls /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/layers/NTL
+grep -E '^(version|compare_with|folds_from):' configs/model.yaml
+ls /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/features /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model
+ls /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/predictions/pop_2020.tif
 ls /projects/jaju1407/data/processed/census/counties_2020.gpkg
 ```
 
 Good: `zones` lists `zones_1810.csv` …, `layers` lists BUA, BUI, BUPL, BUPR, FBUY, Land_Use,
-NobuiltYear, and the FBUY folder has exactly one `.tif`. `configs/model.yaml` shows `version: v2`,
-`compare_with: v1` and the v2 features. The v1 folder has `county_features.csv`, `best_params.json`,
-`metrics.json` and `pop_1810.tif` (if not, the comparison outputs are skipped; tell Claude), and
+NobuiltYear and NTL. The FBUY folder has exactly one `.tif`, and NTL has `2000_NTL.tif`,
+`2010_NTL.tif` and `2020_NTL.tif` (if not, run `Making_Cutout.md` section 7 first).
+`configs/model.yaml` shows `version: v3`, `compare_with: v2` and `folds_from: v2`. The v2 folder has
+`county_features.csv`, `folds.csv`, `best_params.json`, `metrics.json` and `pop_2020.tif`, and
 `counties_2020.gpkg` exists.
 
 ## 2. Submit all three stages as a chain (login node)
@@ -78,8 +88,9 @@ Cancel them with `scancel $j2 $j3`, fix the problem, and submit again from step 
 
 Check these lines:
 - features: `county-years: 314 before status filtering ..., N training rows | ... counties | 22 years`, then `DONE`
-- train: `training rows: ...`, `folds: counties per fold [...]`, the Spearman table and `|rho| > 0.80: ...` lines (or `no pair ...`) plus `age - year rho ...`, `fold 0..4: CV RMSE ...`, `best params {...}`, `CV RMSE ... | CV R2 ... | train RMSE ...`, the importance table, the three SHAP tables, `v1 recomputed on v2 folds: ...` (its RMSE/R2 should equal the reported v1 values 0.766 / 0.684, since GroupKFold gives the same folds), `CV v2 vs v1 (same folds): ...`, `DONE`
-- predict: one line per year (`counties, cells | y_hat ... | pop -> cells | max rel diff`), `plot .../pop_1810.png`, `pop_1810_v1_vs_v2.png`, `pop_1900.png`, `pop_2020.png`, `mass check: 314 county-years ... 0 fail | bad cells 0`, `DONE`
+- features: one `era E1/E2/E3 | ... features [...]` line per era, then a line per year, then `era E1: 188 training rows | 22 counties`, `era E2: 84 ... | 14`, `era E3: 42 ... | 14` (counted from the v2 features), `county-years: 314 before status filtering ...`, `DONE`
+- train: `folds from .../v2/model/folds.csv: 22 counties in 5 folds`. Then, for each era: `era Ex: training rows ...`, `folds (v2/model/folds.csv by GISJOIN): counties per fold {...}`, the Spearman table and `|rho| > 0.80` lines, `fold 0..4: CV RMSE ...`, `best params`, `CV RMSE ... | CV R2 ...`, the importance and SHAP tables (grouped: Land use in E2/E3, Lights in E3), `v2 (refit on these folds, scored on these N rows): ...`, `era Ex: CV v3 vs v2 (same folds and rows): ...`. At the end, the `CV by era:` table and `DONE`
+- predict: `maps: [1810, 1950, 2020] | side by side with v2: [2020]`, one `model rf era Ex` line per era, one line per year with its era (`1810 (E1): ...`), `plot` lines for the four maps, `mass check: 314 county-years ... 0 fail | bad cells 0`, `DONE`
 
 ## 4. If it fails
 
@@ -90,8 +101,12 @@ Check these lines:
 | `nodata cells inside the used counties` | send Claude the log; the cutout isn't what the rules assume |
 | `model 'lgbm' is a placeholder` | only `model: rf` is implemented |
 | `no built cell (BUA = 1) in the window for {YEAR}` | `dist_built` is undefined; send Claude the log |
-| `feature_groups must list every feature exactly once` | fix `feature_groups` in `configs/model.yaml` after changing `features` |
-| `compare_with v1 skipped: missing ...` (warning) | v1 outputs were purged or never run; v2 results are still valid, only the comparison is missing |
+| `feature_groups must list every feature exactly once` | fix `feature_groups` in `configs/model.yaml` after changing an era's features |
+| `every study year must be in exactly one era` / `give either features or eras` | fix `eras:` in `configs/model.yaml` |
+| `folds_from v2: ... folds.csv not found` | v2 outputs were purged; rerun v2 (git 38ed1e2 settings) or tell Claude |
+| `layers/NTL/2000_NTL.tif not found` / `layers/Land_Use/... not found` | cut NTL first (`Making_Cutout.md` section 7) / the cutout was purged |
+| `rf.joblib was trained on [...], the config says [...]` | features changed after training; rerun stages 1-2 |
+| `compare_with v2 skipped: missing ...` (warning) | v2 outputs were purged; v3 results are still valid, only the comparison is missing |
 | `--counties-gpkg ... not found` | rerun census_prepare (`Preparing_Census.md`) or check `$DATA_ROOT` |
 | `county_features.csv not found` / `rf.joblib not found` | run the earlier stage first |
 | `reallocation checks failed` | the QA CSV is still copied back; push it and send Claude the log |
@@ -102,7 +117,7 @@ Check these lines:
 ```bash
 cd /projects/jaju1407/HPC
 git add logs/dasymetric_features.$j1.out logs/dasymetric_train.$j2.out logs/dasymetric_predict.$j3.out results/dasymetric/
-git commit -m "run: dasymetric v2 $j1 $j2 $j3"
+git commit -m "run: dasymetric v3 $j1 $j2 $j3"
 git pull --rebase
 git push
 ```
@@ -110,6 +125,19 @@ git push
 Then tell Claude to pull.
 
 ## Notes
+
+- 2026-10-06: v3 implemented (`docs/dasymetric_v3.md`). The eras and their features are in
+  `configs/model.yaml`; v2 and v1 configs still run unchanged (no `eras:` = one pooled model). Tested on
+  a fake Boston-area setup with 7 years (E1 1810, 1900; E2 1950, 1990; E3 2000-2020). Two extra
+  1810-only counties stood in for Maine. The fake cutout was built with the real `make_cutout.py`
+  (+ `--layers NTL`). v2 was run with the committed v2 code, then v3 with the new code. All three v3
+  stages ran: one model per era, v2 folds reused per era, and each year predicted with its era's model.
+  Mass was preserved (max relative difference 3.0e-8), and the v2 output folder was byte-identical
+  afterwards. Checks of the comparison: each era's v3 out-of-fold fold RMSE equals the search's fold
+  scores, and v2's refit out-of-fold predictions pooled over all eras reproduce v2's reported CV
+  exactly (0.1587). An overlapping or missing era year, `features` together with `eras`, an ungrouped
+  feature, a missing `folds_from` file, `compare_with` with several eras but no `folds_from`, and a
+  model trained on other features all stopped with clear errors.
 
 - 2026-10-05 (cluster time), v2 jobs 33445813 / 33445814 / 33445815 (code 38ed1e2). Features took
   1.5 min, training 2 min, and prediction 1.5 min. Predictions take 19 MB on scratch. There were 314
