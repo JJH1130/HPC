@@ -1,0 +1,94 @@
+== job 33445814 (dasymetric_train) on c3cpu-e2-u7 at 2026-10-05T12:36:01-06:00
+== cores=4 gpus=none restart=0
+== git 38ed1e2
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v2)  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2  n_jobs: 4  extra args: 
+12:36:59 INFO arg config = configs/model.yaml
+12:36:59 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:36:59 INFO arg n_jobs = 4
+12:36:59 INFO training rows: 314 county-years | 22 counties (groups) | 22 years | features ['bui', 'bldg_size', 'mu_ratio', 'age', 'dist_built', 'year']
+12:37:00 INFO folds: counties per fold [3, 3, 3, 3, 10] -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model/folds.csv
+12:37:00 INFO Spearman rho of county features (all training rows):
+              bui  bldg_size  mu_ratio    age  dist_built   year
+bui         1.000      0.984     0.979  0.968      -0.929  0.876
+bldg_size   0.984      1.000     0.989  0.956      -0.928  0.856
+mu_ratio    0.979      0.989     1.000  0.965      -0.903  0.879
+age         0.968      0.956     0.965  1.000      -0.924  0.950
+dist_built -0.929     -0.928    -0.903 -0.924       1.000 -0.802
+year        0.876      0.856     0.879  0.950      -0.802  1.000
+12:37:00 INFO   |rho| > 0.80: bldg_size - mu_ratio 0.989
+12:37:00 INFO   |rho| > 0.80: bui - bldg_size 0.984
+12:37:00 INFO   |rho| > 0.80: bui - mu_ratio 0.979
+12:37:00 INFO   |rho| > 0.80: bui - age 0.968
+12:37:00 INFO   |rho| > 0.80: mu_ratio - age 0.965
+12:37:00 INFO   |rho| > 0.80: bldg_size - age 0.956
+12:37:00 INFO   |rho| > 0.80: age - year 0.950
+12:37:00 INFO   |rho| > 0.80: bui - dist_built -0.929
+12:37:00 INFO   |rho| > 0.80: bldg_size - dist_built -0.928
+12:37:00 INFO   |rho| > 0.80: age - dist_built -0.924
+12:37:00 INFO   |rho| > 0.80: mu_ratio - dist_built -0.903
+12:37:00 INFO   |rho| > 0.80: mu_ratio - year 0.879
+12:37:00 INFO   |rho| > 0.80: bui - year 0.876
+12:37:00 INFO   |rho| > 0.80: bldg_size - year 0.856
+12:37:00 INFO   |rho| > 0.80: dist_built - year -0.802
+12:37:00 INFO   age - year rho 0.950
+12:37:02 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model/feature_correlation.png
+12:37:02 INFO model rf | search 20 of 400 candidates | GroupKFold(5) by GISJOIN | scoring neg_root_mean_squared_error | n_jobs 4
+12:37:13 INFO   fold 0: CV RMSE 0.2300 | R2 0.959
+12:37:13 INFO   fold 1: CV RMSE 1.4269 | R2 0.543
+12:37:13 INFO   fold 2: CV RMSE 0.3194 | R2 0.900
+12:37:13 INFO   fold 3: CV RMSE 0.9172 | R2 0.435
+12:37:13 INFO   fold 4: CV RMSE 0.8840 | R2 0.656
+12:37:13 INFO best params {'n_estimators': 1000, 'min_samples_leaf': 2, 'max_features': 0.5, 'max_depth': 10}
+12:37:13 INFO CV RMSE 0.7555 +/- 0.4381 | CV R2 0.699 +/- 0.202 | train RMSE 0.2542 | sd(y) 1.5518
+12:37:15 INFO feature importance (permutation = increase in RMSE when shuffled):
+   feature  impurity  permutation_mean  permutation_sd
+ bldg_size    0.3106            0.8652          0.0297
+       bui    0.2979            0.7555          0.0194
+dist_built    0.2046            0.5923          0.0226
+      year    0.0464            0.3957          0.0168
+       age    0.0326            0.2318          0.0096
+  mu_ratio    0.1079            0.1572          0.0070
+12:37:53 INFO mean |SHAP| per feature:
+bldg_size     0.5164
+bui           0.4567
+dist_built    0.3944
+year          0.1946
+age           0.1188
+mu_ratio      0.0740
+12:37:53 INFO grouped mean |SHAP|:
+Building              1.0064
+Settlement context    0.3374
+Period                0.1946
+12:37:53 INFO mean |SHAP| by year:
+          bui  bldg_size  mu_ratio    age  dist_built   year
+year                                                        
+1810.0  0.880      0.918     0.174  0.295       0.722  0.369
+1820.0  0.640      0.676     0.036  0.276       0.469  0.360
+1830.0  0.521      0.620     0.036  0.208       0.399  0.324
+1840.0  0.450      0.598     0.036  0.180       0.354  0.311
+1850.0  0.373      0.575     0.043  0.178       0.336  0.298
+1860.0  0.375      0.552     0.042  0.153       0.338  0.291
+1870.0  0.368      0.501     0.038  0.137       0.352  0.276
+1880.0  0.363      0.416     0.035  0.123       0.345  0.265
+1890.0  0.360      0.363     0.039  0.091       0.362  0.237
+1900.0  0.324      0.376     0.078  0.081       0.351  0.066
+1910.0  0.352      0.396     0.086  0.055       0.342  0.057
+1920.0  0.357      0.398     0.084  0.051       0.322  0.058
+1930.0  0.384      0.395     0.079  0.047       0.315  0.058
+1940.0  0.400      0.398     0.079  0.043       0.319  0.063
+1950.0  0.417      0.400     0.079  0.051       0.327  0.068
+1960.0  0.420      0.424     0.080  0.063       0.348  0.092
+1970.0  0.434      0.502     0.079  0.072       0.394  0.132
+1980.0  0.443      0.506     0.087  0.080       0.416  0.157
+1990.0  0.469      0.518     0.096  0.086       0.424  0.175
+2000.0  0.494      0.532     0.100  0.090       0.426  0.182
+2010.0  0.514      0.554     0.096  0.090       0.435  0.185
+2020.0  0.530      0.572     0.082  0.089       0.441  0.182
+12:37:53 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model/shap_summary.png
+12:37:53 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model/shap_by_year.png
+12:37:54 INFO v1 recomputed on v2 folds: CV RMSE 0.7663 +/- 0.4346 | CV R2 0.684 +/- 0.220 (reported by v1: RMSE 0.7662889997418578, R2 0.6844164121975098) | fold RMSE 0.233 / 1.405 / 0.327 / 0.975 / 0.891
+12:37:54 INFO CV v2 vs v1 (same folds): RMSE 0.7555 vs 0.7663 | R2 0.699 vs 0.684
+12:37:54 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model
+12:37:54 INFO DONE
+== done 2026-10-05T12:37:55-06:00

@@ -1,0 +1,44 @@
+== job 33445813 (dasymetric_features) on c3cpu-e2-u7 at 2026-10-05T12:33:58-06:00
+== cores=2 gpus=none restart=0
+== git 38ed1e2
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v2)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2  extra args: 
+12:35:09 INFO arg config = configs/model.yaml
+12:35:09 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:35:09 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+12:35:09 INFO study 'massachusetts' v2 | 22 years 1810-2020 | features ['bui', 'bldg_size', 'mu_ratio', 'age', 'dist_built', 'year'] | use_status ['ok', 'manual_fill'] -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2
+12:35:13 INFO   1810: 20 counties in the table, 20 used, 1681989 cells
+12:35:14 INFO   1820: 14 counties in the table, 14 used, 336164 cells
+12:35:14 INFO   1830: 14 counties in the table, 14 used, 336164 cells
+12:35:15 INFO   1840: 14 counties in the table, 14 used, 336164 cells
+12:35:16 INFO   1850: 14 counties in the table, 14 used, 336164 cells
+12:35:17 INFO   1860: 14 counties in the table, 14 used, 336164 cells
+12:35:17 INFO   1870: 14 counties in the table, 14 used, 335900 cells
+12:35:18 INFO   1880: 14 counties in the table, 14 used, 335900 cells
+12:35:18 INFO   1890: 14 counties in the table, 14 used, 335900 cells
+12:35:19 INFO   1900: 14 counties in the table, 14 used, 335900 cells
+12:35:20 INFO   1910: 14 counties in the table, 14 used, 335900 cells
+12:35:20 INFO   1920: 14 counties in the table, 14 used, 335900 cells
+12:35:21 INFO   1930: 14 counties in the table, 14 used, 335900 cells
+12:35:21 INFO   1940: 14 counties in the table, 14 used, 335900 cells
+12:35:22 INFO   1950: 14 counties in the table, 14 used, 335900 cells
+12:35:23 INFO   1960: 14 counties in the table, 14 used, 335900 cells
+12:35:23 INFO   1970: 14 counties in the table, 14 used, 335900 cells
+12:35:24 INFO   1980: 14 counties in the table, 14 used, 335900 cells
+12:35:25 INFO   1990: 14 counties in the table, 14 used, 335900 cells
+12:35:25 INFO   2000: 14 counties in the table, 14 used, 335900 cells
+12:35:26 INFO   2010: 14 counties in the table, 14 used, 335899 cells
+12:35:26 INFO   2020: 14 counties in the table, 14 used, 335850 cells
+12:35:26 INFO county-years: 314 before status filtering (expected 314 for massachusetts), 314 training rows | 22 counties (GISJOIN) | 22 years
+12:35:26 INFO feature summary:
+            count       mean        std       min       25%       50%        75%         max
+bui         314.0  25497.935  73600.533     0.023   639.899  3831.911  17389.992  535040.105
+bldg_size   314.0   1931.805   3743.800     0.023   202.302   689.649   1824.176   26735.399
+mu_ratio    314.0      0.471      0.559     0.000     0.080     0.266      0.619       2.904
+age         314.0     13.965     18.336     0.000     1.055     6.403     20.317     107.303
+dist_built  314.0      1.750      8.417     0.083     0.312     0.617      1.063      96.460
+year        314.0   1912.994     64.560  1810.000  1860.000  1910.000   1970.000    2020.000
+y           314.0      4.459      1.554    -0.331     3.323     4.127      5.491       8.652
+12:35:26 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/features/county_features.csv
+12:35:26 INFO DONE
+== done 2026-10-05T12:35:27-06:00
