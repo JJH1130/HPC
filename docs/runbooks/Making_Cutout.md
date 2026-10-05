@@ -184,7 +184,40 @@ Check (`tail -n 25 logs/water_frac.$jw.out`):
 Close the loop: `git add logs/water_frac.$jw.out results/cutout/`, commit, push (or together with the
 dasymetric v3.1 run, `Running_Dasymetric.md`).
 
+## 9. Where is JRC no-data? (diagnostic, login node)
+
+The JRC Data Users Guide (v4) does not define the occurrence value 255. `water_frac.py` counts it as not water,
+and it is 18 % of the window's pixels. `src/grid/jrc_nodata_check.py` (`sbatch/jrc_nodata_check.sh`, acpu,
+2 cores, 1 h) uses the same tiles, grid and area weighting and changes nothing in the cutout layers. It writes
+`qa/jrc_nodata_frac.tif`, `qa/jrc_nodata_by_county.csv` and `qa/jrc_nodata_map.png`; the CSV and PNG
+are copied to `results/cutout/massachusetts/`.
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+jn=$(sbatch --parsable sbatch/jrc_nodata_check.sh)
+echo "jrc_nodata_check $jn"
+```
+
+Check (`tail -n 60 logs/jrc_nodata_check.$jn.out`):
+- `window: N JRC pixels, M no-data (share)` (about 0.18 expected from water_frac)
+- `study counties by year` table: `cells_with_nodata`, `nodata_km2`, `inner_nodata_km2` (no-data more than 1 km
+  inside the study area) per year
+- the 1810 and 2020 county tables, `verdict input: ... none/present`, `wrote .../jrc_nodata_map.png`, `DONE`
+
+Map: left = no-data share over the window, on top of the study counties (grey). Right = no-data cells inside
+the study counties: blue within 1 km of the study-area edge (coast), orange farther inside (inland).
+
+Close the loop: `git add logs/jrc_nodata_check.$jn.out results/cutout/`, commit, push, tell Claude.
+
 ## Notes
+
+- 2026-10-06: added `src/grid/jrc_nodata_check.py`. The per-block computation of `water_frac.py` was moved into
+  `cell_shares()`, which both scripts use. Re-running `water_frac.py` on the fake data after this change gave a
+  byte-identical layer. On fake data, an inland 255 patch (3.66 km²) was found in the right county,
+  classified as more than 1 km inside (37 km from the edge), and drawn on the map; `water_frac.tif` was unchanged.
 
 - 2026-10-05 (cluster time), water_frac job 33463268 (code fdd9ef0): 6.8 min for 84 blocks. Of 21 JRC files,
   2 were selected automatically (`70W_50N`, `80W_50N`). 139 HydroLAKES reservoir polygons intersect the

@@ -65,11 +65,17 @@ Last updated: 2026-10-06 (v3.1 first run)
   user's review.
 - Result: the mask removes 0.32 % of cells from 1820 on (0.72 % in 1810); CV
   changes by < 0.004 in every era; the 2020 map changes only at ponds.
-- Needs a decision: HydroLAKES `Lake_type = 2` also covers large dam-raised
-  natural lakes (Moosehead, Chesuncook, Chamberlain, Eagle Lake in the 1810
-  Maine area), which v3.1 treats as land. JRC no-data is 18 % of window pixels
-  (probably ocean; counted as not water); its share inside the study counties
-  is not yet reported.
+- Decided (2026-10-06): dam-raised natural lakes flagged as reservoirs by
+  HydroLAKES (`Lake_type = 2`: Moosehead, Chesuncook, Chamberlain, Eagle Lake in
+  the 1810 Maine area) **stay land** for now. Decide again together with
+  reservoir construction years (GRanD/NID) at CONUS scale. Reason: treating water
+  as land only leaks a small weight onto unbuilt water cells, while treating land
+  as water would delete real population. Keeping them land is the safer error.
+- Open: meaning of JRC no-data (255; not defined in the JRC Data Users Guide v4).
+  It is 18 % of window pixels and currently counted as not water. Check on our data with
+  `sbatch/jrc_nodata_check.sh` (`docs/runbooks/Making_Cutout.md`, section 9): map
+  + per-county share inside the study counties. **If it is only at sea, change
+  no-data to water; if it also occurs inland, decide from the results.**
 - Rule: per year, mask only cells with water_frac = 1 **and** BUI = 0 (weight 0,
   left out of county area and county feature means). Dry unbuilt cells and
   partly-water cells are not masked; features are raw (no land-share scaling);
@@ -94,5 +100,7 @@ Last updated: 2026-10-06 (v3.1 first run)
 | 2026-10-06 | From v2 results: **no fold changes**; the 1810 Maine errors come from extreme `dist_built`, not from fold assignment. Keep `dist_built`. |
 | 2026-10-06 | NTL QA: 2010 failure on the fixed DN >= 60 rule accepted as a rule artifact (layer correct); QA rule change on hold. |
 | 2026-10-06 | New external data must first be added (row + citation) to `docs/data_sources.md`; rule also in CLAUDE.md. |
+| 2026-10-06 | HydroLAKES `Lake_type = 2` dam-raised natural lakes stay land until reservoir years (GRanD/NID) are handled at CONUS scale: land-as-water would delete real population, water-as-land only leaks a small weight. |
+| 2026-10-06 | JRC no-data (255): check where it lies first (map + per-county share). Only at sea → treat as water; also inland → decide from the results. |
 | 2026-10-06 | v3.1 water: final design = mask only (water_frac = 1 and BUI = 0, per year); earlier drafts (weights x land share, BUI / land share) dropped. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |

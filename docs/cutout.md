@@ -58,6 +58,7 @@ purged 90 days after creation, so rerun the job to rebuild them.
 | `qa/ntl_qa.csv` | NTL QA (`src/grid/ntl_qa.py`): range, bright-core centroid near Boston per year, Spearman NTL–BUI |
 | `layers/water_frac/water_frac.tif` | Static share of permanent-water 30 m pixels per 250 m cell (float32, 0–1, NaN = no JRC tile), from `src/grid/water_frac.py` |
 | `qa/water_qa.csv` | Water layer QA: range, shares in the study counties, JRC no-data share, reservoir pixels removed, QA points |
+| `qa/jrc_nodata_frac.tif`, `qa/jrc_nodata_by_county.csv`, `qa/jrc_nodata_map.png` | Diagnostic (`src/grid/jrc_nodata_check.py`): where JRC no-data (value > 100) lies, per cell and per county-year |
 | `zones/zones_{YEAR}.tif` | County ID per cell (uint16). 0 = nodata (outside the selected counties) |
 | `zones/zones_{YEAR}.csv` | `zone_id`, `GISJOIN`, `state`, `name`, `pop`, `status`, `area_km2` for the selected counties |
 | `cutout_qa.csv` | Per year and county: `n_cells`, `cell_area_km2` = n_cells × 0.0625, `area_ratio` = cell_area_km2 / area_km2 |

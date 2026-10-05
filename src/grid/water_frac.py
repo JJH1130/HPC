@@ -118,6 +118,60 @@ def source_block(tiles, res, bounds_ll):
     return occ, covered, tr
 
 
+def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs):
+    """Per 250 m cell of the window: (water share, JRC no-data share, stats). Both shares are area-weighted
+    over the covered 30 m pixels: each pixel centre goes to the cell it falls in, weighted by cos(lat).
+    GDAL `average` is not used: on a grid rotated against lon/lat it also counts pixels outside the cell.
+    Cells without any covered pixel are NaN in both. Water = occurrence >= occurrence_min and <= 100,
+    minus pixels inside `lakes` (reservoirs); no data = occurrence > 100."""
+    to_xy = Transformer.from_crs(4326, crs, always_xy=True)
+    frac = np.full((H, W), np.nan, dtype="float32")
+    nodata = np.full((H, W), np.nan, dtype="float32")
+    stats = {"jrc_pixels": 0, "jrc_nodata_pixels": 0, "water_pixels": 0, "reservoir_pixels_removed": 0}
+    blk = int(wcfg.get("block", 256))
+    pad = 2 * max(res)
+    n_blocks = math.ceil(H / blk) * math.ceil(W / blk)
+    for k, (r0, c0) in enumerate((r, c) for r in range(0, H, blk) for c in range(0, W, blk)):
+        h, w = min(blk, H - r0), min(blk, W - c0)
+        btr = transform * Affine.translation(c0, r0)
+        bb = rasterio.transform.array_bounds(h, w, btr)  # west, south, east, north
+        bll = transform_bounds(crs, "EPSG:4326", bb[0], bb[1], bb[2], bb[3], densify_pts=21)
+        bll = (bll[0] - pad, bll[1] - pad, bll[2] + pad, bll[3] + pad)
+        occ, covered, str_ = source_block(tiles, res, bll)
+        valid = covered & (occ <= 100)
+        water = (valid & (occ >= wcfg["occurrence_min"])).astype("float32")
+        if lakes is not None and len(lakes):
+            sub = lakes.cx[bll[0]:bll[2], bll[1]:bll[3]]
+            if len(sub):
+                inres = rasterize(((g, 1) for g in sub.geometry), out_shape=occ.shape, transform=str_, fill=0,
+                                  dtype="uint8").astype(bool)
+                stats["reservoir_pixels_removed"] += int((water.astype(bool) & inres).sum())
+                water[inres] = 0
+        nd = (covered & (occ > 100)).astype("float32")
+        stats["jrc_pixels"] += int(covered.sum())
+        stats["jrc_nodata_pixels"] += int(nd.sum())
+        stats["water_pixels"] += int(water.sum())
+        lon = str_.c + (np.arange(occ.shape[1]) + 0.5) * str_.a
+        lat = str_.f + (np.arange(occ.shape[0]) + 0.5) * str_.e
+        LON, LAT = np.meshgrid(lon, lat)
+        X, Y = to_xy.transform(LON, LAT)
+        col = np.floor((X - btr.c) / btr.a).astype(np.int64)
+        row = np.floor((Y - btr.f) / btr.e).astype(np.int64)
+        ok = covered & (row >= 0) & (row < h) & (col >= 0) & (col < w)
+        idx = row[ok] * w + col[ok]
+        wt = np.cos(np.radians(LAT[ok]))
+        den = np.bincount(idx, weights=wt, minlength=h * w)
+        has = den > 0  # cells without any covered pixel stay NaN
+        for target, values in ((frac, water), (nodata, nd)):
+            num = np.bincount(idx, weights=wt * values[ok], minlength=h * w)
+            out = np.full(h * w, np.nan, dtype="float32")
+            out[has] = num[has] / den[has]
+            target[r0:r0 + h, c0:c0 + w] = out.reshape(h, w)
+        if (k + 1) % 20 == 0 or k + 1 == n_blocks:
+            log.info("  block %d/%d", k + 1, n_blocks)
+    return frac, nodata, stats
+
+
 def main(argv=None):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
                         datefmt="%H:%M:%S", stream=sys.stdout)
@@ -144,50 +198,7 @@ def main(argv=None):
     tiles, res = jrc_tiles(wcfg, bounds_ll)
     lakes = reservoirs(wcfg, bounds_ll)
 
-    frac = np.full((H, W), np.nan, dtype="float32")
-    stats = {"jrc_pixels": 0, "jrc_nodata_pixels": 0, "water_pixels": 0, "reservoir_pixels_removed": 0}
-    blk = int(wcfg.get("block", 256))
-    pad = 2 * max(res)
-    n_blocks = math.ceil(H / blk) * math.ceil(W / blk)
-    for k, (r0, c0) in enumerate((r, c) for r in range(0, H, blk) for c in range(0, W, blk)):
-        h, w = min(blk, H - r0), min(blk, W - c0)
-        btr = transform * Affine.translation(c0, r0)
-        bb = rasterio.transform.array_bounds(h, w, btr)  # (bottom-left x, y, top-right x, y) as west, south, east, north
-        bll = transform_bounds(crs, "EPSG:4326", bb[0], bb[1], bb[2], bb[3], densify_pts=21)
-        bll = (bll[0] - pad, bll[1] - pad, bll[2] + pad, bll[3] + pad)
-        occ, covered, str_ = source_block(tiles, res, bll)
-        valid = covered & (occ <= 100)
-        water = (valid & (occ >= wcfg["occurrence_min"])).astype("float32")
-        if len(lakes):
-            sub = lakes.cx[bll[0]:bll[2], bll[1]:bll[3]]
-            if len(sub):
-                inres = rasterize(((g, 1) for g in sub.geometry), out_shape=occ.shape, transform=str_, fill=0,
-                                  dtype="uint8").astype(bool)
-                stats["reservoir_pixels_removed"] += int((water.astype(bool) & inres).sum())
-                water[inres] = 0
-        stats["jrc_pixels"] += int(covered.sum())
-        stats["jrc_nodata_pixels"] += int((covered & (occ > 100)).sum())
-        stats["water_pixels"] += int(water.sum())
-        # area-weighted share: each covered 30 m pixel centre goes to the 250 m cell it falls in, weighted by
-        # cos(lat) (pixel area). GDAL `average` is not used: on a grid rotated against lon/lat it also counts
-        # pixels outside the cell footprint.
-        lon = str_.c + (np.arange(occ.shape[1]) + 0.5) * str_.a
-        lat = str_.f + (np.arange(occ.shape[0]) + 0.5) * str_.e
-        LON, LAT = np.meshgrid(lon, lat)
-        X, Y = to_xy.transform(LON, LAT)
-        col = np.floor((X - btr.c) / btr.a).astype(np.int64)
-        row = np.floor((Y - btr.f) / btr.e).astype(np.int64)
-        ok = covered & (row >= 0) & (row < h) & (col >= 0) & (col < w)
-        idx = row[ok] * w + col[ok]
-        wt = np.cos(np.radians(LAT[ok]))
-        den = np.bincount(idx, weights=wt, minlength=h * w)
-        num = np.bincount(idx, weights=wt * water[ok], minlength=h * w)
-        out = np.full(h * w, np.nan, dtype="float32")
-        has = den > 0  # cells without any covered pixel stay NaN
-        out[has] = num[has] / den[has]
-        frac[r0:r0 + h, c0:c0 + w] = out.reshape(h, w)
-        if (k + 1) % 20 == 0 or k + 1 == n_blocks:
-            log.info("  block %d/%d", k + 1, n_blocks)
+    frac, _, stats = cell_shares(wcfg, tiles, res, lakes, transform, H, W, crs)
 
     # QA
     zone_any = np.zeros((H, W), bool)
