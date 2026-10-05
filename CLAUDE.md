@@ -59,3 +59,8 @@ Claude는 로그/결과를 직접 pull해서 읽기 전까지는 잡이 실행�
 
 클러스터 온보딩(로그인, GitHub SSH, `/projects` clone 등) 절차는 `docs/runbooks/Cluster_Setup.md`
 참고.
+
+## 보류 사항과 결정 기록
+
+보류 사항과 중요한 결정은 `docs/open_items.md`에 있다 — 작업 전에 읽는다. memory는 컴퓨터 간에 옮겨지지
+않으므로, memory에 저장하는 중요한 결정은 이 파일에도 같이 기록하고 커밋한다.
