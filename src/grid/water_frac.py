@@ -8,7 +8,9 @@ Settings: the `water:` block of configs/study_area.yaml. Reads the existing cuto
 Steps:
   1. JRC Global Surface Water occurrence tiles (EPSG:4326, 30 m): every file matching `jrc_glob` in `jrc_dir`
      whose bounds overlap the window is used (tile names are not hard-coded). Permanent water = occurrence
-     >= `occurrence_min`. Values above 100 (JRC no data) count as not water and are reported.
+     >= `occurrence_min`. Values above 100 (JRC no data, 255) count as water if `nodata_as_water` is true
+     (checked with src/grid/jrc_nodata_check.py: in Massachusetts they lie only on the open sea), else as
+     not water; their share is reported either way.
   2. HydroLAKES polygons with Lake_type in `reservoir_types` (reservoirs) are set to not water (pixel centre
      inside the polygon). Only features intersecting the window are read.
   3. The 0/1 mask is averaged onto the HISDAC 250 m window grid, block by block: each 30 m pixel centre is
@@ -123,7 +125,7 @@ def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs):
     over the covered 30 m pixels: each pixel centre goes to the cell it falls in, weighted by cos(lat).
     GDAL `average` is not used: on a grid rotated against lon/lat it also counts pixels outside the cell.
     Cells without any covered pixel are NaN in both. Water = occurrence >= occurrence_min and <= 100,
-    minus pixels inside `lakes` (reservoirs); no data = occurrence > 100."""
+    (plus no data = occurrence > 100 if wcfg nodata_as_water), minus pixels inside `lakes` (reservoirs)."""
     to_xy = Transformer.from_crs(4326, crs, always_xy=True)
     frac = np.full((H, W), np.nan, dtype="float32")
     nodata = np.full((H, W), np.nan, dtype="float32")
@@ -139,7 +141,10 @@ def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs):
         bll = (bll[0] - pad, bll[1] - pad, bll[2] + pad, bll[3] + pad)
         occ, covered, str_ = source_block(tiles, res, bll)
         valid = covered & (occ <= 100)
-        water = (valid & (occ >= wcfg["occurrence_min"])).astype("float32")
+        wet = valid & (occ >= wcfg["occurrence_min"])
+        if wcfg.get("nodata_as_water"):
+            wet |= covered & (occ > 100)
+        water = wet.astype("float32")
         if lakes is not None and len(lakes):
             sub = lakes.cx[bll[0]:bll[2], bll[1]:bll[3]]
             if len(sub):
@@ -193,8 +198,9 @@ def main(argv=None):
     to_xy = Transformer.from_crs(4326, crs, always_xy=True)
     to_ll = Transformer.from_crs(crs, 4326, always_xy=True)
     bounds_ll = transform_bounds(crs, "EPSG:4326", *win["bounds"], densify_pts=101)
-    log.info("cutout %s | window %d x %d cells | occurrence >= %s = water | reservoir types %s", cut, W, H,
-             wcfg["occurrence_min"], wcfg["reservoir_types"])
+    log.info("cutout %s | window %d x %d cells | occurrence >= %s = water | JRC no data = %s | reservoir types %s",
+             cut, W, H, wcfg["occurrence_min"], "water" if wcfg.get("nodata_as_water") else "not water",
+             wcfg["reservoir_types"])
     tiles, res = jrc_tiles(wcfg, bounds_ll)
     lakes = reservoirs(wcfg, bounds_ll)
 

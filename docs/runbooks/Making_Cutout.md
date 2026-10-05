@@ -214,6 +214,14 @@ Close the loop: `git add logs/jrc_nodata_check.$jn.out results/cutout/`, commit,
 
 ## Notes
 
+- 2026-10-05 (cluster time), jrc_nodata_check job 33464358 (code 487573e): 8.5 min. JRC no-data is 18.0 % of
+  the window's pixels; 872,426 of 4,862,662 cells contain some no-data. Inside the study counties there are
+  0 no-data pixels in every year (1810-2020), including within 1 km of the coast. The map shows all of it on the
+  open sea, beginning about 10-20 km off the coast with a rounded, buffer-like edge; nearshore water has valid
+  values. Decision (user): treat no-data as water (`nodata_as_water: true` in the `water:` block). This
+  changes `water_frac` only outside the study counties, so the v3.1 mask and results stay the same. Rerun
+  `sbatch/water_frac.sh` so the layer matches the config.
+
 - 2026-10-06: added `src/grid/jrc_nodata_check.py`. The per-block computation of `water_frac.py` was moved into
   `cell_shares()`, which both scripts use. Re-running `water_frac.py` on the fake data after this change gave a
   byte-identical layer. On fake data, an inland 255 patch (3.66 km²) was found in the right county,

@@ -67,7 +67,8 @@ Copies of `window.json`, `cutout_qa.csv`, `zones/*.csv`, `qa/ntl_qa.csv` and `qa
 
 **Water fraction (v3.1).** `src/grid/water_frac.py` adds `layers/water_frac/water_frac.tif` to an existing
 cutout (`docs/dasymetric_v3_1.md`). Rules: (1) permanent water = JRC occurrence ≥ 75; JRC values above
-100 (no data) count as not water. (2) 30 m pixels whose centre is inside a HydroLAKES polygon with
+100 (no data, 255) count as water with `nodata_as_water: true`. In Massachusetts they lie only on the open
+sea (`src/grid/jrc_nodata_check.py`, job 33464358). (2) 30 m pixels whose centre is inside a HydroLAKES polygon with
 `Lake_type = 2` (reservoir) are set to not water, in all years. (3) `water_frac` = area-weighted share of
 water pixels in each 250 m cell. Every 30 m pixel centre is assigned to the cell it falls in, weighted by
 cos(latitude). GDAL `average` is not used: on the Albers grid, rotated against lon/lat (about 16° at

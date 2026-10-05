@@ -71,11 +71,13 @@ Last updated: 2026-10-06 (v3.1 first run)
   reservoir construction years (GRanD/NID) at CONUS scale. Reason: treating water
   as land only leaks a small weight onto unbuilt water cells, while treating land
   as water would delete real population. Keeping them land is the safer error.
-- Open: meaning of JRC no-data (255; not defined in the JRC Data Users Guide v4).
-  It is 18 % of window pixels and currently counted as not water. Check on our data with
-  `sbatch/jrc_nodata_check.sh` (`docs/runbooks/Making_Cutout.md`, section 9): map
-  + per-county share inside the study counties. **If it is only at sea, change
-  no-data to water; if it also occurs inland, decide from the results.**
+- Decided (2026-10-06): JRC no-data (255; not defined in the JRC Data Users
+  Guide v4) **counts as water** (`nodata_as_water: true` in the `water:` block).
+  Basis: `jrc_nodata_check` job 33464358 found 0 no-data pixels in the study
+  counties in every year. All of it (18 % of window pixels) lies on the open
+  sea, starting about 10-20 km off the coast. Coastal water near land has valid
+  values. v3.1 results do not change: water_frac is identical in every study
+  cell. Re-check where land could be affected when scaling to CONUS.
 - Rule: per year, mask only cells with water_frac = 1 **and** BUI = 0 (weight 0,
   left out of county area and county feature means). Dry unbuilt cells and
   partly-water cells are not masked; features are raw (no land-share scaling);
@@ -102,5 +104,6 @@ Last updated: 2026-10-06 (v3.1 first run)
 | 2026-10-06 | New external data must first be added (row + citation) to `docs/data_sources.md`; rule also in CLAUDE.md. |
 | 2026-10-06 | HydroLAKES `Lake_type = 2` dam-raised natural lakes stay land until reservoir years (GRanD/NID) are handled at CONUS scale: land-as-water would delete real population, water-as-land only leaks a small weight. |
 | 2026-10-06 | JRC no-data (255): check where it lies first (map + per-county share). Only at sea → treat as water; also inland → decide from the results. |
+| 2026-10-06 | JRC no-data check (job 33464358): only on the open sea, 0 pixels in the study counties → `nodata_as_water: true`. |
 | 2026-10-06 | v3.1 water: final design = mask only (water_frac = 1 and BUI = 0, per year); earlier drafts (weights x land share, BUI / land share) dropped. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
