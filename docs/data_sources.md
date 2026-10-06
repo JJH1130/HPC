@@ -4,7 +4,7 @@ Registry of every external dataset used in this project. Add a row (and a
 citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again.
 
-Last updated: 2026-10-06
+Last updated: 2026-10-07
 
 ## Summary
 
@@ -18,6 +18,7 @@ Last updated: 2026-10-06
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction | To download |
+| County census, standardized (+ CBSA/CSA codes) | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | Candidate 2010-standardized target | Received; source to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
 
 ## Details
@@ -116,6 +117,21 @@ Last updated: 2026-10-06
   https://doi.org/10.1038/ncomms13603
 - Download: https://www.hydrosheds.org/products/hydrolakes
 
+### County census, standardized (all_county_census_MSA_full.csv)
+
+- **Source: Stefan (provisional; to be re-confirmed** — original producer,
+  boundary basis and citation unknown).
+- Received 2026-10-07; tracked in git at
+  `data/census_std/all_county_census_MSA_full.csv` (510 KB, 3,131 counties) and
+  copied to `$DATA_ROOT/raw/census_std/` on Alpine.
+- Columns: `FIPS`, `STNAME`, `CTYNAME`, `CENSUS{1900..2010}POP` (decennial),
+  `POPESTIMATE2015`, and OMB delineation fields (`CBSA Code`, `Metropolitan
+  Division Code`, `CSA Code`, titles, Metropolitan/Micropolitan,
+  Central/Outlying).
+- To confirm before use: who produced it, which county boundaries the
+  1900–2000 counts are standardized to (2010?), and which OMB delineation
+  vintage the CBSA codes come from.
+
 ### HydroRIVERS (optional, later)
 
 - River centerlines (no width); for a distance-to-river feature.
@@ -129,4 +145,4 @@ Last updated: 2026-10-06
 
 - PLURAL (gridded) from Siqiao: record resolution, CRS, years, citation.
 - DEM (for elevation and slope).
-- 2010-standardized county data: source to be confirmed with Stefan.
+- 2010-standardized county data: file received (see above); source to be confirmed with Stefan.

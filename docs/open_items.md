@@ -4,16 +4,20 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-06 (v3.1 first run)
+Last updated: 2026-10-07 (standardized county file received)
 
 ## Open items
 
 ### 2010-standardized counties
 
-- **Status:** waiting on source check.
+- **Status:** file received, source to re-confirm.
 - The advisor suggested using counties standardized to 2010 boundaries.
 - NHGIS standardized tables cover only 1990–2020. The source said to cover
   years from 1900 is not yet identified; the user is confirming what it is.
+- 2026-10-07: received `data/census_std/all_county_census_MSA_full.csv`
+  (counties 1900–2010 + 2015 estimate, with CBSA/CSA codes). Source recorded
+  provisionally as Stefan; re-confirm producer and boundary basis
+  (`docs/data_sources.md`).
 - **Until confirmed:** keep using nominal counties (each year's own
   boundaries), as in `docs/dasymetric_v1.md`.
 
@@ -104,6 +108,7 @@ Last updated: 2026-10-06 (v3.1 first run)
 | 2026-10-06 | NTL QA: 2010 failure on the fixed DN >= 60 rule accepted as a rule artifact (layer correct); QA rule change on hold. |
 | 2026-10-06 | New external data must first be added (row + citation) to `docs/data_sources.md`; rule also in CLAUDE.md. |
 | 2026-10-06 | HydroLAKES `Lake_type = 2` dam-raised natural lakes stay land until reservoir years (GRanD/NID) are handled at CONUS scale: land-as-water would delete real population, water-as-land only leaks a small weight. |
+| 2026-10-07 | Track `all_county_census_MSA_full.csv` in git (`data/census_std/`, .gitignore exception); source provisionally "Stefan", to re-confirm. |
 | 2026-10-06 | JRC no-data (255): check where it lies first (map + per-county share). Only at sea → treat as water; also inland → decide from the results. |
 | 2026-10-06 | JRC no-data check (job 33464358): only on the open sea, 0 pixels in the study counties → `nodata_as_water: true`. |
 | 2026-10-06 | v3.1 water: final design = mask only (water_frac = 1 and BUI = 0, per year); earlier drafts (weights x land share, BUI / land share) dropped. |
