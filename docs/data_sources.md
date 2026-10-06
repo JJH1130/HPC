@@ -18,7 +18,7 @@ Last updated: 2026-10-07
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction | To download |
-| County census, standardized (+ CBSA/CSA codes) | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | Candidate 2010-standardized target | Received; source to confirm |
+| County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | Candidate Ch1 target; diagnostic vs NHGIS | Received 2026-10-06; publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
 
 ## Details
@@ -117,20 +117,27 @@ Last updated: 2026-10-07
   https://doi.org/10.1038/ncomms13603
 - Download: https://www.hydrosheds.org/products/hydrolakes
 
-### County census, standardized (all_county_census_MSA_full.csv)
+### County census by 2010 FIPS (all_county_census_MSA_full.csv)
 
-- **Source: Stefan (provisional; to be re-confirmed** — original producer,
-  boundary basis and citation unknown).
-- Received 2026-10-07; tracked in git at
-  `data/census_std/all_county_census_MSA_full.csv` (510 KB, 3,131 counties) and
-  copied to `$DATA_ROOT/raw/census_std/` on Alpine.
-- Columns: `FIPS`, `STNAME`, `CTYNAME`, `CENSUS{1900..2010}POP` (decennial),
-  `POPESTIMATE2015`, and OMB delineation fields (`CBSA Code`, `Metropolitan
-  Division Code`, `CSA Code`, titles, Metropolitan/Micropolitan,
-  Central/Outlying).
-- To confirm before use: who produced it, which county boundaries the
-  1900–2000 counts are standardized to (2010?), and which OMB delineation
-  vintage the CBSA codes come from.
+- **Source:** provided by Stefan Leyk, 2026-10-06. Original publisher to confirm
+  (provisional; to be re-confirmed) — likely U.S. Census Bureau county counts
+  1900–1990 + 2000/2010 decennial census + Vintage 2015 population estimates + OMB
+  2015 CBSA delineations.
+- Tracked in git at `data/census_std/all_county_census_MSA_full.csv` (510 KB, 3,131
+  rows incl. AK and HI) and copied to `$DATA_ROOT/raw/census_std/` on Alpine.
+- Columns: `FIPS` (stored as a number, leading zero lost), `STNAME`, `CTYNAME`,
+  `CENSUS{1900..2010}POP` (decennial), `POPESTIMATE2015`, and OMB delineation fields
+  (`CBSA Code`, `Metropolitan Division Code`, `CSA Code`, titles,
+  Metropolitan/Micropolitan, Central/Outlying). No 2020 column.
+- Checked so far (user, 2026-10-07):
+  - Values look like each year's count for the county holding that FIPS, **not**
+    areally standardized to 2010 boundaries (e.g. Yuma AZ 1980 seems to include
+    La Paz; Virginia Beach 1960 = 8,091, before the Princess Anne merger).
+  - NaN = county did not exist yet (291 counties; no gaps after the first value).
+  - Missing 4 CONUS counties: 12086 (Miami-Dade), 08014 (Broomfield), 46113
+    (Shannon), 51515 (Bedford city). AK and HI are dropped in processing.
+- Diagnostic against the nominal NHGIS counties: `src/census/std_county_check.py`,
+  `docs/runbooks/Checking_Std_Counties.md`.
 
 ### HydroRIVERS (optional, later)
 
