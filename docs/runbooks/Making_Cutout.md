@@ -214,6 +214,11 @@ Close the loop: `git add logs/jrc_nodata_check.$jn.out results/cutout/`, commit,
 
 ## Notes
 
+- 2026-10-05 (cluster time), water_frac rerun job 33464549 (code 4d070c3, `nodata_as_water: true`): 6.3 min.
+  Water pixels went from 85,735,864 to 239,087,982; the difference is exactly the 153,352,118 no-data pixels.
+  The study-county statistics (mean 0.0208, share > 0 5.28 %, share = 1 0.72 %), the QA points and every
+  other line of `water_qa.csv` are unchanged, so the v3.1 mask and results stay valid without a rerun.
+
 - 2026-10-05 (cluster time), jrc_nodata_check job 33464358 (code 487573e): 8.5 min. JRC no-data is 18.0 % of
   the window's pixels; 872,426 of 4,862,662 cells contain some no-data. Inside the study counties there are
   0 no-data pixels in every year (1810-2020), including within 1 km of the coast. The map shows all of it on the

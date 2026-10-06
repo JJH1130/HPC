@@ -77,7 +77,8 @@ Last updated: 2026-10-06 (v3.1 first run)
   counties in every year. All of it (18 % of window pixels) lies on the open
   sea, starting about 10-20 km off the coast. Coastal water near land has valid
   values. v3.1 results do not change: water_frac is identical in every study
-  cell. Re-check where land could be affected when scaling to CONUS.
+  cell (confirmed by the rerun, job 33464549). Re-check where land could be
+  affected when scaling to CONUS.
 - Rule: per year, mask only cells with water_frac = 1 **and** BUI = 0 (weight 0,
   left out of county area and county feature means). Dry unbuilt cells and
   partly-water cells are not masked; features are raw (no land-share scaling);
