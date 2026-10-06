@@ -184,6 +184,9 @@ cython_debug/
 # Data and large artifacts live on /scratch or /pl/active, not in git.
 data/**
 !data/**/.gitkeep
+# Small reference tables tracked in git (copied to $DATA_ROOT/raw on Alpine).
+!data/census_std/
+!data/census_std/all_county_census_MSA_full.csv
 *.tif
 *.nc
 *.zarr/
