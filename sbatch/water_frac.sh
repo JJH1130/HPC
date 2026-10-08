@@ -10,7 +10,8 @@
 #SBATCH --job-name=water_frac
 #SBATCH --partition=acpu
 #SBATCH --qos=cpu-normal
-# --account is OPTIONAL: no project allocation, so jobs run on the free default account (ucb-general).
+# Ascent allocation ucb852_asc1 (450,000 SU), valid until 2027-10-05; see CLAUDE.md.
+#SBATCH --account=ucb852_asc1
 #SBATCH --nodes=1
 #SBATCH --ntasks=2
 #SBATCH --time=01:00:00

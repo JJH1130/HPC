@@ -2,7 +2,8 @@
 
 Registry of every external dataset used in this project. Add a row (and a
 citation) before a dataset is used in any pipeline step. Keep download details
-precise enough that anyone can obtain the same files again.
+precise enough that anyone can obtain the same files again. Acknowledgement text
+for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
 Last updated: 2026-10-07
 

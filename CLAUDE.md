@@ -18,7 +18,9 @@ is checked by `sbatch/test_env_hisdac.sh`. First pipeline stage: `src/census/pre
 county pop + boundaries → `counties_{YEAR}.gpkg` in ESRI:102039; manual fixes in `configs/nhgis_*.csv`, rules in `docs/census_preprocessing.md`),
 run by `sbatch/census_prepare.sh` per `docs/runbooks/Preparing_Census.md`. `src/census/std_county_check.py` (`sbatch/std_county_check.sh`,
 `docs/runbooks/Checking_Std_Counties.md`) compares Stefan's county CSV by 2010 FIPS (`data/census_std/`, tracked in git) with the nominal counties
-(stable / boundary_change / missing per county-year → `results/census_std/`) and writes `counties_std_2010.gpkg`. Raw/processed data live under
+(stable / boundary_change / missing per county-year → `results/census_std/`) and writes `counties_std_2010.gpkg`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+`sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
+acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
 (study area + the only layer list in `configs/study_area.yaml` → HISDAC/Land_Use/NTL layers clipped to one shared 250 m window + per-year
 county zone grids; `--layers NAME` adds one layer to an existing cutout), run by `sbatch/grid_cutout.sh` per `docs/runbooks/Making_Cutout.md`, rules in

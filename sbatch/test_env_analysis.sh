@@ -9,9 +9,8 @@
 #SBATCH --job-name=test_env_analysis
 #SBATCH --partition=acpu
 #SBATCH --qos=cpu-normal
-# --account is OPTIONAL: add "#SBATCH --account=<allocation>" only if you have
-# a project allocation. This repo currently has none, so jobs run on the free
-# default account (ucb-general).
+# Ascent allocation ucb852_asc1 (450,000 SU), valid until 2027-10-05; see CLAUDE.md.
+#SBATCH --account=ucb852_asc1
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --time=00:10:00

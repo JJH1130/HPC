@@ -4,9 +4,20 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-07 (standardized county file received)
+Last updated: 2026-10-09 (Ascent allocation approved)
 
 ## Open items
+
+### Compute allocation (Ascent)
+
+- **Status:** approved. Slurm account `ucb852_asc1`, 450,000 SU,
+  **valid until 2027-10-05**.
+- Every `sbatch/*.sh` sets `#SBATCH --account=ucb852_asc1` (before this, jobs
+  ran on `ucb-general`). New scripts must carry the same line.
+- Before 2027-10-05: renew the allocation, or switch the scripts back to
+  `ucb-general` (remove the line); jobs on an expired account are rejected.
+- Publications: include the Alpine acknowledgement in
+  `docs/acknowledgements.md`.
 
 ### 2010-standardized counties
 
@@ -63,7 +74,7 @@ Last updated: 2026-10-07 (standardized county file received)
   model quality. Per the design, do not tune or drop features on v3
   Massachusetts results alone.
 - Later (design "Open items"): scale to CONUS (per-year models; re-check
-  collinearity and `age` there), Ascent allocation (submitted), DEM, water,
+  collinearity and `age` there), Ascent allocation (approved 2026-10, see above), DEM, water,
   PLURAL, fine-scale validation.
 
 ### Dasymetric v3.1 (water mask)
@@ -117,4 +128,5 @@ Last updated: 2026-10-07 (standardized county file received)
 | 2026-10-06 | JRC no-data (255): check where it lies first (map + per-county share). Only at sea → treat as water; also inland → decide from the results. |
 | 2026-10-06 | JRC no-data check (job 33464358): only on the open sea, 0 pixels in the study counties → `nodata_as_water: true`. |
 | 2026-10-06 | v3.1 water: final design = mask only (water_frac = 1 and BUI = 0, per year); earlier drafts (weights x land share, BUI / land share) dropped. |
+| 2026-10-09 | Ascent allocation approved: account `ucb852_asc1`, 450,000 SU, valid until 2027-10-05. All sbatch scripts use `--account=ucb852_asc1`; Alpine acknowledgement kept in `docs/acknowledgements.md`. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |

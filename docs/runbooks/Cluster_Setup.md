@@ -3,7 +3,7 @@
 One-time onboarding for CU Boulder's Alpine HPC cluster. Run each step in order;
 each ends with a check so we both know it worked (Claude can't see the cluster).
 
-**Profile:** IdentiKey `jaju1407`, allocation: none — runs on `ucb-general`,
+**Profile:** IdentiKey `jaju1407`, allocation: `ucb852_asc1` (Ascent, valid until 2027-10-05),
 PetaLibrary: `/pl/active/Leyk_Lab` (not in use until PI approves), GitHub owner `JJH1130`, repo `HPC`, terminal: PuTTY.
 
 ## 1. Log in (PuTTY)
@@ -76,10 +76,12 @@ Confirms: the commit hash matches what was last pushed from the laptop.
 
 **Status: done — reported by user 2026-09-29 (repo cloned at `/projects/jaju1407/HPC`).**
 
-## 4. Allocation (optional — already recorded)
+## 4. Allocation (already recorded)
 
-This project has no compute allocation; jobs run on the free default `ucb-general`. No
-`--account` line needed in sbatch scripts. If that ever changes, run and report back:
+Ascent allocation `ucb852_asc1` (450,000 SU, valid until 2027-10-05); every sbatch script has
+`#SBATCH --account=ucb852_asc1`. Before 2026-10-09 jobs ran on the free default `ucb-general`.
+To check which accounts you can charge (`ucb852_asc1` should be listed; confirmed 2026-10-09 with
+the same QoS list as `ucb-general`, including `cpu-normal`):
 
 ```bash
 sacctmgr -nP show assoc user=$USER format=account,partition,qos
