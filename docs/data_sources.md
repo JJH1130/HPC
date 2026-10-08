@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-07
+Last updated: 2026-10-09
 
 ## Summary
 
@@ -19,7 +19,7 @@ Last updated: 2026-10-07
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction | To download |
-| County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | Candidate Ch1 target; diagnostic vs NHGIS | Received 2026-10-06; publisher to confirm |
+| County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | CBSA attributes only (Metro/Micro, Central/Outlying); **not** a Ch1 target | In use (attributes); publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
 
 ## Details
@@ -139,6 +139,14 @@ Last updated: 2026-10-07
     (Shannon), 51515 (Bedford city). AK and HI are dropped in processing.
 - Diagnostic against the nominal NHGIS counties: `src/census/std_county_check.py`,
   `docs/runbooks/Checking_Std_Counties.md`.
+- Result (job 33505541, reviewed 2026-10-09): counts equal NHGIS nominal counts
+  (36,560 of 36,565 county-years, 1900–2010; 5 small differences: Morton ND 1900,
+  James City VA 1910/1920, Fremont ID 1930, Park MT 1980). Not areally
+  standardized: on 2010 polygons ~10 % of 1900–1910 population is misplaced and
+  ~1–2 % dropped (counties absent in 2010).
+- **Use (decided 2026-10-09):** CBSA attributes only (Metropolitan/Micropolitan,
+  Central/Outlying). Population targets stay NHGIS nominal (`docs/open_items.md`).
+  Open: ask Stefan whether an areally standardized version exists.
 
 ### HydroRIVERS (optional, later)
 
@@ -153,4 +161,4 @@ Last updated: 2026-10-07
 
 - PLURAL (gridded) from Siqiao: record resolution, CRS, years, citation.
 - DEM (for elevation and slope).
-- 2010-standardized county data: file received (see above); source to be confirmed with Stefan.
+- Areally standardized (2010-boundary) county data, 1900 on: Stefan's CSV is nominal (see above); ask Stefan whether a standardized version exists.

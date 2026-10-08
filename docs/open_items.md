@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-09 (Ascent allocation approved)
+Last updated: 2026-10-09 (Stefan CSV decision; Ascent allocation approved)
 
 ## Open items
 
@@ -21,7 +21,8 @@ Last updated: 2026-10-09 (Ascent allocation approved)
 
 ### 2010-standardized counties
 
-- **Status:** file received, source to re-confirm.
+- **Status:** decided 2026-10-09 (see below). Open: ask Stefan whether an
+  areally standardized version exists.
 - The advisor suggested using counties standardized to 2010 boundaries.
 - NHGIS standardized tables cover only 1990–2020. The source said to cover
   years from 1900 is not yet identified; the user is confirming what it is.
@@ -33,8 +34,21 @@ Last updated: 2026-10-09 (Ascent allocation approved)
   `src/census/std_county_check.py` (`docs/runbooks/Checking_Std_Counties.md`)
   classifies each county-year as stable / boundary_change / missing against the
   nominal counties. Grouping of changed counties waits for its summary.
-- **Until confirmed:** keep using nominal counties (each year's own
-  boundaries), as in `docs/dasymetric_v1.md`.
+- 2026-10-09: result of `std_county_check` job 33505541 (reviewed by the user
+  with the advisor; not re-analyzed here):
+  - The CSV equals the NHGIS nominal counts: 36,560 of 36,565 county-years
+    match (1900–2010). 5 small differences: Morton ND 1900, James City VA
+    1910/1920, Fremont ID 1930, Park MT 1980. It is **not** areally
+    standardized.
+  - Attaching its counts to 2010 polygons misplaces ~10 % of population in
+    1900–1910 (counties whose area differs > 5 % from 2010) and drops ~1–2 %
+    (counties absent in 2010, e.g. Indian Territory 1900; Miami-Dade,
+    Broomfield, Shannon, Bedford city).
+- **Decision (2026-10-09):** keep NHGIS nominal boundaries + counts for the
+  dasymetric model (1810–2020). For a consistent-boundary series, aggregate
+  the 250 m outputs to 2010 counties. Use the CSV only for CBSA attributes
+  (Metropolitan/Micropolitan, Central/Outlying).
+- **Open:** ask Stefan whether an areally standardized version exists.
 
 ### PLURAL gridded data
 
@@ -128,5 +142,6 @@ Last updated: 2026-10-09 (Ascent allocation approved)
 | 2026-10-06 | JRC no-data (255): check where it lies first (map + per-county share). Only at sea → treat as water; also inland → decide from the results. |
 | 2026-10-06 | JRC no-data check (job 33464358): only on the open sea, 0 pixels in the study counties → `nodata_as_water: true`. |
 | 2026-10-06 | v3.1 water: final design = mask only (water_frac = 1 and BUI = 0, per year); earlier drafts (weights x land share, BUI / land share) dropped. |
+| 2026-10-09 | Stefan's county CSV = NHGIS nominal counts (36,560 / 36,565 county-years match, job 33505541), not areally standardized. Keep NHGIS nominal boundaries + counts for dasymetric (1810–2020); consistent-boundary series = 250 m outputs aggregated to 2010 counties; CSV used only for CBSA attributes. |
 | 2026-10-09 | Ascent allocation approved: account `ucb852_asc1`, 450,000 SU, valid until 2027-10-05. All sbatch scripts use `--account=ucb852_asc1`; Alpine acknowledgement kept in `docs/acknowledgements.md`. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
