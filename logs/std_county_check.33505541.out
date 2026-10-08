@@ -1,0 +1,244 @@
+== job 33505541 (std_county_check) on c3cpu-a5-u1-3 at 2026-10-06T16:32:35-06:00
+== cores=2 gpus=none restart=0
+== git fa5fc2b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== csv: /projects/jaju1407/data/raw/census_std/all_county_census_MSA_full.csv  census: /projects/jaju1407/data/processed/census
+16:33:31 INFO arg std_csv = /projects/jaju1407/data/raw/census_std/all_county_census_MSA_full.csv
+16:33:31 INFO arg census_dir = /projects/jaju1407/data/processed/census
+16:33:31 INFO arg out_dir = /projects/jaju1407/data/processed/census
+16:33:31 INFO arg results_dir = results/census_std
+16:33:32 INFO CSV: 3131 rows, 51 states
+16:33:32 INFO dropped 26 AK/HI rows ({'Alaska': 21, 'Hawaii': 5})
+16:33:32 INFO counties with NaN in some year: 291; NaN after a first value (gaps): 0 []
+16:33:32 INFO   1900: 2814 counties with pop, total 75,416,692
+16:33:32 INFO   1910: 2939 counties with pop, total 91,817,036
+16:33:32 INFO   1920: 3054 counties with pop, total 105,516,543
+16:33:32 INFO   1930: 3085 counties with pop, total 122,494,512
+16:33:32 INFO   1940: 3085 counties with pop, total 131,257,287
+16:33:32 INFO   1950: 3089 counties with pop, total 149,916,010
+16:33:32 INFO   1960: 3093 counties with pop, total 177,329,301
+16:33:32 INFO   1970: 3100 counties with pop, total 200,811,973
+16:33:32 INFO   1980: 3103 counties with pop, total 223,523,963
+16:33:32 INFO   1990: 3105 counties with pop, total 245,086,804
+16:33:32 INFO   2000: 3105 counties with pop, total 277,307,021
+16:33:32 INFO   2010: 3105 counties with pop, total 304,102,874
+16:33:36 INFO 2010 join: 3105 CSV rows, 3109 polygons, 3105 matched
+16:33:36 INFO CSV rows without a 2010 polygon (0): []
+16:33:36 INFO 2010 polygons without a CSV row (4): [('G0800140', 'Colorado', 'Broomfield County', 55889.0), ('G1200860', 'Florida', 'Miami-Dade County', 2496435.0), ('G4601130', 'South Dakota', 'Shannon County', 13586.0), ('G5105150', 'Virginia', 'Bedford city', 6222.0)]
+16:33:38 INFO 1900: {'stable': 2371, 'boundary_change': 384, 'missing': 350} | nominal counties without CSV row: 85 (pop 1,302,913)
+16:33:38 INFO   nominal only: ['G0450015', 'G0450035', 'G0450055', 'G0450075', 'G0450095', 'G0450135', 'G0450155', 'G0450175', 'G0450195', 'G0450215', 'G0450235', 'G0450255', 'G0450275', 'G1200250', 'G1300395', 'G1302015', 'G1789015', 'G1789035', 'G1789055', 'G1789075', 'G1789095', 'G1789175', 'G3200250', 'G3550035', 'G3550055', 'G3550075', 'G3550115', 'G3550135', 'G3550155', 'G3550175', 'G3550195', 'G3550255', 'G3550275', 'G3550315', 'G3550375', 'G3550395', 'G3550435', 'G3550455', 'G3550475', 'G3550495']
+16:33:38 INFO   largest pop diff: G3800590 Morton County, North Dakota: std 10,277 vs nominal 8,069, area ratio 1.856
+16:33:38 INFO   largest pop diff: G0100070 Bibb County, Alabama: std 18,498 vs nominal 18,498, area ratio 0.986
+16:33:38 INFO   largest pop diff: G0100090 Blount County, Alabama: std 23,119 vs nominal 23,119, area ratio 1.173
+16:33:38 INFO   largest pop diff: G0100150 Calhoun County, Alabama: std 34,874 vs nominal 34,874, area ratio 0.984
+16:33:38 INFO   largest pop diff: G0100430 Cullman County, Alabama: std 17,849 vs nominal 17,849, area ratio 0.850
+16:33:41 INFO 1910: {'stable': 2566, 'boundary_change': 328, 'missing': 211} | nominal counties without CSV row: 59 (pop 748,634)
+16:33:41 INFO   nominal only: ['G0450015', 'G0450035', 'G0450055', 'G0450075', 'G0450095', 'G0450135', 'G0450155', 'G0450175', 'G0450195', 'G0450215', 'G0450235', 'G0450255', 'G0450275', 'G1200250', 'G1300395', 'G1302015', 'G3200250', 'G3550035', 'G3550055', 'G3550075', 'G3550095', 'G3550115', 'G3550135', 'G3550155', 'G3550175', 'G3550195', 'G3550215', 'G3550235', 'G3550255', 'G3550275', 'G3550295', 'G3550315', 'G3550335', 'G3550355', 'G3550375', 'G3550395', 'G3550435', 'G3550455', 'G3550475', 'G3550495']
+16:33:41 INFO   largest pop diff: G5100950 James City County, Virginia: std 3,624 vs nominal 6,338, area ratio 1.048
+16:33:41 INFO   largest pop diff: G0100810 Lee County, Alabama: std 32,867 vs nominal 32,867, area ratio 0.976
+16:33:41 INFO   largest pop diff: G0101130 Russell County, Alabama: std 25,937 vs nominal 25,937, area ratio 1.023
+16:33:41 INFO   largest pop diff: G0501130 Polk County, Arkansas: std 17,216 vs nominal 17,216, area ratio 0.987
+16:33:41 INFO   largest pop diff: G0501190 Pulaski County, Arkansas: std 86,751 vs nominal 86,751, area ratio 0.960
+16:33:44 INFO 1920: {'stable': 2841, 'boundary_change': 209, 'missing': 55} | nominal counties without CSV row: 14 (pop 202,668)
+16:33:44 INFO   nominal only: ['G1200250', 'G1300395', 'G1302015', 'G3200250', 'G4601130', 'G4601310', 'G4601330', 'G5100550', 'G5101230', 'G5101290', 'G5101510', 'G5101890', 'G5105600', 'G5600470']
+16:33:44 INFO   largest pop diff: G5100950 James City County, Virginia: std 3,676 vs nominal 6,138, area ratio 1.048
+16:33:44 INFO   largest pop diff: G0100810 Lee County, Alabama: std 32,821 vs nominal 32,821, area ratio 0.976
+16:33:44 INFO   largest pop diff: G0101130 Russell County, Alabama: std 27,448 vs nominal 27,448, area ratio 1.023
+16:33:44 INFO   largest pop diff: G0400270 Yuma County, Arizona: std 14,904 vs nominal 14,904, area ratio 1.818
+16:33:44 INFO   largest pop diff: G0800010 Adams County, Colorado: std 14,430 vs nominal 14,430, area ratio 1.065
+16:33:47 INFO 1930: {'stable': 2966, 'boundary_change': 118, 'missing': 21} | nominal counties without CSV row: 18 (pop 282,754)
+16:33:47 INFO   nominal only: ['G1200250', 'G1300395', 'G1302015', 'G1600875', 'G3001130', 'G3200250', 'G4600010', 'G4601130', 'G4601310', 'G4601330', 'G5100550', 'G5101230', 'G5101290', 'G5101510', 'G5101890', 'G5105600', 'G5107805', 'G5600470']
+16:33:47 INFO   largest pop diff: G1600430 Fremont County, Idaho: std 9,924 vs nominal 9,925, area ratio 0.970
+16:33:47 INFO   largest pop diff: G0100810 Lee County, Alabama: std 36,063 vs nominal 36,063, area ratio 0.976
+16:33:47 INFO   largest pop diff: G0101130 Russell County, Alabama: std 27,377 vs nominal 27,377, area ratio 1.023
+16:33:47 INFO   largest pop diff: G0400270 Yuma County, Arizona: std 17,816 vs nominal 17,816, area ratio 1.818
+16:33:47 INFO   largest pop diff: G0800010 Adams County, Colorado: std 20,245 vs nominal 20,245, area ratio 1.065
+16:33:49 INFO 1940: {'stable': 2986, 'boundary_change': 98, 'missing': 21} | nominal counties without CSV row: 16 (pop 415,197)
+16:33:49 INFO   nominal only: ['G1200250', 'G1600875', 'G3001130', 'G3200250', 'G4600010', 'G4601130', 'G4601310', 'G4601330', 'G5100550', 'G5101230', 'G5101290', 'G5101510', 'G5101890', 'G5105600', 'G5107805', 'G5600470']
+16:33:49 INFO   largest pop diff: G0400270 Yuma County, Arizona: std 19,326 vs nominal 19,326, area ratio 1.818
+16:33:49 INFO   largest pop diff: G0800010 Adams County, Colorado: std 22,481 vs nominal 22,481, area ratio 1.065
+16:33:49 INFO   largest pop diff: G0800050 Arapahoe County, Colorado: std 32,150 vs nominal 32,150, area ratio 1.035
+16:33:49 INFO   largest pop diff: G0800130 Boulder County, Colorado: std 37,438 vs nominal 37,438, area ratio 1.015
+16:33:49 INFO   largest pop diff: G0800310 Denver County, Colorado: std 322,412 vs nominal 322,412, area ratio 0.379
+16:33:51 INFO 1950: {'stable': 2998, 'boundary_change': 90, 'missing': 17} | nominal counties without CSV row: 15 (pop 785,523)
+16:33:51 INFO   nominal only: ['G1200250', 'G1600875', 'G3001130', 'G3200250', 'G4600010', 'G4601130', 'G4601310', 'G5100550', 'G5101230', 'G5101290', 'G5101510', 'G5101890', 'G5105600', 'G5107805', 'G5600470']
+16:33:51 INFO   largest pop diff: G0400270 Yuma County, Arizona: std 28,006 vs nominal 28,006, area ratio 1.818
+16:33:51 INFO   largest pop diff: G0800010 Adams County, Colorado: std 40,234 vs nominal 40,234, area ratio 1.063
+16:33:51 INFO   largest pop diff: G0800050 Arapahoe County, Colorado: std 52,125 vs nominal 52,125, area ratio 1.026
+16:33:51 INFO   largest pop diff: G0800130 Boulder County, Colorado: std 48,296 vs nominal 48,296, area ratio 1.015
+16:33:51 INFO   largest pop diff: G0800310 Denver County, Colorado: std 415,786 vs nominal 415,786, area ratio 0.435
+16:33:55 INFO 1960: {'stable': 3013, 'boundary_change': 79, 'missing': 13} | nominal counties without CSV row: 13 (pop 1,142,998)
+16:33:55 INFO   nominal only: ['G1200250', 'G1600875', 'G3001130', 'G3200250', 'G4601130', 'G4601310', 'G5101230', 'G5101290', 'G5101510', 'G5105600', 'G5107800', 'G5107805', 'G5600470']
+16:33:55 INFO   largest pop diff: G0400270 Yuma County, Arizona: std 46,235 vs nominal 46,235, area ratio 1.818
+16:33:55 INFO   largest pop diff: G0800010 Adams County, Colorado: std 120,296 vs nominal 120,296, area ratio 1.063
+16:33:55 INFO   largest pop diff: G0800050 Arapahoe County, Colorado: std 113,426 vs nominal 113,426, area ratio 1.019
+16:33:55 INFO   largest pop diff: G0800130 Boulder County, Colorado: std 74,254 vs nominal 74,254, area ratio 1.015
+16:33:55 INFO   largest pop diff: G0800310 Denver County, Colorado: std 493,887 vs nominal 493,887, area ratio 0.476
+16:33:57 INFO 1970: {'stable': 3044, 'boundary_change': 56, 'missing': 5} | nominal counties without CSV row: 8 (pop 1,331,010)
+16:33:57 INFO   nominal only: ['G1200250', 'G3001130', 'G4601130', 'G4601310', 'G5101230', 'G5105150', 'G5105600', 'G5107800']
+16:33:57 INFO   largest pop diff: G0400270 Yuma County, Arizona: std 60,827 vs nominal 60,827, area ratio 1.818
+16:33:57 INFO   largest pop diff: G0800010 Adams County, Colorado: std 185,789 vs nominal 185,789, area ratio 1.055
+16:33:57 INFO   largest pop diff: G0800130 Boulder County, Colorado: std 131,889 vs nominal 131,889, area ratio 1.015
+16:33:57 INFO   largest pop diff: G0800310 Denver County, Colorado: std 514,678 vs nominal 514,678, area ratio 0.640
+16:33:57 INFO   largest pop diff: G0800330 Dolores County, Colorado: std 1,641 vs nominal 1,641, area ratio 0.969
+16:33:59 INFO 1980: {'stable': 3058, 'boundary_change': 45, 'missing': 2} | nominal counties without CSV row: 6 (pop 1,655,509)
+16:33:59 INFO   nominal only: ['G1200250', 'G3001130', 'G4601130', 'G5105150', 'G5105600', 'G5107800']
+16:33:59 INFO   largest pop diff: G3000670 Park County, Montana: std 12,869 vs nominal 12,660, area ratio 0.948
+16:33:59 INFO   largest pop diff: G0400270 Yuma County, Arizona: std 90,554 vs nominal 90,554, area ratio 1.818
+16:33:59 INFO   largest pop diff: G0800010 Adams County, Colorado: std 245,944 vs nominal 245,944, area ratio 1.048
+16:33:59 INFO   largest pop diff: G0800130 Boulder County, Colorado: std 189,625 vs nominal 189,625, area ratio 1.015
+16:33:59 INFO   largest pop diff: G0800310 Denver County, Colorado: std 492,365 vs nominal 492,365, area ratio 0.743
+16:34:02 INFO 1990: {'stable': 3079, 'boundary_change': 26} | nominal counties without CSV row: 6 (pop 1,964,797)
+16:34:02 INFO   nominal only: ['G1200250', 'G3001130', 'G4601130', 'G5105150', 'G5105600', 'G5107800']
+16:34:02 INFO   largest pop diff: G0800010 Adams County, Colorado: std 265,038 vs nominal 265,038, area ratio 1.012
+16:34:02 INFO   largest pop diff: G0800130 Boulder County, Colorado: std 225,339 vs nominal 225,339, area ratio 1.015
+16:34:02 INFO   largest pop diff: G1200370 Franklin County, Florida: std 8,967 vs nominal 8,967, area ratio 1.020
+16:34:02 INFO   largest pop diff: G1200450 Gulf County, Florida: std 11,504 vs nominal 11,504, area ratio 0.981
+16:34:02 INFO   largest pop diff: G2200870 St. Bernard Parish, Louisiana: std 66,631 vs nominal 66,631, area ratio 0.979
+16:34:05 INFO 2000: {'stable': 3091, 'boundary_change': 14} | nominal counties without CSV row: 4 (pop 2,276,416)
+16:34:05 INFO   nominal only: ['G1200860', 'G4601130', 'G5105150', 'G5105600']
+16:34:05 INFO   largest pop diff: G0800010 Adams County, Colorado: std 363,857 vs nominal 363,857, area ratio 1.012
+16:34:05 INFO   largest pop diff: G0800130 Boulder County, Colorado: std 291,288 vs nominal 291,288, area ratio 1.015
+16:34:05 INFO   largest pop diff: G1200370 Franklin County, Florida: std 11,057 vs nominal 11,057, area ratio 1.020
+16:34:05 INFO   largest pop diff: G1200450 Gulf County, Florida: std 13,332 vs nominal 13,332, area ratio 0.981
+16:34:05 INFO   largest pop diff: G3100230 Butler County, Nebraska: std 8,767 vs nominal 8,767, area ratio 0.988
+16:34:06 INFO 2010: {'stable': 3105} | nominal counties without CSV row: 4 (pop 2,572,132)
+16:34:06 INFO   nominal only: ['G0800140', 'G1200860', 'G4601130', 'G5105150']
+16:34:06 INFO summary (CONUS):
+ year           class    n          pop_std      pop_nominal  n_share  pop_std_share  pop_nominal_share
+ 1900          stable 2371  62,898,824.0000  62,898,824.0000   0.7433         0.8340             0.8278
+ 1900 boundary_change  384  11,779,822.0000  11,777,614.0000   0.1204         0.1562             0.1550
+ 1900         missing  350     738,046.0000           0.0000   0.1097         0.0098             0.0000
+ 1900 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1900    nominal_only   85           0.0000   1,302,913.0000   0.0266         0.0000             0.0171
+ 1910          stable 2566  77,489,488.0000  77,489,488.0000   0.8110         0.8440             0.8425
+ 1910 boundary_change  328  13,731,430.0000  13,734,144.0000   0.1037         0.1496             0.1493
+ 1910         missing  211     596,118.0000           0.0000   0.0667         0.0065             0.0000
+ 1910 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1910    nominal_only   59           0.0000     748,634.0000   0.0186         0.0000             0.0081
+ 1920          stable 2841  97,641,459.0000  97,641,459.0000   0.9109         0.9254             0.9237
+ 1920 boundary_change  209   7,862,998.0000   7,865,460.0000   0.0670         0.0745             0.0744
+ 1920         missing   55      12,086.0000       1,033.0000   0.0176         0.0001             0.0000
+ 1920 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1920    nominal_only   14           0.0000     202,668.0000   0.0045         0.0000             0.0019
+ 1930          stable 2966 115,805,886.0000 115,805,886.0000   0.9497         0.9454             0.9432
+ 1930 boundary_change  118   6,686,405.0000   6,686,406.0000   0.0378         0.0546             0.0545
+ 1930         missing   21       2,221.0000           0.0000   0.0067         0.0000             0.0000
+ 1930 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1930    nominal_only   18           0.0000     282,754.0000   0.0058         0.0000             0.0023
+ 1940          stable 2986 124,873,857.0000 124,873,857.0000   0.9567         0.9514             0.9484
+ 1940 boundary_change   98   6,380,221.0000   6,380,221.0000   0.0314         0.0486             0.0485
+ 1940         missing   21       3,209.0000           0.0000   0.0067         0.0000             0.0000
+ 1940 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1940    nominal_only   16           0.0000     415,197.0000   0.0051         0.0000             0.0032
+ 1950          stable 2998 143,152,054.0000 143,152,054.0000   0.9609         0.9549             0.9499
+ 1950 boundary_change   90   6,759,784.0000   6,759,784.0000   0.0288         0.0451             0.0449
+ 1950         missing   17       4,172.0000           0.0000   0.0054         0.0000             0.0000
+ 1950 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1950    nominal_only   15           0.0000     785,523.0000   0.0048         0.0000             0.0052
+ 1960          stable 3013 168,753,539.0000 168,753,539.0000   0.9663         0.9516             0.9456
+ 1960 boundary_change   79   8,567,699.0000   8,567,699.0000   0.0253         0.0483             0.0480
+ 1960         missing   13       8,063.0000           0.0000   0.0042         0.0000             0.0000
+ 1960 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1960    nominal_only   13           0.0000   1,142,998.0000   0.0042         0.0000             0.0064
+ 1970          stable 3044 192,728,626.0000 192,728,626.0000   0.9778         0.9597             0.9534
+ 1970 boundary_change   56   8,083,347.0000   8,083,347.0000   0.0180         0.0403             0.0400
+ 1970         missing    5           0.0000           0.0000   0.0016         0.0000             0.0000
+ 1970 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1970    nominal_only    8           0.0000   1,331,010.0000   0.0026         0.0000             0.0066
+ 1980          stable 3058 215,934,835.0000 215,934,835.0000   0.9830         0.9660             0.9589
+ 1980 boundary_change   45   7,589,128.0000   7,588,919.0000   0.0145         0.0340             0.0337
+ 1980         missing    2           0.0000           0.0000   0.0006         0.0000             0.0000
+ 1980 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1980    nominal_only    6           0.0000   1,655,509.0000   0.0019         0.0000             0.0074
+ 1990          stable 3079 238,160,705.0000 238,160,705.0000   0.9897         0.9717             0.9640
+ 1990 boundary_change   26   6,926,099.0000   6,926,099.0000   0.0084         0.0283             0.0280
+ 1990         missing    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1990 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 1990    nominal_only    6           0.0000   1,964,797.0000   0.0019         0.0000             0.0080
+ 2000          stable 3091 271,602,372.0000 271,602,372.0000   0.9942         0.9794             0.9715
+ 2000 boundary_change   14   5,704,649.0000   5,704,649.0000   0.0045         0.0206             0.0204
+ 2000         missing    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 2000 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 2000    nominal_only    4           0.0000   2,276,416.0000   0.0013         0.0000             0.0081
+ 2010          stable 3105 304,102,874.0000 304,102,874.0000   0.9987         1.0000             0.9916
+ 2010 boundary_change    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 2010         missing    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 2010 no_2010_polygon    0           0.0000           0.0000   0.0000         0.0000             0.0000
+ 2010    nominal_only    4           0.0000   2,572,132.0000   0.0013         0.0000             0.0084
+16:34:06 INFO summary (Massachusetts):
+ year           class  n        pop_std    pop_nominal  n_share  pop_std_share  pop_nominal_share
+ 1900          stable  9 1,828,376.0000 1,828,376.0000   0.6429         0.6517             0.6517
+ 1900 boundary_change  5   976,970.0000   976,970.0000   0.3571         0.3483             0.3483
+ 1900         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1900 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1900    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1910          stable  9 2,196,258.0000 2,196,258.0000   0.6429         0.6524             0.6524
+ 1910 boundary_change  5 1,170,158.0000 1,170,158.0000   0.3571         0.3476             0.3476
+ 1910         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1910 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1910    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1920          stable 10 3,357,347.0000 3,357,347.0000   0.7143         0.8715             0.8715
+ 1920 boundary_change  4   495,009.0000   495,009.0000   0.2857         0.1285             0.1285
+ 1920         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1920 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1920    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1930          stable 10 3,665,464.0000 3,665,464.0000   0.7143         0.8625             0.8625
+ 1930 boundary_change  4   584,150.0000   584,150.0000   0.2857         0.1375             0.1375
+ 1930         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1930 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1930    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1940          stable 12 3,822,717.0000 3,822,717.0000   0.8571         0.8856             0.8856
+ 1940 boundary_change  2   494,004.0000   494,004.0000   0.1429         0.1144             0.1144
+ 1940         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1940 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1940    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1950          stable 14 4,690,514.0000 4,690,514.0000   1.0000         1.0000             1.0000
+ 1950 boundary_change  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1950         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1950 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1950    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1960          stable 12 4,389,873.0000 4,389,873.0000   0.8571         0.8526             0.8526
+ 1960 boundary_change  2   758,705.0000   758,705.0000   0.1429         0.1474             0.1474
+ 1960         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1960 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1960    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1970          stable 12 4,750,805.0000 4,750,805.0000   0.8571         0.8351             0.8351
+ 1970 boundary_change  2   938,365.0000   938,365.0000   0.1429         0.1649             0.1649
+ 1970         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1970 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1970    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1980          stable 12 4,725,013.0000 4,725,013.0000   0.8571         0.8236             0.8236
+ 1980 boundary_change  2 1,012,024.0000 1,012,024.0000   0.1429         0.1764             0.1764
+ 1980         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1980 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1980    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1990          stable 12 4,736,432.0000 4,736,432.0000   0.8571         0.7873             0.7873
+ 1990 boundary_change  2 1,279,993.0000 1,279,993.0000   0.1429         0.2127             0.2127
+ 1990         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1990 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 1990    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2000          stable 14 6,349,097.0000 6,349,097.0000   1.0000         1.0000             1.0000
+ 2000 boundary_change  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2000         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2000 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2000    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2010          stable 14 6,547,629.0000 6,547,629.0000   1.0000         1.0000             1.0000
+ 2010 boundary_change  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2010         missing  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2010 no_2010_polygon  0         0.0000         0.0000   0.0000         0.0000             0.0000
+ 2010    nominal_only  0         0.0000         0.0000   0.0000         0.0000             0.0000
+16:34:07 INFO Created 3,109 records
+16:34:10 INFO wrote /projects/jaju1407/data/processed/census/counties_std_2010.gpkg (3109 polygons, 4 without CSV row, 196.7 MB)
+16:34:10 INFO DONE
+-rw-r--r-- 1 jaju1407 jaju1407grp 196657152 Oct  6 16:34 /projects/jaju1407/data/processed/census/counties_std_2010.gpkg
+
+results/census_std:
+total 3208
+drwxr-sr-x 2 jaju1407 jaju1407grp     164 Oct  6 16:34 .
+drwxr-sr-x 6 jaju1407 jaju1407grp     104 Oct  6 16:33 ..
+-rw-r--r-- 1 jaju1407 jaju1407grp 5176977 Oct  6 16:34 std_county_check.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp    4670 Oct  6 16:34 std_county_summary.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp    3490 Oct  6 16:34 std_county_summary_MA.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp     257 Oct  6 16:33 std_vs_2010_unmatched.csv
+== done 2026-10-06T16:34:10-06:00
