@@ -66,10 +66,14 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
   11 years (1920 has no MA tracts); model vs areal-weighting baseline; stops if
   cells of a fully tracted county are lost in rasterization.
 
-### Dasymetric v3.2 (E3 without ntl)
+### Dasymetric v3.2 (E3 without ntl) and v3.3 (E3 with fixed hyperparameters)
 
-- **Status:** config set 2026-10-13 (`docs/dasymetric_v3_2.md`); not yet run.
-- Why: tract validation (2026-10-13) rejected the E3 y_hat-floor explanation: 2000–2020 tract MdAPE is
+- **v3.2 result (2026-10-13):** E3 tract MdAPE unchanged (45–46 %), E3 county CV worse → `ntl` is not
+  the cause (`docs/dasymetric_v3_2.md`).
+- **v3.3** (`docs/dasymetric_v3_3.md`, diagnostic): v3.1 with E3's hyperparameters fixed to E2's best
+  (max_features 1.0 instead of 0.33/sqrt). Config set 2026-10-13; not yet run. If tract MdAPE drops toward
+  30 %, county CV is a poor selector for cell allocation (relevant for CONUS).
+- v3.2 background: tract validation (2026-10-13) rejected the E3 y_hat-floor explanation: 2000–2020 tract MdAPE is
   ~45 % for both v2 and v3_1, while v3_1 is better in 1940–1990. v3.2 drops `ntl` from E3 (E2's
   features) to test whether night lights cause it. Compare with v3_1 for 2000–2020.
 

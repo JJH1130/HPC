@@ -7,8 +7,10 @@
 # (v2: one pooled model, features [bui, bldg_size, mu_ratio, age, dist_built, year];
 #  v3: these eras, E3 with ntl, compare_with v2, no water mask;
 #  v3_1: v3 + water_mask: true, compare_with v3).
-# v3_2 (docs/dasymetric_v3_2.md): v3_1 with E3 on the E2 feature set (no ntl); E1 and E2 unchanged.
-version: v3_2
+# v3_2 = commit a0dd6b9 (docs/dasymetric_v3_2.md): v3_1 with E3 on the E2 feature set (no ntl).
+# v3_3 (docs/dasymetric_v3_3.md, diagnostic): v3_1 (E3 with ntl) but E3's hyperparameters fixed to E2's
+# best from v3_1/v3_2, no search for E3; E1 and E2 unchanged.
+version: v3_3
 
 # Water mask (docs/dasymetric_v3_1.md), per year: a cell is masked if it is all permanent water and has no
 # building that year (water_frac == 1 and BUI == 0; layers/water_frac/water_frac.tif from src/grid/water_frac.py).
@@ -36,7 +38,8 @@ use_status: [ok, manual_fill]
 
 # Eras (docs/dasymetric_v3.md, "Eras"): one model per era, trained on that era's county-years pooled;
 # each census year is predicted with its own era's model. `years` is intersected with the study years
-# ({start, stop} or a list); every study year must be in exactly one era. Instead of `eras`, a single
+# ({start, stop} or a list); every study year must be in exactly one era. An era's optional `params:` fixes
+# hyperparameters of `model` (keys of its space) instead of searching them (v3_3). Instead of `eras`, a single
 # top-level `features:` list gives one pooled model (v1, v2).
 # Cell features are defined in src/dasymetric/common.py; county feature = mean over the county's cells.
 # Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year, res_share, rent_share, ntl.
@@ -48,9 +51,10 @@ eras:
   E2:
     years: {start: 1940, stop: 1990}
     features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share]
-  E3:   # v3_2: E2's features, no ntl (v3/v3_1 had ntl here)
+  E3:   # v3_3: v3_1's features (with ntl); hyperparameters fixed = E2's best in v3_1/v3_2 (no search)
     years: {start: 2000, stop: 2020}
-    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share]
+    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share, ntl]
+    params: {n_estimators: 200, max_depth: 20, min_samples_leaf: 2, max_features: 1.0}
 
 # Concept groups for grouped SHAP: every used feature in exactly one group (per era, only its features).
 feature_groups:

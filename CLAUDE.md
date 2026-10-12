@@ -33,7 +33,7 @@ county zone grids; `--layers NAME` adds one layer to an existing cutout), run by
 (`sbatch/water_frac.sh`; `water:` block of `configs/study_area.yaml`) adds the static water-fraction layer from JRC tiles
 (auto-selected by overlap) minus HydroLAKES reservoirs. External data sources are listed in `docs/data_sources.md`. HISDAC is read from `$HISDAC_DIR` (PetaLibrary, read only); cutouts go to
 `$HISDAC_SCRATCH/cutouts/<name>` (scratch, 90-day purge). Third stage: `src/dasymetric/` (design
-`docs/dasymetric_v1.md`, changes in `docs/dasymetric_v2.md`, v3: `docs/dasymetric_v3.md`, v3.1 (water mask): `docs/dasymetric_v3_1.md`, current version v3.2 (E3 without ntl, Massachusetts test): `docs/dasymetric_v3_2.md`), three separately runnable steps sharing `common.py` (config, cell features, raster
+`docs/dasymetric_v1.md`, changes in `docs/dasymetric_v2.md`, v3: `docs/dasymetric_v3.md`, v3.1 (water mask): `docs/dasymetric_v3_1.md`, v3.2 (E3 without ntl): `docs/dasymetric_v3_2.md`, current version v3.3 (diagnostic: E3 with fixed hyperparameters via an era's `params:`): `docs/dasymetric_v3_3.md`), three separately runnable steps sharing `common.py` (config, cell features, raster
 I/O) and `plots.py` (correlation/SHAP plots, maps): `county_features.py` → `train.py` → `predict.py`, run by `sbatch/dasymetric_{features,train,predict}.sh`
 per `docs/runbooks/Running_Dasymetric.md`. Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map

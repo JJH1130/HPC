@@ -39,6 +39,18 @@ Steps: `docs/runbooks/Running_Dasymetric.md`, section "v3.2".
 - About the same → `ntl` is not the cause; next suspects are the E3 sample size and the Land Use
   layers after 2000 (e.g. pooling E2 + E3).
 
+## Result (jobs 33920625 / 33920627 / 33920629 / 33920631, code a0dd6b9, 2026-10-13)
+
+- E1 and E2 CV identical to v3.1 (as expected). Mass check 42 county-years, 0 fail; tract totals QA
+  210 rows, 0 flagged.
+- E3 county CV (same folds and rows): v3.2 RMSE 0.545 / R² 0.596 vs v3.1 0.500 / 0.657 — without
+  `ntl` the county fit is worse.
+- Tract MdAPE (all): 2000 45.2 vs 46.5 (v3.1), 2010 45.5 vs 45.1, 2020 45.9 vs 44.0; R² on log
+  density 0.777 / 0.711 / 0.683 vs 0.772 / 0.711 / 0.694. Same as v3.1 (and v2).
+- Cell y_hat floor unchanged (2020: 3.77 vs 3.78).
+- **`ntl` is not the cause** of the 2000–2020 gap. Next: v3.3 (E3 with E2's hyperparameters,
+  `docs/dasymetric_v3_3.md`).
+
 ## Open items
 
-- [ ] Run v3.2 (features, train, predict 2000–2020, validate_tract) and compare with v3.1.
+- [x] Run v3.2 and compare with v3.1 (above).

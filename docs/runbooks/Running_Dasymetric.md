@@ -37,7 +37,8 @@ outputs are skipped with a warning and the run still finishes. Stage 3 also read
 v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster time.
 v3 passed on Alpine: jobs 33459257 / 33459258 / 33459259, 2026-10-05 cluster time.
 v3.1 passed on Alpine: jobs 33463269 / 33463270 / 33463271 (after water_frac 33463268), 2026-10-05 cluster time.
-v3.2 (E3 without ntl, `docs/dasymetric_v3_2.md`): config set 2026-10-13, not yet run; see section "v3.2".
+v3.2 (E3 without ntl, `docs/dasymetric_v3_2.md`) passed: jobs 33920625 / 33920627 / 33920629 + validate_tract 33920631, 2026-10-12 cluster time.
+v3.3 (E3 with E2's fixed hyperparameters, `docs/dasymetric_v3_3.md`): config set 2026-10-13, not yet run; see section "v3.3".
 
 ## 1. Sync + preflight (login node)
 
@@ -189,7 +190,33 @@ git pull --rebase
 git push
 ```
 
+## v3.3 (E3 with fixed hyperparameters): run
+
+`configs/model.yaml` shows `version: v3_3`, `compare_with: v3_1`, and E3 with `ntl` plus
+`params: {n_estimators: 200, max_depth: 20, min_samples_leaf: 2, max_features: 1.0}`. Same chain as v3.2
+(login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+grep -E '^(version|compare_with|folds_from):|params:' configs/model.yaml
+j1=$(sbatch --parsable sbatch/dasymetric_features.sh)
+j2=$(sbatch --parsable --dependency=afterok:$j1 sbatch/dasymetric_train.sh)
+j3=$(sbatch --parsable --dependency=afterok:$j2 sbatch/dasymetric_predict.sh --years 2000 2010 2020)
+j4=$(sbatch --parsable --dependency=afterok:$j3 sbatch/validate_tract.sh --version v3_3 --years 2000 2010 2020 --map-years 2020)
+echo "features $j1 | train $j2 | predict $j3 | validate $j4"
+```
+
+Check: train log `era E3: fixed hyperparameters from the config (no search): {...}`, `search 1 of 1
+candidates`, `best params` equal to the fixed ones; E1/E2 `CV v3_3 vs v3_1` equal. Close the loop as in
+v3.2 with message `run: dasymetric v3_3 $j1 $j2 $j3 + validate_tract $j4`.
+
 ## Notes
+
+- 2026-10-12 (cluster time), v3.2 jobs 33920625 / 33920627 / 33920629 + validate_tract 33920631 (code a0dd6b9):
+  E1/E2 CV identical to v3.1; E3 CV 0.545 / 0.596 vs v3.1 0.500 / 0.657 (worse without ntl). Predict 2000–2020:
+  mass check 42 county-years 0 fail, y_hat 3.77–8.06. Tract MdAPE 45–46 % (v3.1 44–46 %): ntl is not the cause.
 
 - 2026-10-05 (cluster time), v3.1 jobs 33463269 / 33463270 / 33463271 (code fdd9ef0). Rows per era were
   the same as v3 (188 / 84 / 42).

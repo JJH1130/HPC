@@ -21,7 +21,8 @@ With eras, <version>/cv_summary.csv has one row per era (CV of the era model and
 
 Folds: `folds_from: <version>` reuses that version's model/folds.csv (filtered to the era's counties);
 otherwise GroupKFold(cv_folds) by GISJOIN, so all years of a county stay in one fold and CV measures
-performance on unseen counties. The model and its search space come from configs/model.yaml.
+performance on unseen counties. The model and its search space come from configs/model.yaml; an era's
+`params:` fixes those hyperparameters (v3_3: all four fixed for E3, so one candidate and no search).
 """
 from __future__ import annotations
 
@@ -252,6 +253,13 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
              len(df), groups.nunique(), df["year"].nunique(), df["year"].min(), df["year"].max(), feats)
 
     estimator, space = build_model(cfg)
+    fixed = cfg["eras"][era]["params"]
+    if fixed:  # v3_3: hyperparameters set in the config (all given -> one candidate, i.e. no search)
+        unknown = sorted(set(fixed) - set(space))
+        if unknown:
+            sys.exit(f"ERROR: era {era} params {unknown} are not in models.{cfg['model']}.space")
+        space = {**space, **{k: [v] for k, v in fixed.items()}}  # keys not given are still searched
+        log.info("%sfixed hyperparameters from the config (no search): %s", tag, fixed)
     s = cfg["search"]
     mdir = out / "model"
     mdir.mkdir(parents=True, exist_ok=True)
@@ -274,7 +282,7 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
     log.info("%smodel %s | search %d of %d candidates | %d folds | scoring %s | n_jobs %d", tag, cfg["model"],
              min(s["n_iter"], n_cand), n_cand, len(cv), s["scoring"], args.n_jobs)
     search = RandomizedSearchCV(
-        estimator, space, n_iter=s["n_iter"], random_state=s["random_state"],
+        estimator, space, n_iter=min(s["n_iter"], n_cand), random_state=s["random_state"],
         scoring={"score": s["scoring"], "r2": "r2"}, refit="score",
         cv=cv, n_jobs=args.n_jobs, error_score="raise")
     search.fit(X, y)

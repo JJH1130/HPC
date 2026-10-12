@@ -144,4 +144,6 @@ v2 first failed (job 33915573, no `n_masked` column; fixed). Totals QA 546 rows,
 - [x] First run (v3_1).
 - [x] Rerun v3_1 (density metric, lon/lat) and v2; compare (above).
 - [x] Locate 1940 `G2500250A0003`: East Boston / Logan Airport (survivorship).
-- [ ] v3_2 (2000–2020) vs v3_1.
+- [x] v3_2 (2000–2020) vs v3_1: same (MdAPE 45–46 %, R² log density 0.68–0.78; job 33920631;
+  `docs/dasymetric_v3_2.md`, Result).
+- [ ] v3_3 (2000–2020) vs v3_1 (`docs/dasymetric_v3_3.md`).

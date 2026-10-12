@@ -86,11 +86,12 @@ def load_config(path: Path) -> dict:
 
 
 def load_eras(cfg: dict, path: Path) -> dict:
-    """{era name: {years, features}}. Without `eras:` there is one unnamed era ("") with all years and the
-    top-level `features` (v1, v2). With eras, every study year must be in exactly one era."""
+    """{era name: {years, features, params}}. Without `eras:` there is one unnamed era ("") with all years and
+    the top-level `features` (v1, v2). With eras, every study year must be in exactly one era. `params`
+    (optional, v3_3) = fixed hyperparameters for that era instead of the search."""
     eras = cfg.get("eras")
     if not eras:
-        return {"": {"years": list(cfg["years"]), "features": list(cfg["features"])}}
+        return {"": {"years": list(cfg["years"]), "features": list(cfg["features"]), "params": {}}}
     if "features" in cfg:
         sys.exit(f"ERROR: {path}: give either `features` or `eras`, not both")
     out = {}
@@ -98,7 +99,7 @@ def load_eras(cfg: dict, path: Path) -> dict:
         years = [y for y in parse_years(e["years"]) if y in cfg["years"]]
         if not years:
             sys.exit(f"ERROR: {path}: era {name} has no study year")
-        out[str(name)] = {"years": years, "features": list(e["features"])}
+        out[str(name)] = {"years": years, "features": list(e["features"]), "params": e.get("params") or {}}
     n = Counter(y for e in out.values() for y in e["years"])
     missing = [y for y in cfg["years"] if not n[y]]
     twice = sorted(y for y, k in n.items() if k > 1)
