@@ -1,0 +1,39 @@
+{
+  "version": "v3_1",
+  "model": "rf",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "dist_built",
+    "year",
+    "res_share",
+    "rent_share"
+  ],
+  "n_rows_scored": 84,
+  "folds": "same as this model (checked)",
+  "predictions": "v3_1/E2/model/oof_predictions.csv",
+  "target": "v3_1's own y",
+  "cv_rmse_mean": 0.560296023971798,
+  "cv_rmse_sd": 0.34546041588583937,
+  "cv_rmse_folds": [
+    0.3539894584408268,
+    1.24823353512537,
+    0.3709536156447893,
+    0.4482635888899335,
+    0.380039921758071
+  ],
+  "cv_r2_mean": 0.7284144231230497,
+  "cv_r2_sd": 0.193792714384213,
+  "cv_r2_folds": [
+    0.8604729822745976,
+    0.6009941711447147,
+    0.40639931643957483,
+    0.8918436939237842,
+    0.8823619518325778
+  ],
+  "pooled_rmse": 0.6737256573503078,
+  "pooled_r2": 0.7688816477168683,
+  "reported_cv_rmse_mean": 0.560296023971798,
+  "reported_cv_r2_mean": 0.7284144231230497
+}
