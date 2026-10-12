@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-09
+Last updated: 2026-10-12
 
 ## Summary
 
@@ -21,6 +21,7 @@ Last updated: 2026-10-09
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction | To download |
 | County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | CBSA attributes only (Metro/Micro, Central/Outlying); **not** a Ch1 target | In use (attributes); publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
+| USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | To download |
 
 ## Details
 
@@ -157,8 +158,22 @@ Last updated: 2026-10-09
   https://doi.org/10.1002/hyp.9740
 - Download: https://www.hydrosheds.org/products/hydrorivers (North America file)
 
+### USGS GMTED2010 (to download)
+
+- Product: mean elevation statistic at 7.5 arc-seconds (~225 m), global,
+  `mn75_grd` (ESRI ArcGrid, inside a zip). Geographic coordinates (WGS84).
+- Planned use: elevation and slope features for Ch1, resampled to the HISDAC
+  250 m grid (ESRI:102039). Slope method and resampling rule to be decided when
+  the code is written.
+- Citation: Danielson, J. J., & Gesch, D. B. (2011). *Global multi-resolution
+  terrain elevation data 2010 (GMTED2010)*. U.S. Geological Survey Open-File
+  Report 2011-1073. https://doi.org/10.3133/ofr20111073
+- Download:
+  https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/topo/downloads/GMTED/Grid_ZipFiles/mn75_grd.zip
+  (listed at https://topotools.cr.usgs.gov/gmted_viewer/gmted2010_global_grids.php).
+  [record download date]
+
 ## Pending (not yet obtained)
 
 - PLURAL (gridded) from Siqiao: record resolution, CRS, years, citation.
-- DEM (for elevation and slope).
 - Areally standardized (2010-boundary) county data, 1900 on: Stefan's CSV is nominal (see above); ask Stefan whether a standardized version exists.
