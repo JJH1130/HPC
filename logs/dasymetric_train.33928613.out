@@ -1,0 +1,149 @@
+== job 33928613 (dasymetric_train) on c3cpu-c15-u5-1 at 2026-10-12T13:27:50-06:00
+== cores=4 gpus=none restart=0
+== git 8599fa3
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v3_4)  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4  n_jobs: 4  extra args: 
+13:28:06 INFO arg config = configs/model.yaml
+13:28:06 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+13:28:06 INFO arg n_jobs = 4
+13:28:06 INFO folds from /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model/folds.csv: 22 counties in 5 folds
+13:28:06 INFO era E1: training rows: 188 county-years | 22 counties (groups) | 13 years 1810-1930 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year']
+13:28:06 INFO era E1: folds (v2/model/folds.csv by GISJOIN): counties per fold {0: 3, 1: 3, 2: 3, 3: 3, 4: 10} -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E1/model/folds.csv
+13:28:06 INFO Spearman rho of county features (all training rows):
+              bui  bldg_size  mu_ratio  dist_built   year
+bui         1.000      0.963     0.966      -0.860  0.896
+bldg_size   0.963      1.000     0.985      -0.909  0.823
+mu_ratio    0.966      0.985     1.000      -0.881  0.860
+dist_built -0.860     -0.909    -0.881       1.000 -0.739
+year        0.896      0.823     0.860      -0.739  1.000
+13:28:06 INFO   |rho| > 0.80: bldg_size - mu_ratio 0.985
+13:28:06 INFO   |rho| > 0.80: bui - mu_ratio 0.966
+13:28:06 INFO   |rho| > 0.80: bui - bldg_size 0.963
+13:28:06 INFO   |rho| > 0.80: bldg_size - dist_built -0.909
+13:28:06 INFO   |rho| > 0.80: bui - year 0.896
+13:28:06 INFO   |rho| > 0.80: mu_ratio - dist_built -0.881
+13:28:06 INFO   |rho| > 0.80: mu_ratio - year 0.860
+13:28:06 INFO   |rho| > 0.80: bui - dist_built -0.860
+13:28:06 INFO   |rho| > 0.80: bldg_size - year 0.823
+13:28:07 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E1/model/feature_correlation.png
+13:28:07 INFO era E1: model rf | search 20 of 400 candidates | 5 folds | scoring neg_root_mean_squared_error | n_jobs 4
+13:28:21 INFO   fold 0: CV RMSE 0.2142 | R2 0.948
+13:28:21 INFO   fold 1: CV RMSE 1.6209 | R2 0.431
+13:28:21 INFO   fold 2: CV RMSE 0.3227 | R2 0.865
+13:28:21 INFO   fold 3: CV RMSE 0.7208 | R2 0.353
+13:28:21 INFO   fold 4: CV RMSE 1.0202 | R2 0.526
+13:28:21 INFO era E1: best params {'n_estimators': 300, 'min_samples_leaf': 2, 'max_features': 0.33, 'max_depth': 15}
+13:28:21 INFO era E1: CV RMSE 0.7798 +/- 0.5094 | CV R2 0.624 +/- 0.238 | train RMSE 0.3411 | sd(y) 1.4661
+13:28:22 INFO feature importance (permutation = increase in RMSE when shuffled):
+   feature  impurity  permutation_mean  permutation_sd
+ bldg_size    0.2452            0.4817          0.0260
+       bui    0.2361            0.4124          0.0249
+dist_built    0.2320            0.3420          0.0098
+      year    0.0848            0.2866          0.0148
+  mu_ratio    0.2019            0.2570          0.0134
+13:28:41 INFO mean |SHAP| per feature:
+bldg_size     0.2874
+dist_built    0.2830
+bui           0.2500
+mu_ratio      0.1427
+year          0.0996
+13:28:41 INFO grouped mean |SHAP|:
+Building              0.6491
+Settlement context    0.2830
+Period                0.0996
+13:28:41 INFO mean |SHAP| by year:
+          bui  bldg_size  mu_ratio  dist_built   year
+year                                                 
+1810.0  0.453      0.408     0.231       0.359  0.173
+1820.0  0.313      0.276     0.079       0.192  0.114
+1830.0  0.249      0.249     0.073       0.173  0.109
+1840.0  0.193      0.244     0.070       0.164  0.102
+1850.0  0.136      0.225     0.100       0.215  0.081
+1860.0  0.141      0.244     0.124       0.262  0.067
+1870.0  0.112      0.223     0.129       0.276  0.060
+1880.0  0.120      0.256     0.118       0.282  0.074
+1890.0  0.154      0.287     0.125       0.313  0.076
+1900.0  0.252      0.294     0.164       0.342  0.093
+1910.0  0.333      0.289     0.171       0.343  0.101
+1920.0  0.346      0.325     0.210       0.342  0.105
+1930.0  0.362      0.366     0.223       0.382  0.108
+13:28:41 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E1/model/shap_summary.png
+13:28:41 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E1/model/shap_by_year.png
+13:28:42 INFO v3_1 (its saved out-of-fold predictions, same folds, 188 rows, its own target): CV RMSE 0.7798 +/- 0.5094 | CV R2 0.624 +/- 0.238 | pooled RMSE 0.9321 R2 0.596 (reported: RMSE 0.7797591811346438, R2 0.6243199856872905)
+13:28:42 INFO era E1: CV v3_4 vs v3_1 (same folds and rows): RMSE 0.7798 vs 0.7798 | R2 0.624 vs 0.624 | pooled RMSE 0.9321 vs 0.9321
+13:28:42 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E1/model
+13:28:42 INFO era E23: training rows: 126 county-years | 14 counties (groups) | 9 years 1940-2020 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year', 'res_share', 'rent_share']
+13:28:42 INFO era E23: folds (v2/model/folds.csv by GISJOIN): counties per fold {0: 3, 1: 3, 2: 3, 3: 3, 4: 2} -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E23/model/folds.csv
+13:28:42 INFO Spearman rho of county features (all training rows):
+              bui  bldg_size  mu_ratio  dist_built   year  res_share  rent_share
+bui         1.000      0.971     0.916      -0.902  0.402      0.944       0.775
+bldg_size   0.971      1.000     0.961      -0.841  0.505      0.941       0.693
+mu_ratio    0.916      0.961     1.000      -0.748  0.503      0.938       0.553
+dist_built -0.902     -0.841    -0.748       1.000 -0.355     -0.889      -0.830
+year        0.402      0.505     0.503      -0.355  1.000      0.532      -0.018
+res_share   0.944      0.941     0.938      -0.889  0.532      1.000       0.628
+rent_share  0.775      0.693     0.553      -0.830 -0.018      0.628       1.000
+13:28:42 INFO   |rho| > 0.80: bui - bldg_size 0.971
+13:28:42 INFO   |rho| > 0.80: bldg_size - mu_ratio 0.961
+13:28:42 INFO   |rho| > 0.80: bui - res_share 0.944
+13:28:42 INFO   |rho| > 0.80: bldg_size - res_share 0.941
+13:28:42 INFO   |rho| > 0.80: mu_ratio - res_share 0.938
+13:28:42 INFO   |rho| > 0.80: bui - mu_ratio 0.916
+13:28:42 INFO   |rho| > 0.80: bui - dist_built -0.902
+13:28:42 INFO   |rho| > 0.80: dist_built - res_share -0.889
+13:28:42 INFO   |rho| > 0.80: bldg_size - dist_built -0.841
+13:28:42 INFO   |rho| > 0.80: dist_built - rent_share -0.830
+13:28:42 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E23/model/feature_correlation.png
+13:28:42 INFO era E23: model rf | search 20 of 400 candidates | 5 folds | scoring neg_root_mean_squared_error | n_jobs 4
+13:28:54 INFO   fold 0: CV RMSE 0.3641 | R2 0.863
+13:28:54 INFO   fold 1: CV RMSE 1.2168 | R2 0.582
+13:28:54 INFO   fold 2: CV RMSE 0.3486 | R2 0.434
+13:28:54 INFO   fold 3: CV RMSE 0.4886 | R2 0.867
+13:28:54 INFO   fold 4: CV RMSE 0.3504 | R2 0.887
+13:28:54 INFO era E23: best params {'n_estimators': 200, 'min_samples_leaf': 2, 'max_features': 1.0, 'max_depth': 20}
+13:28:54 INFO era E23: CV RMSE 0.5537 +/- 0.3356 | CV R2 0.727 +/- 0.185 | train RMSE 0.0883 | sd(y) 1.3590
+13:28:54 INFO feature importance (permutation = increase in RMSE when shuffled):
+   feature  impurity  permutation_mean  permutation_sd
+rent_share    0.5716            0.9706          0.0666
+       bui    0.2071            0.4678          0.0149
+dist_built    0.1162            0.1587          0.0182
+ bldg_size    0.0528            0.0924          0.0088
+  mu_ratio    0.0455            0.0767          0.0098
+ res_share    0.0037            0.0225          0.0041
+      year    0.0031            0.0204          0.0017
+13:28:54 INFO mean |SHAP| per feature:
+rent_share    0.6833
+bui           0.3016
+dist_built    0.1527
+bldg_size     0.0578
+mu_ratio      0.0557
+res_share     0.0106
+year          0.0103
+13:28:54 INFO grouped mean |SHAP|:
+Land use              0.6877
+Building              0.3696
+Settlement context    0.1527
+Period                0.0103
+13:28:54 INFO mean |SHAP| by year:
+          bui  bldg_size  mu_ratio  dist_built   year  res_share  rent_share
+year                                                                        
+1940.0  0.383      0.080     0.055       0.158  0.014      0.007       0.784
+1950.0  0.347      0.077     0.054       0.164  0.016      0.007       0.757
+1960.0  0.330      0.063     0.054       0.161  0.013      0.009       0.747
+1970.0  0.318      0.054     0.053       0.149  0.006      0.009       0.709
+1980.0  0.276      0.052     0.055       0.145  0.005      0.008       0.649
+1990.0  0.269      0.053     0.057       0.148  0.007      0.008       0.649
+2000.0  0.257      0.050     0.057       0.142  0.009      0.013       0.625
+2010.0  0.267      0.048     0.058       0.148  0.011      0.016       0.615
+2020.0  0.268      0.043     0.058       0.159  0.012      0.017       0.616
+13:28:55 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E23/model/shap_summary.png
+13:28:55 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E23/model/shap_by_year.png
+13:28:55 WARNING compare_with v3_1 skipped: missing ['/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_1/features/county_features.csv', '/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_1/model/best_params.json', '/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_1/model/metrics.json']
+13:28:55 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E23/model
+13:28:55 INFO CV by era:
+era     years  n_rows  n_counties  n_folds  cv_rmse  cv_r2  pooled_rmse  pooled_r2  shap_Building  shap_Settlement context  shap_Period  v3_1_cv_rmse  v3_1_cv_r2  v3_1_pooled_rmse  v3_1_pooled_r2  shap_Land use
+ E1 1810-1930     188          22        5    0.780  0.624        0.932      0.596          0.649                    0.283         0.10          0.78       0.624             0.932           0.596            NaN
+E23 1940-2020     126          14        5    0.554  0.727        0.664      0.762          0.370                    0.153         0.01           NaN         NaN               NaN             NaN          0.688
+13:28:55 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/cv_summary.csv
+13:28:55 INFO DONE
+== done 2026-10-12T13:28:56-06:00

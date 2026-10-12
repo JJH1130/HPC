@@ -1,0 +1,81 @@
+== job 33928611 (dasymetric_features) on c3cpu-e2-u13 at 2026-10-12T13:26:48-06:00
+== cores=2 gpus=none restart=0
+== git 8599fa3
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v3_4)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4  extra args: 
+13:26:54 INFO arg config = configs/model.yaml
+13:26:54 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+13:26:54 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+13:26:54 INFO study 'massachusetts' v3_4 | 22 years 1810-2020 | use_status ['ok', 'manual_fill'] -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4
+13:26:54 INFO era E1 | 13 years 1810-1930 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year']
+13:26:55 INFO   1810: water mask 12110 of 1681989 cells (0.0072) | all-water cells with BUI > 0 kept: 0
+13:26:55 INFO   1810: 20 counties in the table, 20 used, 1681989 cells
+13:26:55 INFO   1820: water mask 995 of 336164 cells (0.0030) | all-water cells with BUI > 0 kept: 0
+13:26:55 INFO   1820: 14 counties in the table, 14 used, 336164 cells
+13:26:56 INFO   1830: water mask 994 of 336164 cells (0.0030) | all-water cells with BUI > 0 kept: 1
+13:26:56 INFO   1830: 14 counties in the table, 14 used, 336164 cells
+13:26:58 INFO   1840: water mask 994 of 336164 cells (0.0030) | all-water cells with BUI > 0 kept: 1
+13:26:58 INFO   1840: 14 counties in the table, 14 used, 336164 cells
+13:26:59 INFO   1850: water mask 994 of 336164 cells (0.0030) | all-water cells with BUI > 0 kept: 1
+13:26:59 INFO   1850: 14 counties in the table, 14 used, 336164 cells
+13:27:00 INFO   1860: water mask 994 of 336164 cells (0.0030) | all-water cells with BUI > 0 kept: 1
+13:27:00 INFO   1860: 14 counties in the table, 14 used, 336164 cells
+13:27:02 INFO   1870: water mask 1069 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 1
+13:27:02 INFO   1870: 14 counties in the table, 14 used, 335900 cells
+13:27:03 INFO   1880: water mask 1069 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 1
+13:27:03 INFO   1880: 14 counties in the table, 14 used, 335900 cells
+13:27:04 INFO   1890: water mask 1068 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 2
+13:27:04 INFO   1890: 14 counties in the table, 14 used, 335900 cells
+13:27:06 INFO   1900: water mask 1067 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 3
+13:27:06 INFO   1900: 14 counties in the table, 14 used, 335900 cells
+13:27:08 INFO   1910: water mask 1067 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 3
+13:27:08 INFO   1910: 14 counties in the table, 14 used, 335900 cells
+13:27:09 INFO   1920: water mask 1067 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 3
+13:27:09 INFO   1920: 14 counties in the table, 14 used, 335900 cells
+13:27:10 INFO   1930: water mask 1066 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 4
+13:27:10 INFO   1930: 14 counties in the table, 14 used, 335900 cells
+13:27:10 INFO era E1: 188 training rows | 22 counties (GISJOIN) | 13 years
+13:27:10 INFO feature summary:
+            count      mean        std       min       25%       50%       75%         max
+bui         188.0  8040.568  35331.219     0.023   253.004  1008.868  3006.391  302842.901
+bldg_size   188.0   719.023   1848.116     0.023   110.462   267.899   671.211   13542.768
+mu_ratio    188.0     0.200      0.318     0.000     0.043     0.100     0.222       2.029
+dist_built  188.0     2.678     10.792     0.142     0.619     0.939     1.477      96.394
+year        188.0  1868.085     38.398  1810.000  1830.000  1870.000  1900.000    1930.000
+y           188.0     3.964      1.470    -0.324     3.105     3.574     4.588       8.632
+13:27:10 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E1/features/county_features.csv
+13:27:10 INFO era E23 | 9 years 1940-2020 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year', 'res_share', 'rent_share']
+13:27:12 INFO   1940: water mask 1065 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 5
+13:27:12 INFO   1940: 14 counties in the table, 14 used, 335900 cells
+13:27:15 INFO   1950: water mask 1064 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 6
+13:27:15 INFO   1950: 14 counties in the table, 14 used, 335900 cells
+13:27:17 INFO   1960: water mask 1064 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 6
+13:27:17 INFO   1960: 14 counties in the table, 14 used, 335900 cells
+13:27:23 INFO   1970: water mask 1064 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 6
+13:27:23 INFO   1970: 14 counties in the table, 14 used, 335900 cells
+13:27:25 INFO   1980: water mask 1064 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 6
+13:27:25 INFO   1980: 14 counties in the table, 14 used, 335900 cells
+13:27:28 INFO   1990: water mask 1064 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 6
+13:27:28 INFO   1990: 14 counties in the table, 14 used, 335900 cells
+13:27:32 INFO   2000: water mask 1063 of 335900 cells (0.0032) | all-water cells with BUI > 0 kept: 7
+13:27:32 INFO   2000: 14 counties in the table, 14 used, 335900 cells
+13:27:37 INFO   2010: water mask 1062 of 335899 cells (0.0032) | all-water cells with BUI > 0 kept: 8
+13:27:37 INFO   2010: 14 counties in the table, 14 used, 335899 cells
+13:27:41 INFO   2020: water mask 1051 of 335850 cells (0.0031) | all-water cells with BUI > 0 kept: 10
+13:27:41 INFO   2020: 14 counties in the table, 14 used, 335850 cells
+13:27:41 INFO era E23: 126 training rows | 14 counties (GISJOIN) | 9 years
+13:27:41 INFO feature summary:
+            count       mean         std       min       25%        50%        75%         max
+bui         126.0  51729.863  102948.102  2210.389  7279.671  21254.723  40259.850  536105.073
+bldg_size   126.0   3758.773    4955.912   323.018  1077.199   2072.349   3828.441   26788.615
+mu_ratio    126.0      0.879       0.600     0.163     0.441      0.702      1.174       2.910
+dist_built  126.0      0.362       0.244     0.083     0.176      0.292      0.481       1.376
+year        126.0   1980.000      25.923  1940.000  1960.000   1980.000   2000.000    2020.000
+res_share   126.0      0.389       0.161     0.098     0.251      0.389      0.528       0.655
+rent_share  126.0      0.042       0.064     0.003     0.011      0.024      0.042       0.284
+y           126.0      5.210       1.364     3.000     4.065      5.291      6.035       8.652
+13:27:41 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/E23/features/county_features.csv
+13:27:41 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_4/qa/water_mask_by_year.csv
+13:27:41 INFO county-years: 314 before status filtering (expected 314 for massachusetts), 314 training rows over 2 era(s)
+13:27:41 INFO DONE
+== done 2026-10-12T13:27:41-06:00
