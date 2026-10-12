@@ -111,13 +111,37 @@ rasterization would bias every tract comparison). Other flags are reported, not 
   present-day records). Location to check from the new `lon`/`lat` columns after the rerun. The
   same GISJOIN in 1910: observed 5,624, model 2,816 (10 cells).
 
-### v2
+### v2 vs v3_1 (jobs 33917610 / 33917609, code b511530, reviewed 2026-10-13)
 
-- Job 33915573 (code bb3efee) failed in 1910: v2's `reallocation_qa.csv` has no `n_masked`
-  (no water mask). Fixed: missing `n_masked` → 0. Rerun needed.
+v2 first failed (job 33915573, no `n_masked` column; fixed). Totals QA 546 rows, 0 flagged for both
+(v2: no cell with prediction 0). Model, all tracts:
+
+| Year | MdAPE v2 | MdAPE v3_1 | MdAPE baseline | R² log dens. v2 | v3_1 | baseline |
+|---|---|---|---|---|---|---|
+| 1910 | 60.4 | 62.5 | 69.4 | −0.15 | −0.13 | −0.52 |
+| 1930 | 46.5 | 52.6 | 64.4 | −0.28 | −0.31 | −0.43 |
+| 1940 | 49.2 | 43.6 | 70.8 | −0.17 | 0.03 | −1.75 |
+| 1950 | 51.7 | 38.0 | 79.2 | 0.68 | 0.78 | −0.32 |
+| 1960 | 49.5 | 36.7 | 81.1 | 0.67 | 0.82 | −0.50 |
+| 1970 | 47.0 | 32.1 | 79.2 | 0.73 | 0.84 | −0.09 |
+| 1980 | 45.4 | 29.8 | 77.9 | 0.73 | 0.85 | 0.00 |
+| 1990 | 45.8 | 28.0 | 74.1 | 0.73 | 0.86 | 0.08 |
+| 2000 | 45.2 | 46.5 | 72.4 | 0.75 | 0.77 | 0.13 |
+| 2010 | 44.8 | 45.1 | 71.1 | 0.70 | 0.71 | 0.11 |
+| 2020 | 45.4 | 44.0 | 71.1 | 0.67 | 0.69 | 0.10 |
+
+1. **E3 floor hypothesis rejected.** MdAPE 2000–2020: v2 ~45 %, v3_1 44–46 % (the same), although
+   v2 has a much lower y_hat floor. v3_1 beats v2 only in 1940–1990 (28–44 % vs 45–52 %): the gain
+   from Land Use in E2 disappears in E3. R² on log density: v3_1 0.78–0.86 (1950–1990) vs
+   0.69–0.77 (2000–2020); v2 0.67–0.75; baseline about 0. Next: v3.2 (`docs/dasymetric_v3_2.md`).
+2. **1940 outlier `G2500250A0003`** (obs 6,960; v3_1 81, v2 18; baseline 5,163) lies at 42.374,
+   −71.018 = East Boston / Logan Airport: a residential area later taken by the airport, so its
+   buildings are missing from HISDAC (survivorship: HISDAC is built from present-day records).
+3. 1910 and 1930 cover only Boston (18–19 % of MA pop); both versions have negative R² there.
 
 ## Open items
 
 - [x] First run (v3_1).
-- [ ] Rerun v3_1 (density metric, lon/lat) and v2; compare.
-- [ ] Locate 1940 `G2500250A0003` and confirm the demolition explanation.
+- [x] Rerun v3_1 (density metric, lon/lat) and v2; compare (above).
+- [x] Locate 1940 `G2500250A0003`: East Boston / Logan Airport (survivorship).
+- [ ] v3_2 (2000–2020) vs v3_1.

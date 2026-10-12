@@ -66,6 +66,13 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
   11 years (1920 has no MA tracts); model vs areal-weighting baseline; stops if
   cells of a fully tracted county are lost in rasterization.
 
+### Dasymetric v3.2 (E3 without ntl)
+
+- **Status:** config set 2026-10-13 (`docs/dasymetric_v3_2.md`); not yet run.
+- Why: tract validation (2026-10-13) rejected the E3 y_hat-floor explanation: 2000–2020 tract MdAPE is
+  ~45 % for both v2 and v3_1, while v3_1 is better in 1940–1990. v3.2 drops `ntl` from E3 (E2's
+  features) to test whether night lights cause it. Compare with v3_1 for 2000–2020.
+
 ### PLURAL gridded data
 
 - **Status:** waiting to receive the grid from Siqiao.

@@ -37,6 +37,7 @@ outputs are skipped with a warning and the run still finishes. Stage 3 also read
 v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster time.
 v3 passed on Alpine: jobs 33459257 / 33459258 / 33459259, 2026-10-05 cluster time.
 v3.1 passed on Alpine: jobs 33463269 / 33463270 / 33463271 (after water_frac 33463268), 2026-10-05 cluster time.
+v3.2 (E3 without ntl, `docs/dasymetric_v3_2.md`): config set 2026-10-13, not yet run; see section "v3.2".
 
 ## 1. Sync + preflight (login node)
 
@@ -146,6 +147,47 @@ Then tell Claude to pull.
 | `expected exactly one .tif in .../layers/water_frac` | run `Making_Cutout.md` section 8 first |
 | `counties with no unmasked cell` | a county is all water with no building; send Claude the rows |
 | `rf.joblib was trained with water_mask=...` | config changed after training; rerun stages 1-2 |
+
+## v3.2 (E3 without ntl): run
+
+`configs/model.yaml` shows `version: v3_2`, `compare_with: v3_1`, `folds_from: v2`, and E3's features
+without `ntl` (`docs/dasymetric_v3_2.md`). v3.2 only reads v3_1 (per era `oof_predictions.csv` and
+`metrics.json`; `v3_1/predictions/pop_2020.tif` for the side-by-side map) and v2's `folds.csv`.
+
+Preflight (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+grep -E '^(version|compare_with|folds_from):' configs/model.yaml
+ls /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_1/E3/model/oof_predictions.csv /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v2/model/folds.csv /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_1/predictions/pop_2020.tif
+```
+
+Submit features → train → predict (2000–2020 only) → tract validation as one chain (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+j1=$(sbatch --parsable sbatch/dasymetric_features.sh)
+j2=$(sbatch --parsable --dependency=afterok:$j1 sbatch/dasymetric_train.sh)
+j3=$(sbatch --parsable --dependency=afterok:$j2 sbatch/dasymetric_predict.sh --years 2000 2010 2020)
+j4=$(sbatch --parsable --dependency=afterok:$j3 sbatch/validate_tract.sh --version v3_2 --years 2000 2010 2020 --map-years 2020)
+echo "features $j1 | train $j2 | predict $j3 | validate $j4"
+```
+
+Check: train log `era E1/E2: CV v3_2 vs v3_1 (same folds and rows)` equal (same features, folds, seed);
+`era E3: ...` is the comparison that matters. Grouped SHAP for E3 has no Lights group. Predict draws
+`pop_2020.png` and `pop_2020_v3_1_vs_v3_2.png`; `mass check: 42 county-years ... 0 fail`.
+
+Close the loop (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git add logs/dasymetric_features.$j1.out logs/dasymetric_train.$j2.out logs/dasymetric_predict.$j3.out logs/validate_tract.$j4.out results/dasymetric/ results/validation/
+git commit -m "run: dasymetric v3_2 $j1 $j2 $j3 + validate_tract $j4"
+git pull --rebase
+git push
+```
 
 ## Notes
 

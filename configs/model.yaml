@@ -1,11 +1,14 @@
 # Dasymetric model settings (src/dasymetric/; design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md,
-# docs/dasymetric_v3.md and docs/dasymetric_v3_1.md).
-# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v3_1/
-# (one model per era under v3_1/<era>/; predictions, QA and maps for all years under v3_1/).
-# Earlier settings are in git history: v1 = commit 8d93125, v2 = commit 38ed1e2, v3 = commit 8e6c35e
+# docs/dasymetric_v3.md, docs/dasymetric_v3_1.md and docs/dasymetric_v3_2.md).
+# Output: <--out-root>/<study name>/<version>/ — on Alpine $HISDAC_SCRATCH/dasymetric/massachusetts/v3_2/
+# (one model per era under v3_2/<era>/; predictions, QA and maps under v3_2/).
+# Earlier settings are in git history: v1 = commit 8d93125, v2 = commit 38ed1e2, v3 = commit 8e6c35e,
+# v3_1 = commit fdd9ef0
 # (v2: one pooled model, features [bui, bldg_size, mu_ratio, age, dist_built, year];
-#  v3: these eras and features, compare_with v2, no water_correction).
-version: v3_1
+#  v3: these eras, E3 with ntl, compare_with v2, no water mask;
+#  v3_1: v3 + water_mask: true, compare_with v3).
+# v3_2 (docs/dasymetric_v3_2.md): v3_1 with E3 on the E2 feature set (no ntl); E1 and E2 unchanged.
+version: v3_2
 
 # Water mask (docs/dasymetric_v3_1.md), per year: a cell is masked if it is all permanent water and has no
 # building that year (water_frac == 1 and BUI == 0; layers/water_frac/water_frac.tif from src/grid/water_frac.py).
@@ -18,10 +21,10 @@ water_mask: true
 # the same eras (v3): its saved out-of-fold predictions are read per era (no refit) and each version is scored
 # on its own target. A pooled version (v2): refit with its features + best params on the same folds and scored
 # on each era's rows. predict.py draws side-by-side maps for maps.compare_years.
-compare_with: v3
+compare_with: v3_1
 
 # Reuse this version's GISJOIN -> fold mapping (<version>/model/folds.csv), filtered to each era's counties,
-# so the comparison runs on identical folds (null = new GroupKFold folds per era). v3 used the same table.
+# so the comparison runs on identical folds (null = new GroupKFold folds per era). v3 and v3_1 used the same table.
 folds_from: v2
 
 # Study name and years come from here; inputs are that study's cutout (docs/cutout.md).
@@ -45,9 +48,9 @@ eras:
   E2:
     years: {start: 1940, stop: 1990}
     features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share]
-  E3:
+  E3:   # v3_2: E2's features, no ntl (v3/v3_1 had ntl here)
     years: {start: 2000, stop: 2020}
-    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share, ntl]
+    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share]
 
 # Concept groups for grouped SHAP: every used feature in exactly one group (per era, only its features).
 feature_groups:

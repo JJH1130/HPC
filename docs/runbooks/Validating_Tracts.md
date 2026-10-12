@@ -5,7 +5,7 @@ areal-weighting baseline. Code: `src/validation/tract_validate.py`; job:
 `sbatch/validate_tract.sh` (acpu, 2 cores, 30 min, env `hisdac`). Design and QA rules:
 `docs/validation_tract.md`.
 
-**Status:** v3_1 run 2026-10-13 (job 33913781, passed). v2 failed (job 33915573, fixed in code); both to rerun for the density metric.
+**Status:** v3_1 and v2 passed 2026-10-13 (jobs 33917609 / 33917610). v3_2 (2000–2020) runs in the chain of `Running_Dasymetric.md`, section "v3.2".
 
 ## Inputs / outputs
 
@@ -90,3 +90,7 @@ Then tell Claude to pull.
 - 2026-10-13, job 33915573, `--version v2`, code bb3efee: failed in 1910 (`'Pandas' object has no attribute
   'n_masked'`): v2 has no water mask, so its reallocation QA lacks the column. Fixed: missing `n_masked` → 0,
   logged as "no water mask". Same change adds the log-density metrics and `lon`/`lat` to `tract_errors_*.csv`.
+- 2026-10-13 (cluster date 2026-10-12), jobs 33917609 (v3_1) / 33917610 (v2), code b511530: both passed, totals
+  QA 546 rows, 0 flagged each; v2 logged "no water mask". The E3 y_hat-floor hypothesis is rejected (2000–2020 MdAPE
+  ~45 % for both); v3_1 is better only in 1940–1990. 1940 outlier G2500250A0003 = East Boston / Logan Airport
+  (survivorship). Details: `docs/validation_tract.md`, Results.
