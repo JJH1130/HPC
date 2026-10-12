@@ -1,28 +1,28 @@
-year,dataset,file,table,nhgis_code,title,universe,n_vars,variables,pop_columns,rule
-1910,ds39,nhgis0002_ds39_1910_tract.csv,NT1,A5X,Total Population,Persons,1,A5X001=Total,A5X001,single_variable
-1910,ds40,nhgis0002_ds40_1910_tract.csv,NT22,A6C,Population,Persons,1,A6C001=Total,A6C001,single_variable
-1910,ds40,nhgis0002_ds40_1910_tract.csv,NT49,A64,Population,Persons,1,A64001=Total,A64001,single_variable
-1920,ds45,nhgis0002_ds45_1920_tract.csv,NT1,A94,Population,Persons,1,A94001=Total,A94001,single_variable
-1920,ds46,nhgis0002_ds46_1920_tract.csv,NT1,BBJ,Population,Persons,1,BBJ001=Total,BBJ001,single_variable
-1920,ds47,nhgis0002_ds47_1920_tract.csv,NT1,BBP,Population,Persons,1,BBP001=Total,BBP001,single_variable
-1920,ds48,nhgis0002_ds48_1920_tract.csv,NT1,BBQ,"Population, 1910 and 1920",Persons in 1910 and 1920,2,BBQ001=1910; BBQ002=1920,BBQ002,config
-1930,ds58,nhgis0002_ds58_1930_tract.csv,NT1,BHI,Population,Persons,1,BHI001=Total,BHI001,single_variable
-1930,ds59,nhgis0002_ds59_1930_tract.csv,NT1,BI1,Population,Persons in 1930,1,BI1001=Total,BI1001,single_variable
-1930,ds60,nhgis0002_ds60_1930_tract.csv,NT1,BJW,Population,Persons,1,BJW001=Total,BJW001,single_variable
-1930,ds62,nhgis0002_ds62_1930_tract.csv,NT1,BLO,Total Population,Persons,1,BLO001=Total,BLO001,single_variable
-1930,ds63,nhgis0002_ds63_1930_tract.csv,NT1,BLW,Population,Persons,1,BLW001=Total,BLW001,single_variable
-1930,ds64,nhgis0002_ds64_1930_tract.csv,NT1,BND,Population 1930,"Persons, 1930",1,BND001=Total,BND001,single_variable
-1930,ds65,nhgis0002_ds65_1930_tract.csv,NT1,BNE,Population,Persons,1,BNE001=Total,BNE001,single_variable
-1930,ds66,nhgis0002_ds66_1930_tract.csv,NT9,BOI,Total Population,Persons,1,BOI001=Total,BOI001,single_variable
-1930,ds67,nhgis0002_ds67_1930_tract.csv,NT1,BOJ,Total Population,Persons,1,BOJ001=Total,BOJ001,single_variable
-1930,ds68,nhgis0002_ds68_1930_tract.csv,NT1,BOO,Population,Persons,1,BOO001=Total,BOO001,single_variable
-1930,ds69,nhgis0002_ds69_1930_tract.csv,NT3,BQM,Population,Persons,1,BQM001=Total,BQM001,single_variable
-1930,ds70,nhgis0002_ds70_1930_tract.csv,NT1,BQQ,Population,Persons,1,BQQ001=Total,BQQ001,single_variable
-1930,ds71,nhgis0002_ds71_1930_tract.csv,NT1,BRQ,Population,Persons,1,BRQ001=Total,BRQ001,single_variable
-1940,ds76,nhgis0002_ds76_1940_tract.csv,NT1,BUB,Population,Persons,1,BUB001=Total,BUB001,single_variable
-1950,ds82,nhgis0002_ds82_1950_tract.csv,NT1,BZ8,Total Population,Persons,1,BZ8001=Total,BZ8001,single_variable
-1950,ds86,nhgis0002_ds86_1950_tract.csv,NT1,B4Q,Total Population,Persons,1,B4Q001=Total,B4Q001,single_variable
-1950,ds87,nhgis0002_ds87_1950_tract.csv,NT1,B4S,Total Population,Persons,1,B4S001=Total,B4S001,single_variable
-1960,ds92,nhgis0002_ds92_1960_tract.csv,NTSUP2,CA4,Total Persons,Persons,1,CA4001=Total,CA4001,single_variable
-1960,ds92,nhgis0002_ds92_1960_tract.csv,NBT1,B53,Total Population [from printed report],Persons,1,B53001=Total,B53001,single_variable
-1960,ds92,nhgis0002_ds92_1960_tract.csv,NBT4,B60,Total Population [from printed report],Persons,1,B60001=Total,B60001,single_variable
+year,dataset,file,table,nhgis_code,title,universe,n_vars,variables,pop_columns,rule,priority
+1910,ds39,nhgis0002_ds39_1910_tract.csv,NT1,A5X,Total Population,Persons,1,A5X001=Total,A5X001,single_variable,1
+1910,ds40,nhgis0002_ds40_1910_tract.csv,NT22,A6C,Population,Persons,1,A6C001=Total,A6C001,single_variable,2
+1910,ds40,nhgis0002_ds40_1910_tract.csv,NT49,A64,Population,Persons,1,A64001=Total,A64001,single_variable,3
+1920,ds45,nhgis0002_ds45_1920_tract.csv,NT1,A94,Population,Persons,1,A94001=Total,A94001,single_variable,2
+1920,ds46,nhgis0002_ds46_1920_tract.csv,NT1,BBJ,Population,Persons,1,BBJ001=Total,BBJ001,single_variable,3
+1920,ds47,nhgis0002_ds47_1920_tract.csv,NT1,BBP,Population,Persons,1,BBP001=Total,BBP001,single_variable,4
+1920,ds48,nhgis0002_ds48_1920_tract.csv,NT1,BBQ,"Population, 1910 and 1920",Persons in 1910 and 1920,2,BBQ001=1910; BBQ002=1920,BBQ002,config,1
+1930,ds58,nhgis0002_ds58_1930_tract.csv,NT1,BHI,Population,Persons,1,BHI001=Total,BHI001,single_variable,1
+1930,ds59,nhgis0002_ds59_1930_tract.csv,NT1,BI1,Population,Persons in 1930,1,BI1001=Total,BI1001,single_variable,2
+1930,ds60,nhgis0002_ds60_1930_tract.csv,NT1,BJW,Population,Persons,1,BJW001=Total,BJW001,single_variable,3
+1930,ds62,nhgis0002_ds62_1930_tract.csv,NT1,BLO,Total Population,Persons,1,BLO001=Total,BLO001,single_variable,4
+1930,ds63,nhgis0002_ds63_1930_tract.csv,NT1,BLW,Population,Persons,1,BLW001=Total,BLW001,single_variable,5
+1930,ds64,nhgis0002_ds64_1930_tract.csv,NT1,BND,Population 1930,"Persons, 1930",1,BND001=Total,BND001,single_variable,6
+1930,ds65,nhgis0002_ds65_1930_tract.csv,NT1,BNE,Population,Persons,1,BNE001=Total,BNE001,single_variable,7
+1930,ds66,nhgis0002_ds66_1930_tract.csv,NT9,BOI,Total Population,Persons,1,BOI001=Total,BOI001,single_variable,8
+1930,ds67,nhgis0002_ds67_1930_tract.csv,NT1,BOJ,Total Population,Persons,1,BOJ001=Total,BOJ001,single_variable,9
+1930,ds68,nhgis0002_ds68_1930_tract.csv,NT1,BOO,Population,Persons,1,BOO001=Total,BOO001,single_variable,10
+1930,ds69,nhgis0002_ds69_1930_tract.csv,NT3,BQM,Population,Persons,1,BQM001=Total,BQM001,single_variable,11
+1930,ds70,nhgis0002_ds70_1930_tract.csv,NT1,BQQ,Population,Persons,1,BQQ001=Total,BQQ001,single_variable,12
+1930,ds71,nhgis0002_ds71_1930_tract.csv,NT1,BRQ,Population,Persons,1,BRQ001=Total,BRQ001,single_variable,13
+1940,ds76,nhgis0002_ds76_1940_tract.csv,NT1,BUB,Population,Persons,1,BUB001=Total,BUB001,single_variable,1
+1950,ds82,nhgis0002_ds82_1950_tract.csv,NT1,BZ8,Total Population,Persons,1,BZ8001=Total,BZ8001,single_variable,1
+1950,ds86,nhgis0002_ds86_1950_tract.csv,NT1,B4Q,Total Population,Persons,1,B4Q001=Total,B4Q001,single_variable,2
+1950,ds87,nhgis0002_ds87_1950_tract.csv,NT1,B4S,Total Population,Persons,1,B4S001=Total,B4S001,single_variable,3
+1960,ds92,nhgis0002_ds92_1960_tract.csv,NTSUP2,CA4,Total Persons,Persons,1,CA4001=Total,CA4001,single_variable,1
+1960,ds92,nhgis0002_ds92_1960_tract.csv,NBT1,B53,Total Population [from printed report],Persons,1,B53001=Total,B53001,single_variable,2
+1960,ds92,nhgis0002_ds92_1960_tract.csv,NBT4,B60,Total Population [from printed report],Persons,1,B60001=Total,B60001,single_variable,3
