@@ -66,13 +66,19 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
   11 years (1920 has no MA tracts); model vs areal-weighting baseline; stops if
   cells of a fully tracted county are lost in rasterization.
 
-### Dasymetric v3.2 (E3 without ntl) and v3.3 (E3 with fixed hyperparameters)
+### Dasymetric v3.2–v3.4: the 2000–2020 (E3) gap
 
 - **v3.2 result (2026-10-13):** E3 tract MdAPE unchanged (45–46 %), E3 county CV worse → `ntl` is not
   the cause (`docs/dasymetric_v3_2.md`).
-- **v3.3** (`docs/dasymetric_v3_3.md`, diagnostic): v3.1 with E3's hyperparameters fixed to E2's best
-  (max_features 1.0 instead of 0.33/sqrt). Config set 2026-10-13; not yet run. If tract MdAPE drops toward
-  30 %, county CV is a poor selector for cell allocation (relevant for CONUS).
+- **v3.3 result (2026-10-13):** E3 with E2's hyperparameters (max_features 1.0): tract MdAPE 2000–2020
+  43.0 / 41.8 / 40.6 vs v3.1 46.5 / 45.1 / 44.0, R² log density +0.03–0.04, although the E3 county CV is
+  worse (R² 0.646 vs 0.657). **County CV (42 rows) and tract validation disagree**; for CONUS, don't rely on
+  small per-era county CV alone to pick hyperparameters. Gain is modest (still 12+ pt above 1990's 28 %).
+- **v3.4** (`docs/dasymetric_v3_4.md`, last Massachusetts experiment): E2 + E3 merged into E23 (1940–2020,
+  no ntl, 126 rows), usual search. Config set 2026-10-13; not yet run. 2000–2020 toward ~30 % →
+  small-sample problem; stays ~41–46 % → period-specific.
+- **Provisional:** conclusions on the E3 gap wait for PLURAL (urban–rural continuum, from Siqiao), which is
+  not yet included and may address the remaining rural-over / urban-under pattern.
 - v3.2 background: tract validation (2026-10-13) rejected the E3 y_hat-floor explanation: 2000–2020 tract MdAPE is
   ~45 % for both v2 and v3_1, while v3_1 is better in 1940–1990. v3.2 drops `ntl` from E3 (E2's
   features) to test whether night lights cause it. Compare with v3_1 for 2000–2020.
@@ -80,6 +86,8 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 ### PLURAL gridded data
 
 - **Status:** waiting to receive the grid from Siqiao.
+- PLURAL (urban–rural continuum) may address the rural-over / urban-under pattern left in the
+  tract validation (2026-10-13); the E3-gap conclusions (v3.2–v3.4) are provisional until it is tested.
 - On arrival: check resolution, CRS and year coverage, then add it as a layer
   in `configs/study_area.yaml` (the cutout layer list) per `docs/cutout.md`.
 

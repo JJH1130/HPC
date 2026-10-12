@@ -43,12 +43,11 @@ Massachusetts tracts).
    - `n`, `rmse`, `mae` (people per tract)
    - `mdape`: median of |pred − obs| / obs × 100 (tracts with obs > 0)
    - `r2_log`: 1 − SS_res / SS_tot on log(pop + 1)
-   - `r2_logdens`, `mdape_logdens`: the same R2 and MdAPE on log(density + 1), density =
-     tract pop / area of its cells (n_cells × 0.0625 km²), people/km². Tracts are drawn to hold
-     similar populations, so log(pop) varies little across tracts and `r2_log` is mostly
-     negative; density varies far more and tests the spatial contrast. (A plain % error on
-     density equals the % error on pop, since obs and pred share the area, so MdAPE is taken
-     on the log.)
+   - `r2_logdens`: the same R2 on log(density + 1), density = tract pop / area of its cells
+     (n_cells × 0.0625 km²), people/km². Tracts are drawn to hold similar populations, so log(pop)
+     varies little across tracts and `r2_log` is mostly negative; density varies far more and tests
+     the spatial contrast. (`mdape_logdens`, MdAPE on log density, is in the CSVs of runs up to job
+     33924857; dropped 2026-10-13, `r2_logdens` kept.)
    - `pop_share`: observed pop of the evaluated tracts / Massachusetts county total
 
 Partial coverage (e.g. Boston-only tracts in 1910–1960): only the covered tracts are compared;
@@ -79,7 +78,7 @@ rasterization would bias every tract comparison). Other flags are reported, not 
 | File | Content |
 |---|---|
 | `tract_errors_{YEAR}.csv` | every Massachusetts tract: `GISJOIN, county_gisjoin, status, flag, n_cells, small, pop_obs, pop_model, pop_baseline, lon, lat` (lon/lat = WGS84 representative point, to look a tract up) |
-| `metrics_by_year.csv` | `year, method, subset, n, pop_share, rmse, mae, mdape, r2_log, r2_logdens, mdape_logdens` |
+| `metrics_by_year.csv` | `year, method, subset, n, pop_share, rmse, mae, mdape, r2_log, r2_logdens` |
 | `qa_totals.csv` | totals QA above |
 | `tract_validation_{YEAR}.png` | 1940, 1970, 2020: map of the model's % error by tract (blue = under, red = over, clipped at ±100 %; grey = not evaluated) and observed vs predicted scatter (model and baseline, log axes) |
 
@@ -139,6 +138,22 @@ v2 first failed (job 33915573, no `n_masked` column; fixed). Totals QA 546 rows,
    buildings are missing from HISDAC (survivorship: HISDAC is built from present-day records).
 3. 1910 and 1930 cover only Boston (18–19 % of MA pop); both versions have negative R² there.
 
+### E3 experiments, 2000–2020 (v3_2 job 33920631, v3_3 job 33924857)
+
+Model, all tracts:
+
+| Year | MdAPE v2 | v3_1 | v3_2 (no ntl) | v3_3 (E2 params) | R² log dens. v3_1 | v3_2 | v3_3 |
+|---|---|---|---|---|---|---|---|
+| 2000 | 45.2 | 46.5 | 45.2 | **43.0** | 0.772 | 0.777 | **0.811** |
+| 2010 | 44.8 | 45.1 | 45.5 | **41.8** | 0.711 | 0.711 | **0.745** |
+| 2020 | 45.4 | 44.0 | 45.9 | **40.6** | 0.694 | 0.683 | **0.723** |
+
+- v3_2: dropping `ntl` changes nothing at tract level (and worsens the E3 county CV).
+- v3_3: E2's hyperparameters (max_features 1.0) improve every year by 3.4–3.5 pt MdAPE and
+  0.03–0.04 R², the same in non-small tracts, **although the E3 county CV is worse** (R² 0.646 vs
+  0.657, RMSE 0.543 vs 0.500). County CV on 42 rows did not pick the better cell allocation.
+- Still 12+ pt above E2's 1990 (28 %); the cell y_hat floor stays at ~3.79.
+
 ## Open items
 
 - [x] First run (v3_1).
@@ -146,4 +161,10 @@ v2 first failed (job 33915573, no `n_masked` column; fixed). Totals QA 546 rows,
 - [x] Locate 1940 `G2500250A0003`: East Boston / Logan Airport (survivorship).
 - [x] v3_2 (2000–2020) vs v3_1: same (MdAPE 45–46 %, R² log density 0.68–0.78; job 33920631;
   `docs/dasymetric_v3_2.md`, Result).
-- [ ] v3_3 (2000–2020) vs v3_1 (`docs/dasymetric_v3_3.md`).
+- [x] v3_3 (2000–2020) vs v3_1: better (MdAPE 40.6–43.0 %, R² log density 0.72–0.81; job 33924857;
+  `docs/dasymetric_v3_3.md`, Result).
+- [ ] v3_4 (E2 + E3 merged, 1940–2020) vs v3_1 / v3_3 (`docs/dasymetric_v3_4.md`).
+
+**Provisional:** conclusions about the 2000–2020 (E3) gap are provisional. PLURAL (urban–rural
+continuum, from Siqiao) is not yet a feature and may address the remaining pattern of rural tracts
+over-predicted and urban tracts under-predicted.

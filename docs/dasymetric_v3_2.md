@@ -49,7 +49,7 @@ Steps: `docs/runbooks/Running_Dasymetric.md`, section "v3.2".
   density 0.777 / 0.711 / 0.683 vs 0.772 / 0.711 / 0.694. Same as v3.1 (and v2).
 - Cell y_hat floor unchanged (2020: 3.77 vs 3.78).
 - **`ntl` is not the cause** of the 2000–2020 gap. Next: v3.3 (E3 with E2's hyperparameters,
-  `docs/dasymetric_v3_3.md`).
+  `docs/dasymetric_v3_3.md`). Provisional: PLURAL is not yet included (see `docs/open_items.md`).
 
 ## Open items
 

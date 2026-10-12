@@ -6,7 +6,7 @@ Per year:
   2. Model: tract pop = sum of predicted cells. Baseline: county pop spread evenly over the
      county's cells with a prediction > 0 (= the model's cells minus the water mask).
   3. Only tracts whose cells all lie in one used county are evaluated (others flagged).
-  4. RMSE, MAE, median absolute % error, R2 on log(pop + 1), and R2 / MdAPE on log(density + 1)
+  4. RMSE, MAE, median absolute % error, R2 on log(pop + 1), and R2 on log(density + 1)
      (density = tract pop / area of its cells) for model and baseline, for all / non-small
      (>= 4 cells) / small tracts.
   5. Totals QA: county pop = sum of cells; for fully tracted county-years, observed tracts,
@@ -99,11 +99,10 @@ def mdape(obs: np.ndarray, pred: np.ndarray) -> float:
 
 
 def metrics(obs: np.ndarray, pred: np.ndarray, area: np.ndarray) -> dict:
-    """Tract pop metrics + density metrics (people/km2 over the tract's cells; area > 0 for evaluated tracts).
-    Density uses the same area for obs and pred, so plain % error on density = % error on pop; the
-    density MdAPE is therefore taken on log(density + 1)."""
+    """Tract pop metrics + R2 on log density (people/km2 over the tract's cells; area > 0 for evaluated
+    tracts). Density uses the same area for obs and pred, so a % error on density equals the one on pop."""
     if len(obs) == 0:
-        return {k: np.nan for k in ("rmse", "mae", "mdape", "r2_log", "r2_logdens", "mdape_logdens")}
+        return {k: np.nan for k in ("rmse", "mae", "mdape", "r2_log", "r2_logdens")}
     err = pred - obs
     ldo, ldp = np.log1p(obs / area), np.log1p(pred / area)
     return {
@@ -112,7 +111,6 @@ def metrics(obs: np.ndarray, pred: np.ndarray, area: np.ndarray) -> dict:
         "mdape": mdape(obs, pred),
         "r2_log": r2(np.log1p(obs), np.log1p(pred)),
         "r2_logdens": r2(ldo, ldp),
-        "mdape_logdens": mdape(ldo, ldp),
     }
 
 
@@ -186,9 +184,9 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
                          "pop_share": obs.sum() / ma_total if ma_total else np.nan, **m})
     for r in rows:
         if r["subset"] == "all":
-            log.info("  %-8s n=%d share=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | log density: "
-                     "r2=%.3f mdape=%.1f%%", r["method"], r["n"], r["pop_share"], r["rmse"], r["mae"], r["mdape"],
-                     r["r2_log"], r["r2_logdens"], r["mdape_logdens"])
+            log.info("  %-8s n=%d share=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | r2 log density=%.3f",
+                     r["method"], r["n"], r["pop_share"], r["rmse"], r["mae"], r["mdape"], r["r2_log"],
+                     r["r2_logdens"])
 
     # totals QA over tracted counties
     zone_of = dict(zip(ztable["GISJOIN"], ztable["zone_id"]))

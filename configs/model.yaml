@@ -8,9 +8,11 @@
 #  v3: these eras, E3 with ntl, compare_with v2, no water mask;
 #  v3_1: v3 + water_mask: true, compare_with v3).
 # v3_2 = commit a0dd6b9 (docs/dasymetric_v3_2.md): v3_1 with E3 on the E2 feature set (no ntl).
-# v3_3 (docs/dasymetric_v3_3.md, diagnostic): v3_1 (E3 with ntl) but E3's hyperparameters fixed to E2's
-# best from v3_1/v3_2, no search for E3; E1 and E2 unchanged.
-version: v3_3
+# v3_3 = commit f120977 (docs/dasymetric_v3_3.md, diagnostic): v3_1 but E3's hyperparameters fixed to E2's
+# best (era `params:`), no search for E3.
+# v3_4 (docs/dasymetric_v3_4.md, diagnostic): E2 and E3 merged into one era E23 (1940-2020, E2 features,
+# no ntl), searched as usual; E1 unchanged.
+version: v3_4
 
 # Water mask (docs/dasymetric_v3_1.md), per year: a cell is masked if it is all permanent water and has no
 # building that year (water_frac == 1 and BUI == 0; layers/water_frac/water_frac.tif from src/grid/water_frac.py).
@@ -48,13 +50,9 @@ eras:
   E1:
     years: {start: 1810, stop: 1930}
     features: [bui, bldg_size, mu_ratio, dist_built, year]
-  E2:
-    years: {start: 1940, stop: 1990}
+  E23:  # v3_4: v3_1's E2 (1940-1990) and E3 (2000-2020) as one era, E2's features (no ntl), usual search
+    years: {start: 1940, stop: 2020}
     features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share]
-  E3:   # v3_3: v3_1's features (with ntl); hyperparameters fixed = E2's best in v3_1/v3_2 (no search)
-    years: {start: 2000, stop: 2020}
-    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share, ntl]
-    params: {n_estimators: 200, max_depth: 20, min_samples_leaf: 2, max_features: 1.0}
 
 # Concept groups for grouped SHAP: every used feature in exactly one group (per era, only its features).
 feature_groups:

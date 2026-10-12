@@ -38,7 +38,8 @@ v2 passed on Alpine: jobs 33445813 / 33445814 / 33445815, 2026-10-05 cluster tim
 v3 passed on Alpine: jobs 33459257 / 33459258 / 33459259, 2026-10-05 cluster time.
 v3.1 passed on Alpine: jobs 33463269 / 33463270 / 33463271 (after water_frac 33463268), 2026-10-05 cluster time.
 v3.2 (E3 without ntl, `docs/dasymetric_v3_2.md`) passed: jobs 33920625 / 33920627 / 33920629 + validate_tract 33920631, 2026-10-12 cluster time.
-v3.3 (E3 with E2's fixed hyperparameters, `docs/dasymetric_v3_3.md`): config set 2026-10-13, not yet run; see section "v3.3".
+v3.3 (E3 with E2's fixed hyperparameters, `docs/dasymetric_v3_3.md`) passed: jobs 33924854 / 33924855 / 33924856 + validate_tract 33924857, 2026-10-12 cluster time.
+v3.4 (E2 + E3 merged into E23, `docs/dasymetric_v3_4.md`): config set 2026-10-13, not yet run; see section "v3.4".
 
 ## 1. Sync + preflight (login node)
 
@@ -212,7 +213,43 @@ Check: train log `era E3: fixed hyperparameters from the config (no search): {..
 candidates`, `best params` equal to the fixed ones; E1/E2 `CV v3_3 vs v3_1` equal. Close the loop as in
 v3.2 with message `run: dasymetric v3_3 $j1 $j2 $j3 + validate_tract $j4`.
 
+## v3.4 (E2 + E3 merged): run
+
+`configs/model.yaml` shows `version: v3_4`, `compare_with: v3_1`, and two eras: `E1` and `E23` (1940–2020,
+no `ntl`). Chain (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+grep -E '^(version|compare_with|folds_from):|^  E[0-9]+:' configs/model.yaml
+j1=$(sbatch --parsable sbatch/dasymetric_features.sh)
+j2=$(sbatch --parsable --dependency=afterok:$j1 sbatch/dasymetric_train.sh)
+j3=$(sbatch --parsable --dependency=afterok:$j2 sbatch/dasymetric_predict.sh --years 1940 1950 1960 1970 1980 1990 2000 2010 2020)
+j4=$(sbatch --parsable --dependency=afterok:$j3 sbatch/validate_tract.sh --version v3_4 --years 1940 1950 1960 1970 1980 1990 2000 2010 2020 --map-years 1940 1970 2020)
+echo "features $j1 | train $j2 | predict $j3 | validate $j4"
+```
+
+Monitor (same terminal):
+
+```bash
+squeue -u jaju1407
+tail -n 40 logs/dasymetric_features.$j1.out
+tail -n 60 logs/dasymetric_train.$j2.out
+tail -n 40 logs/dasymetric_predict.$j3.out
+tail -n 40 logs/validate_tract.$j4.out
+```
+
+Check: features `era E23: 126 training rows | 14 counties`; train E1 `CV v3_4 vs v3_1` equal, E23 a warning
+`compare_with v3_1 skipped: missing ...` (expected: v3.1 has no E23); predict `mass check: 126 county-years ... 0 fail`.
+Close the loop as in v3.2 with message `run: dasymetric v3_4 $j1 $j2 $j3 + validate_tract $j4`.
+
 ## Notes
+
+- 2026-10-12 (cluster time), v3.3 jobs 33924854 / 33924855 / 33924856 + validate_tract 33924857 (code f120977):
+  E3 fixed params (1 candidate); E1/E2 CV identical to v3.1. E3 county CV 0.543 / 0.646 vs v3.1 0.500 / 0.657
+  (worse), but tract MdAPE 2000–2020 43.0 / 41.8 / 40.6 vs 46.5 / 45.1 / 44.0 (better): county CV and tract
+  validation disagree. Details: `docs/dasymetric_v3_3.md`.
 
 - 2026-10-12 (cluster time), v3.2 jobs 33920625 / 33920627 / 33920629 + validate_tract 33920631 (code a0dd6b9):
   E1/E2 CV identical to v3.1; E3 CV 0.545 / 0.596 vs v3.1 0.500 / 0.657 (worse without ntl). Predict 2000–2020:

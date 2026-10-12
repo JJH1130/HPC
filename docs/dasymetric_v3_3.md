@@ -38,6 +38,28 @@ section "v3.3".
 - The E3 county CV of v3.3 vs v3.1 (same folds and rows) shows how much county CV the fixed
   parameters give up.
 
+## Result (jobs 33924854 / 33924855 / 33924856 + validate_tract 33924857, code f120977, 2026-10-13)
+
+- Train: E3 `search 1 of 1 candidates`, best params = the fixed ones; E1/E2 CV identical to v3.1.
+  Predict 2000–2020: mass check 42 county-years 0 fail; y_hat 3.79–8.20. Tract totals QA 210 rows, 0 flagged.
+- **County CV and tract validation disagree.** E3 county CV (same folds and rows): v3.3 RMSE 0.543 /
+  R² 0.646 vs v3.1 0.500 / 0.657 — worse, which is why the search preferred v3.1's parameters. Yet at
+  tract level v3.3 is the best version so far:
+
+  | Year | Tract MdAPE v3.1 | v3.3 | R² log density v3.1 | v3.3 |
+  |---|---|---|---|---|
+  | 2000 | 46.5 | 43.0 | 0.772 | 0.811 |
+  | 2010 | 45.1 | 41.8 | 0.711 | 0.745 |
+  | 2020 | 44.0 | 40.6 | 0.694 | 0.723 |
+
+  (−3.4 to −3.5 pt MdAPE, MAE −150 to −175 people per tract; the same in non-small tracts.)
+- So the noisy 42-row county CV is not a reliable selector for cell allocation; for CONUS, fix
+  hyperparameters across eras or choose them with a finer-scale check. The effect is modest, though:
+  2000–2020 stays 12+ pt above E2's 1990 (28 %), and the y_hat floor (~3.79) is unchanged.
+- Next: v3.4 (E2 and E3 merged, `docs/dasymetric_v3_4.md`) for the remaining gap.
+- Provisional: PLURAL (urban–rural continuum, from Siqiao) is not yet included and may address the
+  remaining rural-over / urban-under pattern.
+
 ## Open items
 
-- [ ] Run v3.3 and compare with v3.1 (county CV E3; tract MdAPE and R² on log density, 2000–2020).
+- [x] Run v3.3 and compare with v3.1 (above).
