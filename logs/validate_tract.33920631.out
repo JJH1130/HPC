@@ -1,0 +1,49 @@
+== job 33920631 (validate_tract) on c3cpu-e2-u1 at 2026-10-12T12:59:10-06:00
+== cores=2 gpus=none restart=0
+== git a0dd6b9
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== args: --version v3_2 --years 2000 2010 2020 --map-years 2020
+12:59:17 INFO arg version = v3_2
+12:59:17 INFO arg name = massachusetts
+12:59:17 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:59:17 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+12:59:17 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+12:59:17 INFO arg coverage_csv = results/tract/coverage_by_county_MA.csv
+12:59:17 INFO arg results_root = results/validation
+12:59:17 INFO arg years = [2000, 2010, 2020]
+12:59:17 INFO arg map_years = [2020]
+12:59:17 INFO ===== 2000 =====
+12:59:25 INFO   1361 MA tracts | flags {'ok': 1361}
+12:59:25 INFO   model    n=1361 share=1.000 rmse=3806 mae=2486 mdape=45.2% r2_log=-1.026 | log density: r2=0.777 mdape=7.5%
+12:59:25 INFO   baseline n=1361 share=1.000 rmse=6960 mae=3964 mdape=72.4% r2_log=-6.892 | log density: r2=0.131 mdape=14.7%
+12:59:25 INFO ===== 2010 =====
+12:59:35 INFO   1472 MA tracts | flags {'ok': 1472}
+12:59:35 INFO   model    n=1472 share=1.000 rmse=3517 mae=2375 mdape=45.5% r2_log=-0.487 | log density: r2=0.711 mdape=7.6%
+12:59:35 INFO   baseline n=1472 share=1.000 rmse=6539 mae=3756 mdape=71.1% r2_log=-3.637 | log density: r2=0.106 mdape=14.3%
+12:59:35 INFO ===== 2020 =====
+12:59:44 INFO   1614 MA tracts | flags {'ok': 1612, 'no_cells': 2}
+12:59:44 INFO   model    n=1612 share=1.000 rmse=3407 mae=2368 mdape=45.9% r2_log=-0.314 | log density: r2=0.683 mdape=7.6%
+12:59:44 INFO   baseline n=1612 share=1.000 rmse=6042 mae=3717 mdape=71.1% r2_log=-2.715 | log density: r2=0.101 mdape=14.1%
+12:59:45 INFO   plot results/validation/massachusetts/v3_2/tract_validation_2020.png
+12:59:45 INFO metrics (all tracts):
+ year   method subset    n  pop_share        rmse         mae     mdape    r2_log  r2_logdens  mdape_logdens
+ 2000    model    all 1361   1.000000 3806.150165 2486.472170 45.243132 -1.026469    0.777388       7.507207
+ 2000 baseline    all 1361   1.000000 6960.229408 3964.390340 72.440541 -6.892239    0.130810      14.745682
+ 2010    model    all 1472   1.000000 3516.971791 2374.915314 45.496046 -0.486706    0.711012       7.576881
+ 2010 baseline    all 1472   1.000000 6539.214484 3756.110828 71.117743 -3.637422    0.106386      14.299566
+ 2020    model    all 1612   0.999789 3406.987028 2368.175483 45.878034 -0.313822    0.682574       7.550683
+ 2020 baseline    all 1612   0.999789 6041.738818 3716.584618 71.069600 -2.714520    0.100642      14.118023
+12:59:46 INFO totals QA: 210 rows, 0 flagged (> 0.1%); by check:
+                 size  sum
+check                     
+county_cells       42    0
+masked_cells       42    0
+tracts_baseline    42    0
+tracts_model       42    0
+tracts_obs         42    0
+12:59:46 INFO wrote results/validation/massachusetts/v3_2
+12:59:46 INFO DONE
+3.6M	results/validation/massachusetts/v2
+3.6M	results/validation/massachusetts/v3_1
+376K	results/validation/massachusetts/v3_2
+== done 2026-10-12T12:59:46-06:00

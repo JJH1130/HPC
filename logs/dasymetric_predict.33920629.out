@@ -1,0 +1,26 @@
+== job 33920629 (dasymetric_predict) on c3cpu-c15-u7-3 at 2026-10-12T12:57:42-06:00
+== cores=8 gpus=none restart=0
+== git a0dd6b9
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/model.yaml (name=massachusetts version=v3_2)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  out: /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_2  n_jobs: 8  extra args: --years 2000 2010 2020
+12:58:02 INFO arg config = configs/model.yaml
+12:58:02 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:58:02 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+12:58:02 INFO arg years = [2000, 2010, 2020]
+12:58:02 INFO arg map_years = None
+12:58:02 INFO arg compare_years = None
+12:58:02 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census/counties_2020.gpkg
+12:58:02 INFO arg n_jobs = 8
+12:58:02 INFO maps: [1810, 1950, 2020] | side by side with v3_1: [2020]
+12:58:04 INFO model rf era E3 (/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_2/E3/model/rf.joblib) | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'year', 'res_share', 'rent_share'] | use_status ['ok', 'manual_fill']
+12:58:04 INFO 3 years -> /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_2
+12:58:11 INFO   2000 (E3): 14 counties, 335900 cells (1063 masked) | y_hat 3.767..8.056 | pop 6349097 -> cells 6349097 | cell max 868.2 | max rel diff 7.00e-09 | bad cells 0
+12:58:14 INFO   2010 (E3): 14 counties, 335899 cells (1062 masked) | y_hat 3.767..8.058 | pop 6547629 -> cells 6547629 | cell max 892.0 | max rel diff 7.97e-09 | bad cells 0
+12:58:19 INFO   2020 (E3): 14 counties, 335850 cells (1051 masked) | y_hat 3.766..8.063 | pop 7029917 -> cells 7029917 | cell max 960.7 | max rel diff 1.37e-08 | bad cells 0
+12:58:30 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_2/maps/pop_2020.png
+12:58:36 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_2/maps/pop_2020_v3_1_vs_v3_2.png
+12:58:37 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_2/qa/reallocation_qa.csv
+12:58:37 INFO mass check: 42 county-years, max rel diff 1.37e-08 (tolerance 1e-06), 0 fail | bad cells 0
+12:58:37 INFO DONE
+== done 2026-10-12T12:58:37-06:00
+3.3M	/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts/v3_2/predictions
