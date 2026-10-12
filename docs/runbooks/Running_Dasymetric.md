@@ -39,7 +39,7 @@ v3 passed on Alpine: jobs 33459257 / 33459258 / 33459259, 2026-10-05 cluster tim
 v3.1 passed on Alpine: jobs 33463269 / 33463270 / 33463271 (after water_frac 33463268), 2026-10-05 cluster time.
 v3.2 (E3 without ntl, `docs/dasymetric_v3_2.md`) passed: jobs 33920625 / 33920627 / 33920629 + validate_tract 33920631, 2026-10-12 cluster time.
 v3.3 (E3 with E2's fixed hyperparameters, `docs/dasymetric_v3_3.md`) passed: jobs 33924854 / 33924855 / 33924856 + validate_tract 33924857, 2026-10-12 cluster time.
-v3.4 (E2 + E3 merged into E23, `docs/dasymetric_v3_4.md`): config set 2026-10-13, not yet run; see section "v3.4".
+v3.4 (E2 + E3 merged into E23, `docs/dasymetric_v3_4.md`) passed: jobs 33928611 / 33928613 / 33928615 + validate_tract 33928617, 2026-10-12 cluster time. Massachusetts experiments closed.
 
 ## 1. Sync + preflight (login node)
 
@@ -245,6 +245,11 @@ Check: features `era E23: 126 training rows | 14 counties`; train E1 `CV v3_4 vs
 Close the loop as in v3.2 with message `run: dasymetric v3_4 $j1 $j2 $j3 + validate_tract $j4`.
 
 ## Notes
+
+- 2026-10-12 (cluster time), v3.4 jobs 33928611 / 33928613 / 33928615 + validate_tract 33928617 (code 8599fa3):
+  E23 126 rows; E1 CV identical to v3.1; E23 params = E2's. Mass check 126 county-years 0 fail. Tract MdAPE
+  2000–2020 29.8 / 30.5 / 30.9 % (v3.1 46.5 / 45.1 / 44.0); 1940–1990 +0–2.4 pt. The E3 gap was a small-sample
+  problem. Details and the CONUS implication: `docs/dasymetric_v3_4.md`.
 
 - 2026-10-12 (cluster time), v3.3 jobs 33924854 / 33924855 / 33924856 + validate_tract 33924857 (code f120977):
   E3 fixed params (1 candidate); E1/E2 CV identical to v3.1. E3 county CV 0.543 / 0.646 vs v3.1 0.500 / 0.657

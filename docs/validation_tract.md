@@ -154,6 +154,28 @@ Model, all tracts:
   0.657, RMSE 0.543 vs 0.500). County CV on 42 rows did not pick the better cell allocation.
 - Still 12+ pt above E2's 1990 (28 %); the cell y_hat floor stays at ~3.79.
 
+### v3_4: E2 and E3 merged (job 33928617, code 8599fa3)
+
+MdAPE (model, all tracts, %):
+
+  | Year | v2 | v3.1 | v3.3 | **v3.4** | baseline | R² log dens. v3.1 | **v3.4** |
+  |---|---|---|---|---|---|---|---|
+  | 1940 | 49.2 | 43.6 | | 43.3 | 70.8 | 0.030 | 0.031 |
+  | 1950 | 51.7 | 38.0 | | 40.4 | 79.2 | 0.783 | 0.775 |
+  | 1960 | 49.5 | 36.7 | | 37.2 | 81.1 | 0.815 | 0.799 |
+  | 1970 | 47.0 | 32.1 | | 33.3 | 79.2 | 0.844 | 0.827 |
+  | 1980 | 45.4 | 29.8 | | 32.2 | 77.9 | 0.846 | 0.829 |
+  | 1990 | 45.8 | 28.0 | | 30.4 | 74.1 | 0.861 | 0.849 |
+  | 2000 | 45.2 | 46.5 | 43.0 | **29.8** | 72.4 | 0.772 | **0.873** |
+  | 2010 | 44.8 | 45.1 | 41.8 | **30.5** | 71.1 | 0.711 | **0.803** |
+  | 2020 | 45.4 | 44.0 | 40.6 | **30.9** | 71.1 | 0.694 | **0.774** |
+
+- 2000–2020 drops to 30–31 % (E2's 1990 level), R² log density 0.77–0.87; 1940–1990 costs 0–2.4 pt.
+  The E3 gap was a small-sample problem (42 rows).
+- **CONUS implication: enough training rows, not pooled years.** CONUS keeps per-year models (needed
+  for per-year SHAP); each has ~3,000 counties, far more than v3.4's 126 rows. Check at CONUS: compare
+  per-year vs pooled models on tract validation.
+
 ## Open items
 
 - [x] First run (v3_1).
@@ -163,7 +185,9 @@ Model, all tracts:
   `docs/dasymetric_v3_2.md`, Result).
 - [x] v3_3 (2000–2020) vs v3_1: better (MdAPE 40.6–43.0 %, R² log density 0.72–0.81; job 33924857;
   `docs/dasymetric_v3_3.md`, Result).
-- [ ] v3_4 (E2 + E3 merged, 1940–2020) vs v3_1 / v3_3 (`docs/dasymetric_v3_4.md`).
+- [x] v3_4 (E2 + E3 merged, 1940–2020; job 33928617): 2000–2020 MdAPE 29.8 / 30.5 / 30.9 % → small-sample
+  problem (`docs/dasymetric_v3_4.md`, Result). Massachusetts experiments closed.
+- [ ] CONUS: compare per-year vs pooled models on tract validation.
 
 **Provisional:** conclusions about the 2000–2020 (E3) gap are provisional. PLURAL (urban–rural
 continuum, from Siqiao) is not yet a feature and may address the remaining pattern of rural tracts

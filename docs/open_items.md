@@ -66,7 +66,7 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
   11 years (1920 has no MA tracts); model vs areal-weighting baseline; stops if
   cells of a fully tracted county are lost in rasterization.
 
-### Dasymetric v3.2–v3.4: the 2000–2020 (E3) gap
+### Dasymetric v3.2–v3.4: the 2000–2020 (E3) gap (closed 2026-10-13)
 
 - **v3.2 result (2026-10-13):** E3 tract MdAPE unchanged (45–46 %), E3 county CV worse → `ntl` is not
   the cause (`docs/dasymetric_v3_2.md`).
@@ -74,9 +74,13 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
   43.0 / 41.8 / 40.6 vs v3.1 46.5 / 45.1 / 44.0, R² log density +0.03–0.04, although the E3 county CV is
   worse (R² 0.646 vs 0.657). **County CV (42 rows) and tract validation disagree**; for CONUS, don't rely on
   small per-era county CV alone to pick hyperparameters. Gain is modest (still 12+ pt above 1990's 28 %).
-- **v3.4** (`docs/dasymetric_v3_4.md`, last Massachusetts experiment): E2 + E3 merged into E23 (1940–2020,
-  no ntl, 126 rows), usual search. Config set 2026-10-13; not yet run. 2000–2020 toward ~30 % →
-  small-sample problem; stays ~41–46 % → period-specific.
+- **v3.4 result (2026-10-13, `docs/dasymetric_v3_4.md`):** E2 + E3 merged into E23 (1940–2020, no ntl,
+  126 rows): 2000–2020 tract MdAPE 44–46 % → 29.8 / 30.5 / 30.9 %, R² log density 0.77–0.87; 1940–1990
+  cost 0–2.4 pt. **The E3 gap was a small-sample problem** (42 rows), not period-specific.
+- **CONUS implication: enough training rows, not pooled years.** CONUS keeps per-year models (needed
+  for per-year SHAP); each has ~3,000 counties, far more than v3.4's 126 rows. Check at CONUS: compare
+  per-year vs pooled models on tract validation.
+- **Massachusetts experiments closed (2026-10-13)** with v3.4.
 - **Provisional:** conclusions on the E3 gap wait for PLURAL (urban–rural continuum, from Siqiao), which is
   not yet included and may address the remaining rural-over / urban-under pattern.
 - v3.2 background: tract validation (2026-10-13) rejected the E3 y_hat-floor explanation: 2000–2020 tract MdAPE is
@@ -122,8 +126,8 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 - Small samples per era (E3: 42 rows, 14 counties): v3 checks mechanics, not
   model quality. Per the design, do not tune or drop features on v3
   Massachusetts results alone.
-- Later (design "Open items"): scale to CONUS (per-year models; re-check
-  collinearity and `age` there), Ascent allocation (approved 2026-10, see above), DEM, water,
+- Later (design "Open items"): scale to CONUS (per-year models, ~3,000 counties each; compare per-year
+  vs pooled on tract validation, see v3.4 below; re-check collinearity and `age` there), Ascent allocation (approved 2026-10, see above), DEM, water,
   PLURAL, fine-scale validation.
 
 ### Dasymetric v3.1 (water mask)
@@ -199,4 +203,5 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 | 2026-10-09 | Stefan's county CSV = NHGIS nominal counts (36,560 / 36,565 county-years match, job 33505541), not areally standardized. Keep NHGIS nominal boundaries + counts for dasymetric (1810–2020); consistent-boundary series = 250 m outputs aggregated to 2010 counties; CSV used only for CBSA attributes. |
 | 2026-10-09 | Ascent allocation approved: account `ucb852_asc1`, 450,000 SU, valid until 2027-10-05. All sbatch scripts use `--account=ucb852_asc1`; Alpine acknowledgement kept in `docs/acknowledgements.md`. |
 | 2026-10-13 | CONUS water step: JRC occurrence >= 75 unchanged; GDW v1.0 reservoir polygons replace HydroLAKES `Lake_type = 2`. `YEAR_DAM` + `QUALITY` 1–3 → water from `YEAR_DAM` on; `LAKE_CTRL` Yes/Maybe → water in all years; no `YEAR_DAM` or `QUALITY` 4–5 → land in all years. Unflagged dam-raised natural lakes are land before `YEAR_DAM` (accepted). `water_frac` becomes year-dependent. |
+| 2026-10-13 | Massachusetts dasymetric experiments closed (v3.2–v3.4). The 2000–2020 tract gap was a small-sample problem (E3 = 42 rows; merging E2+E3 → MdAPE 30–31 %). Lesson for CONUS: enough training rows, not pooled years; CONUS keeps per-year models (per-year SHAP, ~3,000 counties each) and checks per-year vs pooled on tract validation. Provisional until PLURAL is included. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
