@@ -10,8 +10,10 @@ Inputs (extract nhgis0002):
 
 Rules per year:
   1. Stack every population table -> (GISJOIN, pop, dataset, table); empty pops dropped.
-  2. Same GISJOIN in several tables: equal values -> keep one; different -> status
-     "conflict", pop empty (no value is chosen).
+  2. Same GISJOIN in several tables: equal values -> keep one. Different values: if
+     (max - min) / max <= 5 % -> status "ok", pop from the highest-priority table
+     ("conflict_resolved" in issues.csv); else status "conflict", pop empty. Priority per
+     year = order of rows in the table config, then dataset number.
   3. CONUS only: state code 02, 15, 72 dropped (table and polygon side).
   4. Join to the year's polygons (ESRI:102039) on GISJOIN; polygon without pop -> status
      "no_pop"; pop without polygon -> issues.csv ("pop_only").
@@ -44,7 +46,8 @@ MA_PREFIX = "G250"
 OUT_COLS = ["GISJOIN", "county_gisjoin", "pop", "status", "source_tables", "area_km2", "geometry"]
 ISSUE_COLS = ["year", "GISJOIN", "issue", "pop", "source_tables", "detail"]
 INV_COLS = ["year", "dataset", "file", "table", "nhgis_code", "title", "universe", "n_vars",
-            "variables", "pop_columns", "rule"]
+            "variables", "pop_columns", "rule", "priority"]
+RESOLVE_TOL = 0.05  # max relative difference between tables still taken as one value
 
 TABLE_RE = re.compile(r"^\s*Table\s+\d+:\s+(?P<v>.+?)\s*$")
 UNIV_RE = re.compile(r"^\s*Universe:\s+(?P<v>.+?)\s*$")
@@ -119,6 +122,7 @@ def parse_codebook(path: Path) -> list[dict]:
 
 
 def read_table_config(path: Path) -> dict[tuple[str, str], str]:
+    """(dataset, table) -> pop_columns ("" = automatic choice), in file order (= priority)."""
     df = pd.read_csv(path, dtype=str, comment="#").fillna("").apply(lambda s: s.str.strip())
     missing = {"dataset", "table", "pop_columns", "note"} - set(df.columns)
     if missing:
@@ -127,7 +131,7 @@ def read_table_config(path: Path) -> dict[tuple[str, str], str]:
 
 
 def choose_columns(dataset, table, variables, header, config) -> tuple[list[str], str]:
-    if (dataset, table) in config:
+    if config.get((dataset, table)):
         cols, rule = config[(dataset, table)].split(), "config"
     elif len(variables) == 1:
         cols, rule = [variables[0][0]], "single_variable"
@@ -167,9 +171,19 @@ def build_inventory(csv_dir: Path, config, results_dir: Path) -> pd.DataFrame:
                     "pop_columns": " ".join(cols), "rule": rule,
                 })
     inv = pd.DataFrame(rows, columns=INV_COLS)
+    # priority within a year (1 = preferred): config row order, then dataset number, then codebook order
+    cfg_order = {key: i for i, key in enumerate(config)}
+    keys = pd.DataFrame({
+        "year": inv["year"],
+        "cfg": [cfg_order.get(k, len(cfg_order)) for k in zip(inv["dataset"], inv["table"])],
+        "ds": inv["dataset"].str[2:].astype(int),
+        "pos": range(len(inv)),
+    })
+    inv["priority"] = keys.sort_values(["year", "cfg", "ds", "pos"]).groupby("year").cumcount() + 1
     inv.to_csv(results_dir / "table_inventory.csv", index=False)
     log.info("table inventory (%d tables):\n%s", len(inv),
-             inv[["year", "dataset", "table", "title", "n_vars", "pop_columns", "rule"]].to_string(index=False))
+             inv[["year", "dataset", "table", "title", "n_vars", "pop_columns", "rule", "priority"]]
+             .to_string(index=False))
     used = set(zip(inv["dataset"], inv["table"]))
     for key in set(config) - used:
         log.warning("config row %s matches no table", key)
@@ -231,7 +245,7 @@ def is_non_conus(gisjoin: pd.Series) -> pd.Series:
 def stack_year(year, inv, csv_dir, ts) -> pd.DataFrame:
     """Rule 1: all population tables of the year -> GISJOIN, pop, dataset, table."""
     if year >= TS_FIRST_YEAR:
-        return ts.loc[ts["year"] == year, ["GISJOIN", "pop", "dataset", "table"]]
+        return ts.loc[ts["year"] == year, ["GISJOIN", "pop", "dataset", "table"]].assign(priority=1)
     parts = []
     for fname, g in inv[inv["year"] == year].groupby("file"):
         cols = sorted({c for pc in g["pop_columns"] for c in pc.split()})
@@ -239,37 +253,45 @@ def stack_year(year, inv, csv_dir, ts) -> pd.DataFrame:
         for r in g.itertuples():
             vals = raw[r.pop_columns.split()].apply(pd.to_numeric, errors="coerce").sum(axis=1, min_count=1)
             parts.append(pd.DataFrame({"GISJOIN": raw["GISJOIN"].values, "pop": vals.values,
-                                       "dataset": r.dataset, "table": r.table}))
+                                       "dataset": r.dataset, "table": r.table, "priority": r.priority}))
             log.info("  %s %s %s (%s): %d rows, %d with pop, total %s", fname, r.dataset, r.table,
                      r.pop_columns, len(raw), vals.notna().sum(), f"{vals.sum():,.0f}")
     return pd.concat(parts, ignore_index=True)
 
 
 def combine(year, stack) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Rule 2: one row per GISJOIN; differing values -> conflict, pop empty."""
+    """Rule 2: one row per GISJOIN. Values that differ by <= RESOLVE_TOL take the
+    highest-priority table's value; larger differences -> conflict, pop empty."""
     empty = stack["pop"].isna()
     if empty.any():
         log.info("  dropped %d table rows with an empty pop", empty.sum())
-    stack = stack[~empty].copy()
+    stack = stack[~empty].sort_values("priority", kind="stable")
     stack["src"] = stack["table"].where(stack["dataset"] == "ts", stack["dataset"] + ":" + stack["table"])
     by = stack.groupby("GISJOIN")
-    agg = by.agg(n=("pop", "size"), pop_min=("pop", "min"), pop_max=("pop", "max"),
+    agg = by.agg(n=("pop", "size"), pop_min=("pop", "min"), pop_max=("pop", "max"), pop_first=("pop", "first"),
                  source_tables=("src", lambda s: ";".join(sorted(set(s))))).reset_index()
-    conflict = agg["pop_min"] != agg["pop_max"]
+    differ = agg["pop_min"] != agg["pop_max"]
+    rel = (agg["pop_max"] - agg["pop_min"]) / agg["pop_max"]  # pops >= 0, so max > 0 when they differ
+    agg["resolved"] = differ & (rel <= RESOLVE_TOL)
+    conflict = differ & ~agg["resolved"]
     agg["status"] = "ok"
     agg.loc[conflict, "status"] = "conflict"
-    agg["pop"] = agg["pop_min"].where(~conflict)
-    log.info("  %d table rows -> %d GISJOINs; %d in several tables with equal values (kept one); %d conflicts",
-             len(stack), len(agg), int(((agg["n"] > 1) & ~conflict).sum()), int(conflict.sum()))
-    rows = stack[stack["GISJOIN"].isin(agg.loc[conflict, "GISJOIN"])]
+    agg["pop"] = agg["pop_first"].where(~conflict)
+    log.info("  %d table rows -> %d GISJOINs; %d in several tables with equal values (kept one); "
+             "%d differ by <= %.0f%% (highest-priority value kept); %d conflicts (pop empty)",
+             len(stack), len(agg), int(((agg["n"] > 1) & ~differ).sum()), int(agg["resolved"].sum()),
+             100 * RESOLVE_TOL, int(conflict.sum()))
+    rows = stack[stack["GISJOIN"].isin(agg.loc[differ, "GISJOIN"])]
     detail = {g: "; ".join(f"{s}={p:,.0f}" for s, p in zip(part["src"], part["pop"]))
               for g, part in rows.groupby("GISJOIN")}
-    issues = pd.DataFrame({"year": year, "GISJOIN": agg.loc[conflict, "GISJOIN"].values, "issue": "conflict",
-                           "pop": float("nan"), "source_tables": agg.loc[conflict, "source_tables"].values})
-    issues["detail"] = issues["GISJOIN"].map(detail)
+    d = agg[differ]
+    issues = pd.DataFrame({"year": year, "GISJOIN": d["GISJOIN"].values,
+                           "issue": d["status"].map({"ok": "conflict_resolved", "conflict": "conflict"}).values,
+                           "pop": d["pop"].values, "source_tables": d["source_tables"].values,
+                           "detail": [f"{detail[g]} (max diff {r:.1%})" for g, r in zip(d["GISJOIN"], rel[differ])]})
     for r in issues.head(20).itertuples():
-        log.info("    conflict %s: %s", r.GISJOIN, r.detail)
-    return agg[["GISJOIN", "pop", "status", "source_tables"]], issues
+        log.info("    %s %s: pop %s | %s", r.issue, r.GISJOIN, r.pop, r.detail)
+    return agg[["GISJOIN", "pop", "status", "source_tables", "resolved"]], issues
 
 
 def check_counties(year, tracts, counties) -> pd.DataFrame:
@@ -302,7 +324,7 @@ def summarize(year, n_tables, agg, tracts, issues) -> dict:
     return {
         "year": year, "n_tables": n_tables, "n_tracts": len(tracts),
         "n_with_pop": int(tracts["pop"].notna().sum()), "total_pop": float(tracts["pop"].sum()),
-        "n_conflict": int((agg["status"] == "conflict").sum()),
+        "n_conflict": int((agg["status"] == "conflict").sum()), "n_conflict_resolved": int(agg["resolved"].sum()),
         "n_unmatched_pop": len(pop_only), "pop_unmatched": float(pop_only["pop"].sum()),
         "n_unmatched_poly": count("no_pop"),
         "n_county_not_found": count("county_not_found"), "n_county_mismatch": count("county_mismatch"),

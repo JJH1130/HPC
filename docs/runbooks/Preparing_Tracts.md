@@ -109,3 +109,8 @@ Then monitor (step 3) and close the loop (step 4, with message `run: tract_prepa
 - 2026-10-13, job 33886550 (quick test): stopped as designed after the inventory. The parser read all 27
   tables (24 datasets); 26 have one variable. 1920 ds48 NT1 has BBQ001 = 1910 and BBQ002 = 1920 →
   `configs/nhgis_tract_tables.csv` row `ds48,NT1,BBQ002`. Rerun the quick test.
+- 2026-10-13, job 33887279 (quick test 1910/1960/1970, reviewed by the user): 1960 had 1,264 conflicts
+  (of 1,258 NTSUP2/NBT1 pairs, 87 % differ < 5 %, 124 > 20 %). New rule: differences ≤ 5 % take the
+  highest-priority table (1960: NTSUP2 > NBT1 > NBT4), > 5 % stay `conflict`; QA gets
+  `n_conflict_resolved`. 1910 Philadelphia (G4201010, 272 tracts, ~1.55 M) has no tract polygons →
+  `pop_only`, excluded. Next: full run (step 5).

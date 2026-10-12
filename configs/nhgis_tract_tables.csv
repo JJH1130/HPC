@@ -1,6 +1,11 @@
 # Population column(s) for NHGIS tract source tables (1910-1960), used by src/census/prepare_tracts.py.
 # Only needed when the automatic choice (single variable, or the one variable labelled "Total") fails or is wrong.
 # dataset = NHGIS ID (e.g. ds39); table = source code (e.g. NT22); pop_columns = space-separated NHGIS variable codes, summed.
+# Row order also sets table priority within a year (first = preferred) for tracts whose values differ by <= 5 %;
+# a row with empty pop_columns only sets priority (automatic column choice).
 # See docs/tract_preprocessing.md and results/tract/table_inventory.csv.
 dataset,table,pop_columns,note
 ds48,NT1,BBQ002,"1920 Population, 1910 and 1920: BBQ001 = 1910, BBQ002 = 1920; use the 1920 count (job 33886550)"
+ds92,NTSUP2,,"1960 priority 1 (conflict rule, docs/tract_preprocessing.md)"
+ds92,NBT1,,"1960 priority 2 (printed report)"
+ds92,NBT4,,"1960 priority 3 (printed report)"
