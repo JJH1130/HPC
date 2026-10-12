@@ -1,0 +1,4 @@
+year,n_tables,n_tracts,n_with_pop,total_pop,n_conflict,n_unmatched_pop,pop_unmatched,n_unmatched_poly,n_county_not_found,n_county_mismatch
+1910,3,126,126,670585.0,0,0,0.0,0,0,1
+1960,3,757,726,3995206.0,26,1,1371.0,5,0,1
+1970,1,1050,1049,5217455.0,0,6,617.0,1,0,1

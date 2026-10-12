@@ -5,7 +5,7 @@ year,dataset,file,table,nhgis_code,title,universe,n_vars,variables,pop_columns,r
 1920,ds45,nhgis0002_ds45_1920_tract.csv,NT1,A94,Population,Persons,1,A94001=Total,A94001,single_variable
 1920,ds46,nhgis0002_ds46_1920_tract.csv,NT1,BBJ,Population,Persons,1,BBJ001=Total,BBJ001,single_variable
 1920,ds47,nhgis0002_ds47_1920_tract.csv,NT1,BBP,Population,Persons,1,BBP001=Total,BBP001,single_variable
-1920,ds48,nhgis0002_ds48_1920_tract.csv,NT1,BBQ,"Population, 1910 and 1920",Persons in 1910 and 1920,2,BBQ001=1910; BBQ002=1920,,UNRESOLVED
+1920,ds48,nhgis0002_ds48_1920_tract.csv,NT1,BBQ,"Population, 1910 and 1920",Persons in 1910 and 1920,2,BBQ001=1910; BBQ002=1920,BBQ002,config
 1930,ds58,nhgis0002_ds58_1930_tract.csv,NT1,BHI,Population,Persons,1,BHI001=Total,BHI001,single_variable
 1930,ds59,nhgis0002_ds59_1930_tract.csv,NT1,BI1,Population,Persons in 1930,1,BI1001=Total,BI1001,single_variable
 1930,ds60,nhgis0002_ds60_1930_tract.csv,NT1,BJW,Population,Persons,1,BJW001=Total,BJW001,single_variable

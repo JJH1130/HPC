@@ -1,0 +1,156 @@
+== job 33887279 (tract_prepare) on c3cpu-e2-u9 at 2026-10-12T10:29:43-06:00
+== cores=4 gpus=none restart=0
+== git e105e66
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== raw: /projects/jaju1407/data/raw/nhgis  out: /projects/jaju1407/data/processed/tract  extra args: --years 1910 1960 1970
+10:29:46 INFO arg csv_dir = /projects/jaju1407/data/raw/nhgis/nhgis0002_csv
+10:29:46 INFO arg ts_csv = /projects/jaju1407/data/raw/nhgis/nhgis0002_csv/nhgis0002_ts_nominal_tract.csv
+10:29:46 INFO arg shape_dir = /projects/jaju1407/data/raw/nhgis/nhgis0002_shape
+10:29:46 INFO arg census_dir = /projects/jaju1407/data/processed/census
+10:29:46 INFO arg table_config = configs/nhgis_tract_tables.csv
+10:29:46 INFO arg out_dir = /projects/jaju1407/data/processed/tract
+10:29:46 INFO arg results_dir = results/tract
+10:29:46 INFO arg years = [1910, 1960, 1970]
+10:29:46 INFO GPKGs are written in /scratch/local/33887279/prepare_census, then copied to /projects/jaju1407/data/processed/tract
+10:29:46 INFO table inventory (27 tables):
+ year dataset  table                                  title  n_vars pop_columns            rule
+ 1910    ds39    NT1                       Total Population       1      A5X001 single_variable
+ 1910    ds40   NT22                             Population       1      A6C001 single_variable
+ 1910    ds40   NT49                             Population       1      A64001 single_variable
+ 1920    ds45    NT1                             Population       1      A94001 single_variable
+ 1920    ds46    NT1                             Population       1      BBJ001 single_variable
+ 1920    ds47    NT1                             Population       1      BBP001 single_variable
+ 1920    ds48    NT1              Population, 1910 and 1920       2      BBQ002          config
+ 1930    ds58    NT1                             Population       1      BHI001 single_variable
+ 1930    ds59    NT1                             Population       1      BI1001 single_variable
+ 1930    ds60    NT1                             Population       1      BJW001 single_variable
+ 1930    ds62    NT1                       Total Population       1      BLO001 single_variable
+ 1930    ds63    NT1                             Population       1      BLW001 single_variable
+ 1930    ds64    NT1                        Population 1930       1      BND001 single_variable
+ 1930    ds65    NT1                             Population       1      BNE001 single_variable
+ 1930    ds66    NT9                       Total Population       1      BOI001 single_variable
+ 1930    ds67    NT1                       Total Population       1      BOJ001 single_variable
+ 1930    ds68    NT1                             Population       1      BOO001 single_variable
+ 1930    ds69    NT3                             Population       1      BQM001 single_variable
+ 1930    ds70    NT1                             Population       1      BQQ001 single_variable
+ 1930    ds71    NT1                             Population       1      BRQ001 single_variable
+ 1940    ds76    NT1                             Population       1      BUB001 single_variable
+ 1950    ds82    NT1                       Total Population       1      BZ8001 single_variable
+ 1950    ds86    NT1                       Total Population       1      B4Q001 single_variable
+ 1950    ds87    NT1                       Total Population       1      B4S001 single_variable
+ 1960    ds92 NTSUP2                          Total Persons       1      CA4001 single_variable
+ 1960    ds92   NBT1 Total Population [from printed report]       1      B53001 single_variable
+ 1960    ds92   NBT4 Total Population [from printed report]       1      B60001 single_variable
+10:29:48 INFO time series: 367443 rows, years [1970, 1980, 1990, 2000, 2010, 2020]
+10:29:48 INFO ===== 1910 =====
+10:29:48 INFO   nhgis0002_ds39_1910_tract.csv ds39 NT1 (A5X001): 1543 rows, 1542 with pop, total 6,789,589
+10:29:48 INFO   nhgis0002_ds40_1910_tract.csv ds40 NT22 (A6C001): 704 rows, 704 with pop, total 4,766,883
+10:29:48 INFO   nhgis0002_ds40_1910_tract.csv ds40 NT49 (A64001): 704 rows, 704 with pop, total 4,763,970
+10:29:48 INFO   dropped 1 table rows with an empty pop
+10:29:48 INFO   2950 table rows -> 2246 GISJOINs; 703 in several tables with equal values (kept one); 1 conflicts
+10:29:48 INFO     conflict G36004700147: ds40:NT22=2,913; ds40:NT49=0
+10:29:48 INFO   boundaries: nhgis0002_shapefile_tl2008_us_tract_1910.zip/US_tract_1910_conflated.shp (1980 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+10:29:49 INFO   2 features share 1 GISJOINs -> dissolving by GISJOIN
+10:29:49 INFO   join: 1979 polygons, 1972 with pop; 273 table tracts without polygon (pop 1,548,771); 6 polygons without pop
+10:29:53 INFO   county check: 1 codes not in counties_1910.gpkg, 1 tract points in another county or none
+10:29:53 INFO     county_not_found G3600050nodata: no county G3600050 in counties_1910.gpkg
+10:29:53 INFO     county_mismatch G2500250X0006: point in G2500210
+10:29:53 INFO Created 1,979 records
+10:29:53 INFO   wrote /projects/jaju1407/data/processed/tract/tracts_1910.gpkg (1979 tracts, 4.8 MB) | tract pop 10,004,788
+10:29:53 INFO   QA: {'year': 1910, 'n_tables': 3, 'n_tracts': 1979, 'n_with_pop': 1972, 'total_pop': 10004788.0, 'n_conflict': 1, 'n_unmatched_pop': 273, 'pop_unmatched': 1548771.0, 'n_unmatched_poly': 6, 'n_county_not_found': 1, 'n_county_mismatch': 1}
+10:29:53 INFO   QA Massachusetts: {'year': 1910, 'n_tables': 3, 'n_tracts': 126, 'n_with_pop': 126, 'total_pop': 670585.0, 'n_conflict': 0, 'n_unmatched_pop': 0, 'pop_unmatched': 0.0, 'n_unmatched_poly': 0, 'n_county_not_found': 0, 'n_county_mismatch': 1}
+10:29:53 INFO ===== 1960 =====
+10:29:53 INFO   nhgis0002_ds92_1960_tract.csv ds92 NTSUP2 (CA4001): 22918 rows, 22434 with pop, total 102,237,650
+10:29:53 INFO   nhgis0002_ds92_1960_tract.csv ds92 NBT1 (B53001): 22918 rows, 22871 with pop, total 104,010,706
+10:29:53 INFO   nhgis0002_ds92_1960_tract.csv ds92 NBT4 (B60001): 22918 rows, 22871 with pop, total 103,881,514
+10:29:53 INFO   dropped 578 table rows with an empty pop
+10:29:54 INFO   68176 table rows -> 22918 GISJOINs; 21587 in several tables with equal values (kept one); 1284 conflicts
+10:29:54 INFO     conflict G01005500101: ds92:NTSUP2=3,246; ds92:NBT1=3,239; ds92:NBT4=3,239
+10:29:54 INFO     conflict G01005500103: ds92:NTSUP2=3,172; ds92:NBT1=3,179; ds92:NBT4=3,179
+10:29:54 INFO     conflict G01005500110: ds92:NTSUP2=5,004; ds92:NBT1=5,006; ds92:NBT4=5,006
+10:29:54 INFO     conflict G01009700012: ds92:NTSUP2=5,750; ds92:NBT1=5,750; ds92:NBT4=5,587
+10:29:54 INFO     conflict G0400130PH0018: ds92:NTSUP2=5,161; ds92:NBT1=5,161; ds92:NBT4=5,163
+10:29:54 INFO     conflict G0400130PH0023: ds92:NTSUP2=7,737; ds92:NBT1=7,735; ds92:NBT4=7,735
+10:29:54 INFO     conflict G0400130PH0048: ds92:NTSUP2=8,122; ds92:NBT1=8,111; ds92:NBT4=8,111
+10:29:54 INFO     conflict G0400130PH0049: ds92:NTSUP2=5,749; ds92:NBT1=5,760; ds92:NBT4=5,760
+10:29:54 INFO     conflict G0400130PH0065: ds92:NTSUP2=6,763; ds92:NBT1=6,733; ds92:NBT4=6,733
+10:29:54 INFO     conflict G0400130PH0066: ds92:NTSUP2=10,272; ds92:NBT1=10,302; ds92:NBT4=10,302
+10:29:54 INFO     conflict G04001900041: ds92:NTSUP2=3,121; ds92:NBT1=3,125; ds92:NBT4=3,125
+10:29:54 INFO     conflict G04001900045: ds92:NTSUP2=12,242; ds92:NBT1=12,238; ds92:NBT4=12,238
+10:29:54 INFO     conflict G05011900033: ds92:NTSUP2=10,636; ds92:NBT1=10,609; ds92:NBT4=10,609
+10:29:54 INFO     conflict G05011900034: ds92:NTSUP2=2,221; ds92:NBT1=2,241; ds92:NBT4=2,241
+10:29:54 INFO     conflict G05011900038: ds92:NTSUP2=3,872; ds92:NBT1=3,879; ds92:NBT4=3,879
+10:29:54 INFO     conflict G0600010AL0010A: ds92:NTSUP2=5,859; ds92:NBT1=5,859; ds92:NBT4=5,047
+10:29:54 INFO     conflict G0600010AL0010B: ds92:NTSUP2=4,352; ds92:NBT1=4,352; ds92:NBT4=4,346
+10:29:54 INFO     conflict G0600010AL0011A: ds92:NTSUP2=7,501; ds92:NBT1=7,501; ds92:NBT4=2,565
+10:29:54 INFO     conflict G0600010AL0016A: ds92:NTSUP2=7,403; ds92:NBT1=7,403; ds92:NBT4=5,247
+10:29:54 INFO     conflict G0600010CV0022: ds92:NTSUP2=4,872; ds92:NBT1=4,874; ds92:NBT4=4,874
+10:29:54 INFO   tables: dropped 114 non-CONUS tracts (pop 420,057)
+10:29:55 INFO   boundaries: nhgis0002_shapefile_tl2008_us_tract_1960.zip/US_tract_1960_conflated.shp (23096 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+10:29:56 INFO   76 features share 9 GISJOINs -> dissolving by GISJOIN
+10:29:56 INFO   boundaries: dropped 114 non-CONUS features
+10:29:56 INFO   join: 22915 polygons, 21538 with pop; 2 table tracts without polygon (pop 1,371); 113 polygons without pop
+10:30:00 INFO   county check: 0 codes not in counties_1960.gpkg, 3 tract points in another county or none
+10:30:00 INFO     county_mismatch G2500210NC0065: point in G2500230
+10:30:00 INFO     county_mismatch G36006100001: point in G3400170
+10:30:00 INFO     county_mismatch G51065000003: point in G5107000
+10:30:00 INFO Created 22,915 records
+10:30:02 INFO   wrote /projects/jaju1407/data/processed/tract/tracts_1960.gpkg (22915 tracts, 122.6 MB) | tract pop 98,084,265
+10:30:02 INFO   QA: {'year': 1960, 'n_tables': 3, 'n_tracts': 22915, 'n_with_pop': 21538, 'total_pop': 98084265.0, 'n_conflict': 1264, 'n_unmatched_pop': 2, 'pop_unmatched': 1371.0, 'n_unmatched_poly': 113, 'n_county_not_found': 0, 'n_county_mismatch': 3}
+10:30:02 INFO   QA Massachusetts: {'year': 1960, 'n_tables': 3, 'n_tracts': 757, 'n_with_pop': 726, 'total_pop': 3995206.0, 'n_conflict': 26, 'n_unmatched_pop': 1, 'pop_unmatched': 1371.0, 'n_unmatched_poly': 5, 'n_county_not_found': 0, 'n_county_mismatch': 1}
+10:30:02 INFO ===== 1970 =====
+10:30:02 INFO   34617 table rows -> 34617 GISJOINs; 0 in several tables with equal values (kept one); 0 conflicts
+10:30:02 INFO   tables: dropped 250 non-CONUS tracts (pop 893,103)
+10:30:04 INFO   boundaries: nhgis0002_shapefile_tl2008_us_tract_1970.zip/US_tract_1970_conflated.shp (34494 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+10:30:07 INFO   24 features share 4 GISJOINs -> dissolving by GISJOIN
+10:30:07 INFO   boundaries: dropped 241 non-CONUS features
+10:30:07 INFO   join: 34233 polygons, 34140 with pop; 227 table tracts without polygon (pop 160,130); 93 polygons without pop
+10:30:13 INFO   county check: 1 codes not in counties_1970.gpkg, 1 tract points in another county or none
+10:30:13 INFO     county_not_found G470065nodata: no county G470065n in counties_1970.gpkg
+10:30:13 INFO     county_mismatch G25002104231: point in G2500230
+10:30:14 INFO Created 34,233 records
+10:30:17 INFO   wrote /projects/jaju1407/data/processed/tract/tracts_1970.gpkg (34233 tracts, 217.0 MB) | tract pop 147,403,889
+10:30:17 INFO   QA: {'year': 1970, 'n_tables': 1, 'n_tracts': 34233, 'n_with_pop': 34140, 'total_pop': 147403889.0, 'n_conflict': 0, 'n_unmatched_pop': 227, 'pop_unmatched': 160130.0, 'n_unmatched_poly': 93, 'n_county_not_found': 1, 'n_county_mismatch': 1}
+10:30:17 INFO   QA Massachusetts: {'year': 1970, 'n_tables': 1, 'n_tracts': 1050, 'n_with_pop': 1049, 'total_pop': 5217455.0, 'n_conflict': 0, 'n_unmatched_pop': 6, 'pop_unmatched': 617.0, 'n_unmatched_poly': 1, 'n_county_not_found': 0, 'n_county_mismatch': 1}
+10:30:17 INFO QA by year:
+ year  n_tables  n_tracts  n_with_pop   total_pop  n_conflict  n_unmatched_pop  pop_unmatched  n_unmatched_poly  n_county_not_found  n_county_mismatch
+ 1910         3      1979        1972  10004788.0           1              273      1548771.0                 6                   1                  1
+ 1960         3     22915       21538  98084265.0        1264                2         1371.0               113                   0                  3
+ 1970         1     34233       34140 147403889.0           0              227       160130.0                93                   1                  1
+10:30:17 INFO issues by year and kind:
+year  issue           
+1910  conflict               1
+      county_mismatch        1
+      county_not_found       1
+      no_pop                 6
+      pop_only             273
+1960  conflict            1264
+      county_mismatch        3
+      no_pop               113
+      pop_only               2
+1970  county_mismatch        1
+      county_not_found       1
+      no_pop                93
+      pop_only             227
+10:30:17 INFO counties with coverage > 1.001: 2
+10:30:17 INFO wrote results to results/tract
+10:30:17 INFO DONE
+/projects/jaju1407/data/processed/tract:
+total 391272
+drwxr-sr-x 2 jaju1407 jaju1407grp       102 Oct 12 10:30 .
+drwxr-sr-x 4 jaju1407 jaju1407grp        47 Oct 12 10:26 ..
+-rw-r--r-- 1 jaju1407 jaju1407grp   4792320 Oct 12 10:29 tracts_1910.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 122560512 Oct 12 10:30 tracts_1960.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 216993792 Oct 12 10:30 tracts_1970.gpkg
+
+results/tract:
+total 232
+drwxr-sr-x 2 jaju1407 jaju1407grp    215 Oct 12 10:30 .
+drwxr-sr-x 7 jaju1407 jaju1407grp    127 Oct 12 10:26 ..
+-rw-r--r-- 1 jaju1407 jaju1407grp  62125 Oct 12 10:30 coverage_by_county.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp   1684 Oct 12 10:30 coverage_by_county_MA.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp 172996 Oct 12 10:30 issues.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp    294 Oct 12 10:30 qa_by_year.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp    263 Oct 12 10:30 qa_by_year_MA.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp   3085 Oct 12 10:29 table_inventory.csv
+== done 2026-10-12T10:30:17-06:00
