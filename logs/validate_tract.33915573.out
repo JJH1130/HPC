@@ -1,0 +1,25 @@
+== job 33915573 (validate_tract) on c3cpu-e2-u13 at 2026-10-12T12:30:38-06:00
+== cores=2 gpus=none restart=0
+== git bb3efee
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== args: --version v2
+12:31:20 INFO arg version = v2
+12:31:20 INFO arg name = massachusetts
+12:31:20 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:31:20 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+12:31:20 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+12:31:20 INFO arg coverage_csv = results/tract/coverage_by_county_MA.csv
+12:31:20 INFO arg results_root = results/validation
+12:31:20 INFO arg years = [1910, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+12:31:20 INFO arg map_years = [1940, 1970, 2020]
+12:31:21 INFO ===== 1910 =====
+Traceback (most recent call last):
+  File "/projects/jaju1407/HPC/src/validation/tract_validate.py", line 284, in <module>
+    main()
+  File "/projects/jaju1407/HPC/src/validation/tract_validate.py", line 262, in main
+    r, q = validate_year(year, args, pred_dir, cutout, realloc, coverage)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/jaju1407/HPC/src/validation/tract_validate.py", line 135, in validate_year
+    qa.append(qa_row(year, r.GISJOIN, r.name, "masked_cells", np.nan, r.n_masked, n_zero[r.zone_id]))
+                                                                      ^^^^^^^^^^
+AttributeError: 'Pandas' object has no attribute 'n_masked'
