@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-13
+Last updated: 2026-10-13 (GDW added)
 
 ## Summary
 
@@ -18,7 +18,8 @@ Last updated: 2026-10-13
 | Census Bureau historical totals (Forstall 1996) | 1996 publication | (reference only) | Manual fills, QA | In use |
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
-| HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction | To download |
+| HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction (v3.1) | Superseded by GDW for reservoir removal |
+| Global Dam Watch (GDW) reservoirs + barriers | v1.0 | `/projects/jaju1407/data/raw/water/gdw/` | Reservoir polygons with dam years → year-dependent water fraction (CONUS) | Downloaded 2026-10-12; not yet in code |
 | County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | CBSA attributes only (Metro/Micro, Central/Outlying); **not** a Ch1 target | In use (attributes); publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
 | USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | In use (raw); downloaded 2026-10-12 |
@@ -107,7 +108,11 @@ Last updated: 2026-10-13
 - Download: https://global-surface-water.appspot.com/download (v1.4, downloaded
   2026-10-05)
 
-### HydroLAKES (to download)
+### HydroLAKES (superseded by GDW for reservoir removal)
+
+- Superseded (decided 2026-10-13, `docs/open_items.md`): reservoir removal will use
+  GDW reservoir polygons with dam years (see below). The entry is kept because
+  v3.1 used it.
 
 - Lake and reservoir polygons ≥ 10 ha. `Lake_type`: 1 lake, 2 reservoir,
   3 lake control. Only `Lake_type = 2` polygons are used, to remove reservoirs
@@ -148,6 +153,26 @@ Last updated: 2026-10-13
 - **Use (decided 2026-10-09):** CBSA attributes only (Metropolitan/Micropolitan,
   Central/Outlying). Population targets stay NHGIS nominal (`docs/open_items.md`).
   Open: ask Stefan whether an areally standardized version exists.
+
+### Global Dam Watch (GDW) v1.0
+
+- Files (in `GDW_v1_0_shp/`): `GDW_reservoirs_v1_0.shp` (35,295 reservoir
+  polygons) and `GDW_barriers_v1_0.shp` (dams/barriers); technical documentation
+  `GDW_TechDoc_v1_0.pdf` is included in the download. WGS84.
+- Key reservoir fields: `YEAR_DAM` (dam completion year), `PRE_YEAR`, `YEAR_SRC`
+  (source of the year), `QUALITY` (1–5), `LAKE_CTRL` (natural lake raised by a
+  dam: Yes / Maybe), `HYLAK_ID` (HydroLAKES link), `GRAND_ID` (GRanD link).
+- US check (user, 2026-10-13): 4,465 reservoirs, 44,446 km²; `YEAR_DAM` present
+  for 99.1 % of the area; year sources NID 2,298, GRanD 1,884; Quabbin = 1939.
+- Use: replaces HydroLAKES `Lake_type = 2` for reservoir removal; reservoirs
+  count as water from `YEAR_DAM` on. Rules: `docs/open_items.md` (2026-10-13).
+- License: CC BY 4.0.
+- Citation: Lehner, B., et al. (2024). The Global Dam Watch database of river
+  barrier and reservoir information for large-scale applications. *Scientific
+  Data*, 11, 1069. https://doi.org/10.1038/s41597-024-03752-9
+  [confirm full author list and order]
+- Download: figshare, https://doi.org/10.6084/m9.figshare.25988293
+  (downloaded 2026-10-12).
 
 ### HydroRIVERS (optional, later)
 

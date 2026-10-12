@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-09 (Stefan CSV decision; Ascent allocation approved)
+Last updated: 2026-10-13 (GDW reservoir years for the CONUS water step)
 
 ## Open items
 
@@ -120,8 +120,27 @@ Last updated: 2026-10-09 (Stefan CSV decision; Ascent allocation approved)
   and 70W_50N; all 21 CONUS tiles are on Alpine).
 - Check after the run: a river narrower than 250 m never fills a cell, so it is
   never masked (the Connecticut River QA point may warn).
-- Deferred (design): occurrence threshold sensitivity, reservoir construction
-  years (GRanD), distance to water as a feature.
+- Deferred (design): occurrence threshold sensitivity, distance to water as a
+  feature. Reservoir construction years: decided 2026-10-13 (next section).
+
+### CONUS water step: reservoirs from GDW (decided 2026-10-13)
+
+- **Status:** decided; not implemented yet (docs only). Apply in the CONUS
+  water step. Data: GDW v1.0 (`docs/data_sources.md`).
+- Water = JRC occurrence >= 75 (unchanged).
+- GDW reservoir polygons replace HydroLAKES `Lake_type = 2`:
+  - a) `YEAR_DAM` present and `QUALITY` 1–3: water from `YEAR_DAM` on; land
+    before.
+  - b) `LAKE_CTRL` = Yes or Maybe: water in all years (natural lake raised by a
+    dam).
+  - c) No `YEAR_DAM`, or `QUALITY` 4–5: land in all years (current behaviour).
+- Known gap (accepted): dam-raised natural lakes not flagged in `LAKE_CTRL`
+  (e.g. Moosehead 1835, Chesuncook 1916, Chamberlain 1890, Red Lake MN 1931) are
+  land before `YEAR_DAM`. Same error as now, only for pre-dam years.
+- Consequence: `water_frac` becomes year-dependent (reservoir pixels switch at
+  `YEAR_DAM`); today it is one static layer.
+- This supersedes the 2026-10-06 rule that dam-raised natural lakes stay land
+  (for the CONUS step; v3.1 Massachusetts outputs stay as they are).
 
 ## Decision log
 
@@ -144,4 +163,5 @@ Last updated: 2026-10-09 (Stefan CSV decision; Ascent allocation approved)
 | 2026-10-06 | v3.1 water: final design = mask only (water_frac = 1 and BUI = 0, per year); earlier drafts (weights x land share, BUI / land share) dropped. |
 | 2026-10-09 | Stefan's county CSV = NHGIS nominal counts (36,560 / 36,565 county-years match, job 33505541), not areally standardized. Keep NHGIS nominal boundaries + counts for dasymetric (1810–2020); consistent-boundary series = 250 m outputs aggregated to 2010 counties; CSV used only for CBSA attributes. |
 | 2026-10-09 | Ascent allocation approved: account `ucb852_asc1`, 450,000 SU, valid until 2027-10-05. All sbatch scripts use `--account=ucb852_asc1`; Alpine acknowledgement kept in `docs/acknowledgements.md`. |
+| 2026-10-13 | CONUS water step: JRC occurrence >= 75 unchanged; GDW v1.0 reservoir polygons replace HydroLAKES `Lake_type = 2`. `YEAR_DAM` + `QUALITY` 1–3 → water from `YEAR_DAM` on; `LAKE_CTRL` Yes/Maybe → water in all years; no `YEAR_DAM` or `QUALITY` 4–5 → land in all years. Unflagged dam-raised natural lakes are land before `YEAR_DAM` (accepted). `water_frac` becomes year-dependent. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
