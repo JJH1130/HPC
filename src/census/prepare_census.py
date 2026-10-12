@@ -238,11 +238,11 @@ def gpkg_leftovers(path: Path):
     return [path, *(path.with_name(path.name + s) for s in ("-journal", "-wal", "-shm", ".part"))]
 
 
-def write_gpkg(gdf: gpd.GeoDataFrame, out_path: Path, tmp_dir: Path):
+def write_gpkg(gdf: gpd.GeoDataFrame, out_path: Path, tmp_dir: Path, layer: str = "counties"):
     tmp_path = tmp_dir / out_path.name
     for f in gpkg_leftovers(tmp_path):
         f.unlink(missing_ok=True)
-    gdf.to_file(tmp_path, layer="counties", driver="GPKG", engine="pyogrio", promote_to_multi=True)
+    gdf.to_file(tmp_path, layer=layer, driver="GPKG", engine="pyogrio", promote_to_multi=True)
     # copy next to the target, then rename: the final name only ever holds a complete file
     part = out_path.with_name(out_path.name + ".part")
     shutil.copyfile(tmp_path, part)

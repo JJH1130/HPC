@@ -1,0 +1,5 @@
+# Population column(s) for NHGIS tract source tables (1910-1960), used by src/census/prepare_tracts.py.
+# Only needed when the automatic choice (single variable, or the one variable labelled "Total") fails or is wrong.
+# dataset = NHGIS ID (e.g. ds39); table = source code (e.g. NT22); pop_columns = space-separated NHGIS variable codes, summed.
+# See docs/tract_preprocessing.md and results/tract/table_inventory.csv.
+dataset,table,pop_columns,note

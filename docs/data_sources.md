@@ -15,7 +15,7 @@ Last updated: 2026-10-13 (GDW, NHGIS nhgis0002 added)
 | HISDAC-US Land Use (class counts) | v2 (Version II), 250 m, 1940–2020 | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/` | Ch1 features (E2, E3) | In use |
 | NHGIS county population | Time series A00, nominal, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/` | Ch1 target | In use |
 | NHGIS county boundaries | 1810–2020, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/nhgis0001_shape/` | Ch1 zones | In use |
-| NHGIS tract population + boundaries | Extract nhgis0002: 1910–1960 source tables, 1970–2020 time series AV0 (nominal); boundaries 1910–2020 | `/projects/jaju1407/data/raw/nhgis/` (`nhgis0002_csv/`, `nhgis0002_shape/`) | Ch1 fine-scale validation of dasymetric outputs | Downloaded 2026-10-12; not yet in code |
+| NHGIS tract population + boundaries | Extract nhgis0002: 1910–1960 source tables, 1970–2020 time series AV0 (nominal); boundaries 1910–2020 | `/projects/jaju1407/data/raw/nhgis/` (`nhgis0002_csv/`, `nhgis0002_shape/`) | Ch1 fine-scale validation of dasymetric outputs | Downloaded 2026-10-12; `src/census/prepare_tracts.py` written, not yet run |
 | Census Bureau historical totals (Forstall 1996) | 1996 publication | (reference only) | Manual fills, QA | In use |
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
@@ -104,6 +104,7 @@ Common to all extracts:
 - Note: the 1910–1930 tract data were keyed from printed census reports by
   Andrew Beveridge's team (Queens College, CUNY).
 - Use: fine-scale validation of the dasymetric outputs (Ch1).
+- Preprocessing rules: `docs/tract_preprocessing.md`.
 
 ### Census Bureau historical totals
 

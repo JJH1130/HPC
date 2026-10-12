@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-13 (GDW reservoir years for the CONUS water step)
+Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 
 ## Open items
 
@@ -49,6 +49,15 @@ Last updated: 2026-10-13 (GDW reservoir years for the CONUS water step)
   the 250 m outputs to 2010 counties. Use the CSV only for CBSA attributes
   (Metropolitan/Micropolitan, Central/Outlying).
 - **Open:** ask Stefan whether an areally standardized version exists.
+
+### Tract validation data (nhgis0002)
+
+- **Status:** design + code written 2026-10-13 (`docs/tract_preprocessing.md`,
+  `src/census/prepare_tracts.py`); not yet run. Next: quick test 1910/1960/1970,
+  review the table inventory, conflicts and coverage, then the full run
+  (`docs/runbooks/Preparing_Tracts.md`).
+- Tracts in several tables with different values are `conflict` with pop left
+  empty (no value is chosen). County outputs are not changed.
 
 ### PLURAL gridded data
 
