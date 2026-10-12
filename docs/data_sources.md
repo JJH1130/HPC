@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-13 (GDW added)
+Last updated: 2026-10-13 (GDW, NHGIS nhgis0002 added)
 
 ## Summary
 
@@ -15,6 +15,7 @@ Last updated: 2026-10-13 (GDW added)
 | HISDAC-US Land Use (class counts) | v2 (Version II), 250 m, 1940–2020 | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/` | Ch1 features (E2, E3) | In use |
 | NHGIS county population | Time series A00, nominal, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/` | Ch1 target | In use |
 | NHGIS county boundaries | 1810–2020, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/nhgis0001_shape/` | Ch1 zones | In use |
+| NHGIS tract population + boundaries | Extract nhgis0002: 1910–1960 source tables, 1970–2020 time series AV0 (nominal); boundaries 1910–2020 | `/projects/jaju1407/data/raw/nhgis/` (`nhgis0002_csv/`, `nhgis0002_shape/`) | Ch1 fine-scale validation of dasymetric outputs | Downloaded 2026-10-12; not yet in code |
 | Census Bureau historical totals (Forstall 1996) | 1996 publication | (reference only) | Manual fills, QA | In use |
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
@@ -63,18 +64,40 @@ Last updated: 2026-10-13 (GDW added)
 
 ### NHGIS (IPUMS)
 
-- Extract nhgis0001, downloaded 2026-09-30.
-- Time series table **A00 Total Population**, geographic level County,
-  1810–2020, nominal integration, layout "time varies by row".
-- GIS files: County, 1810–2000 on **2008 TIGER/Line+** basis, 2010 on
-  **2010 TIGER/Line+**, 2020 on **2020 TIGER/Line+**.
+Common to all extracts:
+
 - Use requires an IPUMS account and agreement to the NHGIS terms; raw files are
   not redistributed in this repository.
 - Citation: Manson, S., Schroeder, J., Van Riper, D., Knowles, K., Kugler, T.,
   Roberts, F., & Ruggles, S. IPUMS National Historical Geographic Information
   System: Version [record version used]. Minneapolis, MN: IPUMS. [record DOI from
   the NHGIS citation page]
+
+**Extract nhgis0001 (county; Ch1 target and zones)**
+
+- Downloaded 2026-09-30.
+- Time series table **A00 Total Population**, geographic level County,
+  1810–2020, nominal integration, layout "time varies by row".
+- GIS files: County, 1810–2000 on **2008 TIGER/Line+** basis, 2010 on
+  **2010 TIGER/Line+**, 2020 on **2020 TIGER/Line+**.
 - Preprocessing rules: `docs/census_preprocessing.md`.
+
+**Extract nhgis0002 (tract; Ch1 fine-scale validation)**
+
+- Downloaded 2026-10-12, to `/projects/jaju1407/data/raw/nhgis/`.
+- `nhgis0002_csv/`: tract total population.
+  - 1910–1960: source tables, 24 datasets (ds39–ds92). Coverage in 1910–1950 is
+    city-specific (e.g. the 1910 and 1930 "Selected Areas" datasets include
+    Massachusetts/Boston). 1960 (ds92) has NTSUP2, NBT1 and NBT4; the NBT tables
+    come from printed reports.
+  - 1970–2020: time series **AV0 Total Population**, nominal integration
+    (`ts_nominal_tract.csv`).
+- `nhgis0002_shape/`: tract boundaries per year (one zip per year), 1910–2000
+  on **2008 TIGER/Line+**, 2010 on **2010 TIGER/Line+**, 2020 on **2020
+  TIGER/Line+**.
+- Note: the 1910–1930 tract data were keyed from printed census reports by
+  Andrew Beveridge's team (Queens College, CUNY).
+- Use: fine-scale validation of the dasymetric outputs (Ch1).
 
 ### Census Bureau historical totals
 
