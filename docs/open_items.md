@@ -59,6 +59,13 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 - Tracts in several tables with different values are `conflict` with pop left
   empty (no value is chosen). County outputs are not changed.
 
+### Tract validation of the dasymetric outputs
+
+- **Status:** design + code written 2026-10-13 (`docs/validation_tract.md`,
+  `src/validation/tract_validate.py`); not yet run on v3_1. Massachusetts only,
+  11 years (1920 has no MA tracts); model vs areal-weighting baseline; stops if
+  cells of a fully tracted county are lost in rasterization.
+
 ### PLURAL gridded data
 
 - **Status:** waiting to receive the grid from Siqiao.

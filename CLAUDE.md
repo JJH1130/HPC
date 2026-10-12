@@ -21,7 +21,9 @@ run by `sbatch/census_prepare.sh` per `docs/runbooks/Preparing_Census.md`. `src/
 (stable / boundary_change / missing per county-year → `results/census_std/`) and writes `counties_std_2010.gpkg`.
 `src/census/prepare_tracts.py` (`sbatch/tract_prepare.sh`, `docs/runbooks/Preparing_Tracts.md`, rules in `docs/tract_preprocessing.md`;
 population column per source table from the codebooks, overrides in `configs/nhgis_tract_tables.csv`) turns NHGIS extract nhgis0002 into
-`tracts_{YEAR}.gpkg` (1910–2020, `$DATA_ROOT/processed/tract`) + QA/coverage CSVs in `results/tract/`, for fine-scale validation. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+`tracts_{YEAR}.gpkg` (1910–2020, `$DATA_ROOT/processed/tract`) + QA/coverage CSVs in `results/tract/`, for fine-scale validation. `src/validation/tract_validate.py` (`sbatch/validate_tract.sh --version <v>`,
+`docs/runbooks/Validating_Tracts.md`, design `docs/validation_tract.md`) scores a dasymetric version's Massachusetts predictions against those tracts
+and an areal-weighting baseline (+ totals QA) → `results/validation/massachusetts/<version>/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
