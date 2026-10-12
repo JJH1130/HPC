@@ -6,8 +6,9 @@ Per year:
   2. Model: tract pop = sum of predicted cells. Baseline: county pop spread evenly over the
      county's cells with a prediction > 0 (= the model's cells minus the water mask).
   3. Only tracts whose cells all lie in one used county are evaluated (others flagged).
-  4. RMSE, MAE, median absolute % error, R2 on log(pop + 1) for model and baseline,
-     for all / non-small (>= 4 cells) / small tracts.
+  4. RMSE, MAE, median absolute % error, R2 on log(pop + 1), and R2 / MdAPE on log(density + 1)
+     (density = tract pop / area of its cells) for model and baseline, for all / non-small
+     (>= 4 cells) / small tracts.
   5. Totals QA: county pop = sum of cells; for fully tracted county-years, observed tracts,
      predicted cells inside tracts and baseline cells inside tracts all sum to the county pop.
      Stops (after writing everything) if the predicted or baseline sums fail.
@@ -35,11 +36,12 @@ YEARS = [1910, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]  # 19
 MAP_YEARS = [1940, 1970, 2020]
 MA_PREFIX = "G250"
 SMALL_CELLS = 4
+CELL_KM2 = 0.25 * 0.25  # area of one 250 m cell
 TOTAL_TOL = 0.001  # 0.1 %
 FULL_COVERAGE = (0.999, 1.001)
 FATAL_CHECKS = ("tracts_model", "tracts_baseline")
 TRACT_COLS = ["GISJOIN", "county_gisjoin", "status", "flag", "n_cells", "small", "pop_obs", "pop_model",
-              "pop_baseline"]
+              "pop_baseline", "lon", "lat"]
 QA_COLS = ["year", "county_gisjoin", "name", "check", "coverage", "expected", "value", "rel_diff", "flag"]
 
 log = logging.getLogger("tract_validate")
@@ -86,18 +88,31 @@ def read_tracts(path: Path, grid: dict) -> gpd.GeoDataFrame:
 
 # ---------------------------------------------------------------- metrics + QA
 
-def metrics(obs: np.ndarray, pred: np.ndarray) -> dict:
-    if len(obs) == 0:
-        return {"rmse": np.nan, "mae": np.nan, "mdape": np.nan, "r2_log": np.nan}
-    err = pred - obs
+def r2(obs: np.ndarray, pred: np.ndarray) -> float:
+    ss_tot = ((obs - obs.mean()) ** 2).sum()
+    return float(1 - ((pred - obs) ** 2).sum() / ss_tot) if ss_tot > 0 else np.nan
+
+
+def mdape(obs: np.ndarray, pred: np.ndarray) -> float:
     pos = obs > 0
-    lo, lp = np.log1p(obs), np.log1p(pred)
-    ss_tot = ((lo - lo.mean()) ** 2).sum()
+    return float(np.median(np.abs(pred[pos] - obs[pos]) / obs[pos]) * 100) if pos.any() else np.nan
+
+
+def metrics(obs: np.ndarray, pred: np.ndarray, area: np.ndarray) -> dict:
+    """Tract pop metrics + density metrics (people/km2 over the tract's cells; area > 0 for evaluated tracts).
+    Density uses the same area for obs and pred, so plain % error on density = % error on pop; the
+    density MdAPE is therefore taken on log(density + 1)."""
+    if len(obs) == 0:
+        return {k: np.nan for k in ("rmse", "mae", "mdape", "r2_log", "r2_logdens", "mdape_logdens")}
+    err = pred - obs
+    ldo, ldp = np.log1p(obs / area), np.log1p(pred / area)
     return {
         "rmse": float(np.sqrt((err ** 2).mean())),
         "mae": float(np.abs(err).mean()),
-        "mdape": float(np.median(np.abs(err[pos]) / obs[pos]) * 100) if pos.any() else np.nan,
-        "r2_log": float(1 - ((lp - lo) ** 2).sum() / ss_tot) if ss_tot > 0 else np.nan,
+        "mdape": mdape(obs, pred),
+        "r2_log": r2(np.log1p(obs), np.log1p(pred)),
+        "r2_logdens": r2(ldo, ldp),
+        "mdape_logdens": mdape(ldo, ldp),
     }
 
 
@@ -153,6 +168,8 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
     t.loc[(t["status"] != "ok") | t["pop"].isna(), "flag"] = "not_ok"
     t["small"] = t["n_cells"] < SMALL_CELLS
     t["pop_obs"] = t["pop"]
+    pts = t.geometry.representative_point().to_crs("EPSG:4326")  # where to look a tract up
+    t["lon"], t["lat"] = pts.x.round(5), pts.y.round(5)
     log.info("  %d MA tracts | flags %s", len(t), t["flag"].value_counts().to_dict())
     out = args.out / f"tract_errors_{year}.csv"
     t[TRACT_COLS].sort_values("GISJOIN").to_csv(out, index=False)
@@ -164,13 +181,14 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
     for subset, sel in (("all", ev), ("non_small", ev[~ev["small"]]), ("small", ev[ev["small"]])):
         obs = sel["pop_obs"].to_numpy()
         for method in ("model", "baseline"):
-            m = metrics(obs, sel[f"pop_{method}"].to_numpy())
+            m = metrics(obs, sel[f"pop_{method}"].to_numpy(), sel["n_cells"].to_numpy() * CELL_KM2)
             rows.append({"year": year, "method": method, "subset": subset, "n": len(sel),
                          "pop_share": obs.sum() / ma_total if ma_total else np.nan, **m})
     for r in rows:
         if r["subset"] == "all":
-            log.info("  %-8s n=%d share=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f", r["method"], r["n"],
-                     r["pop_share"], r["rmse"], r["mae"], r["mdape"], r["r2_log"])
+            log.info("  %-8s n=%d share=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | log density: "
+                     "r2=%.3f mdape=%.1f%%", r["method"], r["n"], r["pop_share"], r["rmse"], r["mae"], r["mdape"],
+                     r["r2_log"], r["r2_logdens"], r["mdape_logdens"])
 
     # totals QA over tracted counties
     zone_of = dict(zip(ztable["GISJOIN"], ztable["zone_id"]))
@@ -255,6 +273,9 @@ def main(argv=None):
     if missing:
         sys.exit("ERROR: inputs not found:\n" + "\n".join(f"  {p}" for p in missing))
     realloc = pd.read_csv(rq_path)
+    if "n_masked" not in realloc.columns:  # versions before v3.1 have no water mask
+        log.info("no water mask: %s has no n_masked column; expecting 0 cells with prediction 0", rq_path)
+        realloc["n_masked"] = 0
     coverage = pd.read_csv(args.coverage_csv)
 
     rows, qa = [], []
