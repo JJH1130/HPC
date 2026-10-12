@@ -16,7 +16,7 @@ All under `/projects/jaju1407/data/raw/nhgis/`.
 
 | Item | Path | Notes |
 |---|---|---|
-| Source tables, 1910–1960 | `nhgis0002_csv/nhgis0002_ds{NN}_{YEAR}_tract.csv` + `..._codebook.txt` | 24 datasets (ds39–ds92). Coverage in 1910–1950 is city-specific. 1910 ds39 has two tables (NT22, NT49); 1960 ds92 has NTSUP2, NBT1, NBT4 |
+| Source tables, 1910–1960 | `nhgis0002_csv/nhgis0002_ds{NN}_{YEAR}_tract.csv` + `..._codebook.txt` | 24 datasets (ds39–ds92). Coverage in 1910–1950 is city-specific. 1910: ds39 NT1 + ds40 NT22, NT49; 1960 ds92 has NTSUP2, NBT1, NBT4 (27 tables in all, job 33886550) |
 | Time series, 1970–2020 | `nhgis0002_csv/nhgis0002_ts_nominal_tract.csv` | AV0 Total Population (`AV0AA`), nominal, time varies by row |
 | Boundaries | `nhgis0002_shape/nhgis0002_shapefile_tl{2008,2010,2020}_us_tract_{YEAR}.zip` | 1910–2000 on 2008 TIGER/Line+, 2010 on 2010, 2020 on 2020. Read straight from the zip |
 | Counties (read only) | `/projects/jaju1407/data/processed/census/counties_{YEAR}.gpkg` | Output of the county step |
@@ -73,7 +73,7 @@ A chosen column that is missing from the CSV header also stops the job (`MISSING
 
 | File | Content |
 |---|---|
-| `/projects/jaju1407/data/processed/tract/tracts_{YEAR}.gpkg` | layer `tracts`: `GISJOIN, county_gisjoin, pop, status, source_tables, area_km2, geometry`. `source_tables` = e.g. `ds39:NT22;ds39:NT49` or `AV0`. Written to node-local disk first, then copied (SQLite locking on /projects, as for counties) |
+| `/projects/jaju1407/data/processed/tract/tracts_{YEAR}.gpkg` | layer `tracts`: `GISJOIN, county_gisjoin, pop, status, source_tables, area_km2, geometry`. `source_tables` = e.g. `ds40:NT22;ds40:NT49` or `AV0`. Written to node-local disk first, then copied (SQLite locking on /projects, as for counties) |
 | `results/tract/qa_by_year.csv` (+ `_MA`) | per year: `n_tables, n_tracts, n_with_pop, total_pop, n_conflict, n_unmatched_pop, pop_unmatched, n_unmatched_poly, n_county_not_found, n_county_mismatch` |
 | `results/tract/coverage_by_county.csv` (+ `_MA`) | per county-year with at least one tract: `county_pop`, `tract_pop` (sum of tract pops with a polygon; conflicts excluded), `coverage = tract_pop / county_pop`, `n_tracts`, `n_tracts_pop`, `n_conflict` |
 | `results/tract/table_inventory.csv` | every 1910–1960 table: title, universe, variables, chosen column(s), rule |
@@ -98,4 +98,6 @@ a polygon; `pop_unmatched` is the pop of `pop_only` rows.
 
 ## Open items
 
-- [ ] First run; review the inventory, conflicts and coverage.
+- [x] Table inventory (job 33886550): 26 of 27 tables have one variable. 1920 ds48 NT1
+  ("Population, 1910 and 1920") has BBQ001 = 1910 and BBQ002 = 1920 → config row uses BBQ002.
+- [ ] Quick test (1910, 1960, 1970); review conflicts and coverage.

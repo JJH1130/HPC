@@ -37,7 +37,7 @@ Good: 25 CSVs (24 datasets + the time series), 25 codebooks, and 12 zips
 
 ## 2. Quick test: 1910, 1960, 1970 (login node)
 
-1910 has two tables (NT22, NT49), 1960 has three (NTSUP2, NBT1, NBT4), and 1970 is the
+1910 has three tables (ds39 NT1, ds40 NT22, ds40 NT49), 1960 has three (NTSUP2, NBT1, NBT4), and 1970 is the
 first time-series year. The job also reads every 1910–1960 codebook and writes
 `results/tract/table_inventory.csv` first, so a table it can't resolve stops the job early.
 
@@ -106,3 +106,6 @@ Then monitor (step 3) and close the loop (step 4, with message `run: tract_prepa
 - 2026-10-13: runbook written. Tested locally only on a small synthetic dataset (rules 1–5,
   conflicts, non-CONUS, unmatched both ways, county checks). Codebook parsing assumes the
   NHGIS "Table N: / Universe: / Source code: / NHGIS code:" layout; the first run will confirm it.
+- 2026-10-13, job 33886550 (quick test): stopped as designed after the inventory. The parser read all 27
+  tables (24 datasets); 26 have one variable. 1920 ds48 NT1 has BBQ001 = 1910 and BBQ002 = 1920 →
+  `configs/nhgis_tract_tables.csv` row `ds48,NT1,BBQ002`. Rerun the quick test.

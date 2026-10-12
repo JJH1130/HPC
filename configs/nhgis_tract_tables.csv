@@ -3,3 +3,4 @@
 # dataset = NHGIS ID (e.g. ds39); table = source code (e.g. NT22); pop_columns = space-separated NHGIS variable codes, summed.
 # See docs/tract_preprocessing.md and results/tract/table_inventory.csv.
 dataset,table,pop_columns,note
+ds48,NT1,BBQ002,"1920 Population, 1910 and 1920: BBQ001 = 1910, BBQ002 = 1920; use the 1920 count (job 33886550)"
