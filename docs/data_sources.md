@@ -68,10 +68,15 @@ Common to all extracts:
 
 - Use requires an IPUMS account and agreement to the NHGIS terms; raw files are
   not redistributed in this repository.
-- Citation: Manson, S., Schroeder, J., Van Riper, D., Knowles, K., Kugler, T.,
-  Roberts, F., & Ruggles, S. IPUMS National Historical Geographic Information
-  System: Version [record version used]. Minneapolis, MN: IPUMS. [record DOI from
-  the NHGIS citation page]
+- Citation (official text from the nhgis0002 codebook, 2026-10-12):
+  Jonathan Schroeder, David Van Riper, Steven Manson, Grace Cooper, Zachary
+  Krause, Tracy Kugler, Tsu Zhu, and Steven Ruggles. IPUMS National Historical
+  Geographic Information System: Version 21.0 [dataset]. Minneapolis, MN: IPUMS.
+  2026. http://doi.org/10.18128/D050.V21.0
+  - nhgis0001 (2026-09-30) is assumed to be the same version; check its codebook.
+  - Popular press / online resources: "IPUMS NHGIS, University of Minnesota,
+    www.nhgis.org."
+- IPUMS asks for a copy of any publication using the data: nhgis@umn.edu.
 
 **Extract nhgis0001 (county; Ch1 target and zones)**
 
