@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-12
+Last updated: 2026-10-13
 
 ## Summary
 
@@ -21,7 +21,7 @@ Last updated: 2026-10-12
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction | To download |
 | County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | CBSA attributes only (Metro/Micro, Central/Outlying); **not** a Ch1 target | In use (attributes); publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
-| USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | To download |
+| USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | In use (raw); downloaded 2026-10-12 |
 
 ## Details
 
@@ -158,10 +158,15 @@ Last updated: 2026-10-12
   https://doi.org/10.1002/hyp.9740
 - Download: https://www.hydrosheds.org/products/hydrorivers (North America file)
 
-### USGS GMTED2010 (to download)
+### USGS GMTED2010
 
 - Product: mean elevation statistic at 7.5 arc-seconds (~225 m), global,
-  `mn75_grd` (ESRI ArcGrid, inside a zip). Geographic coordinates (WGS84).
+  `mn75_grd` (ESRI ArcGrid, inside a zip).
+- Specs (gdalinfo on Alpine, 2026-10-12): driver AIG (ESRI ArcGrid), EPSG:4326,
+  pixel 0.0020833333° (7.5"), 172,800 × 67,200 cells, Int16 metres, NoData
+  -32768. Extent 180°W–180°E, 56°S–84°N; the origin is offset by half a pixel
+  (-180.000139, 83.999861). Unzipped grid is 5.3 GB; the zip was deleted after
+  extraction.
 - Planned use: elevation and slope features for Ch1, resampled to the HISDAC
   250 m grid (ESRI:102039). Slope method and resampling rule to be decided when
   the code is written.
@@ -171,7 +176,7 @@ Last updated: 2026-10-12
 - Download:
   https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/topo/downloads/GMTED/Grid_ZipFiles/mn75_grd.zip
   (listed at https://topotools.cr.usgs.gov/gmted_viewer/gmted2010_global_grids.php).
-  [record download date]
+  Downloaded 2026-10-12.
 
 ## Pending (not yet obtained)
 
