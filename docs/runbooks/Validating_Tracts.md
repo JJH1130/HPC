@@ -5,7 +5,7 @@ areal-weighting baseline. Code: `src/validation/tract_validate.py`; job:
 `sbatch/validate_tract.sh` (acpu, 2 cores, 30 min, env `hisdac`). Design and QA rules:
 `docs/validation_tract.md`.
 
-**Status:** written 2026-10-13, not yet run.
+**Status:** v3_1 run 2026-10-13 (job 33913781, passed). v2 failed (job 33915573, fixed in code); both to rerun for the density metric.
 
 ## Inputs / outputs
 
@@ -84,3 +84,9 @@ Then tell Claude to pull.
 - 2026-10-13: written. Tested locally on a small synthetic grid: metrics, flags (`multi_county`,
   `outside_model`, `no_cells`), totals QA and the stop on lost cells. The PNG code could not be run
   locally (broken matplotlib on the laptop); the first Alpine run checks it.
+- 2026-10-13 (cluster date 2026-10-12), job 33913781, `--version v3_1`, code d2e2e4e: all 11 years in ~1 min;
+  PNGs fine. Totals QA 546 rows, 0 flagged. Model MdAPE 28–62 % vs baseline 69–81 %; best 1970–1990, worse
+  from 2000 (E3 era). Results in `docs/validation_tract.md`, Results.
+- 2026-10-13, job 33915573, `--version v2`, code bb3efee: failed in 1910 (`'Pandas' object has no attribute
+  'n_masked'`): v2 has no water mask, so its reallocation QA lacks the column. Fixed: missing `n_masked` → 0,
+  logged as "no water mask". Same change adds the log-density metrics and `lon`/`lat` to `tract_errors_*.csv`.

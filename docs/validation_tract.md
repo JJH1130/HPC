@@ -13,7 +13,7 @@ Last updated: 2026-10-13
 | Item | Path |
 |---|---|
 | Predictions | `$HISDAC_SCRATCH/dasymetric/massachusetts/<version>/predictions/pop_{YEAR}.tif` (float32, NoData −9999 outside used counties) |
-| Reallocation QA | `$HISDAC_SCRATCH/dasymetric/massachusetts/<version>/qa/reallocation_qa.csv` (county pop, `zone_id`, `n_masked` per county-year) |
+| Reallocation QA | `$HISDAC_SCRATCH/dasymetric/massachusetts/<version>/qa/reallocation_qa.csv` (county pop, `zone_id`, `n_masked` per county-year; versions without a water mask, e.g. v2, have no `n_masked` → taken as 0 and logged as "no water mask") |
 | County zones | `$HISDAC_SCRATCH/cutouts/massachusetts/zones/zones_{YEAR}.tif` + `.csv` (the grid the predictions are on) |
 | Tracts | `/projects/jaju1407/data/processed/tract/tracts_{YEAR}.gpkg` (`docs/tract_preprocessing.md`) |
 | Tract coverage | `results/tract/coverage_by_county_MA.csv` |
@@ -43,6 +43,12 @@ Massachusetts tracts).
    - `n`, `rmse`, `mae` (people per tract)
    - `mdape`: median of |pred − obs| / obs × 100 (tracts with obs > 0)
    - `r2_log`: 1 − SS_res / SS_tot on log(pop + 1)
+   - `r2_logdens`, `mdape_logdens`: the same R2 and MdAPE on log(density + 1), density =
+     tract pop / area of its cells (n_cells × 0.0625 km²), people/km². Tracts are drawn to hold
+     similar populations, so log(pop) varies little across tracts and `r2_log` is mostly
+     negative; density varies far more and tests the spatial contrast. (A plain % error on
+     density equals the % error on pop, since obs and pred share the area, so MdAPE is taken
+     on the log.)
    - `pop_share`: observed pop of the evaluated tracts / Massachusetts county total
 
 Partial coverage (e.g. Boston-only tracts in 1910–1960): only the covered tracts are compared;
@@ -72,11 +78,46 @@ rasterization would bias every tract comparison). Other flags are reported, not 
 
 | File | Content |
 |---|---|
-| `tract_errors_{YEAR}.csv` | every Massachusetts tract: `GISJOIN, county_gisjoin, status, flag, n_cells, small, pop_obs, pop_model, pop_baseline` |
-| `metrics_by_year.csv` | `year, method, subset, n, pop_share, rmse, mae, mdape, r2_log` |
+| `tract_errors_{YEAR}.csv` | every Massachusetts tract: `GISJOIN, county_gisjoin, status, flag, n_cells, small, pop_obs, pop_model, pop_baseline, lon, lat` (lon/lat = WGS84 representative point, to look a tract up) |
+| `metrics_by_year.csv` | `year, method, subset, n, pop_share, rmse, mae, mdape, r2_log, r2_logdens, mdape_logdens` |
 | `qa_totals.csv` | totals QA above |
 | `tract_validation_{YEAR}.png` | 1940, 1970, 2020: map of the model's % error by tract (blue = under, red = over, clipped at ±100 %; grey = not evaluated) and observed vs predicted scatter (model and baseline, log axes) |
 
+## Results
+
+### v3_1 (job 33913781, code d2e2e4e, reviewed 2026-10-13; before the density metric)
+
+- Totals QA: 546 rows, 0 flagged. All 71 fully tracted county-years sum to the county pop for
+  observed tracts, model and baseline (no cells lost in rasterization).
+- The model beats areal weighting in every year and metric (RMSE roughly 1/2–1/3 of the baseline's).
+
+  | Year | Tracts | MA pop share | Model MdAPE | Baseline MdAPE |
+  |---|---|---|---|---|
+  | 1910 | 121 | 19 % | 62.5 % | 69.4 % |
+  | 1940 | 183 | 20 % | 43.6 % | 70.8 % |
+  | 1970 | 1,048 | 92 % | 32.1 % | 79.2 % |
+  | 1990 | 1,311 | 100 % | 28.0 % | 74.1 % |
+  | 2000 | 1,361 | 100 % | 46.5 % | 72.4 % |
+  | 2020 | 1,612 | 100 % | 44.0 % | 71.1 % |
+
+- Best in 1970–1990; the jump at 2000 matches the E3 era boundary (E3 = 2000–2020, 42 training
+  rows, high y_hat floor; `docs/open_items.md`, Dasymetric v3).
+- Maps: the model is too flat — rural tracts over-predicted (western MA, 2020), dense cores
+  under-predicted (Boston 1940 core blue, West Roxbury/Hyde Park red).
+- Small tracts (< 4 cells, 36–52 per year): MdAPE 57–64 % vs 27–44 % for the others.
+- `r2_log` negative in most years (see the density metric above for why).
+- Outlier: **1940 tract `G2500250A0003`** (Suffolk): observed 6,960, model 81, baseline 5,163
+  (15 cells). Likely buildings demolished since 1940 and so missing from HISDAC (built from
+  present-day records). Location to check from the new `lon`/`lat` columns after the rerun. The
+  same GISJOIN in 1910: observed 5,624, model 2,816 (10 cells).
+
+### v2
+
+- Job 33915573 (code bb3efee) failed in 1910: v2's `reallocation_qa.csv` has no `n_masked`
+  (no water mask). Fixed: missing `n_masked` → 0. Rerun needed.
+
 ## Open items
 
-- [ ] First run (v3_1).
+- [x] First run (v3_1).
+- [ ] Rerun v3_1 (density metric, lon/lat) and v2; compare.
+- [ ] Locate 1940 `G2500250A0003` and confirm the demolition explanation.
