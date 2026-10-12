@@ -73,7 +73,8 @@ Common to all extracts:
   Krause, Tracy Kugler, Tsu Zhu, and Steven Ruggles. IPUMS National Historical
   Geographic Information System: Version 21.0 [dataset]. Minneapolis, MN: IPUMS.
   2026. http://doi.org/10.18128/D050.V21.0
-  - nhgis0001 (2026-09-30) is assumed to be the same version; check its codebook.
+  - nhgis0001 (2026-09-30) is the same version: confirmed from its codebook
+    (Version 21.0) on 2026-10-13.
   - Popular press / online resources: "IPUMS NHGIS, University of Minnesota,
     www.nhgis.org."
 - IPUMS asks for a copy of any publication using the data: nhgis@umn.edu.
