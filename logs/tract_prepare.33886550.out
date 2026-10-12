@@ -1,0 +1,45 @@
+== job 33886550 (tract_prepare) on c3cpu-e2-u9 at 2026-10-12T10:26:06-06:00
+== cores=4 gpus=none restart=0
+== git 90f51be
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== raw: /projects/jaju1407/data/raw/nhgis  out: /projects/jaju1407/data/processed/tract  extra args: --years 1910 1960 1970
+10:26:49 INFO arg csv_dir = /projects/jaju1407/data/raw/nhgis/nhgis0002_csv
+10:26:49 INFO arg ts_csv = /projects/jaju1407/data/raw/nhgis/nhgis0002_csv/nhgis0002_ts_nominal_tract.csv
+10:26:49 INFO arg shape_dir = /projects/jaju1407/data/raw/nhgis/nhgis0002_shape
+10:26:49 INFO arg census_dir = /projects/jaju1407/data/processed/census
+10:26:49 INFO arg table_config = configs/nhgis_tract_tables.csv
+10:26:49 INFO arg out_dir = /projects/jaju1407/data/processed/tract
+10:26:49 INFO arg results_dir = results/tract
+10:26:49 INFO arg years = [1910, 1960, 1970]
+10:26:49 INFO GPKGs are written in /scratch/local/33886550/prepare_census, then copied to /projects/jaju1407/data/processed/tract
+10:26:50 INFO table inventory (27 tables):
+ year dataset  table                                  title  n_vars pop_columns            rule
+ 1910    ds39    NT1                       Total Population       1      A5X001 single_variable
+ 1910    ds40   NT22                             Population       1      A6C001 single_variable
+ 1910    ds40   NT49                             Population       1      A64001 single_variable
+ 1920    ds45    NT1                             Population       1      A94001 single_variable
+ 1920    ds46    NT1                             Population       1      BBJ001 single_variable
+ 1920    ds47    NT1                             Population       1      BBP001 single_variable
+ 1920    ds48    NT1              Population, 1910 and 1920       2                  UNRESOLVED
+ 1930    ds58    NT1                             Population       1      BHI001 single_variable
+ 1930    ds59    NT1                             Population       1      BI1001 single_variable
+ 1930    ds60    NT1                             Population       1      BJW001 single_variable
+ 1930    ds62    NT1                       Total Population       1      BLO001 single_variable
+ 1930    ds63    NT1                             Population       1      BLW001 single_variable
+ 1930    ds64    NT1                        Population 1930       1      BND001 single_variable
+ 1930    ds65    NT1                             Population       1      BNE001 single_variable
+ 1930    ds66    NT9                       Total Population       1      BOI001 single_variable
+ 1930    ds67    NT1                       Total Population       1      BOJ001 single_variable
+ 1930    ds68    NT1                             Population       1      BOO001 single_variable
+ 1930    ds69    NT3                             Population       1      BQM001 single_variable
+ 1930    ds70    NT1                             Population       1      BQQ001 single_variable
+ 1930    ds71    NT1                             Population       1      BRQ001 single_variable
+ 1940    ds76    NT1                             Population       1      BUB001 single_variable
+ 1950    ds82    NT1                       Total Population       1      BZ8001 single_variable
+ 1950    ds86    NT1                       Total Population       1      B4Q001 single_variable
+ 1950    ds87    NT1                       Total Population       1      B4S001 single_variable
+ 1960    ds92 NTSUP2                          Total Persons       1      CA4001 single_variable
+ 1960    ds92   NBT1 Total Population [from printed report]       1      B53001 single_variable
+ 1960    ds92   NBT4 Total Population [from printed report]       1      B60001 single_variable
+ERROR: fix these (add rows to the table config; see results/tract/table_inventory.csv):
+  1920 ds48 NT1 (Population, 1910 and 1920): UNRESOLVED; variables: BBQ001=1910; BBQ002=1920
