@@ -1,0 +1,99 @@
+== job 33917609 (validate_tract) on c3cpu-e2-u13 at 2026-10-12T12:39:29-06:00
+== cores=2 gpus=none restart=0
+== git b511530
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== args: --version v3_1
+12:39:34 INFO arg version = v3_1
+12:39:34 INFO arg name = massachusetts
+12:39:34 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:39:34 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+12:39:34 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+12:39:34 INFO arg coverage_csv = results/tract/coverage_by_county_MA.csv
+12:39:34 INFO arg results_root = results/validation
+12:39:34 INFO arg years = [1910, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+12:39:34 INFO arg map_years = [1940, 1970, 2020]
+12:39:34 INFO ===== 1910 =====
+12:39:37 INFO   126 MA tracts | flags {'ok': 121, 'multi_county': 3, 'no_cells': 2}
+12:39:37 INFO   model    n=121 share=0.190 rmse=5901 mae=3792 mdape=62.5% r2_log=-9.130 | log density: r2=-0.128 mdape=8.8%
+12:39:37 INFO   baseline n=121 share=0.190 rmse=7406 mae=4371 mdape=69.4% r2_log=-12.675 | log density: r2=-0.522 mdape=11.4%
+12:39:37 INFO ===== 1930 =====
+12:39:37 INFO   128 MA tracts | flags {'ok': 124, 'no_cells': 3, 'not_ok': 1}
+12:39:37 INFO   model    n=124 share=0.182 rmse=5920 mae=3581 mdape=52.6% r2_log=-3.298 | log density: r2=-0.312 mdape=7.1%
+12:39:37 INFO   baseline n=124 share=0.182 rmse=7578 mae=4652 mdape=64.4% r2_log=-3.671 | log density: r2=-0.430 mdape=10.1%
+12:39:37 INFO ===== 1940 =====
+12:39:38 INFO   186 MA tracts | flags {'ok': 183, 'no_cells': 3}
+12:39:38 INFO   model    n=183 share=0.203 rmse=2830 mae=2224 mdape=43.6% r2_log=-2.811 | log density: r2=0.030 mdape=5.9%
+12:39:38 INFO   baseline n=183 share=0.203 rmse=5517 mae=3841 mdape=70.8% r2_log=-9.794 | log density: r2=-1.748 mdape=11.5%
+12:39:38 INFO   plot results/validation/massachusetts/v3_1/tract_validation_1940.png
+12:39:38 INFO ===== 1950 =====
+12:39:39 INFO   515 MA tracts | flags {'ok': 511, 'no_cells': 4}
+12:39:39 INFO   model    n=511 share=0.606 rmse=3243 mae=2354 mdape=38.0% r2_log=-1.368 | log density: r2=0.783 mdape=5.7%
+12:39:39 INFO   baseline n=511 share=0.606 rmse=6274 mae=4750 mdape=79.2% r2_log=-13.395 | log density: r2=-0.321 mdape=17.3%
+12:39:39 INFO ===== 1960 =====
+12:39:41 INFO   757 MA tracts | flags {'ok': 737, 'not_ok': 16, 'no_cells': 4}
+12:39:41 INFO   model    n=737 share=0.788 rmse=2586 mae=1996 mdape=36.7% r2_log=-0.351 | log density: r2=0.815 mdape=5.3%
+12:39:41 INFO   baseline n=737 share=0.788 rmse=5802 mae=4386 mdape=81.1% r2_log=-9.881 | log density: r2=-0.495 mdape=18.9%
+12:39:41 INFO ===== 1970 =====
+12:39:43 INFO   1050 MA tracts | flags {'ok': 1048, 'not_ok': 1, 'no_cells': 1}
+12:39:43 INFO   model    n=1048 share=0.917 rmse=2656 mae=1802 mdape=32.1% r2_log=-0.067 | log density: r2=0.844 mdape=4.6%
+12:39:43 INFO   baseline n=1048 share=0.917 rmse=7708 mae=4499 mdape=79.2% r2_log=-6.444 | log density: r2=-0.090 mdape=18.1%
+12:39:44 INFO   plot results/validation/massachusetts/v3_1/tract_validation_1970.png
+12:39:44 INFO ===== 1980 =====
+12:39:47 INFO   1193 MA tracts | flags {'ok': 1192, 'no_cells': 1}
+12:39:47 INFO   model    n=1192 share=0.960 rmse=2608 mae=1658 mdape=29.8% r2_log=0.242 | log density: r2=0.846 mdape=4.5%
+12:39:47 INFO   baseline n=1192 share=0.960 rmse=7475 mae=4259 mdape=77.9% r2_log=-3.863 | log density: r2=0.002 mdape=17.0%
+12:39:47 INFO ===== 1990 =====
+12:39:52 INFO   1323 MA tracts | flags {'ok': 1311, 'no_cells': 12}
+12:39:52 INFO   model    n=1311 share=1.000 rmse=2541 mae=1613 mdape=28.0% r2_log=0.225 | log density: r2=0.861 mdape=4.3%
+12:39:52 INFO   baseline n=1311 share=1.000 rmse=7614 mae=4101 mdape=74.1% r2_log=-3.963 | log density: r2=0.083 mdape=16.2%
+12:39:52 INFO ===== 2000 =====
+12:39:57 INFO   1361 MA tracts | flags {'ok': 1361}
+12:39:57 INFO   model    n=1361 share=1.000 rmse=3488 mae=2450 mdape=46.5% r2_log=-1.071 | log density: r2=0.772 mdape=7.7%
+12:39:57 INFO   baseline n=1361 share=1.000 rmse=6960 mae=3964 mdape=72.4% r2_log=-6.892 | log density: r2=0.131 mdape=14.7%
+12:39:57 INFO ===== 2010 =====
+12:40:04 INFO   1472 MA tracts | flags {'ok': 1472}
+12:40:04 INFO   model    n=1472 share=1.000 rmse=3218 mae=2305 mdape=45.1% r2_log=-0.484 | log density: r2=0.711 mdape=7.4%
+12:40:04 INFO   baseline n=1472 share=1.000 rmse=6539 mae=3756 mdape=71.1% r2_log=-3.637 | log density: r2=0.106 mdape=14.3%
+12:40:04 INFO ===== 2020 =====
+12:40:12 INFO   1614 MA tracts | flags {'ok': 1612, 'no_cells': 2}
+12:40:12 INFO   model    n=1612 share=1.000 rmse=3021 mae=2216 mdape=44.0% r2_log=-0.266 | log density: r2=0.694 mdape=7.2%
+12:40:12 INFO   baseline n=1612 share=1.000 rmse=6042 mae=3717 mdape=71.1% r2_log=-2.715 | log density: r2=0.101 mdape=14.1%
+12:40:13 INFO   plot results/validation/massachusetts/v3_1/tract_validation_2020.png
+12:40:13 INFO metrics (all tracts):
+ year   method subset    n  pop_share        rmse         mae     mdape     r2_log  r2_logdens  mdape_logdens
+ 1910    model    all  121   0.190250 5901.478617 3792.143671 62.512252  -9.129616   -0.127879       8.757901
+ 1910 baseline    all  121   0.190250 7406.412870 4371.224457 69.438637 -12.675336   -0.522428      11.417670
+ 1930    model    all  124   0.181917 5919.690470 3581.000922 52.590111  -3.297579   -0.311834       7.111856
+ 1930 baseline    all  124   0.181917 7577.968927 4652.194770 64.445723  -3.671234   -0.430035      10.115214
+ 1940    model    all  183   0.203314 2830.228853 2224.016423 43.630823  -2.810746    0.030356       5.876421
+ 1940 baseline    all  183   0.203314 5516.632592 3840.781795 70.764629  -9.793780   -1.747595      11.529348
+ 1950    model    all  511   0.605739 3243.060596 2353.635739 37.954651  -1.368344    0.782882       5.651548
+ 1950 baseline    all  511   0.605739 6274.144456 4749.955112 79.166550 -13.394971   -0.320930      17.272995
+ 1960    model    all  737   0.788119 2585.663225 1996.057508 36.740479  -0.351224    0.814693       5.330975
+ 1960 baseline    all  737   0.788119 5802.023356 4386.103768 81.054268  -9.880599   -0.495218      18.914554
+ 1970    model    all 1048   0.917003 2655.988980 1801.821809 32.080372  -0.066754    0.844429       4.591034
+ 1970 baseline    all 1048   0.917003 7707.706047 4498.792642 79.220748  -6.443578   -0.090331      18.097155
+ 1980    model    all 1192   0.960218 2608.398927 1658.481556 29.803803   0.242407    0.845870       4.482058
+ 1980 baseline    all 1192   0.960218 7475.442783 4259.224788 77.883661  -3.863416    0.001658      17.028597
+ 1990    model    all 1311   0.999803 2540.849205 1613.461123 28.042359   0.225300    0.860934       4.336120
+ 1990 baseline    all 1311   0.999803 7614.192649 4101.086477 74.071720  -3.962805    0.083415      16.199760
+ 2000    model    all 1361   1.000000 3487.648897 2450.190816 46.460587  -1.070524    0.772316       7.715005
+ 2000 baseline    all 1361   1.000000 6960.229408 3964.390340 72.440541  -6.892239    0.130810      14.745682
+ 2010    model    all 1472   1.000000 3218.337697 2305.331315 45.101460  -0.483519    0.711095       7.404541
+ 2010 baseline    all 1472   1.000000 6539.214484 3756.110828 71.117743  -3.637422    0.106386      14.299566
+ 2020    model    all 1612   0.999789 3021.297641 2216.356270 44.028391  -0.265640    0.693991       7.176977
+ 2020 baseline    all 1612   0.999789 6041.738818 3716.584618 71.069600  -2.714520    0.100642      14.118023
+12:40:13 INFO totals QA: 546 rows, 0 flagged (> 0.1%); by check:
+                  size  sum
+check                      
+county_cells       154    0
+masked_cells       154    0
+partial_coverage    25    0
+tracts_baseline     71    0
+tracts_model        71    0
+tracts_obs          71    0
+12:40:13 INFO wrote results/validation/massachusetts/v3_1
+12:40:13 INFO DONE
+2.5M	results/validation/massachusetts/v2
+2.5M	results/validation/massachusetts/v3_1
+== done 2026-10-12T12:40:14-06:00
