@@ -289,7 +289,7 @@ Check:
   `Quabbin Reservoir 1930 ... expect dry: ok` and `Quabbin Reservoir 2020 ... expect full_water: ok`
   (Connecticut River `NOT MET` is the known warning). 22 files `layers/water_frac/{YEAR}_water_frac.tif`.
 - features: `DEM: N nodata cells ... set to 0 m`; era rows as in v3.4 (E1 188, E23 126).
-- train: `CV v4 vs v3_4` per era; `Terrain` appears in the grouped SHAP.
+- train: `CV v4 vs v3_4` per era; `elev` and `slope` appear in the SHAP summary plot and as groups `Elevation` and `Slope`.
 - predict: mass check 0 fail. validate: totals QA 0 flagged.
 
 Close the loop:

@@ -63,7 +63,8 @@ eras:
 feature_groups:
   Building: [bui, bldg_size, mu_ratio]
   Settlement context: [dist_built]
-  Terrain: [elev, slope]
+  Elevation: [elev]
+  Slope: [slope]
   Land use: [res_share, rent_share]
   Lights: [ntl]
   Period: [year]

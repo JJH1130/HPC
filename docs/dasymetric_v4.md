@@ -10,7 +10,7 @@ Last updated: 2026-10-20
 
 | Change | What | Where |
 |---|---|---|
-| Terrain features | `elev` = GMTED2010 mean elevation (m), averaged onto the 250 m grid; `slope` = slope in degrees computed on that 250 m elevation grid. Added to both eras; SHAP group `Terrain` | DEM layer: `configs/study_area.yaml` (`layers:`), `src/grid/make_cutout.py`; features: `src/dasymetric/common.py` |
+| Terrain features | `elev` = GMTED2010 mean elevation (m), averaged onto the 250 m grid; `slope` = slope in degrees computed on that 250 m elevation grid. Added to both eras; each its own SHAP group (`Elevation`, `Slope`) so the two are read separately, as in the per-feature summary plot | DEM layer: `configs/study_area.yaml` (`layers:`), `src/grid/make_cutout.py`; features: `src/dasymetric/common.py` |
 | Reservoir years in the water mask | Global Dam Watch (GDW) reservoirs replace HydroLAKES `Lake_type = 2`. A reservoir counts as water only from its completion year; `water_frac` becomes one layer per study year | `water:` block of `configs/study_area.yaml` (`reservoir_source: gdw`), `src/grid/water_frac.py`; `water_mask: yearly` in `configs/model.yaml` |
 
 ### Terrain
@@ -55,7 +55,7 @@ Moosehead 1835, Chesuncook 1916) are land before their dam year, the same error 
 ## Comparison
 
 Against v3.4 on the same folds and the same tract validation: county CV per era, tract MdAPE and R² of log
-tract density per year (`docs/validation_tract.md`), and grouped SHAP (share of `Terrain`). Expectation:
+tract density per year (`docs/validation_tract.md`), and SHAP of `elev` and `slope` separately (summary plot, per-feature and grouped importance). Expectation:
 terrain helps most where buildings are sparse (early decades, rural tracts); reservoir years change only the
 cells of reservoirs built after 1810.
 

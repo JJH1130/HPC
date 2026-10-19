@@ -95,6 +95,9 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
   + yearly water mask from GDW reservoir years (`water_mask: yearly`, `water.reservoir_source: gdw`).
 - `reservoir_source: hydrolakes` + `water_mask: true` reproduce v3.1–v3.4 (static `water_frac.tif`, kept in the
   cutout).
+- Census for v4 and later Massachusetts experiments: keep the current setup (NHGIS nominal counties,
+  1810–2020) so versions stay comparable; switch to the 1900–2020 study period with Stefan's CSV on 2010
+  county polygons only at the end (decided 2026-10-20).
 
 ### PLURAL gridded data
 
@@ -220,3 +223,4 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 | 2026-10-13 | Massachusetts dasymetric experiments closed (v3.2–v3.4). The 2000–2020 tract gap was a small-sample problem (E3 = 42 rows; merging E2+E3 → MdAPE 30–31 %). Lesson for CONUS: enough training rows, not pooled years; CONUS keeps per-year models (per-year SHAP, ~3,000 counties each) and checks per-year vs pooled on tract validation. Provisional until PLURAL is included. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
 | 2026-10-20 | v4 = v3.4 + terrain (`elev`, `slope` from GMTED2010) + GDW reservoir years in a yearly water mask; HydroLAKES path kept for reproducing v3.1–v3.4. PLURAL: use PLURAL-1 scaled across years only (PLURAL-2 not comparable over time). |
+| 2026-10-20 | Experiments (v4 onward) keep NHGIS nominal counties 1810–2020 for comparability; the switch to 1900–2020 with Stefan's CSV on 2010 county polygons (agreed with Stefan 2026-10-14) is made last. SHAP: `elev` and `slope` are separate groups, not one `Terrain` group. |
