@@ -95,9 +95,10 @@ Last updated: 2026-10-20 (v4 result)
   +6 to +8 pt (2020: 30.9 → 38.0 %), R² log density −0.03 to −0.05. Better only for small (rural) tracts and
   1910. SHAP: E1 `elev` 3rd (0.19), `slope` last; in E23 both near the bottom (0.03).
 - **Decision (2026-10-20):** no mask-only run. The mask change touches only 0.35 % of the cells, so terrain is
-  taken as the cause (a static county mean that acts as a county label with 14–22 counties). Massachusetts
-  final setup: terrain **out**, GDW yearly water mask **kept** (it is the correct treatment of reservoirs,
-  independent of the score). Terrain is re-tested on CONUS (~3,000 counties per year, much larger relief
+  taken as the cause (a static county mean that acts as a county label with 14–22 counties). The drop is
+  most likely overfitting with few Massachusetts counties; terrain is **not decided** and is re-tested on
+  CONUS. GDW yearly water mask **kept** (it is the correct treatment of reservoirs, independent of the
+  score). Terrain re-test on CONUS (~3,000 counties per year, much larger relief
   contrast), with and without, and possibly as relative elevation (cell minus county mean) instead of absolute
   elevation, which means different things in different regions.
 - v4 = v3.4 + `elev`, `slope` (GMTED2010 averaged to 250 m; slope in degrees on the 250 m grid) in both eras
@@ -239,4 +240,5 @@ Last updated: 2026-10-20 (v4 result)
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
 | 2026-10-20 | v4 = v3.4 + terrain (`elev`, `slope` from GMTED2010) + GDW reservoir years in a yearly water mask; HydroLAKES path kept for reproducing v3.1–v3.4. PLURAL: use PLURAL-1 scaled across years only (PLURAL-2 not comparable over time). |
 | 2026-10-20 | Experiments (v4 onward) keep NHGIS nominal counties 1810–2020 for comparability; the switch to 1900–2020 with Stefan's CSV on 2010 county polygons (agreed with Stefan 2026-10-14) is made last. SHAP: `elev` and `slope` are separate groups, not one `Terrain` group. |
-| 2026-10-20 | v4 result (worse than v3.4) attributed to terrain without a mask-only run. Massachusetts: drop `elev`/`slope`, keep the GDW yearly water mask. Terrain re-tested on CONUS (with/without; absolute vs relative elevation). |
+| 2026-10-20 | v4 result (worse than v3.4) attributed to terrain without a mask-only run. Likely overfitting with few MA counties; terrain not decided, re-tested on CONUS. GDW yearly water mask kept. Terrain re-test (with/without; absolute vs relative elevation). |
+| 2026-10-20 | Version order: v4.1 = PLURAL-1 distance terms from cell centres (1930–2020); v5 = HISDAC-US v3; v6 = CONUS with model comparison and hyperparameter tuning last, after all data and the study area are fixed. |
