@@ -89,7 +89,7 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 
 ### Dasymetric v4 (terrain + reservoir years)
 
-- **Status:** code and runbook ready on branch `v4-terrain-reservoirs` (2026-10-20), not run. Design
+- **Status:** code and runbook on main (9158e3f, e80a4ee; review fixes 2026-10-20), not run. Design
   `docs/dasymetric_v4.md`; run steps `docs/runbooks/Running_Dasymetric.md`, section "v4".
 - v4 = v3.4 + `elev`, `slope` (GMTED2010 averaged to 250 m; slope in degrees on the 250 m grid) in both eras
   + yearly water mask from GDW reservoir years (`water_mask: yearly`, `water.reservoir_source: gdw`).

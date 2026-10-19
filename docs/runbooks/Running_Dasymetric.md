@@ -261,6 +261,16 @@ grep -E 'reservoir_source|name: DEM' configs/study_area.yaml
 ls /pl/active/Leyk_Lab/data/HISDAC_US_V2 | head -3
 ls /projects/jaju1407/data/raw/dem/gmted2010/mn75_grd | head -3
 ls /projects/jaju1407/data/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp
+# headers only (seconds on a login node): the ArcGrid opens with a CRS and nodata, and GDW has the fields water_frac.py reads
+source sbatch/cluster_env.sh && activate_env hisdac
+python - <<'EOF'
+import rasterio, pyogrio
+with rasterio.open("/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd") as s:
+    print("DEM", s.driver, s.crs.to_epsg() if s.crs else None, s.dtypes[0], s.nodata, s.res, s.width, s.height)
+info = pyogrio.read_info("/projects/jaju1407/data/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp")
+need = {"GDW_ID", "RES_NAME", "DAM_NAME", "YEAR_DAM", "QUALITY", "LAKE_CTRL"}
+print("GDW", info["features"], "features, crs", info["crs"], "| missing fields:", sorted(need - set(info["fields"])) or "none")
+EOF
 mkdir -p logs
 jd=$(sbatch --parsable sbatch/grid_cutout.sh --layers DEM)
 jw=$(sbatch --parsable sbatch/water_frac.sh)
@@ -287,7 +297,8 @@ Check:
 - DEM: one line `DEM ... warped (average) -> float32` with min/max in metres (the window also covers New Hampshire and Maine: roughly 0 to under 1,900 m).
 - water: `GDW: N reservoir polygons ...`, per-year lines `study cells with water_frac = 1`, QA points
   `Quabbin Reservoir 1930 ... expect dry: ok` and `Quabbin Reservoir 2020 ... expect full_water: ok`
-  (Connecticut River `NOT MET` is the known warning). 22 files `layers/water_frac/{YEAR}_water_frac.tif`.
+  (Connecticut River `NOT MET` is the known warning). 22 files `layers/water_frac/{YEAR}_water_frac.tif`
+  next to the static `water_frac.tif` (kept for v3.1–v3.4; static layers are read by their exact name).
 - features: `DEM: N nodata cells ... set to 0 m`; era rows as in v3.4 (E1 188, E23 126).
 - train: `CV v4 vs v3_4` per era; `elev` and `slope` appear in the SHAP summary plot and as groups `Elevation` and `Slope`.
 - predict: mass check 0 fail. validate: totals QA 0 flagged.

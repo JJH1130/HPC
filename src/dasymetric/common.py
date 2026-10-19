@@ -82,6 +82,9 @@ def load_config(path: Path) -> dict:
     if twice or ungrouped:
         sys.exit(f"ERROR: {path}: feature_groups must list every feature exactly once; "
                  f"in no group {ungrouped}, in several groups {twice}")
+    wm = cfg.get("water_mask", False)
+    if wm not in (True, False, None) and str(wm).lower() != "yearly":
+        sys.exit(f"ERROR: {path}: water_mask must be true, false or yearly, not {wm!r}")
     if cfg["model"] not in cfg["models"]:
         sys.exit(f"ERROR: {path}: model {cfg['model']!r} has no entry under models: {sorted(cfg['models'])}")
     return cfg
@@ -162,6 +165,9 @@ def county_selection(table: pd.DataFrame, zones: np.ndarray, use_status, year: i
 def layer_path(cutout: Path, layer: str, year: int | None) -> Path:
     if year is not None:  # layers/BUI/{YEAR}_BUI.tif; Land_Use/RO -> layers/Land_Use/RO/{YEAR}_RO.tif
         return cutout / "layers" / layer / f"{year}_{Path(layer).name}.tif"
+    exact = cutout / "layers" / layer / f"{Path(layer).name}.tif"  # water_frac/water_frac.tif, DEM/DEM.tif
+    if exact.exists():  # the folder may also hold yearly files (v4: water_frac/{YEAR}_water_frac.tif)
+        return exact
     hits = sorted((cutout / "layers" / layer).glob("*.tif"))  # single-file layer (FBUY)
     if len(hits) != 1:
         sys.exit(f"ERROR: expected exactly one .tif in {cutout / 'layers' / layer}, found {[h.name for h in hits]}")

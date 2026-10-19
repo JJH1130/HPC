@@ -206,8 +206,8 @@ def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs, r
             for y in years:
                 wy = wet & (~inres | (ry <= y))
                 stats[f"reservoir_pixels_water_{y}"] += int((wet & inres & (ry <= y)).sum())
-                layers[y] = wy.astype("float32")
-            water = layers[years[-1]]
+                layers[y] = wy  # bool: 22 float32 copies of a block would need ~4x the memory
+            water = layers[years[-1]].astype("float32")
         elif lakes is not None and len(lakes):
             sub = lakes.cx[bll[0]:bll[2], bll[1]:bll[3]]
             if len(sub):
@@ -334,7 +334,7 @@ def main(argv=None):
             arr = layers[int(py)] if py is not None else frac
         else:
             arr = frac
-        label = f"{pt['name']}" + (f" {py}" if (py is not None and source == "gdw") else "")
+        label = f"{pt['name']}" + (f" {py}" if py is not None else "")  # unique QA keys in both modes
         x, y = to_xy.transform(pt["lon"], pt["lat"])
         half = pt.get("box_km", 5) * 500.0
         ca, ra = inv * (x - half, y + half)
