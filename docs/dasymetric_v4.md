@@ -121,5 +121,5 @@ PLURAL (urban–rural index, PLURAL-1 scaled across years; `docs/data_sources.md
 
 No separate mask-only run: the mask change is too small to explain a drop in every year, so terrain is taken as
 the cause. The drop is most likely overfitting with few Massachusetts counties, so terrain is not decided: it is
-re-tested on CONUS. The GDW yearly water mask is kept. See (`docs/open_items.md`).
+re-tested on CONUS. The GDW yearly water mask is kept (`docs/open_items.md`).
 
