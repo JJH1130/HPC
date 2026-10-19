@@ -94,10 +94,12 @@ Last updated: 2026-10-20 (v4 result)
 - **Result:** worse than v3.4. County CV RMSE E1 0.780 → 0.852, E23 0.554 → 0.580. Tract MdAPE 1950–2020
   +6 to +8 pt (2020: 30.9 → 38.0 %), R² log density −0.03 to −0.05. Better only for small (rural) tracts and
   1910. SHAP: E1 `elev` 3rd (0.19), `slope` last; in E23 both near the bottom (0.03).
-- **Open:** the mask change touches only 0.35 % of the cells, so terrain is the likely cause (a static county
-  mean that can act as a county label with 14–22 counties), but the two changes were not run separately.
-  Next step to decide: a mask-only run (v3.4 features + `water_mask: yearly`) to separate them, then whether
-  terrain stays out for Massachusetts and is re-tested on CONUS (~3,000 counties per year).
+- **Decision (2026-10-20):** no mask-only run. The mask change touches only 0.35 % of the cells, so terrain is
+  taken as the cause (a static county mean that acts as a county label with 14–22 counties). Massachusetts
+  final setup: terrain **out**, GDW yearly water mask **kept** (it is the correct treatment of reservoirs,
+  independent of the score). Terrain is re-tested on CONUS (~3,000 counties per year, much larger relief
+  contrast), with and without, and possibly as relative elevation (cell minus county mean) instead of absolute
+  elevation, which means different things in different regions.
 - v4 = v3.4 + `elev`, `slope` (GMTED2010 averaged to 250 m; slope in degrees on the 250 m grid) in both eras
   + yearly water mask from GDW reservoir years (`water_mask: yearly`, `water.reservoir_source: gdw`).
 - `reservoir_source: hydrolakes` + `water_mask: true` reproduce v3.1–v3.4 (static `water_frac.tif`, kept in the
@@ -108,6 +110,12 @@ Last updated: 2026-10-20 (v4 result)
 
 ### PLURAL gridded data
 
+- **Meeting with Siqiao (2026-10-20):** she has two PLURAL-1 products for 1992–2022: census tract level and a
+  900 m grid (same years). Details and code to reproduce them arrive Wednesday 2026-10-21. Options under
+  discussion: (a) compute PLURAL ourselves for earlier years from tract (or other) population; (b) use the
+  1992–2022 products as they are (tract value given to every 250 m cell in the tract, or the 900 m grid
+  resampled). Open concern: PLURAL is computed from population, so as a dasymetric predictor it can leak the
+  target (and the tract validation data); see the discussion before choosing.
 - **Status:** waiting to receive the grid from Siqiao. The published point data are on Alpine:
   `/projects/jaju1407/data/raw/plural/plural_2023/` (`PLURAL_CSV/PLURAL_CSV/`, `PLURAL_SHP/PLURAL_SHP/`,
   `PLURAL_indices_documentation.pdf`).
@@ -231,3 +239,4 @@ Last updated: 2026-10-20 (v4 result)
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
 | 2026-10-20 | v4 = v3.4 + terrain (`elev`, `slope` from GMTED2010) + GDW reservoir years in a yearly water mask; HydroLAKES path kept for reproducing v3.1–v3.4. PLURAL: use PLURAL-1 scaled across years only (PLURAL-2 not comparable over time). |
 | 2026-10-20 | Experiments (v4 onward) keep NHGIS nominal counties 1810–2020 for comparability; the switch to 1900–2020 with Stefan's CSV on 2010 county polygons (agreed with Stefan 2026-10-14) is made last. SHAP: `elev` and `slope` are separate groups, not one `Terrain` group. |
+| 2026-10-20 | v4 result (worse than v3.4) attributed to terrain without a mask-only run. Massachusetts: drop `elev`/`slope`, keep the GDW yearly water mask. Terrain re-tested on CONUS (with/without; absolute vs relative elevation). |

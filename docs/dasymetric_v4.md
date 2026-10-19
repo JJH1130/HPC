@@ -116,3 +116,10 @@ cells of reservoirs built after 1810.
 ## Provisional
 
 PLURAL (urban–rural index, PLURAL-1 scaled across years; `docs/data_sources.md`) is not yet included.
+
+## Decision (2026-10-20)
+
+No separate mask-only run: the mask change is too small to explain a drop in every year, so terrain is taken as
+the cause. The Massachusetts final setup drops `elev` and `slope` and keeps the GDW yearly water mask. Terrain
+is re-tested on CONUS (`docs/open_items.md`).
+
