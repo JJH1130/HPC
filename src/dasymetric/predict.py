@@ -61,7 +61,7 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path):
     w = np.exp(y_hat)
     z = zones[mask]
     # v3.1: all-water cells without a building this year get weight 0 (docs/dasymetric_v3_1.md)
-    masked = water_mask(cutout, year, grid, mask)[0] if cfg.get("water_mask") else np.zeros(len(z), bool)
+    masked = water_mask(cutout, year, grid, mask, cfg.get("water_mask"))[0] if cfg.get("water_mask") else np.zeros(len(z), bool)
     w[masked] = 0.0
     pop = np.zeros(int(zones.max()) + 1)
     pop[used["zone_id"].to_numpy()] = used["pop"].to_numpy()
@@ -146,7 +146,7 @@ def main(argv=None):
         if bundle["features"] != cfg["eras"][era]["features"]:
             sys.exit(f"ERROR: {mpath} was trained on {bundle['features']}, the config says "
                      f"{cfg['eras'][era]['features']}; rerun stages 1-2")
-        if bool(bundle.get("water_mask")) != bool(cfg.get("water_mask")):
+        if str(bundle.get("water_mask", False)).lower() != str(cfg.get("water_mask", False)).lower():
             sys.exit(f"ERROR: {mpath} was trained with water_mask={bundle.get('water_mask', False)}, "
                      f"the config says {cfg.get('water_mask', False)}; rerun stages 1-2")
         bundles[era] = bundle

@@ -323,7 +323,7 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
 
     joblib.dump({"model": model, "features": feats, "name": cfg["model"], "version": cfg["version"],
                  "era": era or None, "years": cfg["eras"][era]["years"], "use_status": cfg["use_status"],
-                 "water_mask": bool(cfg.get("water_mask"))},
+                 "water_mask": cfg.get("water_mask", False)},
                 mdir / f"{cfg['model']}.joblib")
     cvr = pd.DataFrame(res)
     cvr["params"] = cvr["params"].astype(str)

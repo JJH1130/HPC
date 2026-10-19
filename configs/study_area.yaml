@@ -50,8 +50,12 @@ layers:
   # intensity, so each 250 m cell takes its 1 km parent's value (docs/dasymetric_v3.md).
   # Cut into an existing cutout with: sbatch sbatch/grid_cutout.sh --layers NTL
   - {name: NTL, path: "/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif", years: [2000, 2010, 2020], resampling: nearest, dtype: int16}
+  # USGS GMTED2010 mean elevation, 7.5 arc-seconds (~230 m), EPSG:4326, Int16 metres, nodata -32768 (ESRI ArcGrid:
+  # the path is the grid's folder). average: elevation is continuous, so each 250 m cell takes the mean of the
+  # source pixels it covers. Slope is computed later on the 250 m grid (src/dasymetric/common.py; docs/dasymetric_v4.md).
+  # Cut into an existing cutout with: sbatch sbatch/grid_cutout.sh --layers DEM
+  - {name: DEM, path: "/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd", years: none, resampling: average, dtype: float32, out: "DEM/DEM.tif"}
   # External rasters on other grids: one line each, e.g.
-  # - {name: DEM, path: "/projects/jaju1407/data/raw/dem/dem.tif", years: none, resampling: average, dtype: float32}
   # - {name: LandCover, path: "/projects/jaju1407/data/raw/nlcd/nlcd_{YEAR}.tif", years: [2000, 2010, 2020], resampling: mode}
 
 # Static water fraction for the v3.1 water mask (src/grid/water_frac.py, docs/dasymetric_v3_1.md;
@@ -69,10 +73,25 @@ water:
   # src/grid/jrc_nodata_check.py): in the Massachusetts window it lies only on the open sea, 0 pixels in the
   # study counties in every year. Re-check where land could be affected (CONUS).
   nodata_as_water: true
+  # Which reservoirs are taken out of the JRC water (docs/dasymetric_v4.md):
+  #   hydrolakes (v3.1): HydroLAKES polygons with Lake_type in reservoir_types are land in every year;
+  #                      writes the static layer `out`.
+  #   gdw (v4): Global Dam Watch reservoirs are water only from their completion year (YEAR_DAM, QUALITY <=
+  #             quality_max); no year or lower quality = land in every year; LAKE_CTRL in lake_ctrl_water
+  #             (natural lake raised by a dam) = JRC decides in every year. Writes one layer per study year
+  #             (`yearly_out`). Pair with water_mask: yearly in configs/model.yaml.
+  reservoir_source: gdw
   hydrolakes: /projects/jaju1407/data/raw/water/HydroLAKES_polys_v10_shp/HydroLAKES_polys_v10.shp
   reservoir_types: [2]
   out: water_frac/water_frac.tif
+  gdw:
+    path: /projects/jaju1407/data/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp
+    quality_max: 3
+    lake_ctrl_water: ["Yes", "Maybe"]
+  yearly_out: "water_frac/{YEAR}_water_frac.tif"
   block: 256
+  # `year` (gdw only): which yearly layer the point is checked on (default: the last study year).
   qa_points:
-    - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: dry}
+    - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: dry, year: 1930}
+    - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: full_water, year: 2020}
     - {name: Connecticut River (Springfield), lon: -72.60, lat: 42.10, box_km: 3, expect: full_water}

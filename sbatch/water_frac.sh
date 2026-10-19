@@ -1,8 +1,10 @@
 #!/bin/bash
-# Static water-fraction layer in the study-area cutout (src/grid/water_frac.py; design docs/dasymetric_v3_1.md;
+# Water-fraction layer(s) in the study-area cutout (src/grid/water_frac.py; design docs/dasymetric_v3_1.md, yearly GDW
+# version docs/dasymetric_v4.md;
 # settings: water: block of configs/study_area.yaml; sources docs/data_sources.md).
 # Input: JRC occurrence tiles + HydroLAKES under /projects/jaju1407/data/raw/water/, and the existing cutout.
-# Output: $HISDAC_SCRATCH/cutouts/<name>/layers/water_frac/water_frac.tif and qa/water_qa.csv
+# Output: $HISDAC_SCRATCH/cutouts/<name>/layers/water_frac/water_frac.tif (reservoir_source: hydrolakes) or
+# {YEAR}_water_frac.tif per study year (reservoir_source: gdw), and qa/water_qa.csv
 # (the QA CSV is copied to results/cutout/<name>/, also on failure).
 #
 # Submit from the repo root (logs/ must exist):

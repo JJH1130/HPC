@@ -87,9 +87,23 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
   ~45 % for both v2 and v3_1, while v3_1 is better in 1940–1990. v3.2 drops `ntl` from E3 (E2's
   features) to test whether night lights cause it. Compare with v3_1 for 2000–2020.
 
+### Dasymetric v4 (terrain + reservoir years)
+
+- **Status:** code and runbook ready on branch `v4-terrain-reservoirs` (2026-10-20), not run. Design
+  `docs/dasymetric_v4.md`; run steps `docs/runbooks/Running_Dasymetric.md`, section "v4".
+- v4 = v3.4 + `elev`, `slope` (GMTED2010 averaged to 250 m; slope in degrees on the 250 m grid) in both eras
+  + yearly water mask from GDW reservoir years (`water_mask: yearly`, `water.reservoir_source: gdw`).
+- `reservoir_source: hydrolakes` + `water_mask: true` reproduce v3.1–v3.4 (static `water_frac.tif`, kept in the
+  cutout).
+
 ### PLURAL gridded data
 
-- **Status:** waiting to receive the grid from Siqiao.
+- **Status:** waiting to receive the grid from Siqiao. The published point data are on Alpine:
+  `/projects/jaju1407/data/raw/plural/plural_2023/` (`PLURAL_CSV/PLURAL_CSV/`, `PLURAL_SHP/PLURAL_SHP/`,
+  `PLURAL_indices_documentation.pdf`).
+- Use **PLURAL-1 scaled across years** only: PLURAL-2 is rank-based and not comparable over time (Uhl et al.
+  2023). Values 0–1, 0 = large place near other places (urban), 1 = small remote place (rural); New York 2010
+  = 0.013. Years 1930–2010 + 2018 (no 1900–1920, no 2020). Points in ESRI:102003.
 - PLURAL (urban–rural continuum) may address the rural-over / urban-under pattern left in the
   tract validation (2026-10-13); the E3-gap conclusions (v3.2–v3.4) are provisional until it is tested.
 - On arrival: check resolution, CRS and year coverage, then add it as a layer
@@ -164,8 +178,8 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 
 ### CONUS water step: reservoirs from GDW (decided 2026-10-13)
 
-- **Status:** decided; not implemented yet (docs only). Apply in the CONUS
-  water step. Data: GDW v1.0 (`docs/data_sources.md`).
+- **Status:** implemented in `src/grid/water_frac.py` (`reservoir_source: gdw`, yearly layers) for v4
+  (2026-10-20), not run yet; first tested on Massachusetts. Data: GDW v1.0 (`docs/data_sources.md`).
 - Water = JRC occurrence >= 75 (unchanged).
 - GDW reservoir polygons replace HydroLAKES `Lake_type = 2`:
   - a) `YEAR_DAM` present and `QUALITY` 1–3: water from `YEAR_DAM` on; land
@@ -205,3 +219,4 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 | 2026-10-13 | CONUS water step: JRC occurrence >= 75 unchanged; GDW v1.0 reservoir polygons replace HydroLAKES `Lake_type = 2`. `YEAR_DAM` + `QUALITY` 1–3 → water from `YEAR_DAM` on; `LAKE_CTRL` Yes/Maybe → water in all years; no `YEAR_DAM` or `QUALITY` 4–5 → land in all years. Unflagged dam-raised natural lakes are land before `YEAR_DAM` (accepted). `water_frac` becomes year-dependent. |
 | 2026-10-13 | Massachusetts dasymetric experiments closed (v3.2–v3.4). The 2000–2020 tract gap was a small-sample problem (E3 = 42 rows; merging E2+E3 → MdAPE 30–31 %). Lesson for CONUS: enough training rows, not pooled years; CONUS keeps per-year models (per-year SHAP, ~3,000 counties each) and checks per-year vs pooled on tract validation. Provisional until PLURAL is included. |
 | 2026-10-06 | v3 per `docs/dasymetric_v3.md`: one model per era, era boundaries and feature lists in `configs/model.yaml`, v2 folds reused; order = NTL cutout + QA, then era training/prediction; v1/v2 outputs read only. |
+| 2026-10-20 | v4 = v3.4 + terrain (`elev`, `slope` from GMTED2010) + GDW reservoir years in a yearly water mask; HydroLAKES path kept for reproducing v3.1–v3.4. PLURAL: use PLURAL-1 scaled across years only (PLURAL-2 not comparable over time). |

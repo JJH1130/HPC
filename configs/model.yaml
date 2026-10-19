@@ -10,22 +10,26 @@
 # v3_2 = commit a0dd6b9 (docs/dasymetric_v3_2.md): v3_1 with E3 on the E2 feature set (no ntl).
 # v3_3 = commit f120977 (docs/dasymetric_v3_3.md, diagnostic): v3_1 but E3's hyperparameters fixed to E2's
 # best (era `params:`), no search for E3.
-# v3_4 (docs/dasymetric_v3_4.md, diagnostic): E2 and E3 merged into one era E23 (1940-2020, E2 features,
-# no ntl), searched as usual; E1 unchanged.
-version: v3_4
+# v3_4 = commit 6eea116 (docs/dasymetric_v3_4.md, diagnostic): E2 and E3 merged into one era E23 (1940-2020,
+# E2 features, no ntl), searched as usual; E1 unchanged.
+# v4 (docs/dasymetric_v4.md): v3_4 + terrain features elev, slope (GMTED2010) in every era, and the yearly water
+# mask with Global Dam Watch reservoirs that count as water only from their completion year (water_mask: yearly).
+version: v4
 
 # Water mask (docs/dasymetric_v3_1.md), per year: a cell is masked if it is all permanent water and has no
 # building that year (water_frac == 1 and BUI == 0; layers/water_frac/water_frac.tif from src/grid/water_frac.py).
 # Masked cells get weight 0; county features are means over the unmasked cells and area_km2 = 0.0625 x unmasked
 # cells (y = log(pop / area_km2)). Partly-water cells, dry unbuilt cells and features are not changed; water is
-# not a feature. false/absent = v1-v3 behaviour (all cells, polygon area).
-water_mask: true
+# not a feature. false/absent = v1-v3 behaviour (all cells, polygon area). true = static water_frac.tif (v3.1-v3.4,
+# HydroLAKES reservoirs never water); yearly = {YEAR}_water_frac.tif (v4, GDW reservoirs water from their
+# completion year; src/grid/water_frac.py with water.reservoir_source: gdw).
+water_mask: yearly
 
 # Earlier version under the same out-root to compare with (read only; null = no comparison). A version with
 # the same eras (v3): its saved out-of-fold predictions are read per era (no refit) and each version is scored
 # on its own target. A pooled version (v2): refit with its features + best params on the same folds and scored
 # on each era's rows. predict.py draws side-by-side maps for maps.compare_years.
-compare_with: v3_1
+compare_with: v3_4
 
 # Reuse this version's GISJOIN -> fold mapping (<version>/model/folds.csv), filtered to each era's counties,
 # so the comparison runs on identical folds (null = new GroupKFold folds per era). v3 and v3_1 used the same table.
@@ -44,20 +48,22 @@ use_status: [ok, manual_fill]
 # hyperparameters of `model` (keys of its space) instead of searching them (v3_3). Instead of `eras`, a single
 # top-level `features:` list gives one pooled model (v1, v2).
 # Cell features are defined in src/dasymetric/common.py; county feature = mean over the county's cells.
-# Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year, res_share, rent_share, ntl.
-# res_share/rent_share need the Land_Use layers (1940+), ntl the NTL layer (2000, 2010, 2020).
+# Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year, res_share, rent_share, ntl, elev, slope.
+# res_share/rent_share need the Land_Use layers (1940+), ntl the NTL layer (2000, 2010, 2020), elev/slope the
+# static DEM layer (GMTED2010; slope in degrees computed on the 250 m grid).
 eras:
   E1:
     years: {start: 1810, stop: 1930}
-    features: [bui, bldg_size, mu_ratio, dist_built, year]
-  E23:  # v3_4: v3_1's E2 (1940-1990) and E3 (2000-2020) as one era, E2's features (no ntl), usual search
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, year]
+  E23:  # v3_4's merged era (1940-2020, no ntl) + terrain
     years: {start: 1940, stop: 2020}
-    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, year, res_share, rent_share]
 
 # Concept groups for grouped SHAP: every used feature in exactly one group (per era, only its features).
 feature_groups:
   Building: [bui, bldg_size, mu_ratio]
   Settlement context: [dist_built]
+  Terrain: [elev, slope]
   Land use: [res_share, rent_share]
   Lights: [ntl]
   Period: [year]

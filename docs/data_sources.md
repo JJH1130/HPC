@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-13 (GDW, NHGIS nhgis0002 added)
+Last updated: 2026-10-20 (GDW and GMTED2010 in v4 code; PLURAL added)
 
 ## Summary
 
@@ -20,10 +20,11 @@ Last updated: 2026-10-13 (GDW, NHGIS nhgis0002 added)
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction (v3.1) | Superseded by GDW for reservoir removal |
-| Global Dam Watch (GDW) reservoirs + barriers | v1.0 | `/projects/jaju1407/data/raw/water/gdw/` | Reservoir polygons with dam years → year-dependent water fraction (CONUS) | Downloaded 2026-10-12; not yet in code |
+| Global Dam Watch (GDW) reservoirs + barriers | v1.0 | `/projects/jaju1407/data/raw/water/gdw/` | Reservoir polygons with dam years → year-dependent water fraction | Downloaded 2026-10-12; in code for v4 (`water_frac.py`, `reservoir_source: gdw`), not run yet |
 | County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | CBSA attributes only (Metro/Micro, Central/Outlying); **not** a Ch1 target | In use (attributes); publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
-| USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | In use (raw); downloaded 2026-10-12 |
+| USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | Downloaded 2026-10-12; in code for v4 (cutout layer `DEM`, `average`), not run yet |
+| PLURAL place-level urban–rural indices | 2023 release (points, 1930–2018) | `/projects/jaju1407/data/raw/plural/plural_2023/` | Urban–rural feature (planned; gridded version from Siqiao) | On Alpine; not yet in code |
 
 ## Details
 
@@ -237,3 +238,19 @@ Common to all extracts:
 
 - PLURAL (gridded) from Siqiao: record resolution, CRS, years, citation.
 - Areally standardized (2010-boundary) county data, 1900 on: Stefan's CSV is nominal (see above); ask Stefan whether a standardized version exists.
+
+### PLURAL (place-level urban–rural indices)
+
+- Point data: one record per census place (about 30,000 places, CONUS), 1930–2010 decennial and 2018;
+  `PLURAL_CSV/` (tables keyed by NHGIS place code) and `PLURAL_SHP/` (one point shapefile per year,
+  ESRI:102003). Technical description: `PLURAL_indices_documentation.pdf` in the same folder.
+- Two methods: PLURAL-1 (distance/raster-based: place population, focal population density, distances to the
+  nearest places of 10–20k, 20–50k, 50–100k, 100–250k and >250k people) and PLURAL-2 (network-based,
+  rank-based). Four weighting schemes each; scaled per year or across all years, range 0–1
+  (0 = urban, 1 = remote/rural).
+- Use: PLURAL-1 scaled across years only; PLURAL-2 "should not be used for longitudinal analysis" (paper).
+- Citation: Uhl, J. H., Hunter, L. M., Leyk, S., Connor, D. S., Nieves, J. J., Hester, C., Talbot, C., &
+  Gutmann, M. (2023). Place-level urban–rural indices for the United States from 1930 to 2018. *Landscape and
+  Urban Planning*, 236, 104762. https://doi.org/10.1016/j.landurbplan.2023.104762
+- Data: figshare https://doi.org/10.6084/m9.figshare.22596946 ; code https://github.com/johannesuhl/plural
+- Gridded version: from Siqiao (method, resolution, CRS and citation to record on arrival).

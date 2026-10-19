@@ -34,10 +34,12 @@ log = logging.getLogger("dasymetric")
 # rent_share, ntl). County feature = mean over the county's cells. Which ones are used is set in
 # configs/model.yaml.
 LAYER_FEATURES = {"bui": "BUI", "bupl": "BUPL", "bupr": "BUPR", "bua": "BUA", "ntl": "NTL"}
-DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share"}
+DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share",
+                    "elev", "slope"}  # v4: elev, slope from the static DEM layer (docs/dasymetric_v4.md)
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
 LAND_USE = ["A", "C", "GV", "I", "RC", "RI", "RO", "VL"]  # cutout layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif
-WATER_LAYER = "water_frac"  # cutout layers/water_frac/water_frac.tif (static)
+WATER_LAYER = "water_frac"  # cutout layers/water_frac/water_frac.tif (static) or {YEAR}_water_frac.tif (v4)
+DEM_LAYER = "DEM"  # cutout layers/DEM/DEM.tif (static; GMTED2010 mean elevation averaged to 250 m, metres)
 NODATA_OUT = -9999.0
 CELL_KM = 0.25  # HISDAC cell size
 
@@ -205,17 +207,39 @@ def dist_built(cutout: Path, year: int, grid: dict) -> np.ndarray:
     return ndimage.distance_transform_edt(~built) * CELL_KM
 
 
-def water_mask(cutout: Path, year: int, grid: dict, mask: np.ndarray):
+def water_mask(cutout: Path, year: int, grid: dict, mask: np.ndarray, mode=True):
     """Year-specific water mask of the masked cells (docs/dasymetric_v3_1.md): True where the cell is all
     permanent water (water_frac == 1, layers/water_frac/ from src/grid/water_frac.py) and has no building in
-    that year (BUI == 0). Cells with buildings are never masked. Returns (masked, n_water_built), the second
-    being the all-water cells kept because BUI > 0 (QA). Water is never a feature."""
-    wf = read_layer(cutout, WATER_LAYER, None, grid, mask)
+    that year (BUI == 0). Cells with buildings are never masked. `mode` = the config's water_mask: true reads
+    the static water_frac.tif (v3.1, HydroLAKES reservoirs never water); "yearly" reads {YEAR}_water_frac.tif
+    (v4, Global Dam Watch reservoirs water from their completion year; docs/dasymetric_v4.md).
+    Returns (masked, n_water_built), the second being the all-water cells kept because BUI > 0 (QA).
+    Water is never a feature."""
+    if str(mode).lower() == "yearly":
+        wf = read_layer(cutout, WATER_LAYER, year, grid, mask)
+    else:
+        wf = read_layer(cutout, WATER_LAYER, None, grid, mask)
     if wf.size and (wf.min() < 0 or wf.max() > 1):
         sys.exit(f"ERROR: water_frac outside 0-1 ({wf.min()}..{wf.max()}); rerun src/grid/water_frac.py")
     bui = read_layer(cutout, "BUI", year, grid, mask)
     full = wf >= 1
     return full & (bui == 0), int((full & (bui > 0)).sum())
+
+
+def dem_full(cutout: Path, grid: dict) -> np.ndarray:
+    """Whole-window elevation (m) from layers/DEM/DEM.tif. Nodata (sea in GMTED2010) is set to 0 m so that
+    coastal cells and slope near the shore stay defined; the number of such cells is logged."""
+    arr, bad, path = read_layer_full(cutout, DEM_LAYER, None, grid)
+    if bad.any():
+        log.info("  DEM: %d nodata cells in the window set to 0 m (sea)", int(bad.sum()))
+        arr = np.where(bad, 0.0, arr)
+    return arr
+
+
+def slope_deg(dem: np.ndarray) -> np.ndarray:
+    """Slope in degrees on the 250 m grid (central differences, numpy.gradient; edges one-sided)."""
+    dzdy, dzdx = np.gradient(dem, CELL_KM * 1000.0)
+    return np.degrees(np.arctan(np.hypot(dzdx, dzdy)))
 
 
 def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names) -> pd.DataFrame:
@@ -249,6 +273,11 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names) 
                 out[f] = np.divide(ri, ro + ri, out=np.zeros_like(ri), where=(ro + ri) > 0)
         elif f == "dist_built":  # km to the nearest built cell (whole window), 0 for built cells
             out[f] = dist_built(cutout, year, grid)[mask]
+        elif f in ("elev", "slope"):  # v4: static terrain from the DEM layer (docs/dasymetric_v4.md)
+            if "dem" not in cache:
+                cache["dem"] = dem_full(cutout, grid)
+            dem = cache["dem"]
+            out[f] = dem[mask] if f == "elev" else slope_deg(dem)[mask]
         elif f == "year":
             out[f] = np.full(int(mask.sum()), float(year))
     return pd.DataFrame(out, columns=list(names))

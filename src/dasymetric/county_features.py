@@ -49,7 +49,7 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
     qa = None
     keep = np.ones(len(z), bool)
     if cfg.get("water_mask"):
-        masked, n_water_built = water_mask(cutout, year, grid, mask)
+        masked, n_water_built = water_mask(cutout, year, grid, mask, cfg.get("water_mask"))
         keep = ~masked
         rows["n_masked"] = np.bincount(z[masked], minlength=len(np.bincount(z)))[zid]
         qa = {"year": year, "era": era_of(cfg, year), "study_cells": len(z), "masked_cells": int(masked.sum()),

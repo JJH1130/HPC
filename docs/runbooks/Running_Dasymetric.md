@@ -244,6 +244,63 @@ Check: features `era E23: 126 training rows | 14 counties`; train E1 `CV v3_4 vs
 `compare_with v3_1 skipped: missing ...` (expected: v3.1 has no E23); predict `mass check: 126 county-years ... 0 fail`.
 Close the loop as in v3.2 with message `run: dasymetric v3_4 $j1 $j2 $j3 + validate_tract $j4`.
 
+## v4 (terrain + reservoir years): run
+
+Design: `docs/dasymetric_v4.md`. Two new cutout layers first (DEM, yearly water), then the usual chain.
+`configs/model.yaml` shows `version: v4`, `water_mask: yearly`, `compare_with: v3_4`; `configs/study_area.yaml`
+has the `DEM` layer and `reservoir_source: gdw`. Needs PetaLibrary (the cutout reads the HISDAC grid
+reference) and the raw files `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd/` and
+`/projects/jaju1407/data/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp`.
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+grep -E '^(version|water_mask|compare_with):' configs/model.yaml
+grep -E 'reservoir_source|name: DEM' configs/study_area.yaml
+ls /pl/active/Leyk_Lab/data/HISDAC_US_V2 | head -3
+ls /projects/jaju1407/data/raw/dem/gmted2010/mn75_grd | head -3
+ls /projects/jaju1407/data/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp
+mkdir -p logs
+jd=$(sbatch --parsable sbatch/grid_cutout.sh --layers DEM)
+jw=$(sbatch --parsable sbatch/water_frac.sh)
+j1=$(sbatch --parsable --dependency=afterok:$jd:$jw sbatch/dasymetric_features.sh)
+j2=$(sbatch --parsable --dependency=afterok:$j1 sbatch/dasymetric_train.sh)
+j3=$(sbatch --parsable --dependency=afterok:$j2 sbatch/dasymetric_predict.sh)
+j4=$(sbatch --parsable --dependency=afterok:$j3 sbatch/validate_tract.sh --version v4)
+echo "dem $jd | water $jw | features $j1 | train $j2 | predict $j3 | validate $j4"
+```
+
+Monitor:
+
+```bash
+squeue -u jaju1407
+tail -n 30 logs/grid_cutout.$jd.out
+tail -n 60 logs/water_frac.$jw.out
+tail -n 40 logs/dasymetric_features.$j1.out
+tail -n 60 logs/dasymetric_train.$j2.out
+tail -n 40 logs/dasymetric_predict.$j3.out
+tail -n 40 logs/validate_tract.$j4.out
+```
+
+Check:
+- DEM: one line `DEM ... warped (average) -> float32` with min/max in metres (the window also covers New Hampshire and Maine: roughly 0 to under 1,900 m).
+- water: `GDW: N reservoir polygons ...`, per-year lines `study cells with water_frac = 1`, QA points
+  `Quabbin Reservoir 1930 ... expect dry: ok` and `Quabbin Reservoir 2020 ... expect full_water: ok`
+  (Connecticut River `NOT MET` is the known warning). 22 files `layers/water_frac/{YEAR}_water_frac.tif`.
+- features: `DEM: N nodata cells ... set to 0 m`; era rows as in v3.4 (E1 188, E23 126).
+- train: `CV v4 vs v3_4` per era; `Terrain` appears in the grouped SHAP.
+- predict: mass check 0 fail. validate: totals QA 0 flagged.
+
+Close the loop:
+
+```bash
+git add logs/grid_cutout.$jd.out logs/water_frac.$jw.out logs/dasymetric_*.$j1.out logs/dasymetric_*.$j2.out \
+        logs/dasymetric_*.$j3.out logs/validate_tract.$j4.out results/
+git commit -m "run: v4 dem $jd water $jw dasymetric $j1 $j2 $j3 + validate_tract $j4"
+git pull --rebase && git push
+```
+
 ## Notes
 
 - 2026-10-12 (cluster time), v3.4 jobs 33928611 / 33928613 / 33928615 + validate_tract 33928617 (code 8599fa3):

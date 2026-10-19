@@ -1,9 +1,14 @@
-"""Static water-fraction layer for a study-area cutout (design: docs/dasymetric_v3_1.md).
+"""Water-fraction layer(s) for a study-area cutout (design: docs/dasymetric_v3_1.md; yearly GDW version:
+docs/dasymetric_v4.md).
 
 Settings: the `water:` block of configs/study_area.yaml. Reads the existing cutout's window.json and writes
-  <cutout>/layers/water_frac/water_frac.tif   share of permanent-water 30 m pixels per 250 m cell, float32 0-1,
-                                              NaN where no JRC tile covers the cell
-  <cutout>/qa/water_qa.csv                    QA (item, value)
+  reservoir_source: hydrolakes (default, v3.1) -> one static layer
+    <cutout>/layers/water_frac/water_frac.tif         share of permanent-water 30 m pixels per 250 m cell,
+                                                      float32 0-1, NaN where no JRC tile covers the cell
+  reservoir_source: gdw (v4) -> one layer per study year
+    <cutout>/layers/water_frac/{YEAR}_water_frac.tif  same, but a Global Dam Watch reservoir counts as water
+                                                      only from its completion year (rule in step 2b)
+  <cutout>/qa/water_qa.csv                            QA (item, value)
 
 Steps:
   1. JRC Global Surface Water occurrence tiles (EPSG:4326, 30 m): every file matching `jrc_glob` in `jrc_dir`
@@ -13,6 +18,10 @@ Steps:
      not water; their share is reported either way.
   2. HydroLAKES polygons with Lake_type in `reservoir_types` (reservoirs) are set to not water (pixel centre
      inside the polygon). Only features intersecting the window are read.
+  2b. (reservoir_source: gdw) Global Dam Watch reservoir polygons (`gdw` block) get an effective year:
+     LAKE_CTRL in `lake_ctrl_water` (a natural lake raised by a dam) -> not a reservoir, JRC decides in every
+     year; QUALITY <= `quality_max` and YEAR_DAM > 0 -> YEAR_DAM; otherwise (no year, or quality 4-5) -> never
+     water (as HydroLAKES in v3.1). In census year Y a reservoir pixel is water only if its year <= Y.
   3. The 0/1 mask is averaged onto the HISDAC 250 m window grid, block by block: each 30 m pixel centre is
      assigned to the cell it falls in, weighted by cos(lat) (exact area weighting on the rotated grid), so
      memory stays small for any window size.
@@ -93,6 +102,37 @@ def reservoirs(wcfg: dict, bounds_ll):
     return gdf
 
 
+NEVER = 9999  # effective year of a GDW reservoir that never counts as water (no year, or low quality)
+
+
+def reservoirs_gdw(wcfg: dict, bounds_ll):
+    """GDW reservoir polygons intersecting the window, with `eff_year` (step 2b). Natural lakes raised by a dam
+    (LAKE_CTRL listed in lake_ctrl_water) are dropped: they stay water whenever JRC says so."""
+    g = wcfg.get("gdw") or {}
+    path = Path(g.get("path", ""))
+    if not path.is_file():
+        sys.exit(f"ERROR: water.gdw.path {path} not found (Global Dam Watch reservoirs shapefile)")
+    gdf = pyogrio.read_dataframe(path, bbox=tuple(bounds_ll),
+                                 columns=["GDW_ID", "RES_NAME", "DAM_NAME", "YEAR_DAM", "QUALITY", "LAKE_CTRL"])
+    if gdf.crs is not None and not CRS.from_user_input(gdf.crs).equals(CRS.from_epsg(4326)):
+        gdf = gdf.to_crs(4326)
+    qmax = int(g.get("quality_max", 3))
+    ctrl = {str(v).lower() for v in g.get("lake_ctrl_water", ["Yes", "Maybe"])}
+    q = pd.to_numeric(gdf["QUALITY"].astype(str).str.extract(r"^\s*(\d)")[0], errors="coerce")
+    yr = pd.to_numeric(gdf["YEAR_DAM"], errors="coerce")
+    is_ctrl = gdf["LAKE_CTRL"].astype(str).str.strip().str.lower().isin(ctrl)
+    dated = (q <= qmax) & (yr > 0)
+    gdf["eff_year"] = np.where(dated, yr, NEVER).astype(int)
+    log.info("GDW: %d reservoir polygons intersect the window | %d natural lakes raised by a dam (LAKE_CTRL in %s) "
+             "kept to JRC | %d dated (quality <= %d) | %d never water (no year or quality > %d)", len(gdf),
+             int(is_ctrl.sum()), sorted(ctrl), int((dated & ~is_ctrl).sum()), qmax, int((~dated & ~is_ctrl).sum()), qmax)
+    gdf = gdf[~is_ctrl]
+    big = gdf.assign(name=gdf["RES_NAME"].fillna(gdf["DAM_NAME"])).sort_values("eff_year")
+    named = [f"{n} ({y if y != NEVER else 'never'})" for n, y in zip(big["name"].fillna("?"), big["eff_year"])][:15]
+    log.info("GDW reservoirs (first 15 by year): %s", ", ".join(named) or "-")
+    return gdf
+
+
 def source_block(tiles, res, bounds_ll):
     """Occurrence mosaic (uint8, 255 = not covered) on the shared JRC grid over bounds_ll, + its transform."""
     rx, ry = res
@@ -120,16 +160,24 @@ def source_block(tiles, res, bounds_ll):
     return occ, covered, tr
 
 
-def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs):
+def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs, res_years=None, years=None):
     """Per 250 m cell of the window: (water share, JRC no-data share, stats). Both shares are area-weighted
     over the covered 30 m pixels: each pixel centre goes to the cell it falls in, weighted by cos(lat).
     GDAL `average` is not used: on a grid rotated against lon/lat it also counts pixels outside the cell.
     Cells without any covered pixel are NaN in both. Water = occurrence >= occurrence_min and <= 100,
-    (plus no data = occurrence > 100 if wcfg nodata_as_water), minus pixels inside `lakes` (reservoirs)."""
+    (plus no data = occurrence > 100 if wcfg nodata_as_water), minus pixels inside `lakes` (reservoirs).
+    With `res_years` (GDW polygons with eff_year) and `years`, the water share is returned as {year: array}:
+    a reservoir pixel is water in year Y only if its eff_year <= Y (step 2b); `lakes` is then not used."""
     to_xy = Transformer.from_crs(4326, crs, always_xy=True)
-    frac = np.full((H, W), np.nan, dtype="float32")
+    yearly = res_years is not None
+    if yearly:
+        frac = {y: np.full((H, W), np.nan, dtype="float32") for y in years}
+    else:
+        frac = np.full((H, W), np.nan, dtype="float32")
     nodata = np.full((H, W), np.nan, dtype="float32")
     stats = {"jrc_pixels": 0, "jrc_nodata_pixels": 0, "water_pixels": 0, "reservoir_pixels_removed": 0}
+    if yearly:
+        stats.update({f"reservoir_pixels_water_{y}": 0 for y in years})
     blk = int(wcfg.get("block", 256))
     pad = 2 * max(res)
     n_blocks = math.ceil(H / blk) * math.ceil(W / blk)
@@ -145,7 +193,22 @@ def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs):
         if wcfg.get("nodata_as_water"):
             wet |= covered & (occ > 100)
         water = wet.astype("float32")
-        if lakes is not None and len(lakes):
+        layers = None  # yearly: {year: water array}
+        if yearly:
+            ry = np.zeros(occ.shape, dtype="int16")  # 0 = not a GDW reservoir
+            sub = res_years.cx[bll[0]:bll[2], bll[1]:bll[3]]
+            if len(sub):
+                ry = rasterize(((g, int(y)) for g, y in zip(sub.geometry, sub["eff_year"])), out_shape=occ.shape,
+                               transform=str_, fill=0, dtype="int16")
+            inres = ry > 0
+            stats["reservoir_pixels_removed"] += int((wet & inres & (ry == NEVER)).sum())
+            layers = {}
+            for y in years:
+                wy = wet & (~inres | (ry <= y))
+                stats[f"reservoir_pixels_water_{y}"] += int((wet & inres & (ry <= y)).sum())
+                layers[y] = wy.astype("float32")
+            water = layers[years[-1]]
+        elif lakes is not None and len(lakes):
             sub = lakes.cx[bll[0]:bll[2], bll[1]:bll[3]]
             if len(sub):
                 inres = rasterize(((g, 1) for g in sub.geometry), out_shape=occ.shape, transform=str_, fill=0,
@@ -167,7 +230,8 @@ def cell_shares(wcfg: dict, tiles, res, lakes, transform, H: int, W: int, crs):
         wt = np.cos(np.radians(LAT[ok]))
         den = np.bincount(idx, weights=wt, minlength=h * w)
         has = den > 0  # cells without any covered pixel stay NaN
-        for target, values in ((frac, water), (nodata, nd)):
+        pairs = [(frac[y], layers[y]) for y in years] if yearly else [(frac, water)]
+        for target, values in pairs + [(nodata, nd)]:
             num = np.bincount(idx, weights=wt * values[ok], minlength=h * w)
             out = np.full(h * w, np.nan, dtype="float32")
             out[has] = num[has] / den[has]
@@ -198,25 +262,38 @@ def main(argv=None):
     to_xy = Transformer.from_crs(4326, crs, always_xy=True)
     to_ll = Transformer.from_crs(crs, 4326, always_xy=True)
     bounds_ll = transform_bounds(crs, "EPSG:4326", *win["bounds"], densify_pts=101)
-    log.info("cutout %s | window %d x %d cells | occurrence >= %s = water | JRC no data = %s | reservoir types %s",
+    source = str(wcfg.get("reservoir_source", "hydrolakes")).lower()
+    if source not in ("hydrolakes", "gdw"):
+        sys.exit(f"ERROR: water.reservoir_source must be hydrolakes or gdw, not {source!r}")
+    years = list(cfg["years"])
+    log.info("cutout %s | window %d x %d cells | occurrence >= %s = water | JRC no data = %s | reservoirs: %s",
              cut, W, H, wcfg["occurrence_min"], "water" if wcfg.get("nodata_as_water") else "not water",
-             wcfg["reservoir_types"])
+             f"HydroLAKES Lake_type {wcfg['reservoir_types']} never water" if source == "hydrolakes"
+             else f"GDW, water from completion year (yearly layers {years[0]}-{years[-1]})")
     tiles, res = jrc_tiles(wcfg, bounds_ll)
-    lakes = reservoirs(wcfg, bounds_ll)
+    if source == "gdw":
+        gdw = reservoirs_gdw(wcfg, bounds_ll)
+        layers, _, stats = cell_shares(wcfg, tiles, res, None, transform, H, W, crs, res_years=gdw, years=years)
+    else:
+        lakes = reservoirs(wcfg, bounds_ll)
+        frac, _, stats = cell_shares(wcfg, tiles, res, lakes, transform, H, W, crs)
+        layers = {None: frac}
 
-    frac, _, stats = cell_shares(wcfg, tiles, res, lakes, transform, H, W, crs)
-
-    # QA
+    # QA (summary on the last layer; masked-cell shares per year for the yearly layers)
     zone_any = np.zeros((H, W), bool)
     for y in cfg["years"]:
         zp = cut / "zones" / f"zones_{y}.tif"
         if zp.exists():
             with rasterio.open(zp) as src:
                 zone_any |= src.read(1) > 0
+    last = list(layers)[-1]
+    frac = layers[last]
     v = frac[~np.isnan(frac)]
     fail = []
-    if v.size and (v.min() < 0 or v.max() > 1 + 1e-6):
-        fail.append(f"water_frac outside 0-1: {v.min()}..{v.max()}")
+    for key, arr in layers.items():
+        a = arr[~np.isnan(arr)]
+        if a.size and (a.min() < 0 or a.max() > 1 + 1e-6):
+            fail.append(f"water_frac {key or ''} outside 0-1: {a.min()}..{a.max()}")
     unc = np.isnan(frac) & zone_any
     uncovered = int(unc.sum())
     if uncovered:  # name the 10-degree JRC tiles (west edge, north edge) that would cover those cells
@@ -226,39 +303,56 @@ def main(argv=None):
                         f"{abs(int(math.ceil(y / 10) * 10))}{'N' if y > 0 else 'S'}" for x, y in zip(lon, lat)})
         fail.append(f"{uncovered} study-county cells have no JRC coverage; missing tiles {names} "
                     f"(occurrence_<tile>v1_4_2021.tif in {wcfg['jrc_dir']})")
-    np.clip(frac, 0, 1, out=frac)
+    for arr in layers.values():
+        np.clip(arr, 0, 1, out=arr)
     zf = frac[zone_any & ~np.isnan(frac)]
-    qa = {"window_cells": H * W, "window_nodata_cells": int(np.isnan(frac).sum()), "study_cells": int(zone_any.sum()),
-          "study_uncovered_cells": uncovered, "min": float(v.min()) if v.size else np.nan,
-          "max": float(v.max()) if v.size else np.nan, "study_mean": float(zf.mean()) if zf.size else np.nan,
+    qa = {"reservoir_source": source, "window_cells": H * W, "window_nodata_cells": int(np.isnan(frac).sum()),
+          "study_cells": int(zone_any.sum()), "study_uncovered_cells": uncovered,
+          "min": float(v.min()) if v.size else np.nan, "max": float(v.max()) if v.size else np.nan,
+          "study_mean": float(zf.mean()) if zf.size else np.nan,
           "study_share_gt0": float((zf > 0).mean()) if zf.size else np.nan,
           "study_share_eq1": float((zf >= 1).mean()) if zf.size else np.nan, **stats,
           "jrc_nodata_share": stats["jrc_nodata_pixels"] / max(stats["jrc_pixels"], 1)}
-    log.info("water_frac %s..%s | study counties: %d cells, mean %.4f, share > 0 %.4f, share = 1 %.4f, uncovered %d | "
-             "JRC no-data pixels %.4f of covered | water pixels %d, reservoir pixels removed %d", qa["min"], qa["max"],
-             qa["study_cells"], qa["study_mean"], qa["study_share_gt0"], qa["study_share_eq1"], uncovered,
-             qa["jrc_nodata_share"], stats["water_pixels"], stats["reservoir_pixels_removed"])
+    if source == "gdw":
+        for y, arr in layers.items():
+            s = arr[zone_any & ~np.isnan(arr)]
+            qa[f"study_share_eq1_{y}"] = float((s >= 1).mean()) if s.size else np.nan
+            log.info("  %d: study cells with water_frac = 1: %.4f | reservoir water pixels %d", y,
+                     qa[f"study_share_eq1_{y}"], stats[f"reservoir_pixels_water_{y}"])
+    log.info("water_frac (%s) %s..%s | study counties: %d cells, mean %.4f, share > 0 %.4f, share = 1 %.4f, "
+             "uncovered %d | JRC no-data pixels %.4f of covered | water pixels %d, reservoir pixels never water %d",
+             last or "static", qa["min"], qa["max"], qa["study_cells"], qa["study_mean"], qa["study_share_gt0"],
+             qa["study_share_eq1"], uncovered, qa["jrc_nodata_share"], stats["water_pixels"],
+             stats["reservoir_pixels_removed"])
     inv = ~transform
     for pt in wcfg.get("qa_points") or []:
+        py = pt.get("year")
+        if source == "gdw":
+            if py is not None and int(py) not in layers:
+                log.warning("  QA point %s: year %s is not a study year; skipped", pt["name"], py)
+                continue
+            arr = layers[int(py)] if py is not None else frac
+        else:
+            arr = frac
+        label = f"{pt['name']}" + (f" {py}" if (py is not None and source == "gdw") else "")
         x, y = to_xy.transform(pt["lon"], pt["lat"])
         half = pt.get("box_km", 5) * 500.0
         ca, ra = inv * (x - half, y + half)
         cb, rb = inv * (x + half, y - half)
-        sl = frac[max(int(ra), 0):max(int(math.ceil(rb)), 0), max(int(ca), 0):max(int(math.ceil(cb)), 0)]
+        sl = arr[max(int(ra), 0):max(int(math.ceil(rb)), 0), max(int(ca), 0):max(int(math.ceil(cb)), 0)]
         s = sl[~np.isnan(sl)]
         r = {"cells": int(s.size), "mean": float(s.mean()) if s.size else np.nan,
              "max": float(s.max()) if s.size else np.nan, "share_eq0": float((s == 0).mean()) if s.size else np.nan}
         expect = pt.get("expect")
-        # dry: the box (e.g. over a removed reservoir) is nearly all land; full_water: some all-water cell
+        # dry: the box (e.g. over a reservoir before its dam) is nearly all land; full_water: some all-water cell
         r["n_eq1"] = int((s >= 1).sum())
         ok = (r["mean"] <= 0.1) if expect == "dry" else (r["n_eq1"] > 0) if expect == "full_water" else True
-        msg = (f"  QA point {pt['name']} ({pt['lon']}, {pt['lat']}, {pt.get('box_km', 5)} km box): {r['cells']} cells, "
+        msg = (f"  QA point {label} ({pt['lon']}, {pt['lat']}, {pt.get('box_km', 5)} km box): {r['cells']} cells, "
                f"mean {r['mean']:.3f}, max {r['max']:.3f}, share = 0 {r['share_eq0']:.3f}, cells = 1 {r['n_eq1']} | "
-               f"expect {expect}: "
-               f"{'ok' if ok else 'NOT MET'}")
+               f"expect {expect}: {'ok' if ok else 'NOT MET'}")
         (log.info if ok else log.warning)(msg)
-        qa.update({f"{pt['name']}: {k}": val for k, val in r.items()})
-        qa[f"{pt['name']}: expect {expect}"] = "ok" if ok else "not met"
+        qa.update({f"{label}: {k}": val for k, val in r.items()})
+        qa[f"{label}: expect {expect}"] = "ok" if ok else "not met"
 
     qpath = cut / "qa" / "water_qa.csv"
     qpath.parent.mkdir(parents=True, exist_ok=True)
@@ -266,9 +360,16 @@ def main(argv=None):
     log.info("wrote %s", qpath)
     if fail:  # the layer is not written, so no later stage can use it
         sys.exit("ERROR: water_frac QA failed (layer not written):\n  " + "\n  ".join(fail))
-    out_path = cut / "layers" / wcfg.get("out", "water_frac/water_frac.tif")
-    write_tif(out_path, frac, transform, crs, float("nan"))
-    log.info("wrote %s", out_path)
+    if source == "gdw":
+        pattern = wcfg.get("yearly_out", "water_frac/{YEAR}_water_frac.tif")
+        for y, arr in layers.items():
+            out_path = cut / "layers" / pattern.format(YEAR=y)
+            write_tif(out_path, arr, transform, crs, float("nan"))
+        log.info("wrote %d yearly layers %s", len(layers), cut / "layers" / pattern)
+    else:
+        out_path = cut / "layers" / wcfg.get("out", "water_frac/water_frac.tif")
+        write_tif(out_path, frac, transform, crs, float("nan"))
+        log.info("wrote %s", out_path)
     log.info("DONE")
 
 
