@@ -1,0 +1,37 @@
+{
+  "version": "v3_4",
+  "model": "rf",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "dist_built",
+    "year"
+  ],
+  "n_rows_scored": 188,
+  "folds": "same as this model (checked)",
+  "predictions": "v3_4/E1/model/oof_predictions.csv",
+  "target": "v3_4's own y",
+  "cv_rmse_mean": 0.7797591811346438,
+  "cv_rmse_sd": 0.5094380710501876,
+  "cv_rmse_folds": [
+    0.21421045956870216,
+    1.6209452706472132,
+    0.3226750405623938,
+    0.7208012888726758,
+    1.0201638460222338
+  ],
+  "cv_r2_mean": 0.6243199856872905,
+  "cv_r2_sd": 0.23807669491499828,
+  "cv_r2_folds": [
+    0.9476683884639716,
+    0.4307909990914708,
+    0.8647874696978908,
+    0.3525333016257126,
+    0.525819769557407
+  ],
+  "pooled_rmse": 0.9321252400566596,
+  "pooled_r2": 0.5957734925803704,
+  "reported_cv_rmse_mean": 0.7797591811346438,
+  "reported_cv_r2_mean": 0.6243199856872905
+}

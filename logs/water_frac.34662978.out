@@ -1,0 +1,46 @@
+== job 34662978 (water_frac) on c3cpu-e2-u9 at 2026-10-19T11:42:12-06:00
+== cores=2 gpus=none restart=0
+== git 7f83c2e
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/study_area.yaml (name=massachusetts)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts  extra args: 
+11:42:36 INFO arg config = configs/study_area.yaml
+11:42:36 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:42:41 INFO cutout /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts | window 1711 x 2842 cells | occurrence >= 75 = water | JRC no data = water | reservoirs: GDW, water from completion year (yearly layers 1810-2020)
+11:42:45 INFO JRC: 21 files in /projects/jaju1407/data/raw/water/jrc_occurrence, 2 overlap the window (lon -73.612..-66.004, lat 40.789..47.972): ['occurrence_70W_50Nv1_4_2021.tif', 'occurrence_80W_50Nv1_4_2021.tif']
+11:42:47 INFO GDW: 280 reservoir polygons intersect the window | 7 natural lakes raised by a dam (LAKE_CTRL in ['maybe', 'yes']) kept to JRC | 244 dated (quality <= 3) | 29 never water (no year or quality > 3)
+11:42:48 INFO GDW reservoirs (first 15 by year): Great East Lake Dam (1825), Songo Lock Dam (1830), Bow Lake (1832), Moosehead Lake (1835), Rangeley Lake Dam (1836), Pawtuckaway Lake (1842), Wilson Pond Dam (1845), Newfound Lake (1846), Great Stone (1848), LAKE PARAN (1851), Squam Lake (1856), WINDSOR RESERVOIR DAM (1865), Chase S. Mill Dam (1870), Locke Mills Dam (1870), Massabesic Lake (1873)
+11:44:49 INFO   block 20/84
+11:46:42 INFO   block 40/84
+11:48:29 INFO   block 60/84
+11:49:50 INFO   block 80/84
+11:49:53 INFO   block 84/84
+11:49:55 INFO   1810: study cells with water_frac = 1: 0.0071 | reservoir water pixels 0
+11:49:55 INFO   1820: study cells with water_frac = 1: 0.0071 | reservoir water pixels 0
+11:49:55 INFO   1830: study cells with water_frac = 1: 0.0073 | reservoir water pixels 50862
+11:49:55 INFO   1840: study cells with water_frac = 1: 0.0098 | reservoir water pixels 1029998
+11:49:55 INFO   1850: study cells with water_frac = 1: 0.0098 | reservoir water pixels 1075090
+11:49:55 INFO   1860: study cells with water_frac = 1: 0.0098 | reservoir water pixels 1124654
+11:49:55 INFO   1870: study cells with water_frac = 1: 0.0099 | reservoir water pixels 1194628
+11:49:55 INFO   1880: study cells with water_frac = 1: 0.0111 | reservoir water pixels 1667228
+11:49:55 INFO   1890: study cells with water_frac = 1: 0.0122 | reservoir water pixels 2228967
+11:49:55 INFO   1900: study cells with water_frac = 1: 0.0126 | reservoir water pixels 2374878
+11:49:55 INFO   1910: study cells with water_frac = 1: 0.0130 | reservoir water pixels 2675377
+11:49:55 INFO   1920: study cells with water_frac = 1: 0.0142 | reservoir water pixels 3181249
+11:49:55 INFO   1930: study cells with water_frac = 1: 0.0150 | reservoir water pixels 3726172
+11:49:55 INFO   1940: study cells with water_frac = 1: 0.0162 | reservoir water pixels 4357262
+11:49:55 INFO   1950: study cells with water_frac = 1: 0.0170 | reservoir water pixels 4728848
+11:49:55 INFO   1960: study cells with water_frac = 1: 0.0171 | reservoir water pixels 4820953
+11:49:55 INFO   1970: study cells with water_frac = 1: 0.0172 | reservoir water pixels 5147398
+11:49:55 INFO   1980: study cells with water_frac = 1: 0.0174 | reservoir water pixels 5295565
+11:49:55 INFO   1990: study cells with water_frac = 1: 0.0178 | reservoir water pixels 5496268
+11:49:55 INFO   2000: study cells with water_frac = 1: 0.0178 | reservoir water pixels 5496268
+11:49:55 INFO   2010: study cells with water_frac = 1: 0.0178 | reservoir water pixels 5496268
+11:49:55 INFO   2020: study cells with water_frac = 1: 0.0178 | reservoir water pixels 5496268
+11:49:55 INFO water_frac (2020) 0.0..1.0 | study counties: 1682644 cells, mean 0.0360, share > 0 0.0692, share = 1 0.0178, uncovered 0 | JRC no-data pixels 0.1803 of covered | water pixels 244266148, reservoir pixels never water 1042167
+11:49:55 INFO   QA point Quabbin Reservoir 1930 (-72.3, 42.4, 5 km box): 441 cells, mean 0.003, max 0.211, share = 0 0.918, cells = 1 0 | expect dry: ok
+11:49:55 INFO   QA point Quabbin Reservoir 2020 (-72.3, 42.4, 5 km box): 441 cells, mean 0.582, max 1.000, share = 0 0.290, cells = 1 178 | expect full_water: ok
+11:49:55 WARNING   QA point Connecticut River (Springfield) (-72.6, 42.1, 3 km box): 169 cells, mean 0.101, max 0.973, share = 0 0.769, cells = 1 0 | expect full_water: NOT MET
+11:49:55 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/qa/water_qa.csv
+11:49:58 INFO wrote 22 yearly layers /scratch/alpine/jaju1407/hisdac/cutouts/massachusetts/layers/water_frac/{YEAR}_water_frac.tif
+11:49:58 INFO DONE
+== done 2026-10-19T11:49:58-06:00

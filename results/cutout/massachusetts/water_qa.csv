@@ -1,24 +1,75 @@
 item,value
+reservoir_source,gdw
 window_cells,4862662
 window_nodata_cells,0
 study_cells,1682644
 study_uncovered_cells,0
 min,0.0
 max,1.0
-study_mean,0.02075587585568428
-study_share_gt0,0.05276576625834104
-study_share_eq1,0.007241579323968707
+study_mean,0.03598097339272499
+study_share_gt0,0.06915960833069859
+study_share_eq1,0.01777440742070218
 jrc_pixels,850456482
 jrc_nodata_pixels,153352118
-water_pixels,239087982
-reservoir_pixels_removed,6220333
+water_pixels,244266148
+reservoir_pixels_removed,1042167
+reservoir_pixels_water_1810,0
+reservoir_pixels_water_1820,0
+reservoir_pixels_water_1830,50862
+reservoir_pixels_water_1840,1029998
+reservoir_pixels_water_1850,1075090
+reservoir_pixels_water_1860,1124654
+reservoir_pixels_water_1870,1194628
+reservoir_pixels_water_1880,1667228
+reservoir_pixels_water_1890,2228967
+reservoir_pixels_water_1900,2374878
+reservoir_pixels_water_1910,2675377
+reservoir_pixels_water_1920,3181249
+reservoir_pixels_water_1930,3726172
+reservoir_pixels_water_1940,4357262
+reservoir_pixels_water_1950,4728848
+reservoir_pixels_water_1960,4820953
+reservoir_pixels_water_1970,5147398
+reservoir_pixels_water_1980,5295565
+reservoir_pixels_water_1990,5496268
+reservoir_pixels_water_2000,5496268
+reservoir_pixels_water_2010,5496268
+reservoir_pixels_water_2020,5496268
 jrc_nodata_share,0.18031741922804229
-Quabbin Reservoir: cells,441
-Quabbin Reservoir: mean,0.0027598501183092594
-Quabbin Reservoir: max,0.2110099494457245
-Quabbin Reservoir: share_eq0,0.9183673469387755
-Quabbin Reservoir: n_eq1,0
-Quabbin Reservoir: expect dry,ok
+study_share_eq1_1810,0.0071435193659502546
+study_share_eq1_1820,0.0071435193659502546
+study_share_eq1_1830,0.007290906454365867
+study_share_eq1_1840,0.009782223690810415
+study_share_eq1_1850,0.009788761021344978
+study_share_eq1_1860,0.009788761021344978
+study_share_eq1_1870,0.009892764007122124
+study_share_eq1_1880,0.01114674286420657
+study_share_eq1_1890,0.012192715749736724
+study_share_eq1_1900,0.01256653219575858
+study_share_eq1_1910,0.012992052983281075
+study_share_eq1_1920,0.014158075029536848
+study_share_eq1_1930,0.01504418046835813
+study_share_eq1_1940,0.016242889167286723
+study_share_eq1_1950,0.017020831500899773
+study_share_eq1_1960,0.017070158631296933
+study_share_eq1_1970,0.01716584137821191
+study_share_eq1_1980,0.01739286503859402
+study_share_eq1_1990,0.01777440742070218
+study_share_eq1_2000,0.01777440742070218
+study_share_eq1_2010,0.01777440742070218
+study_share_eq1_2020,0.01777440742070218
+Quabbin Reservoir 1930: cells,441
+Quabbin Reservoir 1930: mean,0.0027598501183092594
+Quabbin Reservoir 1930: max,0.2110099494457245
+Quabbin Reservoir 1930: share_eq0,0.9183673469387755
+Quabbin Reservoir 1930: n_eq1,0
+Quabbin Reservoir 1930: expect dry,ok
+Quabbin Reservoir 2020: cells,441
+Quabbin Reservoir 2020: mean,0.5816143751144409
+Quabbin Reservoir 2020: max,1.0
+Quabbin Reservoir 2020: share_eq0,0.29024943310657597
+Quabbin Reservoir 2020: n_eq1,178
+Quabbin Reservoir 2020: expect full_water,ok
 Connecticut River (Springfield): cells,169
 Connecticut River (Springfield): mean,0.1013341024518013
 Connecticut River (Springfield): max,0.9727271795272827
