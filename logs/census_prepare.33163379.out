@@ -1,0 +1,67 @@
+== job 33163379 (census_prepare) on c3cpu-c15-u1-2 at 2026-09-29T13:56:13-06:00
+== cores=2 gpus=none restart=0
+== git c5ac325
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== raw: /projects/jaju1407/data/raw/nhgis  out: /projects/jaju1407/data/processed/census  extra args: 
+13:56:20 INFO arg pop_csv = /projects/jaju1407/data/raw/nhgis/nhgis0001_ts_nominal_county.csv
+13:56:20 INFO arg shape_dir = /projects/jaju1407/data/raw/nhgis/nhgis0001_shape
+13:56:20 INFO arg out_dir = /projects/jaju1407/data/processed/census
+13:56:20 INFO arg crosswalk = configs/nhgis_crosswalk.csv
+13:56:20 INFO arg manual_fills = configs/nhgis_manual_fills.csv
+13:56:20 INFO arg reconstructed = configs/nhgis_reconstructed.csv
+13:56:20 INFO arg years = [1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+13:56:20 INFO population CSV: 55375 rows, years [1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+13:56:21 INFO shapefile 1810: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1810/US_county_1810_conflated.shp
+13:56:21 INFO shapefile 1820: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1820/US_county_1820_conflated.shp
+13:56:21 INFO shapefile 1830: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1830/US_county_1830_conflated.shp
+13:56:21 INFO shapefile 1840: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1840/US_county_1840_conflated.shp
+13:56:21 INFO shapefile 1850: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1850/US_county_1850_conflated.shp
+13:56:21 INFO shapefile 1860: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1860/US_county_1860_conflated.shp
+13:56:21 INFO shapefile 1870: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1870/US_county_1870_conflated.shp
+13:56:21 INFO shapefile 1880: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1880/US_county_1880_conflated.shp
+13:56:21 INFO shapefile 1890: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1890/US_county_1890_conflated.shp
+13:56:21 INFO shapefile 1900: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1900/US_county_1900_conflated.shp
+13:56:21 INFO shapefile 1910: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1910/US_county_1910_conflated.shp
+13:56:21 INFO shapefile 1920: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1920/US_county_1920_conflated.shp
+13:56:21 INFO shapefile 1930: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1930/US_county_1930_conflated.shp
+13:56:21 INFO shapefile 1940: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1940/US_county_1940_conflated.shp
+13:56:21 INFO shapefile 1950: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1950/US_county_1950_conflated.shp
+13:56:21 INFO shapefile 1960: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1960/US_county_1960_conflated.shp
+13:56:21 INFO shapefile 1970: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1970/US_county_1970_conflated.shp
+13:56:21 INFO shapefile 1980: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1980/US_county_1980_conflated.shp
+13:56:21 INFO shapefile 1990: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_1990/US_county_1990_conflated.shp
+13:56:21 INFO shapefile 2000: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2008_us_county_2000/US_county_2000_conflated.shp
+13:56:21 INFO shapefile 2010: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2010_us_county_2010/US_county_2010.shp
+13:56:21 INFO shapefile 2020: /projects/jaju1407/data/raw/nhgis/nhgis0001_shape/nhgis0001_shapefile_tl2020_us_county_2020/US_county_2020.shp
+13:56:21 INFO crosswalk 1900: G1789177 (Quapaw Indian Reservation) -> G1789175 (Quapaw Agency) | same-state boundaries matching 'Quapaw': [('G1789175', 'Quapaw Agency')]
+13:56:21 INFO crosswalk 1900: G5105100 (Alexandria City) -> G5100035 (Alexandria) | same-state boundaries matching 'Alexandria': [('G5100035', 'Alexandria')]
+13:56:21 INFO reconstructed 1820 G1100010 (District of Columbia (present-day area)) <- 1830 [('G1100017', 'Georgetown'), ('G1100075', 'Rural Washington county'), ('G1100115', 'Washington City')]
+13:56:21 INFO reconstructed 1820 G5100035 (Alexandria County (D.C. side, 1791-1846)) <- 1830 [('G1100005', 'Alexandria'), ('G1100035', 'Rural Alexandria County')]
+13:56:21 INFO ===== 1810 =====
+13:56:21 INFO   multi-county group, Massachusetts: state county-row sum=700,745; group rows sum=700,745 (equal=True)
+13:56:21 INFO     G2509993 Massachusetts [ME part] - multi-county group: group pop=228,705; state county-row sum=700,745; equal=False; all group rows sum=700,745
+13:56:21 INFO     G2509997 Massachusetts [non-ME part] - multi-county group: group pop=472,040; state county-row sum=700,745; equal=False; all group rows sum=700,745
+13:56:22 INFO   boundaries: US_county_1810_conflated.shp (587 features, source CRS USA_Contiguous_Albers_Equal_Area_Conic)
+13:56:23 INFO   2 CSV units have no boundary (pop 1,214) -> dropped: ['Walton', 'Hopefield - St Francis']
+13:56:23 INFO   nodata_unenumerated: 9 units [('G2250025', 'Indian lands'), ('G1301535', 'Indian Lands'), ('G1850113', 'Indian Lands'), ('G2650165', 'Indian Lands'), ('G2850097', 'Indian Lands'), ('G3700955', 'Indian Lands'), ('G4700855', 'Indian Lands (No Population)'), ('G2250115', 'Unattached'), ('G4500875', 'Unorganized (No Data)')]
+Traceback (most recent call last):
+  File "/projects/jaju1407/HPC/src/census/prepare_census.py", line 408, in <module>
+    main()
+  File "/projects/jaju1407/HPC/src/census/prepare_census.py", line 393, in main
+    qa, d = process_year(year, pop_all, shapefiles, crosswalk, fills, recon, args.out_dir)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/jaju1407/HPC/src/census/prepare_census.py", line 338, in process_year
+    gdf.to_file(out_path, layer="counties", driver="GPKG", engine="pyogrio", promote_to_multi=True)
+  File "/projects/jaju1407/software/envs/hisdac/lib/python3.12/site-packages/geopandas/geodataframe.py", line 1674, in to_file
+    _to_file(self, filename, driver, schema, index, **kwargs)
+  File "/projects/jaju1407/software/envs/hisdac/lib/python3.12/site-packages/geopandas/io/file.py", line 737, in _to_file
+    _to_file_pyogrio(df, filename, driver, schema, crs, mode, metadata, **kwargs)
+  File "/projects/jaju1407/software/envs/hisdac/lib/python3.12/site-packages/geopandas/io/file.py", line 799, in _to_file_pyogrio
+    pyogrio.write_dataframe(df, filename, driver=driver, metadata=metadata, **kwargs)
+  File "/projects/jaju1407/software/envs/hisdac/lib/python3.12/site-packages/pyogrio/geopandas.py", line 948, in write_dataframe
+    write(
+  File "/projects/jaju1407/software/envs/hisdac/lib/python3.12/site-packages/pyogrio/raw.py", line 733, in write
+    ogr_write(
+  File "pyogrio/_io.pyx", line 3227, in pyogrio._io.ogr_write
+  File "pyogrio/_io.pyx", line 158, in pyogrio._io.commit_transaction
+pyogrio.errors.DataSourceError: Failed to commit transaction
