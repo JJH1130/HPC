@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
+Last updated: 2026-10-20 (v4 result)
 
 ## Open items
 
@@ -89,8 +89,15 @@ Last updated: 2026-10-13 (GDW reservoir years; tract validation data step)
 
 ### Dasymetric v4 (terrain + reservoir years)
 
-- **Status:** code and runbook on main (9158e3f, e80a4ee; review fixes 2026-10-20), not run. Design
-  `docs/dasymetric_v4.md`; run steps `docs/runbooks/Running_Dasymetric.md`, section "v4".
+- **Status:** run 2026-10-19 (cluster time; jobs 34662977–34662982, code 7f83c2e); result in
+  `docs/dasymetric_v4.md`, "Result". Run steps `docs/runbooks/Running_Dasymetric.md`, section "v4".
+- **Result:** worse than v3.4. County CV RMSE E1 0.780 → 0.852, E23 0.554 → 0.580. Tract MdAPE 1950–2020
+  +6 to +8 pt (2020: 30.9 → 38.0 %), R² log density −0.03 to −0.05. Better only for small (rural) tracts and
+  1910. SHAP: E1 `elev` 3rd (0.19), `slope` last; in E23 both near the bottom (0.03).
+- **Open:** the mask change touches only 0.35 % of the cells, so terrain is the likely cause (a static county
+  mean that can act as a county label with 14–22 counties), but the two changes were not run separately.
+  Next step to decide: a mask-only run (v3.4 features + `water_mask: yearly`) to separate them, then whether
+  terrain stays out for Massachusetts and is re-tested on CONUS (~3,000 counties per year).
 - v4 = v3.4 + `elev`, `slope` (GMTED2010 averaged to 250 m; slope in degrees on the 250 m grid) in both eras
   + yearly water mask from GDW reservoir years (`water_mask: yearly`, `water.reservoir_source: gdw`).
 - `reservoir_source: hydrolakes` + `water_mask: true` reproduce v3.1–v3.4 (static `water_frac.tif`, kept in the
