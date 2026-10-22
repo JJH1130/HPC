@@ -19,6 +19,15 @@ Last updated: 2026-10-23 (v4.1 design: PLURAL-1 distances; Stefan meeting)
 - Publications: include the Alpine acknowledgement in
   `docs/acknowledgements.md`.
 
+### PetaLibrary mount (closed ticket)
+
+- After the October 2026 Alpine maintenance, `/pl/active/Leyk_Lab` was not mounted. RC ticket
+  **INC1495434** ("/pl/active/Leyk_Lab not mounted after maintenance") was closed by Andrew Monaghan
+  (OIT Research Computing) on 2026-10-20 as "Resolved - Successful"; the mount works again (v4 ran on it).
+- If it breaks again: within five business days of the closure, reply "Not Resolved: INC1495434" to
+  rc-help@colorado.edu (keep the ticket number in the subject); after that, open a new incident at the same
+  address and cite INC1495434.
+
 ### 2010-standardized counties
 
 - **Status:** decided 2026-10-09 (see below). Open: ask Stefan whether an
