@@ -40,6 +40,8 @@ v3.1 passed on Alpine: jobs 33463269 / 33463270 / 33463271 (after water_frac 334
 v3.2 (E3 without ntl, `docs/dasymetric_v3_2.md`) passed: jobs 33920625 / 33920627 / 33920629 + validate_tract 33920631, 2026-10-12 cluster time.
 v3.3 (E3 with E2's fixed hyperparameters, `docs/dasymetric_v3_3.md`) passed: jobs 33924854 / 33924855 / 33924856 + validate_tract 33924857, 2026-10-12 cluster time.
 v3.4 (E2 + E3 merged into E23, `docs/dasymetric_v3_4.md`) passed: jobs 33928611 / 33928613 / 33928615 + validate_tract 33928617, 2026-10-12 cluster time. Massachusetts experiments closed.
+v4 (terrain + GDW water mask, `docs/dasymetric_v4.md`) ran 2026-10-19 cluster time (jobs 34662977–34662982); worse than v3.4.
+v4.1 (PLURAL-1 distances, `docs/dasymetric_v4_1.md`): code written 2026-10-23, not run yet (section "v4.1").
 
 ## 1. Sync + preflight (login node)
 
@@ -311,6 +313,102 @@ git add logs/grid_cutout.$jd.out logs/water_frac.$jw.out logs/dasymetric_*.$j1.o
 git commit -m "run: v4 dem $jd water $jw dasymetric $j1 $j2 $j3 + validate_tract $j4"
 git pull --rebase && git push
 ```
+
+## v4.1 (PLURAL-1 distances): run
+
+Design: `docs/dasymetric_v4_1.md`. One new cutout step (`place_dist`, the 45 `PLACEDIST` layers), then the usual
+chain. The cutout, the yearly `water_frac` layers and the v3_4 / v2 outputs from earlier runs are reused (scratch,
+within the 90-day purge). `configs/model.yaml` shows `version: v4_1`, `water_mask: yearly`, `compare_with: v3_4`,
+`folds_from: v2`; `configs/study_area.yaml` has the `place_dist:` block.
+
+Preflight + submit the whole chain (login node; one block):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+grep -E '^(version|water_mask|compare_with|folds_from):' configs/model.yaml
+grep -A2 '^place_dist:' configs/study_area.yaml
+C=/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+D=/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts
+P=/projects/jaju1407/data/raw/plural/plural_2023
+CSV=$P/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv
+ok=1
+for f in $C/window.json $C/zones/zones_2020.tif $C/layers/water_frac/2020_water_frac.tif $C/layers/Land_Use/RO/2020_RO.tif \
+         $D/v2/model/folds.csv $D/v3_4/E23/model/oof_predictions.csv $D/v3_4/predictions/pop_2020.tif $CSV \
+         $P/PLURAL_SHP/PLURAL_SHP/plural_indices_scaled_across_years_{1930,1940,1950,1960,1970,1980,1990,2000,2010,2018}.shp; do
+    [[ -e $f ]] || { echo "MISSING $f"; ok=0; }
+done
+n=$(head -1 "$CSV" | tr -d '\r"' | tr ',' '\n' | grep -cE '^placepop_(1930|1940|1950|1960|1970|1980|1990|2000|2010|2018)$')
+echo "placepop columns found: $n (need 10)"; [[ $n == 10 ]] || ok=0
+mkdir -p logs
+if (( ok )); then
+jp=$(sbatch --parsable sbatch/place_dist.sh)
+j1=$(sbatch --parsable --dependency=afterok:$jp sbatch/dasymetric_features.sh)
+j2=$(sbatch --parsable --dependency=afterok:$j1 sbatch/dasymetric_train.sh)
+j3=$(sbatch --parsable --dependency=afterok:$j2 sbatch/dasymetric_predict.sh)
+j4=$(sbatch --parsable --dependency=afterok:$j3 sbatch/validate_tract.sh --version v4_1)
+echo "place_dist $jp | features $j1 | train $j2 | predict $j3 | validate $j4" | tee logs/v4_1_jobs.txt
+else
+echo "NOT SUBMITTED: fix the MISSING inputs / CSV columns above first"
+fi
+```
+
+Good: no `MISSING` line, `placepop columns found: 10 (need 10)`, and five job ids are printed. The block submits
+nothing if an input is missing: the cutout or an earlier version was purged (rerun it first: `Making_Cutout.md`,
+the v4 section above for `water_frac`), or the CSV columns are named differently (send the header:
+`head -1 $CSV`).
+`logs/v4_1_jobs.txt` keeps the ids for a new terminal (`read jp j1 j2 j3 j4 < <(grep -oE '[0-9]+' logs/v4_1_jobs.txt | xargs)`).
+
+Monitor:
+
+```bash
+squeue -u jaju1407
+tail -n 80 logs/place_dist.$jp.out
+tail -n 40 logs/dasymetric_features.$j1.out
+tail -n 60 logs/dasymetric_train.$j2.out
+tail -n 40 logs/dasymetric_predict.$j3.out
+tail -n 40 logs/validate_tract.$j4.out
+```
+
+Check:
+- place_dist:
+  - `points: N placeids` (~30,000), position change p99 small (metres); `places >= 10000 have no point` warnings
+    should be absent or a handful.
+  - `gap fill: N place-years filled`, the per-state table (New England states on top), and the two lines
+    `Massachusetts places >= 10000 before fill: {1930: 39, 1940: 78, 1950: 47, 1960: 75, 1970: 48, 1980: 78, ...}`
+    and `after fill: {...}`: 1950 and 1970 should rise to about the level of their neighbours (~75), not stay
+    near 47–48.
+  - per year `places per class` (d_250k ~ 90–110 US places), and study-cell km ranges per layer.
+  - QA points `ok`: `Boston <year> d_250k` ≈ 0–2 km, `Worcester <year> d_100k` ≈ 0–2 km, `Pittsfield (Berkshire)
+    <year> d_250k` ~170–200 km.
+  - `== 45 PLACEDIST layers`.
+- features: era rows as in v3.4 (E1 188, E23 126); water mask counts as in v4.
+- train: `CV v4_1 vs v3_4` per era (E1 ≈ equal, only the mask differs); `d_*` in the E23 SHAP summary plot and
+  a `Place distance` group; collinearity lines (`|rho| > 0.8`) for the `d_*` pairs are expected, nothing dropped.
+- predict: mass check 0 fail. validate: totals QA 0 flagged.
+
+If a job fails, the jobs after it stay pending with reason `DependencyNeverSatisfied`; cancel them, fix, and
+resubmit from the failed step (the earlier steps' outputs stay on scratch):
+
+```bash
+squeue -u jaju1407 -o "%.10i %.22j %.8T %r"
+scancel $jp $j1 $j2 $j3 $j4
+```
+
+Close the loop (after `validate_tract` finished, or after a failure; login node):
+
+```bash
+cd /projects/jaju1407/HPC
+read jp j1 j2 j3 j4 < <(grep -oE '[0-9]+' logs/v4_1_jobs.txt | xargs)
+git add logs/v4_1_jobs.txt logs/place_dist.$jp.out logs/dasymetric_*.$j1.out logs/dasymetric_*.$j2.out \
+        logs/dasymetric_*.$j3.out logs/validate_tract.$j4.out results/
+git commit -m "run: v4_1 place_dist $jp dasymetric $j1 $j2 $j3 + validate_tract $j4"
+git pull --rebase && git push
+```
+
+Then (Claude, after `git pull`): compare with v3.4 (county CV per era, tract MdAPE and R² per year, `d_*` SHAP)
+and write the result into `docs/dasymetric_v4_1.md` ("Result") and `docs/open_items.md`.
 
 ## Notes
 

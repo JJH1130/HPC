@@ -14,7 +14,11 @@
 # E2 features, no ntl), searched as usual; E1 unchanged.
 # v4 (docs/dasymetric_v4.md): v3_4 + terrain features elev, slope (GMTED2010) in every era, and the yearly water
 # mask with Global Dam Watch reservoirs that count as water only from their completion year (water_mask: yearly).
-version: v4
+# v4 = commit 7f83c2e (E1 and E23 = v3_4's features + elev, slope).
+# v4_1 (docs/dasymetric_v4_1.md): v3_4's features + the yearly GDW water mask (as v4, no terrain) + five PLURAL-1
+# distance features d_10k ... d_250k in E23 only (km to the nearest place of each size class that year;
+# src/grid/place_dist.py).
+version: v4_1
 
 # Water mask (docs/dasymetric_v3_1.md), per year: a cell is masked if it is all permanent water and has no
 # building that year (water_frac == 1 and BUI == 0; layers/water_frac/water_frac.tif from src/grid/water_frac.py).
@@ -48,21 +52,23 @@ use_status: [ok, manual_fill]
 # hyperparameters of `model` (keys of its space) instead of searching them (v3_3). Instead of `eras`, a single
 # top-level `features:` list gives one pooled model (v1, v2).
 # Cell features are defined in src/dasymetric/common.py; county feature = mean over the county's cells.
-# Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year, res_share, rent_share, ntl, elev, slope.
+# Known: bui, bupl, bupr, bua, bldg_size, mu_ratio, age, dist_built, year, res_share, rent_share, ntl, elev, slope,
+# d_10k, d_20k, d_50k, d_100k, d_250k.
 # res_share/rent_share need the Land_Use layers (1940+), ntl the NTL layer (2000, 2010, 2020), elev/slope the
-# static DEM layer (GMTED2010; slope in degrees computed on the 250 m grid).
+# static DEM layer (GMTED2010; slope in degrees computed on the 250 m grid), d_* the PLACEDIST layers (1940+).
 eras:
   E1:
     years: {start: 1810, stop: 1930}
-    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, year]
-  E23:  # v3_4's merged era (1940-2020, no ntl) + terrain
+    features: [bui, bldg_size, mu_ratio, dist_built, year]  # = v3_4 (PLURAL starts in 1930)
+  E23:  # v3_4's merged era (1940-2020, no ntl) + PLURAL-1 distances
     years: {start: 1940, stop: 2020}
-    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, year, res_share, rent_share]
+    features: [bui, bldg_size, mu_ratio, dist_built, year, res_share, rent_share, d_10k, d_20k, d_50k, d_100k, d_250k]
 
 # Concept groups for grouped SHAP: every used feature in exactly one group (per era, only its features).
 feature_groups:
   Building: [bui, bldg_size, mu_ratio]
   Settlement context: [dist_built]
+  Place distance: [d_10k, d_20k, d_50k, d_100k, d_250k]
   Elevation: [elev]
   Slope: [slope]
   Land use: [res_share, rent_share]

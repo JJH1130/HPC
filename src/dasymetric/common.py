@@ -1,5 +1,5 @@
 """Shared pieces of the dasymetric pipeline (design: docs/dasymetric_v1.md, changes in docs/dasymetric_v2.md,
-docs/dasymetric_v3.md and docs/dasymetric_v3_1.md).
+docs/dasymetric_v3.md, docs/dasymetric_v3_1.md, docs/dasymetric_v4.md and docs/dasymetric_v4_1.md).
 
 Stages (each runs on its own):
   county_features.py  cutout -> [<era>/]features/county_features.csv
@@ -31,9 +31,13 @@ from scipy import ndimage
 log = logging.getLogger("dasymetric")
 
 # Cell features (docs/dasymetric_v1.md, "Cell features"; v2 adds bldg_size, dist_built; v3 adds res_share,
-# rent_share, ntl). County feature = mean over the county's cells. Which ones are used is set in
-# configs/model.yaml.
+# rent_share, ntl; v4.1 adds d_10k ... d_250k). County feature = mean over the county's cells. Which ones are used
+# is set in configs/model.yaml.
 LAYER_FEATURES = {"bui": "BUI", "bupl": "BUPL", "bupr": "BUPR", "bua": "BUA", "ntl": "NTL"}
+# v4.1: km to the nearest PLURAL place of each size class that year (src/grid/place_dist.py, docs/dasymetric_v4_1.md;
+# layers/PLACEDIST/d_10k/{YEAR}_d_10k.tif, ...; 1940+ only)
+PLACE_DIST = ["d_10k", "d_20k", "d_50k", "d_100k", "d_250k"]
+LAYER_FEATURES.update({f: f"PLACEDIST/{f}" for f in PLACE_DIST})
 DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share",
                     "elev", "slope"}  # v4: elev, slope from the static DEM layer (docs/dasymetric_v4.md)
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES

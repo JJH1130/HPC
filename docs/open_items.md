@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-20 (v4 result)
+Last updated: 2026-10-23 (v4.1 design: PLURAL-1 distances; Stefan meeting)
 
 ## Open items
 
@@ -109,6 +109,20 @@ Last updated: 2026-10-20 (v4 result)
   1810–2020) so versions stay comparable; switch to the 1900–2020 study period with Stefan's CSV on 2010
   county polygons only at the end (decided 2026-10-20).
 
+### Dasymetric v4.1 (PLURAL-1 distances)
+
+- **Status:** code written 2026-10-23 (`src/grid/place_dist.py`, `sbatch/place_dist.sh`, `configs/model.yaml`
+  at `v4_1`), tested locally on synthetic data (`tests/test_place_dist.py`); not run on Alpine yet. Run steps
+  `docs/runbooks/Running_Dasymetric.md`, section "v4.1"; design `docs/dasymetric_v4_1.md`.
+- v4.1 = v3.4 features + yearly GDW water mask (as v4) + `d_10k`, `d_20k`, `d_50k`, `d_100k`, `d_250k` (km from
+  each cell centre to the nearest place of that size class that year, all US PLURAL places) in E23 only.
+  No terrain. `compare_with: v3_4`, `folds_from: v2`. 2020 uses PLURAL 2018.
+- Gap fill for New England towns missing in single decades (0 between two > 0 neighbouring PLURAL years → mean
+  of the two; 1930 and 2018 not filled). Millbury 1940 (= Milford's 15,388, likely a PLURAL matching error) is
+  left as is (limit in the design doc).
+- **After the run:** compare with v3.4 (county CV per era, tract MdAPE and R² per year, `d_*` SHAP) and record
+  the result in `docs/dasymetric_v4_1.md` and here.
+
 ### PLURAL gridded data
 
 - **Meeting with Siqiao (2026-10-20):** she has two PLURAL-1 products for 1992–2022: census tract level and a
@@ -117,7 +131,10 @@ Last updated: 2026-10-20 (v4 result)
   1992–2022 products as they are (tract value given to every 250 m cell in the tract, or the 900 m grid
   resampled). Open concern: PLURAL is computed from population, so as a dasymetric predictor it can leak the
   target (and the tract validation data); see the discussion before choosing.
-- **Status:** waiting to receive the grid from Siqiao. The published point data are on Alpine:
+- **Decision (Stefan meeting, 2026-10-23):** compute only the five PLURAL-1 **distance** terms ourselves, per
+  250 m cell, and use them as features (v4.1). Place population and focal population density are **excluded**
+  (they are population, so they would leak the target). This replaces options (a)/(b) above for now.
+- **Status:** waiting to receive the grid from Siqiao (not needed for v4.1). The published point data are on Alpine:
   `/projects/jaju1407/data/raw/plural/plural_2023/` (`PLURAL_CSV/PLURAL_CSV/`, `PLURAL_SHP/PLURAL_SHP/`,
   `PLURAL_indices_documentation.pdf`).
 - Use **PLURAL-1 scaled across years** only: PLURAL-2 is rank-based and not comparable over time (Uhl et al.
@@ -242,3 +259,5 @@ Last updated: 2026-10-20 (v4 result)
 | 2026-10-20 | Experiments (v4 onward) keep NHGIS nominal counties 1810–2020 for comparability; the switch to 1900–2020 with Stefan's CSV on 2010 county polygons (agreed with Stefan 2026-10-14) is made last. SHAP: `elev` and `slope` are separate groups, not one `Terrain` group. |
 | 2026-10-20 | v4 result (worse than v3.4) attributed to terrain without a mask-only run. Likely overfitting with few MA counties; terrain not decided, re-tested on CONUS. GDW yearly water mask kept. Terrain re-test (with/without; absolute vs relative elevation). |
 | 2026-10-20 | Version order: v4.1 = PLURAL-1 distance terms from cell centres (1930–2020); v5 = HISDAC-US v3; v6 = CONUS with model comparison and hyperparameter tuning last, after all data and the study area are fixed. |
+| 2026-10-23 | Stefan meeting: (1) approved computing only the five PLURAL-1 distance terms per cell as features; place population and focal population density excluded (target leakage). (2) Population data: go with Stefan's CSV (2010 boundaries, 1900–) for now and fix later if needed; Massachusetts experiments continue on NHGIS same-year boundaries, and the switch to the CSV stays the last step (2026-10-20 decision kept). |
+| 2026-10-23 | v4.1 design: v3.4 features + yearly GDW water mask + `d_10k` … `d_250k` in E23 only (E1 = v3.4); no terrain; `compare_with: v3_4`, `folds_from: v2`; PLURAL year = census year (2020 → 2018); single-decade gaps filled with the mean of the neighbouring PLURAL years. |

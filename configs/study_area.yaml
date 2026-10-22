@@ -95,3 +95,40 @@ water:
     - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: dry, year: 1930}
     - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: full_water, year: 2020}
     - {name: Connecticut River (Springfield), lon: -72.60, lat: 42.10, box_km: 3, expect: full_water}
+
+# PLURAL-1 distance layers for v4.1 (src/grid/place_dist.py, docs/dasymetric_v4_1.md; source docs/data_sources.md).
+# For every study year from first_year on: km from each cell centre to the nearest place of each size class in that
+# year, among all US places in PLURAL (the nearest large city can lie outside the window). Writes
+# layers/PLACEDIST/<class>/{YEAR}_<class>.tif in the existing cutout.
+#   csv          placeid, place_name, state_name, pop_col per PLURAL year (0 = no record that year); no coordinates
+#   shp          one point shapefile per PLURAL year ({YEAR}); merged to one point per placeid (latest year wins)
+#   shp_crs      used only if a shapefile has no CRS
+#   year_map     study year -> PLURAL year when the study year is not a PLURAL year (2020 -> 2018)
+#   fill_gaps    0 in a PLURAL year with > 0 in both neighbouring PLURAL years -> mean of the two (first and last
+#                PLURAL years never filled); fixes New England towns missing in single decades (1950, 1970)
+#   classes      name: [min, max) persons; max null = no upper bound
+#   check_state  state whose places >= the smallest class are counted before/after the fill in the log
+#   qa_points    layer value at the cell holding (lon, lat) must lie in [min_km, max_km] (warning if not);
+#                without `year`, checked in every year
+place_dist:
+  csv: /projects/jaju1407/data/raw/plural/plural_2023/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv
+  shp: "/projects/jaju1407/data/raw/plural/plural_2023/PLURAL_SHP/PLURAL_SHP/plural_indices_scaled_across_years_{YEAR}.shp"
+  shp_crs: ESRI:102003
+  pop_col: "placepop_{YEAR}"
+  plural_years: [1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2018]
+  year_map: {2020: 2018}
+  first_year: 1940
+  fill_gaps: true
+  classes:
+    d_10k: [10000, 20000]
+    d_20k: [20000, 50000]
+    d_50k: [50000, 100000]
+    d_100k: [100000, 250000]
+    d_250k: [250000, null]
+  check_state: Massachusetts
+  out: "PLACEDIST/{CLASS}/{YEAR}_{CLASS}.tif"
+  block: 128
+  qa_points:
+    - {name: Boston, lon: -71.06, lat: 42.36, layer: d_250k, max_km: 5}
+    - {name: Worcester, lon: -71.80, lat: 42.26, layer: d_100k, max_km: 5}
+    - {name: Pittsfield (Berkshire), lon: -73.25, lat: 42.45, layer: d_250k, min_km: 120}
