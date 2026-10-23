@@ -295,6 +295,31 @@ def _block(b):
     return r0, c0, h, w, outs, share(nd), stats
 
 
+def nodata_by_county(cut: Path, zone_last, ndshare, frac, top: int = 20):
+    """Per county of the last zone grid: mean JRC no-data share of its cells, cells with share > 0.5, and the share of
+    cells with water_frac = 1 (last layer). Writes qa/water_jrc_nodata_by_county.csv (counties with any no data,
+    largest mean first) and logs the top `top`: is JRC no data (counted as water) on land inside counties?"""
+    year, z = zone_last
+    table = pd.read_csv(cut / "zones" / f"zones_{year}.csv")
+    nz = max(int(z.max()), int(table["zone_id"].max())) + 1
+    inz = z > 0
+    zi = z[inz]
+    nd = np.nan_to_num(ndshare[inz])
+    cells = np.bincount(zi, minlength=nz)
+    out = table[["zone_id", "GISJOIN", "state", "name"]].copy()
+    ids = out["zone_id"].to_numpy()
+    out["cells"] = cells[ids]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        out["nodata_mean"] = np.bincount(zi, weights=nd, minlength=nz)[ids] / cells[ids]
+        out["water_eq1_share"] = np.bincount(zi, weights=(np.nan_to_num(frac[inz]) >= 1), minlength=nz)[ids] / cells[ids]
+    out["cells_nodata_gt50"] = np.bincount(zi, weights=nd > 0.5, minlength=nz)[ids].astype(int)
+    out = out[out["nodata_mean"] > 0].sort_values("nodata_mean", ascending=False)
+    path = cut / "qa" / "water_jrc_nodata_by_county.csv"
+    out.to_csv(path, index=False)
+    log.info("JRC no data by county (zones %d): %d counties with any; top %d by mean share (also %s):\n%s", year,
+             len(out), top, path.name, out.head(top).round(5).to_string(index=False))
+
+
 def main(argv=None):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
                         datefmt="%H:%M:%S", stream=sys.stdout)
@@ -334,11 +359,14 @@ def main(argv=None):
              else f"GDW, water from completion year (yearly layers {years})")
     # study cells (zone > 0 in any year): QA, and with only_zone_blocks the only blocks computed (CONUS)
     zone_any = np.zeros((H, W), bool)
+    zone_last = None  # (year, zones) of the last study year with a zone grid: per-county JRC no-data QA
     for y in cfg["years"]:
         zp = cut / "zones" / f"zones_{y}.tif"
         if zp.exists():
             with rasterio.open(zp) as src:
-                zone_any |= src.read(1) > 0
+                z = src.read(1)
+            zone_any |= z > 0
+            zone_last = (y, z)
     need = zone_any if wcfg.get("only_zone_blocks") else None
     if need is not None and not need.any():
         sys.exit(f"ERROR: only_zone_blocks: no zones_{{YEAR}}.tif with study cells in {cut / 'zones'}")
@@ -432,6 +460,8 @@ def main(argv=None):
     qpath.parent.mkdir(parents=True, exist_ok=True)
     pd.Series(qa, name="value").to_csv(qpath, index_label="item")
     log.info("wrote %s", qpath)
+    if zone_last is not None:
+        nodata_by_county(cut, zone_last, ndshare, frac)
     if fail:  # the layer is not written, so no later stage can use it
         sys.exit("ERROR: water_frac QA failed (layer not written):\n  " + "\n  ".join(fail))
     if source == "gdw":

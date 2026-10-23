@@ -89,6 +89,34 @@ def main():
             rest[:BLOCK, :BLOCK] = 0
             assert np.isnan(rest).sum() == H * W - BLOCK * BLOCK
         print("ok only_zone_blocks: blocks without study cells stay NaN, the rest unchanged")
+
+        # main(): yearly layers, QA, per-county JRC no-data table
+        import json
+        import pandas as pd
+        import yaml
+        cut = tmp / "cutouts" / "syn"
+        (cut / "zones").mkdir(parents=True)
+        (cut / "window.json").write_text(json.dumps({"transform": list(transform)[:6], "height": H, "width": W,
+                                                     "crs_wkt": CUT_CRS.to_wkt(), "bounds": list(bounds)}))
+        zones = np.zeros((H, W), dtype="uint16")
+        zones[:, :W // 2], zones[:, W // 2:] = 1, 2
+        with rasterio.open(cut / "zones" / "zones_1960.tif", "w", driver="GTiff", width=W, height=H, count=1,
+                           dtype="uint16", crs=CUT_CRS, transform=transform, nodata=0) as dst:
+            dst.write(zones, 1)
+        pd.DataFrame({"zone_id": [1, 2], "GISJOIN": ["G1", "G2"], "state": "X", "name": ["west", "east"]}).to_csv(
+            cut / "zones" / "zones_1960.csv", index=False)
+        cfg = {"name": "syn", "states": "all", "years": [1940, 1960], "grid_reference": "BUI", "layers": [],
+               "water": {**wcfg, "reservoir_source": "gdw", "yearly_out": "water_frac/{YEAR}_water_frac.tif",
+                         "only_zone_blocks": True}}
+        (tmp / "cfg.yaml").write_text(yaml.safe_dump(cfg))
+        water_frac.main(["--config", str(tmp / "cfg.yaml"), "--cutout-root", str(tmp / "cutouts")])
+        with rasterio.open(cut / "layers" / "water_frac" / "1960_water_frac.tif") as src:
+            assert np.array_equal(src.read(1), one[1960], equal_nan=True)
+        byc = pd.read_csv(cut / "qa" / "water_jrc_nodata_by_county.csv")
+        assert len(byc) >= 1 and (byc["nodata_mean"] > 0).all() and byc["nodata_mean"].is_monotonic_decreasing
+        qa = pd.read_csv(cut / "qa" / "water_qa.csv").set_index("item")["value"]
+        assert float(qa["study_jrc_nodata_mean"]) > 0
+        print("ok main: yearly layer written, JRC no-data by county:", byc[["name", "nodata_mean"]].round(4).values.tolist())
         print("ALL OK")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

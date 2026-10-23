@@ -33,7 +33,9 @@ echo "== config: $CONFIG (name=$NAME)  cutout: $CUT_ROOT/$NAME  extra args: $*"
 
 copy_back() {
     mkdir -p "results/cutout/$NAME"
-    [[ -f $CUT_ROOT/$NAME/qa/water_qa.csv ]] && cp "$CUT_ROOT/$NAME/qa/water_qa.csv" "results/cutout/$NAME/"
+    for f in water_qa.csv water_jrc_nodata_by_county.csv; do
+        [[ -f $CUT_ROOT/$NAME/qa/$f ]] && cp "$CUT_ROOT/$NAME/qa/$f" "results/cutout/$NAME/"
+    done
     return 0
 }
 trap copy_back EXIT

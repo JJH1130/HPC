@@ -77,6 +77,7 @@ YEARS = [1960, 2010]
 LAND_USE = ["A", "C", "GV", "I", "RC", "RI", "RO", "VL"]
 NO_VALUE = {1960: 5}  # zone 5 has no CSV value in 1960
 ZERO_POP = {2010: 7}  # zone 7 has pop 0 in 2010
+FILLED = {2010: 9}  # zone 9 is filled_nhgis in 2010: allocated, not trained on or scored
 
 
 def write_tif(path: Path, arr, nodata=None):
@@ -128,6 +129,8 @@ def make_cutout(tmp: Path, counties: pd.DataFrame):
             t.loc[t["zone_id"] == NO_VALUE[year], ["pop", "status"]] = [np.nan, "no_value"]
         if year in ZERO_POP:
             t.loc[t["zone_id"] == ZERO_POP[year], ["pop", "status"]] = [0.0, "zero_pop"]
+        if year in FILLED:
+            t.loc[t["zone_id"] == FILLED[year], "status"] = "filled_nhgis"
         t["area_km2"] = CS * CS * 0.0625
         write_tif(cut / "zones" / f"zones_{year}.tif", zones, 0)
         t.to_csv(cut / "zones" / f"zones_{year}.csv", index=False)
@@ -139,7 +142,8 @@ def write_configs(tmp: Path, split_path: Path):
     (tmp / "configs" / "study.yaml").write_text(yaml.safe_dump({"name": "conus", "years": YEARS}))
     feats = ["bui", "bldg_size", "mu_ratio", "dist_built", "res_share", "rent_share"]
     base = {"study_area": str(tmp / "configs" / "study.yaml"), "water_mask": "yearly", "compare_with": None,
-            "split": str(split_path), "use_status": ["ok"], "unusable": "skip",
+            "split": str(split_path), "use_status": ["ok", "filled_nhgis"], "train_status": ["ok"],
+            "unusable": "skip",
             "eras": {f"Y{y}": {"years": [y], "features": feats} for y in YEARS},
             "feature_groups": {"Building": ["bui", "bldg_size", "mu_ratio"], "Settlement context": ["dist_built"],
                                "Land use": ["res_share", "rent_share"]},
@@ -150,7 +154,8 @@ def write_configs(tmp: Path, split_path: Path):
                               "space": {"n_estimators": [10, 20], "max_depth": [None, 5],
                                         "min_samples_leaf": [1, 2], "max_features": [1.0]}}}}
     paths = {}
-    for version, extra in (("blocks", {"block_rows": 7}), ("whole", {})):
+    for version, extra in (("blocks", {"block_rows": 7}), ("whole", {}),
+                           ("v2", {"block_rows": 7, "compare_with": "blocks"})):
         p = tmp / "configs" / f"{version}.yaml"
         p.write_text(yaml.safe_dump({**base, "version": version, **extra}))
         paths[version] = p
@@ -176,7 +181,7 @@ def test_pipeline():
         common = ["--out-root", str(out_root)]
 
         # 1. features: strips == whole window
-        for v in ("blocks", "whole"):
+        for v in ("blocks", "whole", "v2"):
             county_features.main(["--config", str(cfgs[v]), "--cutout-root", str(tmp / "cutouts")] + common)
         for y in YEARS:
             a = pd.read_csv(out_root / "conus" / "blocks" / f"Y{y}" / "features" / "county_features.csv")
@@ -199,12 +204,24 @@ def test_pipeline():
             folds = pd.read_csv(m / "folds.csv")
             assert not (set(oof["GISJOIN"]) & test_ids) and set(tp["GISJOIN"]) <= test_ids
             assert met["n_test_counties"] == len(tp) and np.isfinite(met["test_rmse"])
-            assert met["n_rows"] + met["n_test_rows"] == 47
+            assert met["n_rows"] + met["n_test_rows"] == 47 - (y in FILLED)
+            if y in FILLED:
+                gj = counties.loc[counties["zone_id"] == FILLED[y], "GISJOIN"].iloc[0]
+                assert gj not in set(oof["GISJOIN"]) | set(tp["GISJOIN"])
             want = split.set_index("GISJOIN")["fold"]
             assert (folds.set_index("GISJOIN")["fold"] == want.loc[folds["GISJOIN"]]).all()
         summ = pd.read_csv(out_root / "conus" / "blocks" / "cv_summary.csv")
         assert {"test_rmse", "test_r2"} <= set(summ.columns)
         print("ok train: test counties held out, folds from the split table, test score written")
+        train.main(["--config", str(cfgs["v2"]), "--n-jobs", "1"] + common)  # compare_with the "blocks" version
+        for y in YEARS:
+            m = out_root / "conus" / "v2" / f"Y{y}" / "model"
+            cmp_cv = json.loads((m / "compare_blocks.json").read_text())
+            cmp_te = json.loads((m / "compare_blocks_test.json").read_text())
+            assert cmp_cv["folds"] == "same as this model (checked)"
+            assert cmp_te["n_test_rows"] == json.loads((m / "metrics.json").read_text())["n_test_rows"]
+            assert "y_hat_blocks" in pd.read_csv(m / "test_predictions.csv").columns
+        print("ok train v2: same split and folds as the compared version, CV and test comparison written")
 
         # 3. predict: strips == whole window with the same model
         for y in YEARS:
@@ -224,10 +241,12 @@ def test_pipeline():
             assert (a[~np.isin(zones, bad)] >= 0).all()
             zt = pd.read_csv(cut / "zones" / f"zones_{y}.csv")
             sums = np.bincount(zones[a >= 0], weights=a[a >= 0].astype("float64"), minlength=49)
-            ok = zt[zt["status"] == "ok"]
+            ok = zt[zt["status"].isin(["ok", "filled_nhgis"])]
             assert np.allclose(sums[ok["zone_id"]], ok["pop"], rtol=1e-6)
             t_zone = zt.loc[zt["GISJOIN"].isin(test_ids) & (zt["status"] == "ok"), "zone_id"]
             assert (sums[t_zone] > 0).all()
+            if y in FILLED:
+                assert sums[FILLED[y]] > 0
         qa = pd.read_csv(out_root / "conus" / "blocks" / "qa" / "reallocation_qa.csv")
         assert len(qa) == 94 and (qa["rel_diff"] < 1e-6).all()
         print("ok predict: strips == whole window, mass preserved, NoData for unused counties, test counties allocated")
@@ -267,19 +286,32 @@ def test_conus_counties():
     import conus_counties
     tmp = Path(tempfile.mkdtemp())
     try:
-        g = gpd.GeoDataFrame({"GISJOIN": ["G0100030", "G0100010", "G0100050"], "fips": ["01003", "01001", None],
-                              "state": "Alabama", "name": ["B", "A", "C"], "area_km2": [1.0, 2.0, 3.0],
-                              "pop_1920": [10.0, np.nan, np.nan], "pop_1960": [0.0, 5.0, np.nan]},
-                             geometry=[box(0, 0, 1, 1), box(1, 0, 2, 1), box(2, 0, 3, 1)], crs=CRS)
+        # G0100050: no CSV row, in NHGIS 1920 only; G1200860 (Miami-Dade): no CSV row, NHGIS as Dade G1200250 in 1960
+        g = gpd.GeoDataFrame({"GISJOIN": ["G0100030", "G0100010", "G0100050", "G1200860"],
+                              "fips": ["01003", "01001", None, None], "state": "Alabama", "name": ["B", "A", "C", "M"],
+                              "area_km2": [1.0, 2.0, 3.0, 4.0], "pop_1920": [10.0, np.nan, np.nan, np.nan],
+                              "pop_1960": [0.0, 5.0, np.nan, np.nan]},
+                             geometry=[box(0, 0, 1, 1), box(1, 0, 2, 1), box(2, 0, 3, 1), box(3, 0, 4, 1)], crs=CRS)
         g.to_file(tmp / "std.gpkg", driver="GPKG")
-        conus_counties.main(["--std-gpkg", str(tmp / "std.gpkg"), "--out-dir", str(tmp / "out"),
-                             "--results-dir", str(tmp / "res"), "--years", "1920", "1960"])
+        nom = tmp / "nhgis"
+        nom.mkdir()
+        for year, rows in ((1920, [("G0100050", 7.0, "ok", 3.3)]),
+                           (1960, [("G1200250", 900.0, "ok", 4.0), ("G0100050", np.nan, "nodata_unenumerated", 3.0)])):
+            gpd.GeoDataFrame({"GISJOIN": [r[0] for r in rows], "name": "n", "pop": [r[1] for r in rows],
+                              "status": [r[2] for r in rows], "area_km2": [r[3] for r in rows]},
+                             geometry=[box(0, 0, 1, 1)] * len(rows), crs=CRS).to_file(nom / f"counties_{year}.gpkg",
+                                                                                      driver="GPKG")
+        conus_counties.main(["--std-gpkg", str(tmp / "std.gpkg"), "--census-dir", str(nom), "--out-dir",
+                             str(tmp / "out"), "--results-dir", str(tmp / "res"), "--years", "1920", "1960"])
         a = gpd.read_file(tmp / "out" / "counties_1920.gpkg")
         b = gpd.read_file(tmp / "out" / "counties_1960.gpkg")
-        assert a["GISJOIN"].tolist() == b["GISJOIN"].tolist() == ["G0100010", "G0100030", "G0100050"]
-        assert a["status"].tolist() == ["no_value", "ok", "no_value"]
-        assert b["status"].tolist() == ["ok", "zero_pop", "no_value"]
-        print("ok conus_counties: statuses and row order")
+        assert a["GISJOIN"].tolist() == b["GISJOIN"].tolist() == ["G0100010", "G0100030", "G0100050", "G1200860"]
+        assert a["status"].tolist() == ["no_value", "ok", "filled_nhgis", "no_value"] and a["pop"].iloc[2] == 7.0
+        assert b["status"].tolist() == ["ok", "zero_pop", "no_value", "filled_nhgis"] and b["pop"].iloc[3] == 900.0
+        f = pd.read_csv(tmp / "res" / "counties_conus_filled.csv")
+        assert len(f) == 4 and f["filled"].sum() == 2
+        assert f.loc[f["filled"] & (f["year"] == 1960), "source"].tolist() == ["G1200250"]
+        print("ok conus_counties: statuses, NHGIS fill (incl. the Dade alias) and row order")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

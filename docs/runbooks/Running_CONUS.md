@@ -9,8 +9,9 @@ All jobs are the usual stage scripts (`sbatch/*.sh`, account `ucb852_asc1`, env 
 `sbatch/submit_conus.sh` with the CONUS config and CONUS resources. Order: **step 0 (trial) first**; the pilot
 (1920 / 1960 / 2010) only after Claude has read the trial logs.
 
-**Status:** trial passed 2026-10-23 (jobs 34814376-34814382; result in `docs/conus_plan.md`, "Trial result"); pilot
-resources in `sbatch/submit_conus.sh` set from it. Next: section 1 (pilot).
+**Status:** trial passed 2026-10-23 (jobs 34814376-34814382; result in `docs/conus_plan.md`, "Trial result"). Fixed
+before the pilot (2026-10-24): 4 counties without a CSV row filled from NHGIS (`filled_nhgis`), per-county JRC
+no-data QA, pilot resources from the trial. Next: section 1 (pilot).
 
 ## Inputs / outputs
 
@@ -117,7 +118,12 @@ Good: v1 shows `version: Dasy_CONUS_RF_v1`, `split: configs/conus_split.csv`, `b
 `PREDICT_TIME=12:00:00 bash sbatch/submit_conus.sh pilot`.
 
 Monitor: as in step 0 with `logs/conus_pilot_jobs.txt`. Check, in addition to step 0:
-- `water_frac`: `JRC no data in study cells: mean share ... | cells with share > 0.5: N` (send it; decides whether
+- `census_conus`: per year `filled from NHGIS ... area NHGIS / 2010 ...` or `not filled ...: no_value` lines for
+  Miami-Dade, Shannon, Broomfield, Bedford city; 2010 status counts `{'filled_nhgis': 4, 'ok': 3105}`
+- `water_frac`: `JRC no data by county (zones 2010): N counties with any; top 20 ...` table
+- `dasymetric_train`: `rows with a status outside train_status ['ok'] left out of training and test: [...]`
+  (the filled counties)
+- `water_frac`: `JRC no data in study cells: mean share ... | cells with share > 0.5: N` (decides whether
   `nodata_as_water` is safe inland)
 - `dasymetric_predict`: per year `strip k/23 ... ETA ... min`, then `1960 (Y1960): N counties, N cells (N masked) |
   ... | max rel diff ... | bad cells 0`, `1960: N min`, `plot` lines (maps at 1 km), `mass check: ... 0 fail | bad
@@ -149,7 +155,7 @@ git push
 |---|---|
 | `counties_std_2010.gpkg not found` | run `Checking_Std_Counties.md` first |
 | `--years [...] not in the config years` | the config on the cluster is old: `git pull` |
-| `CANCELLED ... DUE TO TIME LIMIT` | rerun with a longer wall: `WATER_TIME=08:00:00 bash sbatch/submit_conus.sh pilot` (also `CUTOUT_TIME`, `PLACE_TIME`, `FEATURES_TIME`, `PREDICT_TIME`) and send Claude the log |
+| `CANCELLED ... DUE TO TIME LIMIT` | rerun with a longer wall: `WATER_TIME=03:00:00 bash sbatch/submit_conus.sh pilot` (also `CUTOUT_TIME`, `PLACE_TIME`, `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`) and send Claude the log |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

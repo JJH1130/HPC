@@ -11,7 +11,8 @@ water_mask: yearly
 compare_with: Dasy_CONUS_RF_v1
 
 split: configs/conus_split.csv
-use_status: [ok]
+use_status: [ok, filled_nhgis]
+train_status: [ok]
 unusable: skip
 block_rows: 512
 

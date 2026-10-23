@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-23 (CONUS implementation; v4.1 design: PLURAL-1 distances; Stefan meeting)
+Last updated: 2026-10-24 (CONUS trial + pilot fixes; CONUS implementation; v4.1 design: PLURAL-1 distances; Stefan meeting)
 
 ## Open items
 
@@ -12,16 +12,22 @@ Last updated: 2026-10-23 (CONUS implementation; v4.1 design: PLURAL-1 distances;
 
 - **Status (2026-10-23):** scale review done (`docs/conus_plan.md`, "Scale checks"); trial (1960, v1) passed, jobs
   34814376-34814382: whole chain ~25 min, peak 16 GB (water), prediction ~4 min per year (far below the estimate);
-  1960 test RMSE 0.778 / R² 0.738, CV R² 0.719 (`docs/conus_plan.md`, "Trial result"). Next: the 1920/1960/2010
-  pilot (`docs/runbooks/Running_CONUS.md`, section 1).
+  1960 test RMSE 0.778 / R² 0.738, CV R² 0.719 (`docs/conus_plan.md`, "Trial result"). Before the pilot
+  (2026-10-24): the 4 counties without a CSV row filled from NHGIS (status `filled_nhgis`), per-county JRC no-data
+  QA added, pilot resources set from the trial. Next: the 1920/1960/2010 pilot (`docs/runbooks/Running_CONUS.md`,
+  section 1).
 - Implementation decisions (details in `docs/conus_plan.md`, "Implementation decisions"): separate configs
   `configs/conus_*.yaml`; window = whole HISDAC raster; county statuses ok / no_value / zero_pop (only ok used, others
   NoData); counties with 0 cells or no unmasked cell skipped with a warning; one era per year; split
   `configs/conus_split.csv` (seed 42, 2,483 train / 622 test, DC has no test county), never regenerated; tract
   totals QA by nominal county skipped for CONUS.
-- Open: JRC no data counted as water was only checked in Massachusetts; read `jrc_nodata_share` of the CONUS run
-  and check inland before the full run. The 2010 polygons without a CSV row (Miami-Dade, Broomfield, Shannon SD,
-  Bedford city) are NoData in every year (accepted for now; a FIPS remap would fix Miami-Dade and Shannon).
+- Open: JRC no data counted as water was only checked in Massachusetts (trial: 2.0 % of the covered JRC pixels in
+  the computed blocks). The pilot writes the share inside study cells and per county
+  (`results/cutout/conus/water_jrc_nodata_by_county.csv`); decide from it before the full run.
+- Decided 2026-10-24: the 2010 polygons without a CSV row (Miami-Dade, Shannon SD, Broomfield, Bedford city; no row
+  under any code, so no FIPS remap) take that year's NHGIS nominal county pop (Miami-Dade = Dade G1200250 where
+  NHGIS uses the old code), status `filled_nhgis`: allocated, not trained on or scored; years without an NHGIS county
+  stay `no_value`. Area ratio NHGIS / 2010 polygon logged (`results/census_conus/counties_conus_filled.csv`).
 
 ### Compute allocation (Ascent)
 
@@ -284,5 +290,6 @@ Last updated: 2026-10-23 (CONUS implementation; v4.1 design: PLURAL-1 distances;
 | 2026-10-23 | Stefan meeting: (1) approved computing only the five PLURAL-1 distance terms per cell as features; place population and focal population density excluded (target leakage). (2) Population data: go with Stefan's CSV (2010 boundaries, 1900–) for now and fix later if needed; Massachusetts experiments continue on NHGIS same-year boundaries, and the switch to the CSV stays the last step (2026-10-20 decision kept). |
 | 2026-10-23 | v4.1 design: v3.4 features + yearly GDW water mask + `d_10k` … `d_250k` in E23 only (E1 = v3.4); no terrain; `compare_with: v3_4`, `folds_from: v2`; PLURAL year = census year (2020 → 2018); single-decade gaps filled with the mean of the neighbouring PLURAL years. |
 | 2026-10-23 | v4.1 (PLURAL-1 distances in E23) worse than v3.4 and v4 in Massachusetts; like terrain, likely overfitting with 14 counties. Not kept for Massachusetts; distances and terrain re-tested on CONUS. |
+| 2026-10-24 | CONUS: Miami-Dade, Shannon SD, Broomfield, Bedford city (no CSV row under any code) filled from the NHGIS nominal county of the same year (Dade = G1200250), status `filled_nhgis`, allocation only (`train_status: [ok]`, split unchanged). JRC no-data share checked per county in the pilot before deciding the inland rule. Pilot resources from the trial (features 6 cores, wall times ~3-4x measured). |
 | 2026-10-23 | CONUS implementation (`docs/conus_plan.md`, "Implementation decisions"): configs `configs/conus_study_area.yaml`, `conus_rf_v1.yaml`, `conus_rf_v2.yaml` (Massachusetts configs unchanged); window = whole HISDAC raster; Stefan CSV on 2010 polygons via `conus_counties.py` with status ok / no_value / zero_pop (only ok used); unallocatable counties skipped (NoData); per-year eras; split table `configs/conus_split.csv` made once (seed 42); trial run (1960, prediction timed only) before the 1920/1960/2010 pilot. |
 | 2026-10-23 | CONUS (`docs/conus_plan.md`): name `Dasy_CONUS_RF_v1`; RF; census years 1900-2010 first (2020 later from NHGIS; CSV 2015 is an estimate); Stefan CSV on 2010 polygons; one model per year; counties split at random 80:20 within each state (stratified, fixed seed) into train/test before tuning, 5-fold CV grouped by county inside train (whole-state hold-out rejected: every state's land-use coding should be seen in training; tract validation is the independent check); trial years 1920, 1960, 2010; feature sets v1 (MA v3.4 set) and v2 (+ PLURAL-1 distances). |

@@ -28,6 +28,8 @@ performance on unseen counties. The model and its search space come from configs
 counties). Only train rows are used for the search, the refit, SHAP and the out-of-fold predictions; the folds
 come from the table. The refit model is scored once on the test rows: test_rmse / test_r2 in metrics.json and
 test_predictions.csv (+ the compare_with version's test predictions on the same rows when it has them).
+`train_status` (optional): only rows with these statuses enter training and the test score (CONUS: ok; the
+filled_nhgis counties are allocated only).
 """
 from __future__ import annotations
 
@@ -303,6 +305,13 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
     if missing:
         sys.exit(f"ERROR: {path} lacks features {missing}; rerun stage 1 with the current config")
     test = None
+    if cfg.get("train_status"):  # CONUS: filled_nhgis counties are allocated but never trained on or scored
+        keep = df["status"].isin(cfg["train_status"])
+        if (~keep).any():
+            log.info("%s%d rows with a status outside train_status %s left out of training and test: %s", tag,
+                     int((~keep).sum()), cfg["train_status"],
+                     list(zip(df.loc[~keep, "GISJOIN"], df.loc[~keep, "name"], df.loc[~keep, "status"])))
+        df = df[keep].reset_index(drop=True)
     if split is not None:  # CONUS: tune and fit on the train counties only; test counties scored once at the end
         part = df["GISJOIN"].map(dict(zip(split["GISJOIN"], split["part"])))
         if part.isna().any():
