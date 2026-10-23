@@ -13,7 +13,10 @@ All years share the same polygons in the same row order (sorted by GISJOIN), so 
   filled_nhgis  2010 polygon without any CSV row (Miami-Dade, Shannon SD, Broomfield, Bedford city): pop taken from
             that year's NHGIS nominal county (--census-dir counties_{YEAR}.gpkg from prepare_census.py) with the same
             GISJOIN, or an older code in ALIASES (Miami-Dade = Dade County G1200250); NHGIS status ok or manual_fill
-            and pop > 0 only, else no_value. Used for allocation (use_status), not for training (train_status: [ok])
+            and pop > 0 only, else no_value. NHGIS area / 2010 polygon area within --area-tol (default 0.95-1.05):
+            the same unit, used for allocation AND training (train rows of configs/conus_split.csv)
+  filled_nhgis_alloc  as filled_nhgis, but the area ratio is outside that range: allocation only (not in
+            train_status), since the NHGIS count belongs to a differently drawn unit
 Also writes <results-dir>/counties_conus_summary.csv (counties, pop and area per year and status) and
 <results-dir>/counties_conus_filled.csv (filled county-years: source GISJOIN, pop, NHGIS area / 2010 polygon area).
 
@@ -38,6 +41,7 @@ COLS = ["GISJOIN", "fips", "state", "name", "pop", "status", "area_km2", "geomet
 # 2010 GISJOIN -> older NHGIS codes of the same county, tried after the 2010 code (Dade County before 1997)
 ALIASES = {"G1200860": ["G1200250"]}
 NHGIS_OK = {"ok", "manual_fill"}
+AREA_TOL = (0.95, 1.05)  # NHGIS area / 2010 polygon area for filled_nhgis (trainable); outside: filled_nhgis_alloc
 
 log = logging.getLogger("conus_counties")
 
@@ -48,6 +52,8 @@ def parse_args(argv=None):
     p.add_argument("--census-dir", type=Path, required=True,
                    help="NHGIS nominal counties_{YEAR}.gpkg (prepare_census.py), read only: fills polygons without a CSV row")
     p.add_argument("--out-dir", type=Path, required=True, help="counties_{YEAR}.gpkg go here")
+    p.add_argument("--area-tol", type=float, nargs=2, default=AREA_TOL, metavar=("MIN", "MAX"),
+                   help="NHGIS / 2010 area ratio range for status filled_nhgis (trainable); outside: filled_nhgis_alloc")
     p.add_argument("--results-dir", type=Path, required=True, help="summary CSV (tracked in git)")
     p.add_argument("--years", type=int, nargs="+", default=YEARS, help="census years (1900-2010)")
     return p.parse_args(argv)
@@ -63,9 +69,9 @@ def year_table(std: gpd.GeoDataFrame, year: int) -> gpd.GeoDataFrame:
     return out[COLS]
 
 
-def fill_from_nhgis(t: gpd.GeoDataFrame, year: int, census_dir: Path) -> list[dict]:
+def fill_from_nhgis(t: gpd.GeoDataFrame, year: int, census_dir: Path, area_tol=AREA_TOL) -> list[dict]:
     """Polygons without a CSV row (fips missing) get the NHGIS nominal county pop of the same GISJOIN (or an
-    ALIASES code); status filled_nhgis. Returns one record per polygon for the log and the filled CSV."""
+    ALIASES code); status filled_nhgis (area ratio within area_tol) or filled_nhgis_alloc. Returns one record per polygon for the log and the filled CSV."""
     todo = t.index[t["fips"].isna()]
     if not len(todo):
         return []
@@ -79,7 +85,7 @@ def fill_from_nhgis(t: gpd.GeoDataFrame, year: int, census_dir: Path) -> list[di
         gj = t.at[i, "GISJOIN"]
         rec = {"year": year, "GISJOIN": gj, "state": t.at[i, "state"], "name": t.at[i, "name"], "source": None,
                "source_name": None, "nhgis_status": None, "pop": np.nan, "area_2010_km2": t.at[i, "area_km2"],
-               "area_nhgis_km2": np.nan, "area_ratio": np.nan, "filled": False}
+               "area_nhgis_km2": np.nan, "area_ratio": np.nan, "filled": False, "status": "no_value"}
         for code in [gj] + ALIASES.get(gj, []):
             if code in nom.index:
                 r = nom.loc[code]
@@ -87,12 +93,16 @@ def fill_from_nhgis(t: gpd.GeoDataFrame, year: int, census_dir: Path) -> list[di
                            area_nhgis_km2=r["area_km2"], area_ratio=r["area_km2"] / t.at[i, "area_km2"])
                 break
         if rec["source"] and rec["nhgis_status"] in NHGIS_OK and rec["pop"] > 0:
+            same = area_tol[0] <= rec["area_ratio"] <= area_tol[1]
             t.at[i, "pop"] = float(rec["pop"])
-            t.at[i, "status"] = "filled_nhgis"
+            t.at[i, "status"] = rec["status"] = "filled_nhgis" if same else "filled_nhgis_alloc"
             rec["filled"] = True
         log.info("  %d %s %s: %s", year, gj, rec["name"],
                  f"filled from NHGIS {rec['source']} ({rec['source_name']}): pop {rec['pop']:,.0f}, area NHGIS / 2010 "
-                 f"{rec['area_ratio']:.3f}" if rec["filled"] else
+                 f"{rec['area_ratio']:.3f} -> {rec['status']} ("
+                 f"{'within' if rec['status'] == 'filled_nhgis' else 'outside'} {area_tol[0]}-{area_tol[1]}: "
+                 f"{'training + allocation' if rec['status'] == 'filled_nhgis' else 'allocation only'})"
+                 if rec["filled"] else
                  f"not filled (NHGIS {rec['source'] or 'no county'}, status {rec['nhgis_status']}, pop {rec['pop']}): no_value")
         recs.append(rec)
     return recs
@@ -121,7 +131,7 @@ def main(argv=None):
     rows, filled = [], []
     for year in sorted(args.years):
         t = year_table(std, year)
-        filled += fill_from_nhgis(t, year, args.census_dir)
+        filled += fill_from_nhgis(t, year, args.census_dir, tuple(args.area_tol))
         path = args.out_dir / f"counties_{year}.gpkg"
         for f in gpkg_leftovers(path)[1:]:  # side files from a failed earlier run
             f.unlink(missing_ok=True)

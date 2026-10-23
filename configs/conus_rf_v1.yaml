@@ -15,12 +15,13 @@ compare_with: null
 # fitting; they are scored once, and their county totals are still reallocated.
 split: configs/conus_split.csv
 
-# Status of src/census/conus_counties.py: ok = CSV value > 0; filled_nhgis = 2010 polygon without a CSV row, pop from
-# that year's NHGIS county (Miami-Dade, Shannon SD, Broomfield, Bedford city). no_value / zero_pop are not used (NoData).
-# use_status = allocated; train_status = also used for training and the test score (filled_nhgis is allocation only,
-# so the split table stays as made).
-use_status: [ok, filled_nhgis]
-train_status: [ok]
+# Status of src/census/conus_counties.py: ok = CSV value > 0; filled_nhgis(_alloc) = 2010 polygon without a CSV row, pop
+# from that year's NHGIS county (Miami-Dade, Shannon SD, Broomfield, Bedford city): filled_nhgis if the NHGIS / 2010
+# area ratio is within 0.95-1.05, else filled_nhgis_alloc. no_value / zero_pop are not used (NoData).
+# use_status = allocated; train_status = also used for training (the four counties are train rows of the split table,
+# appended 2026-10-24); filled_nhgis_alloc is allocation only.
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
 # A used county with no cell (cell-centre rasterization) or no unmasked cell is skipped with a warning (NoData)
 # instead of stopping the job.
 unusable: skip

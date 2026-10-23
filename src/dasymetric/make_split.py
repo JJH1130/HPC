@@ -11,6 +11,10 @@ without a value in some year is simply absent in that year's model.
   2. Folds: the train counties in random order (same generator) get fold = position mod `folds` (a GroupKFold
      with one group per county: fold sizes differ by at most one county). Test counties get fold -1.
 Writes GISJOIN, fips, state, name, part (train/test), fold.
+
+--append-train CSV (GISJOIN, fips, state, name) adds counties to the EXISTING table as train without touching its
+rows: in GISJOIN order, each goes to the fold with the fewest train counties (ties: lowest fold). Used 2026-10-24
+for the four 2010 polygons without a CSV row (filled from NHGIS, src/census/conus_counties.py).
 """
 from __future__ import annotations
 
@@ -32,6 +36,8 @@ def parse_args(argv=None):
     p.add_argument("--folds", type=int, default=5)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--force", action="store_true", help="overwrite an existing table (changes every comparison)")
+    p.add_argument("--append-train", type=Path, metavar="CSV",
+                   help="add these counties (GISJOIN, fips, state, name) to the existing --out table as train")
     return p.parse_args(argv)
 
 
@@ -60,8 +66,35 @@ def make_split(df: pd.DataFrame, test_share: float, folds: int, seed: int) -> pd
     return out[["GISJOIN", "fips", "state", "name", "part", "fold"]]
 
 
+def append_train(split: pd.DataFrame, extra: pd.DataFrame) -> pd.DataFrame:
+    """split + extra counties as train; existing rows unchanged. Each new county (GISJOIN order) goes to the fold
+    with the fewest train counties, ties to the lowest fold."""
+    dup = sorted(set(extra["GISJOIN"]) & set(split["GISJOIN"]))
+    if dup:
+        sys.exit(f"ERROR: already in the split table: {dup}")
+    counts = split.loc[split["part"] == "train", "fold"].value_counts().to_dict()
+    folds = sorted(counts)
+    rows = []
+    for r in extra.sort_values("GISJOIN").itertuples():
+        f = min(folds, key=lambda k: (counts[k], k))
+        counts[f] += 1
+        rows.append({"GISJOIN": r.GISJOIN, "fips": str(r.fips).zfill(5), "state": r.state, "name": r.name,
+                     "part": "train", "fold": f})
+    return pd.concat([split, pd.DataFrame(rows)], ignore_index=True)
+
+
 def main(argv=None):
     args = parse_args(argv)
+    if args.append_train:
+        split = pd.read_csv(args.out, dtype={"fips": str})
+        out = append_train(split, pd.read_csv(args.append_train, dtype={"fips": str}))
+        if not out.iloc[:len(split)].equals(split):
+            sys.exit("ERROR: existing rows changed")
+        out.to_csv(args.out, index=False, lineterminator="\n")
+        print(f"appended {len(out) - len(split)} train counties to {args.out}:")
+        print(out.iloc[len(split):].to_string(index=False))
+        print("train counties per fold:", out[out["part"] == "train"]["fold"].value_counts().sort_index().to_dict())
+        return
     if args.out.exists() and not args.force:
         sys.exit(f"ERROR: {args.out} exists; the split is made once (use --force only to deliberately redo it)")
     split = make_split(read_counties(args.std_csv), args.test_share, args.folds, args.seed)

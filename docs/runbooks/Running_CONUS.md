@@ -50,11 +50,11 @@ for f in $DATA_ROOT/processed/census/counties_std_2010.gpkg configs/conus_split.
 done
 n=$(ls $DATA_ROOT/raw/water/jrc_occurrence/occurrence_*.tif | wc -l)
 echo "JRC tiles: $n (need 21)"; [[ $n -ge 21 ]] || ok=0
-echo "split rows: $(($(wc -l < configs/conus_split.csv) - 1)) (expect 3105)"
+echo "split rows: $(($(wc -l < configs/conus_split.csv) - 1)) (expect 3109)"
 if (( ok )); then bash sbatch/submit_conus.sh trial; else echo "NOT SUBMITTED: fix the MISSING inputs above first"; fi
 ```
 
-Good: no `MISSING` line, `JRC tiles: 21`, `split rows: 3105`, and one line with 7 job ids (also in
+Good: no `MISSING` line, `JRC tiles: 21`, `split rows: 3109`, and one line with 7 job ids (also in
 `logs/conus_trial_jobs.txt`). If `counties_std_2010.gpkg` is missing, run `Checking_Std_Counties.md` first.
 
 Monitor (login node):
@@ -74,7 +74,7 @@ Check (each log ends with `DONE` and `== done`):
 - `place_dist`: five `1960 d_...: N places` lines, QA points Boston / Denver / Ely, `wrote 5 layers for 1960`
 - `dasymetric_features`: `strip 5/23 ...` progress, `1960: water mask ...`, `era Y1960: ~3,0xx training rows`;
   `used counties skipped` warnings are allowed (send them)
-- `dasymetric_train`: `split ...: 3105 counties, 2483 train / 622 test`, `era Y1960: split: ~2,4xx train rows ...
+- `dasymetric_train`: `split ...: 3109 counties, 2487 train / 622 test`, `era Y1960: split: ~2,4xx train rows ...
   ~6xx test rows`, five `fold` lines, `best params`, `CV RMSE ...`, `TEST (scored once, ... test counties): RMSE ...`
 - `dasymetric_predict`: `dist_built on the whole window in N s`, three `strip` lines with `features ... s, RF ... s`,
   `MEASURE 1960: ... about N min for pass 1; nothing written`, `DONE (measure only)`
@@ -119,17 +119,18 @@ Good: v1 shows `version: Dasy_CONUS_RF_v1`, `split: configs/conus_split.csv`, `b
 
 Monitor: as in step 0 with `logs/conus_pilot_jobs.txt`. Check, in addition to step 0:
 - `census_conus`: per year `filled from NHGIS ... area NHGIS / 2010 ...` or `not filled ...: no_value` lines for
-  Miami-Dade, Shannon, Broomfield, Bedford city; 2010 status counts `{'filled_nhgis': 4, 'ok': 3105}`
+  Miami-Dade, Shannon, Broomfield, Bedford city, each ending `-> filled_nhgis (within 0.95-1.05: training +
+  allocation)` or `-> filled_nhgis_alloc (outside ...: allocation only)`; 2010: no `no_value` left
 - `water_frac`: `JRC no data by county (zones 2010): N counties with any; top 20 ...` table
-- `dasymetric_train`: `rows with a status outside train_status ['ok'] left out of training and test: [...]`
-  (the filled counties)
+- `dasymetric_train`: `N rows trained on with status ['filled_nhgis']: [...]` and, if any area ratio is outside
+  0.95-1.05, `rows with a status outside train_status ... left out of training and test: [...]`
 - `water_frac`: `JRC no data in study cells: mean share ... | cells with share > 0.5: N` (decides whether
   `nodata_as_water` is safe inland)
 - `dasymetric_predict`: per year `strip k/23 ... ETA ... min`, then `1960 (Y1960): N counties, N cells (N masked) |
   ... | max rel diff ... | bad cells 0`, `1960: N min`, `plot` lines (maps at 1 km), `mass check: ... 0 fail | bad
   cells 0`, `DONE`
 - `dasymetric_train` (v2): `Dasy_CONUS_RF_v1 on the same N test rows (its own y): RMSE ...`
-- `validate_tract`: `split ...: {'train': 2483, 'test': 622}`, per year `all / train / test` lines for model and
+- `validate_tract`: `split ...: {'train': 2487, 'test': 622}`, per year `all / train / test` lines for model and
   baseline, `DONE`
 
 Close the loop (login node):

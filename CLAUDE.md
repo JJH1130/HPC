@@ -43,7 +43,8 @@ HISDAC raster, 1920/1960/2010, water `only_zone_blocks`), `configs/conus_rf_v1.y
 (`Dasy_CONUS_RF_v1/v2`: one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
 `src/dasymetric/make_split.py`, never regenerated; `block_rows` = strip-wise features/prediction; `unusable: skip`;
 `years`), county input `src/census/conus_counties.py` (`sbatch/census_conus.sh`: Stefan's CSV on 2010 polygons, status
-ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS; allocated, not trained: `train_status`) / no_value /
+ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0.95-1.05: trained, appended to the split as
+train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot` (stage scripts take `CONFIG=`,
 `CENSUS_DIR=`, `COVERAGE=` env overrides; CONUS resources live there). Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map

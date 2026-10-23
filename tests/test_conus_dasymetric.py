@@ -77,7 +77,8 @@ YEARS = [1960, 2010]
 LAND_USE = ["A", "C", "GV", "I", "RC", "RI", "RO", "VL"]
 NO_VALUE = {1960: 5}  # zone 5 has no CSV value in 1960
 ZERO_POP = {2010: 7}  # zone 7 has pop 0 in 2010
-FILLED = {2010: 9}  # zone 9 is filled_nhgis in 2010: allocated, not trained on or scored
+FILLED = {2010: 9}  # zone 9 is filled_nhgis_alloc in 2010: allocated, not trained on or scored
+TRAINED_FILL = {2010: 11}  # zone 11 is filled_nhgis in 2010: allocated and trained on
 
 
 def write_tif(path: Path, arr, nodata=None):
@@ -130,7 +131,9 @@ def make_cutout(tmp: Path, counties: pd.DataFrame):
         if year in ZERO_POP:
             t.loc[t["zone_id"] == ZERO_POP[year], ["pop", "status"]] = [0.0, "zero_pop"]
         if year in FILLED:
-            t.loc[t["zone_id"] == FILLED[year], "status"] = "filled_nhgis"
+            t.loc[t["zone_id"] == FILLED[year], "status"] = "filled_nhgis_alloc"
+        if year in TRAINED_FILL:
+            t.loc[t["zone_id"] == TRAINED_FILL[year], "status"] = "filled_nhgis"
         t["area_km2"] = CS * CS * 0.0625
         write_tif(cut / "zones" / f"zones_{year}.tif", zones, 0)
         t.to_csv(cut / "zones" / f"zones_{year}.csv", index=False)
@@ -142,7 +145,8 @@ def write_configs(tmp: Path, split_path: Path):
     (tmp / "configs" / "study.yaml").write_text(yaml.safe_dump({"name": "conus", "years": YEARS}))
     feats = ["bui", "bldg_size", "mu_ratio", "dist_built", "res_share", "rent_share"]
     base = {"study_area": str(tmp / "configs" / "study.yaml"), "water_mask": "yearly", "compare_with": None,
-            "split": str(split_path), "use_status": ["ok", "filled_nhgis"], "train_status": ["ok"],
+            "split": str(split_path), "use_status": ["ok", "filled_nhgis", "filled_nhgis_alloc"],
+            "train_status": ["ok", "filled_nhgis"],
             "unusable": "skip",
             "eras": {f"Y{y}": {"years": [y], "features": feats} for y in YEARS},
             "feature_groups": {"Building": ["bui", "bldg_size", "mu_ratio"], "Settlement context": ["dist_built"],
@@ -176,6 +180,13 @@ def test_pipeline():
         split_path = tmp / "split.csv"
         split.to_csv(split_path, index=False)
         assert (split.groupby("state")["part"].apply(lambda s: (s == "test").sum()) == 2).all()  # round(0.2 x 12)
+        extra = pd.DataFrame({"GISJOIN": ["G9900030", "G9900010"], "fips": ["99003", "99001"], "state": "Omega",
+                              "name": ["b", "a"]})
+        app = make_split.append_train(split, extra)
+        assert app.iloc[:len(split)].equals(split) and (app.iloc[len(split):]["part"] == "train").all()
+        tr = split[split["part"] == "train"]["fold"].value_counts()
+        first = min(sorted(tr.index), key=lambda k: (tr[k], k))
+        assert app.iloc[len(split)]["GISJOIN"] == "G9900010" and app.iloc[len(split)]["fold"] == first
         cfgs = write_configs(tmp, split_path)
         out_root = tmp / "dasym"
         common = ["--out-root", str(out_root)]
@@ -208,6 +219,9 @@ def test_pipeline():
             if y in FILLED:
                 gj = counties.loc[counties["zone_id"] == FILLED[y], "GISJOIN"].iloc[0]
                 assert gj not in set(oof["GISJOIN"]) | set(tp["GISJOIN"])
+            if y in TRAINED_FILL:
+                gj = counties.loc[counties["zone_id"] == TRAINED_FILL[y], "GISJOIN"].iloc[0]
+                assert gj in set(oof["GISJOIN"]) | set(tp["GISJOIN"])
             want = split.set_index("GISJOIN")["fold"]
             assert (folds.set_index("GISJOIN")["fold"] == want.loc[folds["GISJOIN"]]).all()
         summ = pd.read_csv(out_root / "conus" / "blocks" / "cv_summary.csv")
@@ -241,7 +255,7 @@ def test_pipeline():
             assert (a[~np.isin(zones, bad)] >= 0).all()
             zt = pd.read_csv(cut / "zones" / f"zones_{y}.csv")
             sums = np.bincount(zones[a >= 0], weights=a[a >= 0].astype("float64"), minlength=49)
-            ok = zt[zt["status"].isin(["ok", "filled_nhgis"])]
+            ok = zt[zt["status"].isin(["ok", "filled_nhgis", "filled_nhgis_alloc"])]
             assert np.allclose(sums[ok["zone_id"]], ok["pop"], rtol=1e-6)
             t_zone = zt.loc[zt["GISJOIN"].isin(test_ids) & (zt["status"] == "ok"), "zone_id"]
             assert (sums[t_zone] > 0).all()
@@ -306,12 +320,12 @@ def test_conus_counties():
         a = gpd.read_file(tmp / "out" / "counties_1920.gpkg")
         b = gpd.read_file(tmp / "out" / "counties_1960.gpkg")
         assert a["GISJOIN"].tolist() == b["GISJOIN"].tolist() == ["G0100010", "G0100030", "G0100050", "G1200860"]
-        assert a["status"].tolist() == ["no_value", "ok", "filled_nhgis", "no_value"] and a["pop"].iloc[2] == 7.0
+        assert a["status"].tolist() == ["no_value", "ok", "filled_nhgis_alloc", "no_value"] and a["pop"].iloc[2] == 7.0
         assert b["status"].tolist() == ["ok", "zero_pop", "no_value", "filled_nhgis"] and b["pop"].iloc[3] == 900.0
         f = pd.read_csv(tmp / "res" / "counties_conus_filled.csv")
         assert len(f) == 4 and f["filled"].sum() == 2
         assert f.loc[f["filled"] & (f["year"] == 1960), "source"].tolist() == ["G1200250"]
-        print("ok conus_counties: statuses, NHGIS fill (incl. the Dade alias) and row order")
+        print("ok conus_counties: statuses, NHGIS fill (incl. the Dade alias), area-ratio rule and row order")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
