@@ -1,0 +1,277 @@
+item,value
+window_cells,4862662
+places_csv,31768
+places_with_point,32399
+Massachusetts places >= 10000 1930 before fill,39
+Massachusetts places >= 10000 1930 after fill,39
+filled place-years 1930,0
+Massachusetts places >= 10000 1940 before fill,78
+Massachusetts places >= 10000 1940 after fill,78
+filled place-years 1940,69
+Massachusetts places >= 10000 1950 before fill,47
+Massachusetts places >= 10000 1950 after fill,72
+filled place-years 1950,70
+Massachusetts places >= 10000 1960 before fill,75
+Massachusetts places >= 10000 1960 after fill,75
+filled place-years 1960,108
+Massachusetts places >= 10000 1970 before fill,48
+Massachusetts places >= 10000 1970 after fill,72
+filled place-years 1970,249
+Massachusetts places >= 10000 1980 before fill,78
+Massachusetts places >= 10000 1980 after fill,78
+filled place-years 1980,66
+Massachusetts places >= 10000 1990 before fill,79
+Massachusetts places >= 10000 1990 after fill,80
+filled place-years 1990,93
+Massachusetts places >= 10000 2000 before fill,81
+Massachusetts places >= 10000 2000 after fill,81
+filled place-years 2000,57
+Massachusetts places >= 10000 2010 before fill,86
+Massachusetts places >= 10000 2010 after fill,86
+filled place-years 2010,4
+Massachusetts places >= 10000 2018 before fill,86
+Massachusetts places >= 10000 2018 after fill,86
+filled place-years 2018,0
+1940 places >= 10000 without point,0
+1940 d_10k: places,568
+1940 d_10k: study min km,0.014815758913755417
+1940 d_10k: study mean km,109.68771362304688
+1940 d_10k: study max km,330.9924621582031
+1940 d_20k: places,308
+1940 d_20k: study min km,0.02241632342338562
+1940 d_20k: study mean km,94.62525177001953
+1940 d_20k: study max km,293.2256774902344
+1940 d_50k: places,108
+1940 d_50k: study min km,0.0292708370834589
+1940 d_50k: study mean km,183.05894470214844
+1940 d_50k: study max km,438.8506164550781
+1940 d_100k: places,55
+1940 d_100k: study min km,0.06209307909011841
+1940 d_100k: study mean km,289.0107727050781
+1940 d_100k: study max km,578.1035766601562
+QA Worcester 1940 d_100k km,1.3169409036636353
+QA Worcester 1940 d_100k,ok
+1940 d_250k: places,36
+1940 d_250k: study min km,0.08485705405473709
+1940 d_250k: study mean km,318.4390563964844
+1940 d_250k: study max km,605.5372924804688
+QA Boston 1940 d_250k km,6.804346084594727
+QA Boston 1940 d_250k,not met
+QA Pittsfield (Berkshire) 1940 d_250k km,165.72314453125
+QA Pittsfield (Berkshire) 1940 d_250k,ok
+1950 places >= 10000 without point,0
+1950 d_10k: places,675
+1950 d_10k: study min km,0.014815758913755417
+1950 d_10k: study mean km,111.54068756103516
+1950 d_10k: study max km,330.9924621582031
+1950 d_20k: places,409
+1950 d_20k: study min km,0.02241632342338562
+1950 d_20k: study mean km,91.24124908447266
+1950 d_20k: study max km,293.2256774902344
+1950 d_50k: places,128
+1950 d_50k: study min km,0.0292708370834589
+1950 d_50k: study mean km,182.04461669921875
+1950 d_50k: study max km,438.8506164550781
+1950 d_100k: places,66
+1950 d_100k: study min km,0.06209307909011841
+1950 d_100k: study mean km,302.7609558105469
+1950 d_100k: study max km,596.73876953125
+QA Worcester 1950 d_100k km,1.3169409036636353
+QA Worcester 1950 d_100k,ok
+1950 d_250k: places,40
+1950 d_250k: study min km,0.08485705405473709
+1950 d_250k: study mean km,320.0146789550781
+1950 d_250k: study max km,605.5372924804688
+QA Boston 1950 d_250k km,6.804346084594727
+QA Boston 1950 d_250k,not met
+QA Pittsfield (Berkshire) 1950 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 1950 d_250k,ok
+1960 places >= 10000 without point,0
+1960 d_10k: places,935
+1960 d_10k: study min km,0.014815758913755417
+1960 d_10k: study mean km,72.69175720214844
+1960 d_10k: study max km,216.63795471191406
+1960 d_20k: places,629
+1960 d_20k: study min km,0.02241632342338562
+1960 d_20k: study mean km,91.70896911621094
+1960 d_20k: study max km,293.2256774902344
+1960 d_50k: places,198
+1960 d_50k: study min km,0.0292708370834589
+1960 d_50k: study mean km,181.6807403564453
+1960 d_50k: study max km,438.8506164550781
+1960 d_100k: places,81
+1960 d_100k: study min km,0.06209307909011841
+1960 d_100k: study mean km,304.4827575683594
+1960 d_100k: study max km,598.8021850585938
+QA Worcester 1960 d_100k km,1.3169409036636353
+QA Worcester 1960 d_100k,ok
+1960 d_250k: places,50
+1960 d_250k: study min km,0.08485705405473709
+1960 d_250k: study mean km,320.0146789550781
+1960 d_250k: study max km,605.5372924804688
+QA Boston 1960 d_250k km,6.804346084594727
+QA Boston 1960 d_250k,not met
+QA Pittsfield (Berkshire) 1960 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 1960 d_250k,ok
+1970 places >= 10000 without point,0
+1970 d_10k: places,1146
+1970 d_10k: study min km,0.014815758913755417
+1970 d_10k: study mean km,72.47469329833984
+1970 d_10k: study max km,216.63795471191406
+1970 d_20k: places,806
+1970 d_20k: study min km,0.02241632342338562
+1970 d_20k: study mean km,91.70540618896484
+1970 d_20k: study max km,293.2256774902344
+1970 d_50k: places,253
+1970 d_50k: study min km,0.0292708370834589
+1970 d_50k: study mean km,181.2849578857422
+1970 d_50k: study max km,438.8506164550781
+1970 d_100k: places,100
+1970 d_100k: study min km,0.06209307909011841
+1970 d_100k: study mean km,304.4827575683594
+1970 d_100k: study max km,598.8021850585938
+QA Worcester 1970 d_100k km,1.3169409036636353
+QA Worcester 1970 d_100k,ok
+1970 d_250k: places,55
+1970 d_250k: study min km,0.08485705405473709
+1970 d_250k: study mean km,320.0146789550781
+1970 d_250k: study max km,605.5372924804688
+QA Boston 1970 d_250k km,6.804346084594727
+QA Boston 1970 d_250k,not met
+QA Pittsfield (Berkshire) 1970 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 1970 d_250k,ok
+1980 places >= 10000 without point,0
+1980 d_10k: places,1384
+1980 d_10k: study min km,0.030087551102042198
+1980 d_10k: study mean km,72.8406753540039
+1980 d_10k: study max km,216.63795471191406
+1980 d_20k: places,1010
+1980 d_20k: study min km,0.014815758913755417
+1980 d_20k: study mean km,91.44227600097656
+1980 d_20k: study max km,293.2256774902344
+1980 d_50k: places,288
+1980 d_50k: study min km,0.0292708370834589
+1980 d_50k: study mean km,181.15106201171875
+1980 d_50k: study max km,438.8506164550781
+1980 d_100k: places,116
+1980 d_100k: study min km,0.08412183821201324
+1980 d_100k: study mean km,335.21636962890625
+1980 d_100k: study max km,632.1422119140625
+QA Worcester 1980 d_100k km,1.3169409036636353
+QA Worcester 1980 d_100k,ok
+1980 d_250k: places,55
+1980 d_250k: study min km,0.08485705405473709
+1980 d_250k: study mean km,320.0146789550781
+1980 d_250k: study max km,605.5372924804688
+QA Boston 1980 d_250k km,6.804346084594727
+QA Boston 1980 d_250k,not met
+QA Pittsfield (Berkshire) 1980 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 1980 d_250k,ok
+1990 places >= 10000 without point,0
+1990 d_10k: places,1475
+1990 d_10k: study min km,0.014815758913755417
+1990 d_10k: study mean km,72.65679168701172
+1990 d_10k: study max km,216.63795471191406
+1990 d_20k: places,1086
+1990 d_20k: study min km,0.02241632342338562
+1990 d_20k: study mean km,90.75276184082031
+1990 d_20k: study max km,293.2256774902344
+1990 d_50k: places,353
+1990 d_50k: study min km,0.0292708370834589
+1990 d_50k: study mean km,181.85629272460938
+1990 d_50k: study max km,438.8506164550781
+1990 d_100k: places,135
+1990 d_100k: study min km,0.08412183821201324
+1990 d_100k: study mean km,290.4856872558594
+1990 d_100k: study max km,578.1035766601562
+QA Worcester 1990 d_100k km,1.3169409036636353
+QA Worcester 1990 d_100k,ok
+1990 d_250k: places,64
+1990 d_250k: study min km,0.08485705405473709
+1990 d_250k: study mean km,320.0146789550781
+1990 d_250k: study max km,605.5372924804688
+QA Boston 1990 d_250k km,6.804346084594727
+QA Boston 1990 d_250k,not met
+QA Pittsfield (Berkshire) 1990 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 1990 d_250k,ok
+2000 places >= 10000 without point,0
+2000 d_10k: places,1605
+2000 d_10k: study min km,0.030087551102042198
+2000 d_10k: study mean km,111.02948760986328
+2000 d_10k: study max km,330.9924621582031
+2000 d_20k: places,1251
+2000 d_20k: study min km,0.014815758913755417
+2000 d_20k: study mean km,92.32682800292969
+2000 d_20k: study max km,293.2256774902344
+2000 d_50k: places,419
+2000 d_50k: study min km,0.0292708370834589
+2000 d_50k: study mean km,181.88400268554688
+2000 d_50k: study max km,438.8506164550781
+2000 d_100k: places,178
+2000 d_100k: study min km,0.07212928682565689
+2000 d_100k: study mean km,268.23602294921875
+2000 d_100k: study max km,547.4365234375
+QA Worcester 2000 d_100k km,1.3169409036636353
+QA Worcester 2000 d_100k,ok
+2000 d_250k: places,65
+2000 d_250k: study min km,0.08485705405473709
+2000 d_250k: study mean km,320.0146789550781
+2000 d_250k: study max km,605.5372924804688
+QA Boston 2000 d_250k km,6.804346084594727
+QA Boston 2000 d_250k,not met
+QA Pittsfield (Berkshire) 2000 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 2000 d_250k,ok
+2010 places >= 10000 without point,0
+2010 d_10k: places,1774
+2010 d_10k: study min km,0.014815758913755417
+2010 d_10k: study mean km,110.92205810546875
+2010 d_10k: study max km,330.9924621582031
+2010 d_20k: places,1300
+2010 d_20k: study min km,0.02241632342338562
+2010 d_20k: study mean km,92.37132263183594
+2010 d_20k: study max km,293.2256774902344
+2010 d_50k: places,488
+2010 d_50k: study min km,0.0292708370834589
+2010 d_50k: study mean km,181.7965545654297
+2010 d_50k: study max km,438.8506164550781
+2010 d_100k: places,208
+2010 d_100k: study min km,0.07212928682565689
+2010 d_100k: study mean km,268.23602294921875
+2010 d_100k: study max km,547.4365234375
+QA Worcester 2010 d_100k km,1.3169409036636353
+QA Worcester 2010 d_100k,ok
+2010 d_250k: places,72
+2010 d_250k: study min km,0.08485705405473709
+2010 d_250k: study mean km,320.0146789550781
+2010 d_250k: study max km,605.5372924804688
+QA Boston 2010 d_250k km,6.804346084594727
+QA Boston 2010 d_250k,not met
+QA Pittsfield (Berkshire) 2010 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 2010 d_250k,ok
+2020 places >= 10000 without point,0
+2020 d_10k: places,1737
+2020 d_10k: study min km,0.050663020461797714
+2020 d_10k: study mean km,110.99500274658203
+2020 d_10k: study max km,330.9924621582031
+2020 d_20k: places,1362
+2020 d_20k: study min km,0.014815758913755417
+2020 d_20k: study mean km,92.16374969482422
+2020 d_20k: study max km,293.2256774902344
+2020 d_50k: places,511
+2020 d_50k: study min km,0.0292708370834589
+2020 d_50k: study mean km,181.85902404785156
+2020 d_50k: study max km,438.8506164550781
+2020 d_100k: places,233
+2020 d_100k: study min km,0.07212928682565689
+2020 d_100k: study mean km,268.23602294921875
+2020 d_100k: study max km,547.4365234375
+QA Worcester 2020 d_100k km,1.3169409036636353
+QA Worcester 2020 d_100k,ok
+2020 d_250k: places,81
+2020 d_250k: study min km,0.08485705405473709
+2020 d_250k: study mean km,320.0146789550781
+2020 d_250k: study max km,605.5372924804688
+QA Boston 2020 d_250k km,6.804346084594727
+QA Boston 2020 d_250k,not met
+QA Pittsfield (Berkshire) 2020 d_250k km,176.4156494140625
+QA Pittsfield (Berkshire) 2020 d_250k,ok
