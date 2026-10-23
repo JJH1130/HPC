@@ -105,6 +105,19 @@ the rural-over / urban-under pattern of v3.4.
 `docs/runbooks/Running_Dasymetric.md`, section "v4.1". Local test of the distance and gap-fill code:
 `python tests/test_place_dist.py` (hisdac env; synthetic data).
 
-## Result
+## Result (jobs 34785497 place_dist / 34785498-34785500 dasymetric / 34785501 validate_tract, code ee55448)
 
-Not run yet.
+- QA: 45 layers written (1940-2020 x 5 classes). Gap fill: 716 place-years in the US; Massachusetts places
+  >= 10k after fill 39, 78, 72, 75, 72, 78, 80, 81, 86 (1930-2010; was 47 in 1950 and 48 in 1970). Worcester
+  d_100k 1.3 km and Pittsfield d_250k 166-176 km as expected; Boston d_250k 6.8 km (the Boston point sits
+  away from the QA coordinate; threshold 5 km too tight, not a fault). Mass check 0 fail, tract totals QA
+  0 flagged.
+- **Worse than v3.4, and worse than v4.** County CV E23 R2 0.727 -> 0.694 (RMSE 0.554 -> 0.555); E1 unchanged
+  (0.624 -> 0.625, as designed). Tract MdAPE 1940-2020: 43-53 % (v3.4 30-43 %, v4 37-47 %); 2020: 30.9 -> 43.0 %.
+  R2 of log tract density 2020: 0.77 -> 0.67.
+- SHAP (E23): the model leans on the distances: d_50k 2nd (0.19), d_20k 0.12, d_250k 0.10; rent_share drops
+  from 0.43 (v4) to 0.25, bui 0.19.
+- Reading: with 14 counties, county means of smooth regional distances act as county labels (as terrain in
+  v4), and at cell level they pull weight along broad gradients toward the place points instead of following
+  buildings. Not kept for Massachusetts; distances are re-tested on CONUS (about 3,000 counties per year).
+

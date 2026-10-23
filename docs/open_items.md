@@ -120,17 +120,15 @@ Last updated: 2026-10-23 (v4.1 design: PLURAL-1 distances; Stefan meeting)
 
 ### Dasymetric v4.1 (PLURAL-1 distances)
 
-- **Status:** code written 2026-10-23 (`src/grid/place_dist.py`, `sbatch/place_dist.sh`, `configs/model.yaml`
-  at `v4_1`), tested locally on synthetic data (`tests/test_place_dist.py`); not run on Alpine yet. Run steps
-  `docs/runbooks/Running_Dasymetric.md`, section "v4.1"; design `docs/dasymetric_v4_1.md`.
+- **Status:** run 2026-10-22 (cluster time; jobs 34785497-34785501, code ee55448). Result in
+  `docs/dasymetric_v4_1.md`, "Result": worse than v3.4 and v4 (tract MdAPE 2020 30.9 -> 43.0 %, E23 CV R2
+  0.727 -> 0.694); the distances dominate SHAP with 14 counties. Not kept for Massachusetts; re-test on CONUS.
 - v4.1 = v3.4 features + yearly GDW water mask (as v4) + `d_10k`, `d_20k`, `d_50k`, `d_100k`, `d_250k` (km from
   each cell centre to the nearest place of that size class that year, all US PLURAL places) in E23 only.
   No terrain. `compare_with: v3_4`, `folds_from: v2`. 2020 uses PLURAL 2018.
 - Gap fill for New England towns missing in single decades (0 between two > 0 neighbouring PLURAL years → mean
   of the two; 1930 and 2018 not filled). Millbury 1940 (= Milford's 15,388, likely a PLURAL matching error) is
   left as is (limit in the design doc).
-- **After the run:** compare with v3.4 (county CV per era, tract MdAPE and R² per year, `d_*` SHAP) and record
-  the result in `docs/dasymetric_v4_1.md` and here.
 
 ### PLURAL gridded data
 
@@ -270,3 +268,4 @@ Last updated: 2026-10-23 (v4.1 design: PLURAL-1 distances; Stefan meeting)
 | 2026-10-20 | Version order: v4.1 = PLURAL-1 distance terms from cell centres (1930–2020); v5 = HISDAC-US v3; v6 = CONUS with model comparison and hyperparameter tuning last, after all data and the study area are fixed. |
 | 2026-10-23 | Stefan meeting: (1) approved computing only the five PLURAL-1 distance terms per cell as features; place population and focal population density excluded (target leakage). (2) Population data: go with Stefan's CSV (2010 boundaries, 1900–) for now and fix later if needed; Massachusetts experiments continue on NHGIS same-year boundaries, and the switch to the CSV stays the last step (2026-10-20 decision kept). |
 | 2026-10-23 | v4.1 design: v3.4 features + yearly GDW water mask + `d_10k` … `d_250k` in E23 only (E1 = v3.4); no terrain; `compare_with: v3_4`, `folds_from: v2`; PLURAL year = census year (2020 → 2018); single-decade gaps filled with the mean of the neighbouring PLURAL years. |
+| 2026-10-23 | v4.1 (PLURAL-1 distances in E23) worse than v3.4 and v4 in Massachusetts; like terrain, likely overfitting with 14 counties. Not kept for Massachusetts; distances and terrain re-tested on CONUS. |
