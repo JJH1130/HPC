@@ -14,7 +14,7 @@ Last updated: 2026-10-23
 | Years | 1900-2010 census years (12). 2020 added later from NHGIS (the CSV has no 2020; its 2015 value is an estimate, not a census) |
 | Census input | Stefan's county CSV on 2010 county polygons (`data/census_std/`, `counties_std_2010.gpkg` from `std_county_check`), as agreed with Stefan 2026-10-23; known errors accepted for now (below) |
 | Models | One model per census year (~3,000 counties per year), not pooled eras |
-| Train / test | States split at random 80:20 (fixed seed), once, before any tuning. Test states (~10 states, ~600 counties) are never used for training or tuning; their county totals are still used for allocation. Within the train states, 5-fold grouped CV picks hyperparameters; then the model is refit on all train states and scored once on the test states |
+| Train / test | Counties split at random 80:20 within each state (stratified by state, fixed seed), once, before any tuning, and the same split in every year. Every state is in both parts, so the model sees each state's land-use coding (assessor practice differs by state). Test counties (~600) are never used for training or tuning; their county totals are still used for allocation. Within the train counties, 5-fold CV grouped by county picks hyperparameters; then the model is refit on all train counties and scored once on the test counties. Neighbouring train counties make the county test score somewhat optimistic; tract validation (tract counts are never used in training) is the independent check |
 | Trial years first | 1920, 1960, 2010 (one per former era). Run the rest only after the trial shows time and memory |
 
 ## Feature sets to compare
@@ -42,10 +42,10 @@ From `std_county_check` (job 33505541) and `docs/open_items.md`:
 
 ## Validation
 
-- County: 5-fold grouped CV inside the train states (tuning), and the single test-state score.
+- County: 5-fold grouped CV inside the train counties (tuning), and the single test-county score.
 - Tract (`src/validation/tract_validate.py`, extend to CONUS): NHGIS tracts cover 14 counties (~9.7 M people) in
   1920, 302 counties (~103 M) in 1960 and all counties in 2010 (`results/tract/coverage_by_county.csv`). Report
-  train and test states separately.
+  train and test counties separately.
 - Areal-weighting baseline and totals QA as in Massachusetts.
 
 ## Scale checks before the first run
