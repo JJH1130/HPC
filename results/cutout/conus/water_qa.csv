@@ -1,0 +1,36 @@
+item,value
+reservoir_source,gdw
+window_cells,214401285
+window_nodata_cells,76868101
+study_cells,124576956
+study_uncovered_cells,0
+min,0.0
+max,1.0
+study_mean,0.009575460106134415
+study_share_gt0,0.0202044268925627
+study_share_eq1,0.00521067475753702
+jrc_pixels,18087830173
+jrc_nodata_pixels,368227698
+water_pixels,1420044153
+reservoir_pixels_removed,3848079
+reservoir_pixels_water_1960,46020100
+jrc_nodata_share,0.020357759580784847
+study_share_eq1_1960,0.00521067475753702
+Quabbin Reservoir 1960: cells,441
+Quabbin Reservoir 1960: mean,0.5816143751144409
+Quabbin Reservoir 1960: max,1.0
+Quabbin Reservoir 1960: share_eq0,0.29024943310657597
+Quabbin Reservoir 1960: n_eq1,178
+Quabbin Reservoir 1960: expect full_water,ok
+Lake Mead (Boulder Basin) 1960: cells,169
+Lake Mead (Boulder Basin) 1960: mean,1.0
+Lake Mead (Boulder Basin) 1960: max,1.0
+Lake Mead (Boulder Basin) 1960: share_eq0,0.0
+Lake Mead (Boulder Basin) 1960: n_eq1,169
+Lake Mead (Boulder Basin) 1960: expect full_water,ok
+Lake Powell (Wahweap) 1960: cells,169
+Lake Powell (Wahweap) 1960: mean,0.0036929901689291
+Lake Powell (Wahweap) 1960: max,0.2999972403049469
+Lake Powell (Wahweap) 1960: share_eq0,0.9704142011834319
+Lake Powell (Wahweap) 1960: n_eq1,0
+Lake Powell (Wahweap) 1960: expect dry,ok

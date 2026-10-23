@@ -1,0 +1,35 @@
+== job 34814376 (census_conus) on c3cpu-e2-u1 at 2026-10-23T09:03:26-06:00
+== cores=2 gpus=none restart=0
+== git 563641b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== in: /projects/jaju1407/data/processed/census/counties_std_2010.gpkg  out: /projects/jaju1407/data/processed/census_conus  extra args: --years 1920 1960 2010
+09:04:17 INFO arg std_gpkg = /projects/jaju1407/data/processed/census/counties_std_2010.gpkg
+09:04:17 INFO arg out_dir = /projects/jaju1407/data/processed/census_conus
+09:04:17 INFO arg results_dir = results/census_conus
+09:04:17 INFO arg years = [1920, 1960, 2010]
+09:04:22 INFO /projects/jaju1407/data/processed/census/counties_std_2010.gpkg: 3109 polygons, 4 without a CSV row, CRS EPSG:5070
+09:04:23 INFO Created 3,109 records
+09:04:25 INFO 1920: {'no_value': 55, 'ok': 3054} | pop (ok) 105,516,543 | wrote /projects/jaju1407/data/processed/census_conus/counties_1920.gpkg
+09:04:25 INFO   not ok (first 30): [('G0400120', 'Arizona', 'La Paz County', 'no_value'), ('G0800140', 'Colorado', 'Broomfield County', 'no_value'), ('G1200150', 'Florida', 'Charlotte County', 'no_value'), ('G1200210', 'Florida', 'Collier County', 'no_value'), ('G1200290', 'Florida', 'Dixie County', 'no_value'), ('G1200410', 'Florida', 'Gilchrist County', 'no_value'), ('G1200430', 'Florida', 'Glades County', 'no_value'), ('G1200450', 'Florida', 'Gulf County', 'no_value'), ('G1200490', 'Florida', 'Hardee County', 'no_value'), ('G1200510', 'Florida', 'Hendry County', 'no_value'), ('G1200550', 'Florida', 'Highlands County', 'no_value'), ('G1200610', 'Florida', 'Indian River County', 'no_value'), ('G1200850', 'Florida', 'Martin County', 'no_value'), ('G1200860', 'Florida', 'Miami-Dade County', 'no_value'), ('G1201150', 'Florida', 'Sarasota County', 'no_value'), ('G1201250', 'Florida', 'Union County', 'no_value'), ('G1300250', 'Georgia', 'Brantley County', 'no_value'), ('G1301710', 'Georgia', 'Lamar County', 'no_value'), ('G1301730', 'Georgia', 'Lanier County', 'no_value'), ('G1301830', 'Georgia', 'Long County', 'no_value'), ('G1302250', 'Georgia', 'Peach County', 'no_value'), ('G1302530', 'Georgia', 'Seminole County', 'no_value'), ('G2700770', 'Minnesota', 'Lake of the Woods County', 'no_value'), ('G3000190', 'Montana', 'Daniels County', 'no_value'), ('G3000370', 'Montana', 'Golden Valley County', 'no_value'), ('G3000450', 'Montana', 'Judith Basin County', 'no_value'), ('G3000470', 'Montana', 'Lake County', 'no_value'), ('G3000690', 'Montana', 'Petroleum County', 'no_value'), ('G3500030', 'New Mexico', 'Catron County', 'no_value'), ('G3500060', 'New Mexico', 'Cibola County', 'no_value')]
+09:04:26 INFO Created 3,109 records
+09:04:29 INFO 1960: {'no_value': 16, 'ok': 3093} | pop (ok) 177,329,301 | wrote /projects/jaju1407/data/processed/census_conus/counties_1960.gpkg
+09:04:29 INFO   not ok (first 30): [('G0400120', 'Arizona', 'La Paz County', 'no_value'), ('G0800140', 'Colorado', 'Broomfield County', 'no_value'), ('G1200860', 'Florida', 'Miami-Dade County', 'no_value'), ('G3500060', 'New Mexico', 'Cibola County', 'no_value'), ('G4601130', 'South Dakota', 'Shannon County', 'no_value'), ('G5105150', 'Virginia', 'Bedford city', 'no_value'), ('G5105500', 'Virginia', 'Chesapeake city', 'no_value'), ('G5105950', 'Virginia', 'Emporia city', 'no_value'), ('G5106000', 'Virginia', 'Fairfax city', 'no_value'), ('G5106200', 'Virginia', 'Franklin city', 'no_value'), ('G5106780', 'Virginia', 'Lexington city', 'no_value'), ('G5106830', 'Virginia', 'Manassas city', 'no_value'), ('G5106850', 'Virginia', 'Manassas Park city', 'no_value'), ('G5107350', 'Virginia', 'Poquoson city', 'no_value'), ('G5107750', 'Virginia', 'Salem city', 'no_value'), ('G5500780', 'Wisconsin', 'Menominee County', 'no_value')]
+09:04:29 INFO Created 3,109 records
+09:04:31 INFO 2010: {'no_value': 4, 'ok': 3105} | pop (ok) 304,102,874 | wrote /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+09:04:31 INFO   not ok (first 30): [('G0800140', 'Colorado', 'Broomfield County', 'no_value'), ('G1200860', 'Florida', 'Miami-Dade County', 'no_value'), ('G4601130', 'South Dakota', 'Shannon County', 'no_value'), ('G5105150', 'Virginia', 'Bedford city', 'no_value')]
+09:04:32 INFO summary:
+ year   status  counties         pop     area_km2  area_share
+ 1920 no_value        55         0.0 1.417331e+05    0.018203
+ 1920       ok      3054 105516543.0 7.644323e+06    0.981797
+ 1960 no_value        16         0.0 3.614657e+04    0.004642
+ 1960       ok      3093 177329301.0 7.749910e+06    0.995358
+ 2010 no_value         4         0.0 1.066726e+04    0.001370
+ 2010       ok      3105 304102874.0 7.775389e+06    0.998630
+09:04:32 INFO DONE
+total 769120
+drwxr-sr-x 2 jaju1407 jaju1407grp       108 Oct 23 09:04 .
+drwxr-sr-x 5 jaju1407 jaju1407grp        77 Oct 23 09:04 ..
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 23 09:04 counties_1920.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 23 09:04 counties_1960.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 23 09:04 counties_2010.gpkg
+== done 2026-10-23T09:04:32-06:00

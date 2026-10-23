@@ -1,0 +1,24 @@
+== job 34814382 (dasymetric_predict) on c3cpu-c15-u26-3 at 2026-10-23T09:27:14-06:00
+== cores=32 gpus=none restart=0
+== git 563641b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_rf_v1.yaml (name=conus version=Dasy_CONUS_RF_v1)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  out: /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v1  n_jobs: 32  extra args: --years 1960 --measure 3 --map-years --compare-years
+09:27:19 INFO arg config = configs/conus_rf_v1.yaml
+09:27:19 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+09:27:19 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:27:19 INFO arg years = [1960]
+09:27:19 INFO arg map_years = []
+09:27:19 INFO arg compare_years = []
+09:27:19 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census/counties_2020.gpkg
+09:27:19 INFO arg n_jobs = 32
+09:27:19 INFO arg measure = 3
+09:27:19 INFO maps: [] | side by side with None: []
+09:27:21 INFO model rf era Y1960 (/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v1/Y1960/model/rf.joblib) | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share'] | use_status ['ok']
+09:27:21 INFO 1 years -> /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v1
+09:27:39 INFO     1960: dist_built on the whole window in 15.6 s
+09:27:42 INFO     1960 strip 1/23 rows 0-512: 573151 cells | features 2.6 s, RF 0.8 s | 573151/123998615 cells, ETA 13 min
+09:27:46 INFO     1960 strip 2/23 rows 512-1024: 2218506 cells | features 0.7 s, RF 2.7 s | 2791657/123998615 cells, ETA 5 min
+09:27:52 INFO     1960 strip 3/23 rows 1024-1536: 4999567 cells | features 0.8 s, RF 5.4 s | 7791224/123998615 cells, ETA 3 min
+09:27:52 INFO MEASURE 1960: 3 strips, 7791224 cells in 13.7 s (570487 cells/s; dist_built timed above) -> 123998615 cells of used counties this year: about 3.6 min for pass 1; nothing written
+09:27:52 INFO DONE (measure only)
+== done 2026-10-23T09:27:52-06:00

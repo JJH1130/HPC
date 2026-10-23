@@ -1,0 +1,2 @@
+era,years,n_rows,n_counties,n_folds,features,cv_rmse,cv_r2,pooled_rmse,pooled_r2,n_test_rows,test_rmse,test_r2,shap_Building,shap_Land use,shap_Settlement context
+Y1960,1960-1960,2475,2475,5,bui bldg_size mu_ratio dist_built res_share rent_share,0.8008894239573505,0.718855870972319,0.802294592555668,0.7202052546443899,618,0.7783964470066093,0.7382291127347527,0.7868183734461309,0.17630057026453955,0.1044048351980715

@@ -1,0 +1,131 @@
+== job 34814378 (water_frac) on c3cpu-c13-u1-3 at 2026-10-23T09:07:03-06:00
+== cores=16 gpus=none restart=0
+== git 563641b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: --years 1960
+09:07:12 INFO arg config = configs/conus_study_area.yaml
+09:07:12 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:07:12 INFO arg years = [1960]
+09:07:16 INFO cutout /scratch/alpine/jaju1407/hisdac/cutouts/conus | window 18459 x 11615 cells | occurrence >= 75 = water | JRC no data = water | reservoirs: GDW, water from completion year (yearly layers [1960])
+09:07:20 INFO JRC: 21 files in /projects/jaju1407/data/raw/water/jrc_occurrence, 21 overlap the window (lon -127.893..-65.342, lat 22.871..51.609): ['occurrence_100W_30Nv1_4_2021.tif', 'occurrence_100W_40Nv1_4_2021.tif', 'occurrence_100W_50Nv1_4_2021.tif', 'occurrence_110W_30Nv1_4_2021.tif', 'occurrence_110W_40Nv1_4_2021.tif', 'occurrence_110W_50Nv1_4_2021.tif', 'occurrence_120W_30Nv1_4_2021.tif', 'occurrence_120W_40Nv1_4_2021.tif', 'occurrence_120W_50Nv1_4_2021.tif', 'occurrence_130W_30Nv1_4_2021.tif', 'occurrence_130W_40Nv1_4_2021.tif', 'occurrence_130W_50Nv1_4_2021.tif', 'occurrence_70W_30Nv1_4_2021.tif', 'occurrence_70W_40Nv1_4_2021.tif', 'occurrence_70W_50Nv1_4_2021.tif', 'occurrence_80W_30Nv1_4_2021.tif', 'occurrence_80W_40Nv1_4_2021.tif', 'occurrence_80W_50Nv1_4_2021.tif', 'occurrence_90W_30Nv1_4_2021.tif', 'occurrence_90W_40Nv1_4_2021.tif', 'occurrence_90W_50Nv1_4_2021.tif']
+09:07:26 INFO GDW: 4948 reservoir polygons intersect the window | 58 natural lakes raised by a dam (LAKE_CTRL in ['maybe', 'yes']) kept to JRC | 4212 dated (quality <= 3) | 678 never water (no year or quality > 3)
+09:07:26 INFO GDW reservoirs (first 15 by year): Lake Drummond (1825), Great East Lake Dam (1825), CHEROKEE FALLS (1826), Songo Lock Dam (1830), Bow Lake (1832), Buckeye Lake Dam (1832), Hamilton Lake North Dam (1832), Moosehead Lake (1835), Rangeley Lake Dam (1836), LAKE MORAINE DAM (1836), UPPER TUMBLING RUN (1836), KINGSLEY BROOK RESERVOIR DAM (1836), SYLVAN LAKE DAM (1839), Grand Lake St. Marys West Embankment (1841), Pawtuckaway Lake (1842)
+09:07:27 INFO   2102 of 3358 blocks of 256 x 256 cells to compute (blocks with study cells), 16 worker process(es)
+09:08:06 INFO   block 20/2102
+09:08:16 INFO   block 40/2102
+09:08:26 INFO   block 60/2102
+09:08:35 INFO   block 80/2102
+09:08:44 INFO   block 100/2102
+09:08:57 INFO   block 120/2102
+09:09:04 INFO   block 140/2102
+09:09:13 INFO   block 160/2102
+09:09:21 INFO   block 180/2102
+09:09:29 INFO   block 200/2102
+09:09:42 INFO   block 220/2102
+09:09:50 INFO   block 240/2102
+09:09:59 INFO   block 260/2102
+09:10:08 INFO   block 280/2102
+09:10:17 INFO   block 300/2102
+09:10:27 INFO   block 320/2102
+09:10:34 INFO   block 340/2102
+09:10:41 INFO   block 360/2102
+09:10:50 INFO   block 380/2102
+09:10:59 INFO   block 400/2102
+09:11:04 INFO   block 420/2102
+09:11:11 INFO   block 440/2102
+09:11:18 INFO   block 460/2102
+09:11:26 INFO   block 480/2102
+09:11:33 INFO   block 500/2102
+09:11:42 INFO   block 520/2102
+09:11:50 INFO   block 540/2102
+09:11:59 INFO   block 560/2102
+09:12:08 INFO   block 580/2102
+09:12:17 INFO   block 600/2102
+09:12:23 INFO   block 620/2102
+09:12:35 INFO   block 640/2102
+09:12:43 INFO   block 660/2102
+09:12:50 INFO   block 680/2102
+09:12:58 INFO   block 700/2102
+09:13:08 INFO   block 720/2102
+09:13:16 INFO   block 740/2102
+09:13:23 INFO   block 760/2102
+09:13:32 INFO   block 780/2102
+09:13:41 INFO   block 800/2102
+09:13:48 INFO   block 820/2102
+09:13:57 INFO   block 840/2102
+09:14:05 INFO   block 860/2102
+09:14:12 INFO   block 880/2102
+09:14:21 INFO   block 900/2102
+09:14:30 INFO   block 920/2102
+09:14:37 INFO   block 940/2102
+09:14:44 INFO   block 960/2102
+09:14:55 INFO   block 980/2102
+09:15:02 INFO   block 1000/2102
+09:15:08 INFO   block 1020/2102
+09:15:16 INFO   block 1040/2102
+09:15:26 INFO   block 1060/2102
+09:15:32 INFO   block 1080/2102
+09:15:40 INFO   block 1100/2102
+09:15:48 INFO   block 1120/2102
+09:15:55 INFO   block 1140/2102
+09:16:03 INFO   block 1160/2102
+09:16:11 INFO   block 1180/2102
+09:16:18 INFO   block 1200/2102
+09:16:25 INFO   block 1220/2102
+09:16:33 INFO   block 1240/2102
+09:16:41 INFO   block 1260/2102
+09:16:48 INFO   block 1280/2102
+09:16:56 INFO   block 1300/2102
+09:17:03 INFO   block 1320/2102
+09:17:10 INFO   block 1340/2102
+09:17:19 INFO   block 1360/2102
+09:17:25 INFO   block 1380/2102
+09:17:31 INFO   block 1400/2102
+09:17:39 INFO   block 1420/2102
+09:17:47 INFO   block 1440/2102
+09:17:53 INFO   block 1460/2102
+09:18:00 INFO   block 1480/2102
+09:18:11 INFO   block 1500/2102
+09:18:16 INFO   block 1520/2102
+09:18:22 INFO   block 1540/2102
+09:18:29 INFO   block 1560/2102
+09:18:38 INFO   block 1580/2102
+09:18:45 INFO   block 1600/2102
+09:18:51 INFO   block 1620/2102
+09:18:57 INFO   block 1640/2102
+09:19:06 INFO   block 1660/2102
+09:19:12 INFO   block 1680/2102
+09:19:18 INFO   block 1700/2102
+09:19:25 INFO   block 1720/2102
+09:19:32 INFO   block 1740/2102
+09:19:38 INFO   block 1760/2102
+09:19:45 INFO   block 1780/2102
+09:19:51 INFO   block 1800/2102
+09:19:57 INFO   block 1820/2102
+09:20:03 INFO   block 1840/2102
+09:20:11 INFO   block 1860/2102
+09:20:16 INFO   block 1880/2102
+09:20:22 INFO   block 1900/2102
+09:20:28 INFO   block 1920/2102
+09:20:35 INFO   block 1940/2102
+09:20:41 INFO   block 1960/2102
+09:20:47 INFO   block 1980/2102
+09:20:52 INFO   block 2000/2102
+09:20:59 INFO   block 2020/2102
+09:21:05 INFO   block 2040/2102
+09:21:09 INFO   block 2060/2102
+09:21:15 INFO   block 2080/2102
+09:21:20 INFO   block 2100/2102
+09:21:22 INFO   block 2102/2102
+09:21:24 INFO   1960: study cells with water_frac = 1: 0.0052 | reservoir water pixels 46020100
+09:21:24 INFO water_frac (1960) 0.0..1.0 | study counties: 124576956 cells, mean 0.0096, share > 0 0.0202, share = 1 0.0052, uncovered 0 | JRC no-data pixels 0.0204 of covered | water pixels 1420044153, reservoir pixels never water 3848079
+09:21:24 WARNING   QA point Quabbin Reservoir: year 1920 is not a study year; skipped
+09:21:24 INFO   QA point Quabbin Reservoir 1960 (-72.3, 42.4, 5 km box): 441 cells, mean 0.582, max 1.000, share = 0 0.290, cells = 1 178 | expect full_water: ok
+09:21:24 WARNING   QA point Lake Mead (Boulder Basin): year 1920 is not a study year; skipped
+09:21:24 INFO   QA point Lake Mead (Boulder Basin) 1960 (-114.75, 36.08, 3 km box): 169 cells, mean 1.000, max 1.000, share = 0 0.000, cells = 1 169 | expect full_water: ok
+09:21:24 INFO   QA point Lake Powell (Wahweap) 1960 (-111.48, 36.99, 3 km box): 169 cells, mean 0.004, max 0.300, share = 0 0.970, cells = 1 0 | expect dry: ok
+09:21:24 WARNING   QA point Lake Powell (Wahweap): year 2010 is not a study year; skipped
+09:21:24 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/water_qa.csv
+09:21:29 INFO wrote 1 yearly layers /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/water_frac/{YEAR}_water_frac.tif
+09:21:29 INFO DONE
+== done 2026-10-23T09:21:30-06:00

@@ -1,0 +1,61 @@
+item,value
+window_cells,214401285
+places_csv,31768
+places_with_point,32399
+Massachusetts places >= 10000 1930 before fill,39
+Massachusetts places >= 10000 1930 after fill,39
+filled place-years 1930,0
+Massachusetts places >= 10000 1940 before fill,78
+Massachusetts places >= 10000 1940 after fill,78
+filled place-years 1940,69
+Massachusetts places >= 10000 1950 before fill,47
+Massachusetts places >= 10000 1950 after fill,72
+filled place-years 1950,70
+Massachusetts places >= 10000 1960 before fill,75
+Massachusetts places >= 10000 1960 after fill,75
+filled place-years 1960,108
+Massachusetts places >= 10000 1970 before fill,48
+Massachusetts places >= 10000 1970 after fill,72
+filled place-years 1970,249
+Massachusetts places >= 10000 1980 before fill,78
+Massachusetts places >= 10000 1980 after fill,78
+filled place-years 1980,66
+Massachusetts places >= 10000 1990 before fill,79
+Massachusetts places >= 10000 1990 after fill,80
+filled place-years 1990,93
+Massachusetts places >= 10000 2000 before fill,81
+Massachusetts places >= 10000 2000 after fill,81
+filled place-years 2000,57
+Massachusetts places >= 10000 2010 before fill,86
+Massachusetts places >= 10000 2010 after fill,86
+filled place-years 2010,4
+Massachusetts places >= 10000 2018 before fill,86
+Massachusetts places >= 10000 2018 after fill,86
+filled place-years 2018,0
+1960 places >= 10000 without point,0
+1960 d_10k: places,935
+1960 d_10k: study min km,0.0036610395181924105
+1960 d_10k: study mean km,83.9167709350586
+1960 d_10k: study max km,346.82049560546875
+1960 d_20k: places,629
+1960 d_20k: study min km,0.005289366934448481
+1960 d_20k: study mean km,114.7914810180664
+1960 d_20k: study max km,448.77655029296875
+1960 d_50k: places,198
+1960 d_50k: study min km,0.0006580370827578008
+1960 d_50k: study mean km,201.48822021484375
+1960 d_50k: study max km,725.869873046875
+1960 d_100k: places,81
+1960 d_100k: study min km,0.012704904191195965
+1960 d_100k: study mean km,247.01068115234375
+1960 d_100k: study max km,970.2984619140625
+1960 d_250k: places,50
+1960 d_250k: study min km,0.024873586371541023
+1960 d_250k: study mean km,291.3553161621094
+1960 d_250k: study max km,1064.430908203125
+QA Boston 1960 d_250k km,6.804346084594727
+QA Boston 1960 d_250k,ok
+QA Denver 1960 d_250k km,1.1450445652008057
+QA Denver 1960 d_250k,ok
+QA Ely NV (remote) 1960 d_250k km,572.0110473632812
+QA Ely NV (remote) 1960 d_250k,ok
