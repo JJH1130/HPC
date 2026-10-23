@@ -37,13 +37,24 @@ county zone grids; `--layers NAME` adds one layer to an existing cutout), run by
 `$HISDAC_SCRATCH/cutouts/<name>` (scratch, 90-day purge). Third stage: `src/dasymetric/` (design
 `docs/dasymetric_v1.md`, changes in `docs/dasymetric_v2.md`, v3: `docs/dasymetric_v3.md`, v3.1 (water mask): `docs/dasymetric_v3_1.md`, v3.2 (E3 without ntl): `docs/dasymetric_v3_2.md`, v3.3 (E3 with fixed hyperparameters via an era's `params:`): `docs/dasymetric_v3_3.md`, v3.4 (E2+E3 merged; last Massachusetts experiment, closed 2026-10-13): `docs/dasymetric_v3_4.md`, v4 (v3.4 + terrain `elev`/`slope` from the GMTED2010 `DEM` cutout layer + yearly water mask from Global Dam Watch reservoir years, `water_mask: yearly`): `docs/dasymetric_v4.md`, v4.1 (v3.4 + yearly water mask + PLURAL-1 distances `d_*` in E23, no terrain): `docs/dasymetric_v4_1.md`; config currently at v4_1), three separately runnable steps sharing `common.py` (config, cell features, raster
 I/O) and `plots.py` (correlation/SHAP plots, maps): `county_features.py` → `train.py` → `predict.py`, run by `sbatch/dasymetric_{features,train,predict}.sh`
-per `docs/runbooks/Running_Dasymetric.md`. Model choice, search space, eras (years + features per era; or one `features` list = one
+per `docs/runbooks/Running_Dasymetric.md`. CONUS (`docs/conus_plan.md`, scale table + implementation decisions there;
+steps `docs/runbooks/Running_CONUS.md`): separate configs `configs/conus_study_area.yaml` (`window: full` = the whole
+HISDAC raster, 1920/1960/2010, water `only_zone_blocks`), `configs/conus_rf_v1.yaml` / `conus_rf_v2.yaml`
+(`Dasy_CONUS_RF_v1/v2`: one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
+`src/dasymetric/make_split.py`, never regenerated; `block_rows` = strip-wise features/prediction; `unusable: skip`;
+`years`), county input `src/census/conus_counties.py` (`sbatch/census_conus.sh`: Stefan's CSV on 2010 polygons, status
+ok / no_value / zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot` (stage scripts take `CONFIG=`,
+`CENSUS_DIR=`, `COVERAGE=` env overrides; CONUS resources live there). Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
 years live in `configs/model.yaml` (model registry `MODELS` in `train.py`; only `rf` is implemented). Outputs go to
 `$HISDAC_SCRATCH/dasymetric/<name>/<version>[/<era>]`; small files are copied to `results/dasymetric/`. Env changes go through the yml files + `conda env update
 --prune`, never ad-hoc `mamba install`. There is no build step. Lint sbatch scripts with
 `python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh`. Tests (plain scripts, no pytest; need the local
-`hisdac` env): `python tests/test_place_dist.py` (synthetic check of `place_dist.py` distances and gap fill).
+`hisdac` env): `python tests/test_place_dist.py` (synthetic check of `place_dist.py` distances and gap fill),
+`python tests/test_conus_dasymetric.py` (CONUS: strips = whole window for features and prediction, split held out
+in train, NoData for unused counties, tract validation train/test parts, `conus_counties.py` statuses; stubs `shap`
+and `plots`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+`only_zone_blocks`).
 
 When more code is added, update this file with:
 - Commands to build, lint, and run tests (including running a single test)

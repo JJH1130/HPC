@@ -12,6 +12,7 @@ Steps:
   1. Pick counties whose `state` is in the config (or all) from each year's counties_{YEAR}.gpkg.
   2. One rectangle = union of the picked counties over ALL config years, snapped outward to
      the HISDAC grid (same origin, 250 m, ESRI:102039). Every year and layer shares it.
+     `window: full` (CONUS) takes the whole HISDAC raster instead (18459 x 11615 cells).
   3. Layers are listed only in the config. Rasters on the HISDAC grid: windowed read (never
      the whole CONUS array); 0 means "no building", so 0 is never nodata. Rasters on other
      grids (DEM, NTL, ...): GDAL warp onto the window with the layer's `resampling`.
@@ -425,7 +426,11 @@ def main(argv=None):
             sys.exit(f"ERROR: states {unseen} never appear in the `state` column — check the spelling")
     b = np.array(bounds)
     union = (b[:, 0].min(), b[:, 1].min(), b[:, 2].max(), b[:, 3].max())
-    window = snapped_window(union, ref)
+    if str(cfg.get("window", "counties")).lower() == "full":  # CONUS: the whole HISDAC raster, no clipping
+        window = Window(0, 0, ref["width"], ref["height"])
+        log.info("window: full (the whole HISDAC grid of %s)", ref["path"].name)
+    else:
+        window = snapped_window(union, ref)
     transform = rasterio.windows.transform(window, ref["transform"])
     wb = rasterio.windows.bounds(window, ref["transform"])
     log.info("window: col_off %d row_off %d | %d x %d cells | bounds %s (counties %s)",

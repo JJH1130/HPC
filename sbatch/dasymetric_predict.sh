@@ -25,7 +25,7 @@ job_banner
 activate_env hisdac
 cd "$REPO"
 
-CONFIG=configs/model.yaml
+CONFIG=${CONFIG:-configs/model.yaml}   # CONUS: sbatch --export=ALL,CONFIG=configs/conus_rf_v1.yaml ...
 read -r NAME VERSION < <(python -u src/dasymetric/common.py --print-name-version "$CONFIG")
 OUT_ROOT=$HISDAC_SCRATCH/dasymetric
 RESULTS=results/dasymetric/$NAME/$VERSION

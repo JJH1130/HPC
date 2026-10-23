@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-23 (PLURAL in v4.1 code)
+Last updated: 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -21,7 +21,7 @@ Last updated: 2026-10-23 (PLURAL in v4.1 code)
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction (v3.1) | Superseded by GDW for reservoir removal |
 | Global Dam Watch (GDW) reservoirs + barriers | v1.0 | `/projects/jaju1407/data/raw/water/gdw/` | Reservoir polygons with dam years → year-dependent water fraction | Downloaded 2026-10-12; in code for v4 (`water_frac.py`, `reservoir_source: gdw`), not run yet |
-| County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | CBSA attributes only (Metro/Micro, Central/Outlying); **not** a Ch1 target | In use (attributes); publisher to confirm |
+| County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | Massachusetts: CBSA attributes only. **CONUS (2026-10-23): county population input** on 2010 polygons (`src/census/conus_counties.py`, `docs/conus_plan.md`) + the train/test split's county list (`configs/conus_split.csv`) | In use; publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
 | USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | Downloaded 2026-10-12; in code for v4 (cutout layer `DEM`, `average`), not run yet |
 | PLURAL place-level urban–rural indices | 2023 release (points, 1930–2018) | `/projects/jaju1407/data/raw/plural/plural_2023/` | Distance features `d_10k` … `d_250k` (v4.1: place populations + points → km to the nearest place per size class) | On Alpine; in code for v4.1 (`src/grid/place_dist.py`), not run yet |

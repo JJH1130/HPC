@@ -22,7 +22,7 @@ job_banner
 activate_env hisdac
 cd "$REPO"
 
-CONFIG=configs/model.yaml
+CONFIG=${CONFIG:-configs/model.yaml}   # CONUS: sbatch --export=ALL,CONFIG=configs/conus_rf_v1.yaml ...
 read -r NAME VERSION < <(python -u src/dasymetric/common.py --print-name-version "$CONFIG")
 read -r -a ERAS < <(python -u src/dasymetric/common.py --print-eras "$CONFIG")   # empty without eras
 OUT_ROOT=$HISDAC_SCRATCH/dasymetric
@@ -37,8 +37,10 @@ python -u src/dasymetric/county_features.py \
     "$@"
 
 for ERA in "${ERAS[@]:-}"; do
+    F=$OUT_ROOT/$NAME/$VERSION/$ERA/features/county_features.csv
+    [[ -f $F ]] || continue   # --years: only some eras were written
     mkdir -p "$RESULTS/$ERA"
-    cp "$OUT_ROOT/$NAME/$VERSION/$ERA/features/county_features.csv" "$RESULTS/$ERA/"
+    cp "$F" "$RESULTS/$ERA/"
 done
 Q=$OUT_ROOT/$NAME/$VERSION/qa/water_mask_by_year.csv   # with water_mask: true (v3.1)
 if [[ -f $Q ]]; then cp "$Q" "$RESULTS/"; fi

@@ -1,0 +1,70 @@
+# Dasy_CONUS_RF_v1 (docs/conus_plan.md): CONUS, one Random Forest per census year, the Massachusetts v3.4 feature set
+# with the yearly GDW water mask (as v4 / v4.1, no terrain). The Massachusetts settings stay in configs/model.yaml.
+# Keys as in configs/model.yaml; CONUS adds years / split / block_rows / unusable (src/dasymetric/common.py).
+# Output: <--out-root>/conus/Dasy_CONUS_RF_v1/ — on Alpine $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v1/
+# (one model per year under Y<year>/; predictions, QA and maps under the version folder).
+version: Dasy_CONUS_RF_v1
+
+study_area: configs/conus_study_area.yaml
+
+water_mask: yearly
+compare_with: null
+
+# Train/test split + CV folds made once (src/dasymetric/make_split.py, seed 42) and reused by every year and
+# version: 80:20 within each state; 5 folds over the train counties. Test counties are never used for tuning or
+# fitting; they are scored once, and their county totals are still reallocated.
+split: configs/conus_split.csv
+
+# Status of src/census/conus_counties.py: ok = CSV value > 0. no_value / zero_pop counties are not used (NoData).
+use_status: [ok]
+# A used county with no cell (cell-centre rasterization) or no unmasked cell is skipped with a warning (NoData)
+# instead of stopping the job.
+unusable: skip
+
+# Features and predictions are computed in strips of this many window rows (512 x 18459 = 9.5 M cells).
+block_rows: 512
+
+# One era per census year = per-year models; `year` is constant within a year and is dropped.
+# res_share / rent_share need Land_Use (1940+).
+eras:
+  Y1920:
+    years: [1920]
+    features: [bui, bldg_size, mu_ratio, dist_built]
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share]
+
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+
+# Map years drawn at 1 km (people per 4 x 4 cells; the 250 m CONUS array is too large to draw).
+maps:
+  years: [1920, 1960, 2010]
+  compare_years: []
+
+correlation_threshold: 0.8
+
+model: rf
+
+# Search space as configs/model.yaml (decided 2026-10-23).
+search:
+  n_iter: 20
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:
+    fixed: {random_state: 42}
+    space:
+      n_estimators: [200, 300, 500, 800, 1000]
+      max_depth: [null, 5, 10, 15, 20]
+      min_samples_leaf: [1, 2, 4, 8]
+      max_features: [sqrt, 0.33, 0.5, 1.0]

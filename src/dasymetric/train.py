@@ -23,6 +23,11 @@ Folds: `folds_from: <version>` reuses that version's model/folds.csv (filtered t
 otherwise GroupKFold(cv_folds) by GISJOIN, so all years of a county stay in one fold and CV measures
 performance on unseen counties. The model and its search space come from configs/model.yaml; an era's
 `params:` fixes those hyperparameters (v3_3: all four fixed for E3, so one candidate and no search).
+
+`split: <csv>` (CONUS, docs/conus_plan.md; table from make_split.py): GISJOIN -> part (train/test) + fold (train
+counties). Only train rows are used for the search, the refit, SHAP and the out-of-fold predictions; the folds
+come from the table. The refit model is scored once on the test rows: test_rmse / test_r2 in metrics.json and
+test_predictions.csv (+ the compare_with version's test predictions on the same rows when it has them).
 """
 from __future__ import annotations
 
@@ -40,13 +45,17 @@ from sklearn.base import clone
 from sklearn.model_selection import GroupKFold, RandomizedSearchCV, cross_val_predict
 
 import plots
-from common import add_common_args, era_groups, load_config, log, log_args, out_dir, setup_logging
+from common import add_common_args, era_groups, load_config, log, log_args, out_dir, setup_logging, year_filter
+
+SPLIT_PARTS = {"train", "test"}
 
 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     add_common_args(p)
     p.add_argument("--n-jobs", type=int, default=1, help="parallel search fits (sbatch: SLURM_CPUS_ON_NODE)")
+    p.add_argument("--years", type=int, nargs="+",
+                   help="only the eras holding these years (CONUS: one era per year); default all")
     return p.parse_args(argv)
 
 
@@ -101,6 +110,24 @@ def load_folds(cfg: dict, out_root: Path):
     folds = pd.read_csv(path)
     log.info("folds from %s: %d counties in %d folds", path, len(folds), folds["fold"].nunique())
     return folds
+
+
+def load_split(cfg: dict):
+    """The `split` table (GISJOIN, part, fold), or None. Train counties need a fold >= 0."""
+    path = cfg.get("split")
+    if not path:
+        return None
+    if not Path(path).exists():
+        sys.exit(f"ERROR: split {path} not found (src/dasymetric/make_split.py writes it)")
+    split = pd.read_csv(path)
+    bad = split[~split["part"].isin(SPLIT_PARTS) | ((split["part"] == "train") & ~(split["fold"] >= 0))]
+    if len(bad) or split["GISJOIN"].duplicated().any():
+        sys.exit(f"ERROR: {path}: rows with an unknown part, a train county without a fold, or a GISJOIN twice:\n"
+                 f"{bad.head(20).to_string()}")
+    tr = split[split["part"] == "train"]
+    log.info("split %s: %d counties, %d train / %d test, train folds %s", path, len(split), len(tr),
+             int((split["part"] == "test").sum()), tr["fold"].value_counts().sort_index().to_dict())
+    return split
 
 
 def splits_from_folds(groups: pd.Series, folds: pd.DataFrame, what: str):
@@ -209,6 +236,33 @@ def compare_previous(cfg: dict, out_root: Path, folds: pd.DataFrame, rows: pd.Da
     return res, on[["GISJOIN", "year", f"oof_{prev}"]].assign(**{f"y_{prev}": on["y"]})
 
 
+def compare_test(cfg: dict, out_root: Path, era: str, test_pred: pd.DataFrame, mdir: Path):
+    """The compare_with version's saved test predictions on the same test rows (same split table), each scored
+    on its own y. Adds y_hat_<prev> to test_pred; writes compare_<prev>_test.json. None if not available."""
+    prev = cfg.get("compare_with")
+    if not prev:
+        return None
+    path = out_root / cfg["name"] / prev / era / "model" / "test_predictions.csv"
+    if not path.exists():
+        log.warning("compare_with %s: no %s; test comparison skipped", prev, path)
+        return None
+    pt = pd.read_csv(path)[["GISJOIN", "year", "y", "y_hat"]].rename(columns={"y": f"y_{prev}", "y_hat": f"y_hat_{prev}"})
+    on = test_pred.merge(pt, on=["GISJOIN", "year"], how="left")
+    if on[f"y_hat_{prev}"].isna().any():
+        log.warning("compare_with %s: %d of %d test rows missing in its test predictions; test comparison skipped",
+                    prev, int(on[f"y_hat_{prev}"].isna().sum()), len(on))
+        return None
+    res = {"version": prev, "n_test_rows": len(on),
+           "test_rmse": float(root_mean_squared_error(on[f"y_{prev}"], on[f"y_hat_{prev}"])),
+           "test_r2": float(r2_score(on[f"y_{prev}"], on[f"y_hat_{prev}"]))}
+    (mdir / f"compare_{prev}_test.json").write_text(json.dumps(res, indent=2))
+    log.info("%s on the same %d test rows (its own y): RMSE %.4f | R2 %.3f", prev, len(on), res["test_rmse"],
+             res["test_r2"])
+    test_pred[f"y_hat_{prev}"] = on[f"y_hat_{prev}"].to_numpy()
+    test_pred[f"y_{prev}"] = on[f"y_{prev}"].to_numpy()
+    return res
+
+
 # ---------------------------------------------------------------- SHAP
 
 def shap_explain(model, X: pd.DataFrame, df: pd.DataFrame, pred: np.ndarray, cfg: dict, mdir: Path):
@@ -237,7 +291,7 @@ def shap_explain(model, X: pd.DataFrame, df: pd.DataFrame, pred: np.ndarray, cfg
 
 # ---------------------------------------------------------------- main
 
-def train_era(cfg: dict, era: str, args, all_folds) -> dict:
+def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
     out = out_dir(cfg, args.out_root, era)
     feats = cfg["eras"][era]["features"]
     tag = f"era {era}: " if era else ""
@@ -248,6 +302,16 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
     missing = [f for f in feats if f not in df.columns]
     if missing:
         sys.exit(f"ERROR: {path} lacks features {missing}; rerun stage 1 with the current config")
+    test = None
+    if split is not None:  # CONUS: tune and fit on the train counties only; test counties scored once at the end
+        part = df["GISJOIN"].map(dict(zip(split["GISJOIN"], split["part"])))
+        if part.isna().any():
+            sys.exit(f"ERROR: {tag}counties not in the split table {cfg['split']}: "
+                     f"{sorted(df.loc[part.isna(), 'GISJOIN'].unique())[:20]}")
+        test = df[part == "test"].reset_index(drop=True)
+        df = df[part == "train"].reset_index(drop=True)
+        log.info("%ssplit: %d train rows (%d counties), %d test rows (%d counties)", tag, len(df),
+                 df["GISJOIN"].nunique(), len(test), test["GISJOIN"].nunique())
     X, y, groups = df[feats], df["y"], df["GISJOIN"]
     log.info("%straining rows: %d county-years | %d counties (groups) | %d years %d-%d | features %s", tag,
              len(df), groups.nunique(), df["year"].nunique(), df["year"].min(), df["year"].max(), feats)
@@ -268,6 +332,8 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
             sys.exit(f"ERROR: {tag}{groups.nunique()} counties < cv_folds {s['cv_folds']}")
         all_folds = make_folds(groups, s["cv_folds"])
         source = f"GroupKFold({s['cv_folds']}) by GISJOIN"
+    elif split is not None:
+        source = f"split table {Path(cfg['split']).name} by GISJOIN"
     else:
         source = f"{cfg['folds_from']}/model/folds.csv by GISJOIN"
     folds = all_folds[all_folds["GISJOIN"].isin(groups)].reset_index(drop=True)
@@ -310,6 +376,18 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
     log.info("%sCV RMSE %.4f +/- %.4f | CV R2 %.3f +/- %.3f | train RMSE %.4f | sd(y) %.4f", tag,
              metrics["cv_rmse_mean"], metrics["cv_rmse_sd"], metrics["cv_r2_mean"], metrics["cv_r2_sd"],
              metrics["train_rmse"], metrics["y_sd"])
+    test_pred = None
+    if test is not None:
+        if len(test):
+            test_pred = test[["GISJOIN", "state", "name", "year", "y"]].copy()
+            test_pred["y_hat"] = model.predict(test[feats])
+            metrics.update({"n_test_rows": len(test), "n_test_counties": int(test["GISJOIN"].nunique()),
+                            "test_rmse": float(root_mean_squared_error(test_pred["y"], test_pred["y_hat"])),
+                            "test_r2": float(r2_score(test_pred["y"], test_pred["y_hat"]))})
+            log.info("%sTEST (scored once, %d test counties): RMSE %.4f | R2 %.3f", tag, metrics["n_test_counties"],
+                     metrics["test_rmse"], metrics["test_r2"])
+        else:
+            log.warning("%sno test rows in this era", tag)
 
     p = cfg["permutation"]
     perm = permutation_importance(model, X, y, scoring=s["scoring"], n_repeats=p["n_repeats"],
@@ -341,11 +419,21 @@ def train_era(cfg: dict, era: str, args, all_folds) -> dict:
     if prev_oof is not None:
         oof = oof.merge(prev_oof, on=["GISJOIN", "year"], how="left")
     oof.to_csv(mdir / "oof_predictions.csv", index=False)
+    prev_test = None
+    if test_pred is not None:
+        prev_test = compare_test(cfg, args.out_root, era, test_pred, mdir)
+        test_pred.to_csv(mdir / "test_predictions.csv", index=False)
     (mdir / "metrics.json").write_text(json.dumps(metrics, indent=2))
     row = {"era": era or None, "years": f"{int(df['year'].min())}-{int(df['year'].max())}", "n_rows": len(df),
            "n_counties": int(groups.nunique()), "n_folds": len(cv), "features": " ".join(feats),
            "cv_rmse": metrics["cv_rmse_mean"], "cv_r2": metrics["cv_r2_mean"],
            "pooled_rmse": metrics["oof_pooled_rmse"], "pooled_r2": metrics["oof_pooled_r2"]}
+    if "test_rmse" in metrics:
+        row.update({"n_test_rows": metrics["n_test_rows"], "test_rmse": metrics["test_rmse"],
+                    "test_r2": metrics["test_r2"]})
+    if prev_test:
+        row.update({f"{prev_test['version']}_test_rmse": prev_test["test_rmse"],
+                    f"{prev_test['version']}_test_r2": prev_test["test_r2"]})
     row.update({f"shap_{g}": v for g, v in grouped.items()})
     if prev:
         log.info("%sCV %s vs %s (same folds and rows): RMSE %.4f vs %.4f | R2 %.3f vs %.3f | pooled RMSE %.4f vs "
@@ -363,10 +451,17 @@ def main(argv=None):
     args = parse_args(argv)
     log_args(args)
     cfg = load_config(args.config)
-    if cfg.get("compare_with") and not cfg.get("folds_from") and len(cfg["eras"]) > 1:
-        sys.exit("ERROR: with several eras, compare_with needs folds_from (one fold table for all counties)")
-    all_folds = load_folds(cfg, args.out_root)
-    rows = [train_era(cfg, era, args, all_folds) for era in cfg["eras"]]
+    if cfg.get("compare_with") and not (cfg.get("folds_from") or cfg.get("split")) and len(cfg["eras"]) > 1:
+        sys.exit("ERROR: with several eras, compare_with needs folds_from or split (one fold table for all counties)")
+    split = load_split(cfg)
+    if split is not None:
+        tr = split[split["part"] == "train"]
+        all_folds = tr[["GISJOIN", "fold"]].astype({"fold": int}).reset_index(drop=True)
+    else:
+        all_folds = load_folds(cfg, args.out_root)
+    eras = year_filter(cfg, args.years)
+    log.info("eras: %s", list(eras))
+    rows = [train_era(cfg, era, args, all_folds, split) for era in eras]
     if len(rows) > 1 or rows[0]["era"]:
         summary = pd.DataFrame(rows)
         path = out_dir(cfg, args.out_root) / "cv_summary.csv"

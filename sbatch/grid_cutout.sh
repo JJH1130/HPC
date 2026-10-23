@@ -8,8 +8,9 @@
 #   mkdir -p logs && sbatch sbatch/grid_cutout.sh                  # all config years
 #   mkdir -p logs && sbatch sbatch/grid_cutout.sh --years 1810     # quick test
 #   mkdir -p logs && sbatch sbatch/grid_cutout.sh --layers NTL     # add one layer to the existing cutout
-# Layers come only from the config (layers:). states: all (CONUS) reads ~1 GB per layer-year
-# window: raise --ntasks to 4 and --time before switching.
+# Layers come only from the config (layers:). CONUS (configs/conus_study_area.yaml, whole HISDAC window,
+# ~6 GB peak per layer-year) is submitted with more cores/time and its own census input by
+# sbatch/submit_conus.sh (CONFIG=..., CENSUS_DIR=$DATA_ROOT/processed/census_conus).
 #SBATCH --job-name=grid_cutout
 #SBATCH --partition=acpu
 #SBATCH --qos=cpu-normal
@@ -26,7 +27,7 @@ job_banner
 activate_env hisdac
 cd "$REPO"
 
-CONFIG=configs/study_area.yaml
+CONFIG=${CONFIG:-configs/study_area.yaml}   # CONUS: sbatch --export=ALL,CONFIG=configs/conus_study_area.yaml ...
 NAME=$(python -c "import yaml; print(yaml.safe_load(open('$CONFIG'))['name'])")
 OUT_ROOT=$HISDAC_SCRATCH/cutouts
 echo "== python: $(command -v python)"
@@ -35,7 +36,7 @@ echo "== config: $CONFIG (name=$NAME)  hisdac: $HISDAC_DIR  out: $OUT_ROOT/$NAME
 python -u src/grid/make_cutout.py \
     --config "$CONFIG" \
     --hisdac-dir "$HISDAC_DIR" \
-    --census-dir "$DATA_ROOT/processed/census" \
+    --census-dir "${CENSUS_DIR:-$DATA_ROOT/processed/census}" \
     --out-root "$OUT_ROOT" \
     "$@"
 

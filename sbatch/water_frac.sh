@@ -25,7 +25,7 @@ job_banner
 activate_env hisdac
 cd "$REPO"
 
-CONFIG=configs/study_area.yaml
+CONFIG=${CONFIG:-configs/study_area.yaml}   # CONUS: sbatch --export=ALL,CONFIG=configs/conus_study_area.yaml ...
 NAME=$(python -c "import yaml; print(yaml.safe_load(open('$CONFIG'))['name'])")
 CUT_ROOT=$HISDAC_SCRATCH/cutouts
 echo "== python: $(command -v python)"

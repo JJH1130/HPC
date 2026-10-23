@@ -1,0 +1,85 @@
+# CONUS study area (docs/conus_plan.md; rules docs/cutout.md). The Massachusetts settings stay in
+# configs/study_area.yaml for reproducing v1-v4.1. Read by src/grid/make_cutout.py, water_frac.py, place_dist.py.
+# Output: <--out-root>/conus/ — on Alpine $HISDAC_SCRATCH/cutouts/conus/.
+name: conus
+
+# Every county of the census input (sbatch/grid_cutout.sh with CENSUS_DIR=$DATA_ROOT/processed/census_conus:
+# Stefan's CSV on 2010 polygons, src/census/conus_counties.py). Zones = 2010 counties, same zone_id every year.
+states: all
+
+# The window is the whole HISDAC-US raster (18459 x 11615 cells of 250 m, ESRI:102039): no resampling of HISDAC.
+window: full
+
+# Trial years (one per former era). Full run later: {start: 1900, stop: 2010, step: 10}.
+years: [1920, 1960, 2010]
+
+grid_reference: BUI
+
+# Only the HISDAC layers the CONUS features use (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share).
+# FBUY / NobuiltYear (age is dropped), NTL and DEM (terrain later) are not cut. Field rules: configs/study_area.yaml.
+layers:
+  - {name: BUI,  path: "BUI/{YEAR}_BUI.tif",   years: all, resampling: none}
+  - {name: BUPL, path: "BUPL/{YEAR}_BUPL.tif", years: all, resampling: none}
+  - {name: BUPR, path: "BUPR/{YEAR}_BUPR.tif", years: all, resampling: none}
+  - {name: BUA,  path: "BUA/{YEAR}_BUA.tif",   years: all, resampling: none}
+  - name: Land_Use
+    path: "Land_Use/{CLASS}/Count_{YEAR}_{CLASS}.tif"
+    classes: [A, C, GV, I, RC, RI, RO, VL]
+    years: {start: 1940, stop: 2020, step: 10}
+    resampling: none
+    out: "Land_Use/{CLASS}/{YEAR}_{CLASS}.tif"
+
+# Yearly water fraction with GDW reservoir years (as Massachusetts v4/v4.1; field rules in configs/study_area.yaml).
+# only_zone_blocks: only 256 x 256 blocks holding a cell of a 2010 county are computed (the rest of the window:
+# ocean, Canada, Mexico, stays NaN and is never used); blocks run in SLURM_CPUS_ON_NODE processes.
+water:
+  jrc_dir: /projects/jaju1407/data/raw/water/jrc_occurrence
+  jrc_glob: "occurrence_*.tif"
+  occurrence_min: 75
+  # JRC no data (255) = water: checked only for Massachusetts (job 33464358, open sea). The run logs the
+  # no-data share (jrc_nodata_share in qa/water_qa.csv); re-check inland before the full run.
+  nodata_as_water: true
+  reservoir_source: gdw
+  hydrolakes: /projects/jaju1407/data/raw/water/HydroLAKES_polys_v10_shp/HydroLAKES_polys_v10.shp
+  reservoir_types: [2]
+  out: water_frac/water_frac.tif
+  gdw:
+    path: /projects/jaju1407/data/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp
+    quality_max: 3
+    lake_ctrl_water: ["Yes", "Maybe"]
+  yearly_out: "water_frac/{YEAR}_water_frac.tif"
+  block: 256
+  only_zone_blocks: true
+  # Reservoirs filled between the trial years (warnings only if not met).
+  qa_points:
+    - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: dry, year: 1920}
+    - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: full_water, year: 1960}
+    - {name: Lake Mead (Boulder Basin), lon: -114.75, lat: 36.08, box_km: 3, expect: dry, year: 1920}
+    - {name: Lake Mead (Boulder Basin), lon: -114.75, lat: 36.08, box_km: 3, expect: full_water, year: 1960}
+    - {name: Lake Powell (Wahweap), lon: -111.48, lat: 36.99, box_km: 3, expect: dry, year: 1960}
+    - {name: Lake Powell (Wahweap), lon: -111.48, lat: 36.99, box_km: 3, expect: full_water, year: 2010}
+
+# PLURAL-1 distance layers for Dasy_CONUS_RF_v2 (1940+, so 1960 and 2010 here); as Massachusetts v4.1
+# (field rules in configs/study_area.yaml). The whole window is computed (cKDTree, `block` rows at a time).
+place_dist:
+  csv: /projects/jaju1407/data/raw/plural/plural_2023/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv
+  shp: "/projects/jaju1407/data/raw/plural/plural_2023/PLURAL_SHP/PLURAL_SHP/plural_indices_scaled_across_years_{YEAR}.shp"
+  shp_crs: ESRI:102003
+  pop_col: "placepop_{YEAR}"
+  plural_years: [1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2018]
+  year_map: {2020: 2018}
+  first_year: 1940
+  fill_gaps: true
+  classes:
+    d_10k: [10000, 20000]
+    d_20k: [20000, 50000]
+    d_50k: [50000, 100000]
+    d_100k: [100000, 250000]
+    d_250k: [250000, null]
+  check_state: Massachusetts
+  out: "PLACEDIST/{CLASS}/{YEAR}_{CLASS}.tif"
+  block: 128
+  qa_points:
+    - {name: Boston, lon: -71.06, lat: 42.36, layer: d_250k, max_km: 7}
+    - {name: Denver, lon: -104.99, lat: 39.74, layer: d_250k, max_km: 7}
+    - {name: Ely NV (remote), lon: -114.89, lat: 39.25, layer: d_250k, min_km: 250}

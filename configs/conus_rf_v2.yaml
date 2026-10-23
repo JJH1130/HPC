@@ -1,0 +1,55 @@
+# Dasy_CONUS_RF_v2 (docs/conus_plan.md): Dasy_CONUS_RF_v1 + the five PLURAL-1 distance features (Massachusetts v4.1;
+# layers from src/grid/place_dist.py, 1940+). In 1920 v2 would equal v1, so v2 has only 1960 and 2010.
+# Compared with v1 on the same split, folds and test counties.
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v2/
+version: Dasy_CONUS_RF_v2
+
+study_area: configs/conus_study_area.yaml
+years: [1960, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v1
+
+split: configs/conus_split.csv
+use_status: [ok]
+unusable: skip
+block_rows: 512
+
+eras:
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, d_10k, d_20k, d_50k, d_100k, d_250k]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, d_10k, d_20k, d_50k, d_100k, d_250k]
+
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Place distance: [d_10k, d_20k, d_50k, d_100k, d_250k]
+  Land use: [res_share, rent_share]
+
+maps:
+  years: [1960, 2010]
+  compare_years: [2010]
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 20
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:
+    fixed: {random_state: 42}
+    space:
+      n_estimators: [200, 300, 500, 800, 1000]
+      max_depth: [null, 5, 10, 15, 20]
+      min_samples_leaf: [1, 2, 4, 8]
+      max_features: [sqrt, 0.33, 0.5, 1.0]

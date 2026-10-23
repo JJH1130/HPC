@@ -15,6 +15,11 @@ Per year:
 
 Writes to <results-root>/<name>/<version>/: tract_errors_{YEAR}.csv, metrics_by_year.csv,
 qa_totals.csv, tract_validation_{YEAR}.png. Paths come from CLI flags (sbatch/validate_tract.sh).
+
+CONUS (docs/conus_plan.md): --name conus --state-prefix "" takes the tracts of every state; without
+--coverage-csv the tract totals QA (step 5, fully tracted counties) is skipped, because the zones are 2010
+counties and the coverage table is by nominal county; --split adds the metrics per part (train / test county,
+the 2010 county = zone the tract's cells lie in) next to `all`, and a `part` column in tract_errors_{YEAR}.csv.
 """
 from __future__ import annotations
 
@@ -42,6 +47,7 @@ FULL_COVERAGE = (0.999, 1.001)
 FATAL_CHECKS = ("tracts_model", "tracts_baseline")
 TRACT_COLS = ["GISJOIN", "county_gisjoin", "status", "flag", "n_cells", "small", "pop_obs", "pop_model",
               "pop_baseline", "lon", "lat"]
+SPLIT_COLS = ["zone_gisjoin", "part"]  # with --split: the (2010) county zone of an evaluated tract + its part
 QA_COLS = ["year", "county_gisjoin", "name", "check", "coverage", "expected", "value", "rel_diff", "flag"]
 
 log = logging.getLogger("tract_validate")
@@ -54,10 +60,14 @@ def parse_args(argv=None):
     p.add_argument("--dasym-root", type=Path, required=True, help="predictions in <root>/<name>/<version>/")
     p.add_argument("--cutout-root", type=Path, required=True, help="zones in <root>/<name>/zones/")
     p.add_argument("--tract-dir", type=Path, required=True, help="folder with tracts_{YEAR}.gpkg")
-    p.add_argument("--coverage-csv", type=Path, required=True, help="results/tract/coverage_by_county_MA.csv")
+    p.add_argument("--coverage-csv", type=Path,
+                   help="results/tract/coverage_by_county_MA.csv; omitted (CONUS) = no tract totals QA")
     p.add_argument("--results-root", type=Path, required=True, help="outputs in <root>/<name>/<version>/")
     p.add_argument("--years", type=int, nargs="+", default=YEARS)
     p.add_argument("--map-years", type=int, nargs="*", default=MAP_YEARS)
+    p.add_argument("--state-prefix", default=MA_PREFIX,
+                   help="GISJOIN prefix of the tracts and counties to evaluate (G250 = Massachusetts; '' = all)")
+    p.add_argument("--split", type=Path, help="configs/conus_split.csv: also report train and test counties")
     return p.parse_args(argv)
 
 
@@ -80,9 +90,9 @@ def read_pred(path: Path, grid: dict):
     return arr, valid
 
 
-def read_tracts(path: Path, grid: dict) -> gpd.GeoDataFrame:
+def read_tracts(path: Path, grid: dict, prefix: str = MA_PREFIX) -> gpd.GeoDataFrame:
     t = gpd.read_file(path, engine="pyogrio", columns=["GISJOIN", "county_gisjoin", "pop", "status"])
-    t = t[t["GISJOIN"].str.startswith(MA_PREFIX)].reset_index(drop=True)
+    t = t[t["GISJOIN"].str.startswith(prefix)].reset_index(drop=True)
     return t.to_crs(grid["crs"].to_wkt())
 
 
@@ -148,7 +158,7 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
         qa.append(qa_row(year, r.GISJOIN, r.name, "masked_cells", np.nan, r.n_masked, n_zero[r.zone_id]))
 
     # tracts -> cells (cell centre inside the tract)
-    t = read_tracts(args.tract_dir / f"tracts_{year}.gpkg", grid)
+    t = read_tracts(args.tract_dir / f"tracts_{year}.gpkg", grid, args.state_prefix)
     tid = rasterize(zip(t.geometry, range(1, len(t) + 1)), out_shape=grid["shape"], transform=grid["transform"],
                     fill=0, all_touched=False, dtype="int32")
     n = len(t) + 1
@@ -168,30 +178,44 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
     t["pop_obs"] = t["pop"]
     pts = t.geometry.representative_point().to_crs("EPSG:4326")  # where to look a tract up
     t["lon"], t["lat"] = pts.x.round(5), pts.y.round(5)
-    log.info("  %d MA tracts | flags %s", len(t), t["flag"].value_counts().to_dict())
+    cols = TRACT_COLS
+    if args.split_parts is not None:  # the zone of each single-county tract -> its 2010 county -> train / test
+        one = n_zones[pairs[0] - 1] == 1
+        zone_of_tract = np.zeros(n, dtype=np.int64)
+        zone_of_tract[pairs[0][one]] = pairs[1][one]
+        gj_of_zone = dict(zip(ztable["zone_id"], ztable["GISJOIN"]))
+        t["zone_gisjoin"] = [gj_of_zone.get(int(v)) for v in zone_of_tract[1:]]
+        t["part"] = t["zone_gisjoin"].map(args.split_parts)
+        t.loc[t["flag"] != "ok", ["zone_gisjoin", "part"]] = None
+        cols = TRACT_COLS + SPLIT_COLS
+    log.info("  %d tracts | flags %s", len(t), t["flag"].value_counts().to_dict())
     out = args.out / f"tract_errors_{year}.csv"
-    t[TRACT_COLS].sort_values("GISJOIN").to_csv(out, index=False)
+    t[cols].sort_values("GISJOIN").to_csv(out, index=False)
 
     # metrics
     ev = t[t["flag"] == "ok"]
-    ma_total = rq.loc[rq["GISJOIN"].str.startswith(MA_PREFIX), "pop"].sum()
+    study_total = rq.loc[rq["GISJOIN"].str.startswith(args.state_prefix), "pop"].sum()
+    parts = [("all", ev)]
+    if args.split_parts is not None:
+        parts += [(p, ev[ev["part"] == p]) for p in ("train", "test")]
     rows = []
-    for subset, sel in (("all", ev), ("non_small", ev[~ev["small"]]), ("small", ev[ev["small"]])):
-        obs = sel["pop_obs"].to_numpy()
-        for method in ("model", "baseline"):
-            m = metrics(obs, sel[f"pop_{method}"].to_numpy(), sel["n_cells"].to_numpy() * CELL_KM2)
-            rows.append({"year": year, "method": method, "subset": subset, "n": len(sel),
-                         "pop_share": obs.sum() / ma_total if ma_total else np.nan, **m})
+    for part, pe in parts:
+        for subset, sel in (("all", pe), ("non_small", pe[~pe["small"]]), ("small", pe[pe["small"]])):
+            obs = sel["pop_obs"].to_numpy()
+            for method in ("model", "baseline"):
+                m = metrics(obs, sel[f"pop_{method}"].to_numpy(), sel["n_cells"].to_numpy() * CELL_KM2)
+                rows.append({"year": year, "part": part, "method": method, "subset": subset, "n": len(sel),
+                             "pop_share": obs.sum() / study_total if study_total else np.nan, **m})
     for r in rows:
         if r["subset"] == "all":
-            log.info("  %-8s n=%d share=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | r2 log density=%.3f",
-                     r["method"], r["n"], r["pop_share"], r["rmse"], r["mae"], r["mdape"], r["r2_log"],
+            log.info("  %-5s %-8s n=%d share=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | r2 log density=%.3f",
+                     r["part"], r["method"], r["n"], r["pop_share"], r["rmse"], r["mae"], r["mdape"], r["r2_log"],
                      r["r2_logdens"])
 
     # totals QA over tracted counties
     zone_of = dict(zip(ztable["GISJOIN"], ztable["zone_id"]))
     names = dict(zip(rq["GISJOIN"], rq["name"]))
-    for c in coverage[coverage["year"] == year].itertuples():
+    for c in ([] if coverage is None else coverage[coverage["year"] == year].itertuples()):
         gj, cov = c.county_gisjoin, c.coverage
         if not (FULL_COVERAGE[0] <= cov <= FULL_COVERAGE[1]):
             qa.append({**qa_row(year, gj, c.name, "partial_coverage", cov, np.nan, cov), "rel_diff": np.nan,
@@ -267,14 +291,22 @@ def main(argv=None):
                                           cutout / "zones" / f"zones_{y}.tif", cutout / "zones" / f"zones_{y}.csv",
                                           args.tract_dir / f"tracts_{y}.gpkg") if not p.exists()]
     rq_path = pred_dir / "qa" / "reallocation_qa.csv"
-    missing += [p for p in (rq_path, args.coverage_csv) if not p.exists()]
+    missing += [p for p in (rq_path, args.coverage_csv, args.split) if p is not None and not p.exists()]
     if missing:
         sys.exit("ERROR: inputs not found:\n" + "\n".join(f"  {p}" for p in missing))
     realloc = pd.read_csv(rq_path)
     if "n_masked" not in realloc.columns:  # versions before v3.1 have no water mask
         log.info("no water mask: %s has no n_masked column; expecting 0 cells with prediction 0", rq_path)
         realloc["n_masked"] = 0
-    coverage = pd.read_csv(args.coverage_csv)
+    coverage = pd.read_csv(args.coverage_csv) if args.coverage_csv else None
+    if coverage is None:
+        log.info("no --coverage-csv: tract totals QA of fully tracted counties skipped")
+    args.split_parts = None
+    if args.split:
+        s = pd.read_csv(args.split)
+        args.split_parts = dict(zip(s["GISJOIN"], s["part"]))
+        log.info("split %s: %s; metrics per part (train / test) as well as all", args.split,
+                 s["part"].value_counts().to_dict())
 
     rows, qa = [], []
     for year in years:
@@ -285,7 +317,7 @@ def main(argv=None):
     met.to_csv(args.out / "metrics_by_year.csv", index=False)
     qa_df = pd.DataFrame(qa, columns=QA_COLS)
     qa_df.to_csv(args.out / "qa_totals.csv", index=False)
-    log.info("metrics (all tracts):\n%s", met[met["subset"] == "all"].to_string(index=False))
+    log.info("metrics (subset all):\n%s", met[met["subset"] == "all"].to_string(index=False))
     flagged = qa_df[qa_df["flag"]]
     log.info("totals QA: %d rows, %d flagged (> %.1f%%); by check:\n%s", len(qa_df), len(flagged), 100 * TOTAL_TOL,
              qa_df.groupby("check")["flag"].agg(["size", "sum"]).to_string())

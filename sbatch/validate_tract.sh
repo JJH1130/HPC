@@ -23,14 +23,16 @@ job_banner
 activate_env hisdac
 cd "$REPO"
 
+# Tract totals QA by nominal county: Massachusetts only. CONUS: sbatch --export=ALL,COVERAGE= ... (empty = skip)
+COVERAGE=${COVERAGE-results/tract/coverage_by_county_MA.csv}
 echo "== python: $(command -v python)"
-echo "== args: $*"
+echo "== coverage: ${COVERAGE:-none}  args: $*"
 
 python -u src/validation/tract_validate.py \
     --dasym-root "$HISDAC_SCRATCH/dasymetric" \
     --cutout-root "$HISDAC_SCRATCH/cutouts" \
     --tract-dir "$DATA_ROOT/processed/tract" \
-    --coverage-csv results/tract/coverage_by_county_MA.csv \
+    ${COVERAGE:+--coverage-csv "$COVERAGE"} \
     --results-root results/validation \
     "$@"
 
