@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -25,6 +25,7 @@ Last updated: 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS populat
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
 | USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | Downloaded 2026-10-12; in code for v4 (cutout layer `DEM`, `average`), not run yet |
 | PLURAL place-level urban–rural indices | 2023 release (points, 1930–2018) | `/projects/jaju1407/data/raw/plural/plural_2023/` | Distance features `d_10k` … `d_250k` (v4.1: place populations + points → km to the nearest place per size class) | On Alpine; in code for v4.1 (`src/grid/place_dist.py`), not run yet |
+| PLURAL gridded + tract (from Siqiao) | received 2026-10-24: 900 m grid 1940, 1980, 2010; tracts 1990–2020 on 2010 boundaries | `/projects/jaju1407/data/raw/plural/siqiao_2026/` | Not a feature: comparison check of the `d_*` distance layers (v2) | On Alpine; method of the grid ("index3") to confirm with Siqiao |
 
 ## Details
 
@@ -236,7 +237,6 @@ Common to all extracts:
 
 ## Pending (not yet obtained)
 
-- PLURAL (gridded) from Siqiao: record resolution, CRS, years, citation.
 - Areally standardized (2010-boundary) county data, 1900 on: Stefan's CSV is nominal (see above); ask Stefan whether a standardized version exists.
 
 ### PLURAL (place-level urban–rural indices)
@@ -253,4 +253,19 @@ Common to all extracts:
   Gutmann, M. (2023). Place-level urban–rural indices for the United States from 1930 to 2018. *Landscape and
   Urban Planning*, 236, 104762. https://doi.org/10.1016/j.landurbplan.2023.104762
 - Data: figshare https://doi.org/10.6084/m9.figshare.22596946 ; code https://github.com/johannesuhl/plural
-- Gridded version: from Siqiao (method, resolution, CRS and citation to record on arrival).
+- Gridded and tract versions from Siqiao (received 2026-10-24), `/projects/jaju1407/data/raw/plural/siqiao_2026/`:
+  - `PLURAL_grid_data/index3_{1940,1980,2010}_900_US.tif`: 900 m, 8634 x 8500 cells, float32 0–1, no nodata value;
+    CRS WGS 84 Lambert Azimuthal Equal Area (centre 45 N, 100 W), bounds (-4410000, -3340000, 3360600, 4310000) m,
+    larger than CONUS. Checked 2026-10-24 by point samples: 1 = remote (Ely NV 0.81), 0 outside the US (ocean,
+    Canada, Mexico all 0.0), so 0 is also the fill value; New York 0.0, Boston 0.56 (1940) / 0.60 (2010), Denver
+    0.68 / 0.65, Pittsfield MA 0.55 / 0.69. Contrast between large cities and remote places is weaker than in the
+    place-level index (New York 2010 = 0.013 there); what "index3" is (PLURAL-1 or -2, weighting, how points became a
+    grid) is not in the `.tif.xml` metadata: ask Siqiao.
+  - `PLURAL_tract_data/`: `PLURAL_rurality_index_tract_2010boundaries.csv` (72,271 CONUS tracts, 2010 boundaries,
+    1990/2000/2010/2020; five versions 0–100, higher = more remote: `remote_area_wt`, `remote_pop_wt` (population
+    weighted), `remote_dist_place` / `_metro` / `_balanced` (distances to five place tiers, percentile ranks pooled
+    over years)), `codebook.csv`, `README.md`. Read GISJOIN and GEOID10 as text.
+  - `PLURAL_open_data/`: copy of the published release (same as `plural_2023/`) plus `PLURAL_VIS/`.
+  - Use: not a model feature (few years; `remote_pop_wt` uses tract population = leakage into tract validation).
+    Used to check our cell distances: aggregate `d_*` to 2010 tracts / the 900 m grid and compare.
+  - Citation: cite Uhl et al. (2023) with the dataset (README); dataset citation to confirm with Siqiao.
