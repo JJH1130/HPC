@@ -345,11 +345,11 @@ def main(argv=None):
     tiles, res = jrc_tiles(wcfg, bounds_ll)
     if source == "gdw":
         gdw = reservoirs_gdw(wcfg, bounds_ll)
-        layers, _, stats = cell_shares(wcfg, tiles, res, None, transform, H, W, crs, res_years=gdw, years=years,
+        layers, ndshare, stats = cell_shares(wcfg, tiles, res, None, transform, H, W, crs, res_years=gdw, years=years,
                                        need=need, workers=workers)
     else:
         lakes = reservoirs(wcfg, bounds_ll)
-        frac, _, stats = cell_shares(wcfg, tiles, res, lakes, transform, H, W, crs, need=need, workers=workers)
+        frac, ndshare, stats = cell_shares(wcfg, tiles, res, lakes, transform, H, W, crs, need=need, workers=workers)
         layers = {None: frac}
 
     # QA (summary on the last layer; masked-cell shares per year for the yearly layers)
@@ -379,6 +379,10 @@ def main(argv=None):
           "study_mean": float(zf.mean()) if zf.size else np.nan,
           "study_share_gt0": float((zf > 0).mean()) if zf.size else np.nan,
           "study_share_eq1": float((zf >= 1).mean()) if zf.size else np.nan, **stats,
+          # JRC no data inside the study counties (counted as water if nodata_as_water): mean share per cell and
+          # cells that are mostly no data; checked on the open sea only so far (Massachusetts)
+          "study_jrc_nodata_mean": float(np.nanmean(ndshare[zone_any])) if zone_any.any() else np.nan,
+          "study_cells_jrc_nodata_gt50": int((np.nan_to_num(ndshare[zone_any]) > 0.5).sum()),
           "jrc_nodata_share": stats["jrc_nodata_pixels"] / max(stats["jrc_pixels"], 1)}
     if source == "gdw":
         for y, arr in layers.items():
@@ -391,12 +395,15 @@ def main(argv=None):
              last or "static", qa["min"], qa["max"], qa["study_cells"], qa["study_mean"], qa["study_share_gt0"],
              qa["study_share_eq1"], uncovered, qa["jrc_nodata_share"], stats["water_pixels"],
              stats["reservoir_pixels_removed"])
+    log.info("JRC no data in study cells: mean share %.5f | cells with share > 0.5: %d (counted as %s)",
+             qa["study_jrc_nodata_mean"], qa["study_cells_jrc_nodata_gt50"],
+             "water" if wcfg.get("nodata_as_water") else "not water")
     inv = ~transform
     for pt in wcfg.get("qa_points") or []:
         py = pt.get("year")
         if source == "gdw":
             if py is not None and int(py) not in layers:
-                log.warning("  QA point %s: year %s is not a study year; skipped", pt["name"], py)
+                log.warning("  QA point %s: year %s is not among the layers written; skipped", pt["name"], py)
                 continue
             arr = layers[int(py)] if py is not None else frac
         else:

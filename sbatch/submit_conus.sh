@@ -5,7 +5,8 @@
 #   bash sbatch/submit_conus.sh pilot   # 1920, 1960, 2010: cutout + water + distances, v1 and v2, tract validation
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
-# Resources come from the scale table in docs/conus_plan.md; the trial logs measure them (seff). Override a wall
+# Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
+# ~3-5x the measured or scaled run time; features 8 cores (trial peak 10 GB of 15). Override a wall
 # time without editing this file, e.g. PREDICT_TIME=12:00:00 bash sbatch/submit_conus.sh pilot.
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
@@ -41,15 +42,15 @@ if [[ $mode == trial ]]; then
         | tee logs/conus_trial_jobs.txt
 else
     jc=$(sub "" sbatch/census_conus.sh --years 1920 1960 2010)
-    jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-06:00:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh)
-    jw=$(sub "$jg" --ntasks=16 --time=${WATER_TIME:-04:00:00} --export=ALL,CONFIG=$S sbatch/water_frac.sh)
-    jp=$(sub "$jg" --ntasks=8 --time=${PLACE_TIME:-02:00:00} --export=ALL,CONFIG=$S sbatch/place_dist.sh)
-    f1=$(sub "$jw" --ntasks=4 --time=${FEATURES_TIME:-04:00:00} --export=ALL,CONFIG=$V1 sbatch/dasymetric_features.sh)
-    f2=$(sub "$jw $jp" --ntasks=4 --time=${FEATURES_TIME:-04:00:00} --export=ALL,CONFIG=$V2 sbatch/dasymetric_features.sh)
-    t1=$(sub "$f1" --ntasks=16 --time=02:00:00 --export=ALL,CONFIG=$V1 sbatch/dasymetric_train.sh)
-    t2=$(sub "$f2 $t1" --ntasks=16 --time=02:00:00 --export=ALL,CONFIG=$V2 sbatch/dasymetric_train.sh)  # compares with v1
-    p1=$(sub "$t1" --ntasks=32 --time=${PREDICT_TIME:-08:00:00} --export=ALL,CONFIG=$V1 sbatch/dasymetric_predict.sh)
-    p2=$(sub "$t2 $p1" --ntasks=32 --time=${PREDICT_TIME:-08:00:00} --export=ALL,CONFIG=$V2 sbatch/dasymetric_predict.sh)
+    jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-01:00:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh)
+    jw=$(sub "$jg" --ntasks=16 --time=${WATER_TIME:-01:30:00} --export=ALL,CONFIG=$S sbatch/water_frac.sh)
+    jp=$(sub "$jg" --ntasks=8 --time=${PLACE_TIME:-00:45:00} --export=ALL,CONFIG=$S sbatch/place_dist.sh)
+    f1=$(sub "$jw" --ntasks=8 --time=${FEATURES_TIME:-01:00:00} --export=ALL,CONFIG=$V1 sbatch/dasymetric_features.sh)
+    f2=$(sub "$jw $jp" --ntasks=8 --time=${FEATURES_TIME:-01:00:00} --export=ALL,CONFIG=$V2 sbatch/dasymetric_features.sh)
+    t1=$(sub "$f1" --ntasks=16 --time=01:00:00 --export=ALL,CONFIG=$V1 sbatch/dasymetric_train.sh)
+    t2=$(sub "$f2 $t1" --ntasks=16 --time=01:00:00 --export=ALL,CONFIG=$V2 sbatch/dasymetric_train.sh)  # compares with v1
+    p1=$(sub "$t1" --ntasks=32 --time=${PREDICT_TIME:-01:30:00} --export=ALL,CONFIG=$V1 sbatch/dasymetric_predict.sh)
+    p2=$(sub "$t2 $p1" --ntasks=32 --time=${PREDICT_TIME:-01:30:00} --export=ALL,CONFIG=$V2 sbatch/dasymetric_predict.sh)
     VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years"
     v1=$(sub "$p1" --ntasks=8 --time=02:00:00 --export=ALL,COVERAGE= sbatch/validate_tract.sh \
          --version Dasy_CONUS_RF_v1 --years 1920 1960 2010 $VAL)

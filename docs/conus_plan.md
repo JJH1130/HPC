@@ -84,6 +84,36 @@ Outputs: `$HISDAC_SCRATCH/cutouts/conus` (~5-10 GB), `$HISDAC_SCRATCH/dasymetric
 For all 12 years (later): cutout and water scale with the years (~2-3 h, ~11 GB of yearly water arrays in the
 water job), prediction ~12-18 h per version (one job per few years, or raise the wall time).
 
+## Trial result (1960, v1; jobs 34814376-34814382, code 563641b, run 2026-10-23)
+
+Measured with `sacct` (`logs/conus_trial_sacct.txt`, `logs/conus_trial_seff.txt`). All seven jobs COMPLETED.
+
+| Stage | Cores | Elapsed | Peak memory (MaxRSS) | vs the estimate above |
+|---|---|---|---|---|
+| census_conus (3 years) | 2 | 1 min | 1.8 GB | as expected; each `counties_{YEAR}.gpkg` is 196 MB |
+| grid_cutout (1960: 12 rasters + zones) | 4 | 2 min | 8.0 GB | faster (sparse rasters, 6-8 s each); memory as estimated |
+| water_frac (1960) | 16 | 15 min | 16.0 GB | as estimated (2,102 of 3,358 blocks) |
+| place_dist (1960) | 8 | 3 min | 3.1 GB | as estimated |
+| features v1 (1960) | 4 | 1 min | 10.0 GB | much faster (43 s for 23 strips); memory near the 15 GB of 4 cores |
+| train v1 (1960) | 16 | 3.5 min | 4.1 GB | as estimated (search 18 s, SHAP 2.3 min) |
+| predict v1 (1960, 3 strips, `--measure`) | 32 | 45 s | 9.7 GB | **~20x faster**: dist_built 15.6 s; RF 5.4 s for 5.0 M cells x 1,000 trees (max_depth 10) -> 1960 pass 1 ≈ 3.6 min |
+
+Why the prediction estimate was far off: the chosen trees are shallow (`max_depth` 10) and 32 threads scale well
+(~30 M cell-trees/s per thread, not ~1 M). Deeper trees (max_depth 20 / None) in other years can be several times
+slower, still well under an hour per year.
+
+Pilot resources set from this (`sbatch/submit_conus.sh`): wall times ~3-5x the measured or scaled time (cutout 1 h,
+water 1.5 h, distances 45 min, features 1 h on **8** cores, train 1 h, predict 1.5 h per version, validate 2 h).
+
+Results of the trial (1960, v1; not the pilot): 3,109 zones, 3,093 used (16 `no_value`: 4 polygons without a CSV row,
+La Paz, Cibola, Menominee, 9 Virginia independent cities), no county with 0 cells (cell-centre area ratio 0.98-1.02).
+124.0 M cells in used counties, water mask 0.52 % of them. Split in 1960: 2,475 train / 618 test counties. CV RMSE
+0.801 (R² 0.719), **test RMSE 0.778 (R² 0.738)**, best `n_estimators` 1000, `max_depth` 10, `min_samples_leaf` 2,
+`max_features` 0.5. SHAP: Building 0.79 (bui 0.45, bldg_size 0.32), Land use, dist_built smaller. County-level
+|rho| > 0.8 for most pairs (mu_ratio - res_share 0.985). Water QA: Quabbin and Lake Mead water in 1960, Lake Powell dry
+in 1960 (ok). JRC no data = 2.0 % of the covered JRC pixels in the computed blocks (study-cell share is logged from
+the pilot on: `study_jrc_nodata_mean`, `study_cells_jrc_nodata_gt50`).
+
 ## Implementation decisions (2026-10-23)
 
 Made while implementing; each is the simplest option consistent with the decisions above.

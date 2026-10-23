@@ -9,8 +9,8 @@ All jobs are the usual stage scripts (`sbatch/*.sh`, account `ucb852_asc1`, env 
 `sbatch/submit_conus.sh` with the CONUS config and CONUS resources. Order: **step 0 (trial) first**; the pilot
 (1920 / 1960 / 2010) only after Claude has read the trial logs.
 
-**Status:** code + tests written 2026-10-23 (`tests/test_conus_dasymetric.py`, `tests/test_water_frac_parallel.py`);
-nothing run on Alpine yet.
+**Status:** trial passed 2026-10-23 (jobs 34814376-34814382; result in `docs/conus_plan.md`, "Trial result"); pilot
+resources in `sbatch/submit_conus.sh` set from it. Next: section 1 (pilot).
 
 ## Inputs / outputs
 
@@ -117,6 +117,8 @@ Good: v1 shows `version: Dasy_CONUS_RF_v1`, `split: configs/conus_split.csv`, `b
 `PREDICT_TIME=12:00:00 bash sbatch/submit_conus.sh pilot`.
 
 Monitor: as in step 0 with `logs/conus_pilot_jobs.txt`. Check, in addition to step 0:
+- `water_frac`: `JRC no data in study cells: mean share ... | cells with share > 0.5: N` (send it; decides whether
+  `nodata_as_water` is safe inland)
 - `dasymetric_predict`: per year `strip k/23 ... ETA ... min`, then `1960 (Y1960): N counties, N cells (N masked) |
   ... | max rel diff ... | bad cells 0`, `1960: N min`, `plot` lines (maps at 1 km), `mass check: ... 0 fail | bad
   cells 0`, `DONE`

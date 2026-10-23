@@ -10,9 +10,10 @@ Last updated: 2026-10-23 (CONUS implementation; v4.1 design: PLURAL-1 distances;
 
 ### CONUS Dasy_CONUS_RF_v1 / v2
 
-- **Status (2026-10-23):** scale review done (`docs/conus_plan.md`, "Scale checks"); code, configs, split table and
-  tests written; not run. Next: trial (1960, v1, prediction timed only), then the 1920/1960/2010 pilot
-  (`docs/runbooks/Running_CONUS.md`).
+- **Status (2026-10-23):** scale review done (`docs/conus_plan.md`, "Scale checks"); trial (1960, v1) passed, jobs
+  34814376-34814382: whole chain ~25 min, peak 16 GB (water), prediction ~4 min per year (far below the estimate);
+  1960 test RMSE 0.778 / R² 0.738, CV R² 0.719 (`docs/conus_plan.md`, "Trial result"). Next: the 1920/1960/2010
+  pilot (`docs/runbooks/Running_CONUS.md`, section 1).
 - Implementation decisions (details in `docs/conus_plan.md`, "Implementation decisions"): separate configs
   `configs/conus_*.yaml`; window = whole HISDAC raster; county statuses ok / no_value / zero_pop (only ok used, others
   NoData); counties with 0 cells or no unmasked cell skipped with a warning; one era per year; split
