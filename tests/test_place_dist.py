@@ -158,6 +158,28 @@ def test_end_to_end():
     print("ok end_to_end")
 
 
+def test_crs_label():
+    """county_maps passes a rasterio CRS (job 34921594 failed on crs.name); pyproj and rasterio give the same label."""
+    from rasterio.crs import CRS as RioCRS
+    wkt = CUT_CRS.to_wkt()
+    a, b = place_dist.crs_label(CUT_CRS), place_dist.crs_label(RioCRS.from_wkt(wkt))
+    assert a == b and a, (a, b)
+    assert place_dist.crs_label("ESRI:102003")
+    print("ok crs_label", a)
+
+
+def test_rasterio_crs_points():
+    """place_points with a rasterio CRS (as county_maps) = with a pyproj CRS."""
+    from rasterio.crs import CRS as RioCRS
+    with tempfile.TemporaryDirectory() as t:
+        cfg_path, *_ = make_inputs(Path(t))
+        pcfg = yaml.safe_load(cfg_path.read_text())["place_dist"]
+        a = place_dist.place_points(pcfg, [2010], CUT_CRS)
+        b = place_dist.place_points(pcfg, [2010], RioCRS.from_wkt(CUT_CRS.to_wkt()))
+        pd.testing.assert_frame_equal(a, b)
+    print("ok rasterio_crs_points")
+
+
 def test_missing_class_fails():
     with tempfile.TemporaryDirectory() as t:
         tmp = Path(t)
@@ -178,5 +200,7 @@ if __name__ == "__main__":
     test_norm_id()
     test_fill_gaps()
     test_end_to_end()
+    test_crs_label()
+    test_rasterio_crs_points()
     test_missing_class_fails()
     print("ALL OK")

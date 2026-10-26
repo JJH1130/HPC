@@ -57,6 +57,12 @@ def parse_args(argv=None):
     return p.parse_args(argv)
 
 
+def crs_label(crs) -> str:
+    """Short name of a pyproj or rasterio CRS for the log (a rasterio CRS has no .name)."""
+    c = CRS.from_user_input(crs)
+    return c.to_string() if c.to_epsg() else c.name
+
+
 def norm_id(values) -> pd.Series:
     """placeid as text; numeric ids lose a trailing '.0' and leading zeros so CSV and shapefile ids match."""
     s = pd.Series(values).astype(str).str.strip()
@@ -114,11 +120,10 @@ def place_points(pcfg: dict, plural_years, crs) -> pd.DataFrame:
         src_crs = gdf.crs if gdf.crs is not None else pcfg.get("shp_crs")
         if src_crs is None:
             sys.exit(f"ERROR: {path} has no CRS and place_dist.shp_crs is not set")
-        t = Transformer.from_crs(CRS.from_user_input(src_crs), crs, always_xy=True)
+        t = Transformer.from_crs(CRS.from_user_input(src_crs), CRS.from_user_input(crs), always_xy=True)
         if to_xy is None:
             to_xy = t
-            log.info("shapefile CRS %s -> cutout CRS %s", CRS.from_user_input(src_crs).to_string(),
-                     crs.to_string() if crs.to_epsg() else crs.name)
+            log.info("shapefile CRS %s -> cutout CRS %s", crs_label(src_crs), crs_label(crs))
         gdf = gdf[gdf.geometry.notna() & ~gdf.geometry.is_empty]
         x, yy = t.transform(gdf.geometry.x.to_numpy(), gdf.geometry.y.to_numpy())
         ids = norm_id(gdf[field]).to_numpy()

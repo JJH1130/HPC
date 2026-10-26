@@ -35,6 +35,12 @@ layers:
   # pilot cutout with `grid_cutout.sh --layers DEM` (sbatch/submit_conus.sh v3v4).
   - {name: DEM, path: "/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd", years: none, resampling: average, dtype: float32, out: "DEM/DEM.tif"}
 
+# BUI record errors (docs/conus_plan.md "BUI outliers", decided 2026-10-27): a cell with BUI > max (sq ft; 3e7 = about
+# 45 x the land area of a 250 m cell) gets the median BUI of its 3 x 3 neighbours (neighbours above max left out,
+# none left -> 0), every year. Applied to the cutout's layers/BUI by src/grid/bui_fix.py (sbatch/bui_fix.sh) after
+# the cutout; the original layer is kept in layers/BUI_raw/. The Massachusetts config has no such block (unchanged).
+bui_cap: {max: 3.0e+7, replace: neighbour_median}
+
 # Yearly water fraction with GDW reservoir years (as Massachusetts v4/v4.1; field rules in configs/study_area.yaml).
 # only_zone_blocks: only 256 x 256 blocks holding a cell of a 2010 county are computed (the rest of the window:
 # ocean, Canada, Mexico, stays NaN and is never used); blocks run in SLURM_CPUS_ON_NODE processes.

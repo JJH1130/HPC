@@ -4,18 +4,21 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-27 (CONUS pilot result; v3 / v4 terrain, BUI check, density classes, county maps submitted as code)
+Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
-- **Status (2026-10-27):** pilot passed (`docs/conus_plan.md`, "Pilot result"). Code written for the next submission
-  (`bash sbatch/submit_conus.sh v3v4`, `docs/runbooks/Running_CONUS.md` section 2), not run yet: BUI outlier check
-  (look only), DEM cutout, `Dasy_CONUS_RF_v3` (v1 + elev, slope) and `Dasy_CONUS_RF_v4` (v1 + distances + elev, slope)
-  for 1960 / 2010, tract density classes (v1 / v2 validation rerun), zoomed county maps v1 / v2 / v4 (2010).
-- Open (BUI): treatment of the implausible BUI maxima (cap, neighbour value, nothing) waits for `bui_quantiles.csv` /
-  `bui_top.csv` and the BUI unit from the HISDAC README (printed by `bui_qa`).
+- **Status (2026-10-27, later):** v3 / v4 ran (jobs 34921582-34921594): v3 = CONUS base, distances dropped, BUI
+  treatment decided (`docs/conus_plan.md`, "Version comparison v1-v4", "BUI outliers"). County maps failed on a CRS
+  bug (`place_points` called `.name` on a rasterio CRS), fixed. Code written for the next submission
+  (`bash sbatch/submit_conus.sh bui`, `docs/runbooks/Running_CONUS.md` section 3), not run yet: BUI fix in the cutout
+  (`src/grid/bui_fix.py`, `bui_cap` in `configs/conus_study_area.yaml`), `Dasy_CONUS_RF_v1_bui` and
+  `Dasy_CONUS_RF_v3_bui` for 1920 / 1960 / 2010 (compared with v1 / v3), county maps v1_bui / v2 / v3_bui / v4,
+  Massachusetts count of cells above 3e7 (check only).
+- Open (BUI): the Massachusetts count (`results/cutout/massachusetts/bui_check_summary.csv`); if it finds cells, decide
+  whether the closed Massachusetts runs need a note (their config stays without a cap).
 
 - **Status (2026-10-23):** scale review done (`docs/conus_plan.md`, "Scale checks"); trial (1960, v1) passed, jobs
   34814376-34814382: whole chain ~25 min, peak 16 GB (water), prediction ~4 min per year (far below the estimate);
@@ -314,3 +317,4 @@ Last updated: 2026-10-27 (CONUS pilot result; v3 / v4 terrain, BUI check, densit
 | 2026-10-27 | CONUS pilot (1920/1960/2010): v1 tract MdAPE 38.4 % (1960) and 29.8 % (2010) vs 82.7 / 74.5 % areal weighting, test ~ train. v2 (+ PLURAL-1 distances) better on county TEST R2 (0.90 vs 0.78 in 2010) but worse on tracts (40.2 vs 29.8 %): distances not used for allocation; tract validation, not county CV, chooses features. JRC no data inside study cells = 0, `nodata_as_water` kept. |
 | 2026-10-27 | CONUS v3 (+ elev, slope) best on tracts (2010 MdAPE 29.2 vs 29.8 %, every density class) and becomes the CONUS base; v4 (+ distances + terrain) ~ v2: distances dropped. BUI unit = sq ft (README); cells > 3e7 sq ft are record errors (10 / 119 / 298 cells in 1920 / 1960 / 2010), treatment to decide. |
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
+| 2026-10-27 | BUI fix implemented as a separate step after the cutout (`src/grid/bui_fix.py`, in place on `layers/BUI/`, original kept in `layers/BUI_raw/`, reruns identical), switched on by `bui_cap` in the study area config (Massachusetts: none, check only). Neighbours above the cap, with nodata or outside the window are left out of the median (none left -> 0); strips use one halo row. New versions `Dasy_CONUS_RF_v1_bui` / `Dasy_CONUS_RF_v3_bui` (1920/1960/2010, compare_with v1 / v3) so the old v1 / v3 outputs stay. |

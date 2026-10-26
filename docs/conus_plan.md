@@ -3,10 +3,11 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-27 (pilot result; v3 / v4 = terrain; BUI outlier check; tract density classes; county maps)
+Last updated: 2026-10-27 (pilot result; v3 / v4 = terrain; BUI outlier check + fix; v1_bui / v3_bui; county maps)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
-`configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, split `configs/conus_split.csv`.
+`configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
+`configs/conus_rf_v3_bui.yaml`, split `configs/conus_split.csv`.
 
 ## Decisions (2026-10-23)
 
@@ -269,7 +270,21 @@ real block) is a record error; its BUI is replaced by the median BUI of its 3 x 
 out). BUPL, BUPR and Land_Use are not changed. Applied in the cutout to every year, logged per year (cells replaced,
 before / after values, top cells) and listed in a QA CSV. Affects 10 / 119 / 298 cells (1920 / 1960 / 2010) of
 about 1.8 / 4.5 / 10.9 million built cells. The raw HISDAC files are not changed. Massachusetts runs are unchanged
-(no cell above the cap there to check in the same QA).
+(its config has no cap); the same submission counts the Massachusetts cells above 3e7 from the raw files.
+
+## BUI fix and v3 base rerun (request 2026-10-27; run steps `docs/runbooks/Running_CONUS.md`, section 3)
+
+| Topic | Decision |
+|---|---|
+| Where | separate step after the cutout: `src/grid/bui_fix.py` (`sbatch/bui_fix.sh`), in place on the cutout's `layers/BUI/`. The first run moves the original to `layers/BUI_raw/{YEAR}_BUI.tif`; every run reads `BUI_raw` and writes `layers/BUI/` again, so a rerun gives the same file. Simpler than inside `make_cutout.py` (no re-cut of the other layers). Re-cutting BUI (`--layers BUI`) needs a new `bui_fix` run |
+| Switch | `bui_cap: {max: 3.0e+7, replace: neighbour_median}` in `configs/conus_study_area.yaml`; without the block (Massachusetts `study_area.yaml`) `bui_fix.py` refuses to change a cutout and only `--check` counts |
+| Rule | BUI > max -> median of the 3 x 3 neighbours, the cell itself out; neighbours outside the window, with nodata or themselves above max are left out; none left -> 0. Always the original neighbour values (order-free). A cell exactly at max is kept. Nodata stays nodata |
+| Strips | `--block-rows` strips (512) read with one halo row above and below: strips = whole window = a brute-force loop (`tests/test_bui_fix.py`, strips of 1, 7, 512 rows) |
+| QA | `results/cutout/conus/bui_fix_summary.csv` (per year: cells above max, set to 0, max before / after, BUI sum before / after, share removed) and `bui_fixed_{YEAR}.csv` (every replaced cell: row, col, lon, lat, county, BUI before / after, neighbours in the window / used / above max, BUPL); the 15 largest per year in the log |
+| Massachusetts | count only: `bui_fix.py --check --hisdac-dir` on the raw HISDAC BUI over `results/cutout/massachusetts/window.json` (the scratch cutout may be purged) -> `results/cutout/massachusetts/bui_check_summary.csv` (+ `bui_check_{YEAR}.csv` for years with cells above 3e7). Nothing is written in any cutout |
+| Versions | `Dasy_CONUS_RF_v1_bui` = v1 on the fixed cutout (1920, 1960, 2010; `compare_with: Dasy_CONUS_RF_v1`): the effect of the fix alone. `Dasy_CONUS_RF_v3_bui` = v3 on the fixed cutout for 1920, 1960, 2010 (1920: v1's 1920 features + `elev`, `slope`; `compare_with: Dasy_CONUS_RF_v3`, which has no 1920, so 1920 has no CV / test comparison in train). Same split and folds. The old v1 / v3 outputs are not overwritten |
+| Validation | tract validation 1920 / 1960 / 2010 with the density classes for both |
+| County maps | 2010, v1_bui / v2 / v3_bui / v4 on the same 4 counties; differences against v1_bui; BUI drawn = fixed BUI. `place_points` CRS bug fixed (`place_dist.crs_label` takes pyproj and rasterio CRS; `tests/test_place_dist.py`) |
 
 ## Implementation decisions (2026-10-23)
 
@@ -298,4 +313,5 @@ Made while implementing; each is the simplest option consistent with the decisio
    table (`configs/conus_split.csv`, made 2026-10-23); per-year features, train (v1, v2), predict, tract validation.
 4. Review time, memory and results. Done 2026-10-27: v3 chosen (above).
 5. BUI fix in the cutout; rerun v3 for 1920, 1960, 2010 (1920 not run with terrain yet); county maps (bug fixed).
+   Code 2026-10-27 ("BUI fix and v3 base rerun"; `bash sbatch/submit_conus.sh bui`).
 6. Then the remaining years (1900-2010) with v3, then 2020.

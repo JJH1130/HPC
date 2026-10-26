@@ -1,7 +1,7 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4)
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui)
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
-layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml` (models), split table
+layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml` (models), split table
 `configs/conus_split.csv` (made once, 2026-10-23; never regenerate it). The Massachusetts configs
 (`configs/study_area.yaml`, `configs/model.yaml`) and runbooks are unchanged.
 
@@ -12,7 +12,8 @@ All jobs are the usual stage scripts (`sbatch/*.sh`, account `ucb852_asc1`, env 
 **Status:** trial passed 2026-10-23 (jobs 34814376-34814382; result in `docs/conus_plan.md`, "Trial result"). Fixed
 before the pilot (2026-10-24): 4 counties without a CSV row filled from NHGIS (`filled_nhgis`), per-county JRC
 no-data QA, pilot resources from the trial. Pilot passed 2026-10-26 (jobs 34918220-34918231; `docs/conus_plan.md`,
-"Pilot result"). Next: section 2 (v3 + v4, BUI check, density classes, county maps; 2026-10-27).
+"Pilot result"). Section 2 (v3 + v4, BUI check, density classes) ran 2026-10-26 (jobs 34921582-34921594; county maps
+failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 / 1960 / 2010, county maps).
 
 ## Inputs / outputs
 
@@ -25,10 +26,11 @@ no-data QA, pilot resources from the trial. Pilot passed 2026-10-26 (jobs 349182
 | PLURAL | `/projects/jaju1407/data/raw/plural/plural_2023/` |
 | tracts | `/projects/jaju1407/data/processed/tract/tracts_{YEAR}.gpkg` |
 | cutout (scratch) | `/scratch/alpine/jaju1407/hisdac/cutouts/conus/` (~5-10 GB) |
-| models, predictions (scratch) | `/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v{1,2,3,4}/` |
+| models, predictions (scratch) | `/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v{1,2,3,4}/`, `..._v{1,3}_bui/` |
+| BUI fix (scratch) | cutout `layers/BUI/` = fixed (from section 3 on), `layers/BUI_raw/` = original |
 | DEM (v3, v4) | `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd` -> cutout `layers/DEM/DEM.tif` |
 | results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/` |
-| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt` |
+| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt` |
 
 ## 0. Trial: measure time and memory (1960, v1)
 
@@ -217,15 +219,109 @@ git pull --rebase
 git push
 ```
 
+## 3. BUI fix, v1_bui + v3_bui (1920, 1960, 2010), county maps (2026-10-27)
+
+On the pilot cutout with the DEM layer of section 2 (water, distances reused). One submission, 11 jobs
+(`docs/conus_plan.md`, "BUI fix and v3 base rerun"):
+
+| Job | Needs | What |
+|---|---|---|
+| `bui_fix` (CONUS) | nothing | BUI > 3e7 sq ft -> median of the 3 x 3 neighbours, every year, in place on `layers/BUI/` (original kept in `layers/BUI_raw/`) -> `results/cutout/conus/bui_fix_summary.csv`, `bui_fixed_{YEAR}.csv` |
+| `bui_fix --check` (Massachusetts) | nothing | count only, raw HISDAC BUI over the Massachusetts window -> `results/cutout/massachusetts/bui_check_summary.csv`. Nothing waits for it |
+| features, train, predict, validate for v1_bui and for v3_bui | `bui_fix` | 1920 + 1960 + 2010; v1_bui compared with v1, v3_bui with v3 (same split and folds) |
+| `county_maps` | both predicts + validations | 2010, the 4 counties, v1_bui / v2 / v3_bui / v4 -> `results/validation/conus/county_maps/` |
+
+Block 1, preflight + submit (login node; nothing is submitted if an input is missing):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+source sbatch/cluster_env.sh
+C=$HISDAC_SCRATCH/cutouts/conus
+D=$HISDAC_SCRATCH/dasymetric/conus
+P=$DATA_ROOT/raw/plural/plural_2023
+need=()
+need+=($C/window.json $C/zones/zones_{1920,1960,2010}.tif)
+need+=($C/layers/BUI/{1920,1960,2010}_BUI.tif $C/layers/BUPL/{1920,1960,2010}_BUPL.tif)
+need+=($C/layers/DEM/DEM.tif $C/layers/water_frac/{1920,1960,2010}_water_frac.tif)
+need+=($D/Dasy_CONUS_RF_v{1,3}/Y2010/model/oof_predictions.csv)
+need+=($D/Dasy_CONUS_RF_v{1,2,3,4}/predictions/pop_2010.tif)
+need+=(results/validation/conus/Dasy_CONUS_RF_v{2,4}/tract_errors_2010.csv)
+need+=(results/cutout/massachusetts/window.json $HISDAC_DIR/BUI/2010_BUI.tif)
+need+=($DATA_ROOT/processed/census_conus/counties_2010.gpkg)
+need+=($DATA_ROOT/processed/tract/tracts_{1920,1960,2010}.gpkg)
+need+=($P/PLURAL_SHP/PLURAL_SHP/plural_indices_scaled_across_years_2010.shp)
+need+=($P/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv)
+ok=1
+for f in "${need[@]}"; do [[ -e $f ]] || { echo "MISSING $f"; ok=0; }; done
+echo "checked ${#need[@]} inputs"
+grep -n '^bui_cap' configs/conus_study_area.yaml
+grep -c '^bui_cap' configs/study_area.yaml
+grep -E '^(version|compare_with):' configs/conus_rf_v1_bui.yaml configs/conus_rf_v3_bui.yaml
+ls $C/layers/BUI_raw 2>/dev/null
+if (( ok )); then bash sbatch/submit_conus.sh bui; else echo "NOT SUBMITTED: fix the MISSING inputs above first"; fi
+echo "== end of block 1"
+```
+
+Good: no `MISSING` line, `checked 30 inputs`, one `bui_cap: {max: 3.0e+7, ...}` line, `0` (Massachusetts has no cap),
+the two versions with `compare_with: Dasy_CONUS_RF_v1` / `Dasy_CONUS_RF_v3`, no `BUI_raw` listing (first run), then
+one line `bui_fix N | ma_check N | v1_bui features N train N predict N validate N | v3_bui ... | county_maps N`
+(11 ids, also in `logs/conus_bui_jobs.txt`) and `== end of block 1`. If `== end of block 1` is missing, the paste was
+cut: run `cat logs/conus_bui_jobs.txt` and `squeue -u $USER` before pasting again (never submit twice).
+
+Block 2, monitor:
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+for j in $(grep -oE '[0-9]{6,}' logs/conus_bui_jobs.txt); do f=$(ls logs/*.$j.out 2>/dev/null); [[ -n $f ]] && { echo "== $f"; tail -n 3 "$f"; }; done
+echo "== end of block 2"
+```
+
+Good: the last lines of the started jobs (`== done ...` when finished) and `== end of block 2`. Check in the logs:
+- `bui_fix` (CONUS): per year `moved .../layers/BUI/{YEAR}_BUI.tif -> .../BUI_raw/...` (first run only), then
+  `{YEAR}: N cells above 3e+07 ...` with N = 10 / 119 / 298 (1920 / 1960 / 2010, as `bui_qa`), `max ... -> ...` at
+  most 3e+07, a `largest` table, `summary`, `DONE`
+- `bui_fix --check` (Massachusetts): `check only, nothing written` per year (22 years; a warning for a year without
+  a raw file), `years with cells above the cap: [...]`, `DONE`
+- features / train / predict / validate: as in section 2; train v1_bui `Dasy_CONUS_RF_v1 (its saved out-of-fold
+  predictions ...)` for every year; v3_bui the same for 1960 / 2010 and `compare_with Dasy_CONUS_RF_v3 skipped` for 1920
+- `county_maps`: `shapefile CRS ... -> cutout CRS ESRI:102039`, `metros: N PLURAL places ...`, four `plot ...` lines, `DONE`
+
+Block 3, close the loop (after the last job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_bui_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_bui_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_bui_seff.txt
+cat logs/conus_bui_sacct.txt
+du -sh results/validation/conus/* results/dasymetric/conus/* results/cutout/*
+git add logs/ results/cutout results/dasymetric/conus results/validation/conus
+git commit -m "run: CONUS BUI fix, v1_bui + v3_bui (1920/1960/2010), county maps (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: `sacct` shows `COMPLETED` for every job, `git push` ends with `main -> main`, the last commit is the
+`run: CONUS BUI fix ...` one, then `== end of block 3`.
+
 ## If it fails
 
 | Symptom | Fix |
 |---|---|
 | `counties_std_2010.gpkg not found` | run `Checking_Std_Counties.md` first |
 | `--years [...] not in the config years` | the config on the cluster is old: `git pull` |
-| `CANCELLED ... DUE TO TIME LIMIT` | rerun with a longer wall: `WATER_TIME=03:00:00 bash sbatch/submit_conus.sh pilot` (also `CUTOUT_TIME`, `PLACE_TIME`, `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`; v3v4 also `BUI_TIME`, `MAPS_TIME`) and send Claude the log |
+| `CANCELLED ... DUE TO TIME LIMIT` | rerun with a longer wall: `WATER_TIME=03:00:00 bash sbatch/submit_conus.sh pilot` (also `CUTOUT_TIME`, `PLACE_TIME`, `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`; v3v4 also `BUI_TIME`, `MAPS_TIME`; bui also `FIX_TIME`, `CHECK_TIME`) and send Claude the log |
 | v3v4: `bui_qa` failed | nothing else depends on it; send the log. Rerun alone: `sbatch --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/bui_qa.sh` |
 | v3v4: `county_maps` failed (e.g. a plotting error) | rerun alone after fixing: `sbatch sbatch/county_maps.sh --counties G5300070 G2001550 G0800430 G1701170 --versions Dasy_CONUS_RF_v1 Dasy_CONUS_RF_v2 Dasy_CONUS_RF_v4` |
+| bui: `bui_fix` failed | the model jobs never start (`DependencyNeverSatisfied`): `scancel` them, send the log. A rerun is safe: it reads `layers/BUI_raw/` and writes `layers/BUI/` again |
+| bui: `has no bui_cap block` | the config on the cluster is old (`git pull`), or the Massachusetts config was given without `--check` (intended: it is never changed) |
+| bui: Massachusetts `--check` failed | nothing depends on it; rerun alone: `sbatch --export=ALL,CONFIG=configs/study_area.yaml sbatch/bui_fix.sh --check --cap 3e7 --hisdac-dir "$HISDAC_DIR" --window-json results/cutout/massachusetts/window.json` |
+| bui: `county_maps` failed | rerun alone: `sbatch sbatch/county_maps.sh --counties G5300070 G2001550 G0800430 G1701170 --versions Dasy_CONUS_RF_v1_bui Dasy_CONUS_RF_v2 Dasy_CONUS_RF_v3_bui Dasy_CONUS_RF_v4` |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

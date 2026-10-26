@@ -31,7 +31,9 @@ acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 (study area + the only layer list in `configs/study_area.yaml` → HISDAC/Land_Use/NTL layers clipped to one shared 250 m window + per-year
 county zone grids; `--layers NAME` adds one layer to an existing cutout), run by `sbatch/grid_cutout.sh` per `docs/runbooks/Making_Cutout.md`, rules in
 `docs/cutout.md`; `src/grid/ntl_qa.py` (`sbatch/ntl_qa.sh`) checks the NTL layer, `src/grid/bui_qa.py` (`sbatch/bui_qa.sh`) lists BUI quantiles and the
-largest cells of a cutout (CONUS outlier check, look only), and `src/grid/water_frac.py`
+largest cells of a cutout (CONUS outlier check, look only), `src/grid/bui_fix.py` (`sbatch/bui_fix.sh`; `bui_cap:` block of
+`configs/conus_study_area.yaml`, none for Massachusetts) replaces BUI cells above the cap by their 3 x 3 neighbour median
+in place on the cutout (original kept in `layers/BUI_raw/`; `--check` counts only, also from the raw HISDAC files), and `src/grid/water_frac.py`
 (`sbatch/water_frac.sh`; `water:` block of `configs/study_area.yaml`) adds the water-fraction layer from JRC tiles
 (auto-selected by overlap): static minus HydroLAKES reservoirs (`reservoir_source: hydrolakes`, v3.1–v3.4) or one layer per study year with Global Dam Watch reservoirs counted as water from their completion year (`reservoir_source: gdw`, v4).
 `src/grid/place_dist.py` (`sbatch/place_dist.sh`; `place_dist:` block of `configs/study_area.yaml`) adds the v4.1 PLURAL-1 distance layers
@@ -42,19 +44,22 @@ I/O) and `plots.py` (correlation/SHAP plots, maps): `county_features.py` → `tr
 per `docs/runbooks/Running_Dasymetric.md`. CONUS (`docs/conus_plan.md`, scale table + implementation decisions there;
 steps `docs/runbooks/Running_CONUS.md`): separate configs `configs/conus_study_area.yaml` (`window: full` = the whole
 HISDAC raster, 1920/1960/2010, water `only_zone_blocks`), `configs/conus_rf_v1.yaml` / `conus_rf_v2.yaml`
-(`Dasy_CONUS_RF_v1/v2`; `conus_rf_v3.yaml` / `conus_rf_v4.yaml` = v1 + terrain / v1 + distances + terrain, 1960 + 2010; one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
+(`Dasy_CONUS_RF_v1/v2`; `conus_rf_v3.yaml` / `conus_rf_v4.yaml` = v1 + terrain / v1 + distances + terrain, 1960 + 2010; `conus_rf_v1_bui.yaml` /
+`conus_rf_v3_bui.yaml` = v1 / v3 on the BUI-fixed cutout, 1920 + 1960 + 2010, compared with v1 / v3 (v3_bui = CONUS base); one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
 `src/dasymetric/make_split.py`, never regenerated; `block_rows` = strip-wise features/prediction (terrain slope per strip with one halo row = whole window); `unusable: skip`;
 `years`), county input `src/census/conus_counties.py` (`sbatch/census_conus.sh`: Stefan's CSV on 2010 polygons, status
 ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0.95-1.05: trained, appended to the split as
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
-zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4` (stage scripts take `CONFIG=`,
+zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui` (stage scripts take `CONFIG=`,
 `CENSUS_DIR=`, `COVERAGE=` env overrides; CONUS resources live there). Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
 years live in `configs/model.yaml` (model registry `MODELS` in `train.py`; only `rf` is implemented). Outputs go to
 `$HISDAC_SCRATCH/dasymetric/<name>/<version>[/<era>]`; small files are copied to `results/dasymetric/`. Env changes go through the yml files + `conda env update
 --prune`, never ad-hoc `mamba install`. There is no build step. Lint sbatch scripts with
 `python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh`. Tests (plain scripts, no pytest; need the local
-`hisdac` env): `python tests/test_place_dist.py` (synthetic check of `place_dist.py` distances and gap fill),
+`hisdac` env): `python tests/test_place_dist.py` (synthetic check of `place_dist.py` distances and gap fill; `crs_label` / `place_points`
+with a rasterio CRS), `python tests/test_bui_fix.py` (BUI cap: isolated cell, neighbours above the cap, window edges,
+strips = whole window = brute force, rerun, `--check`),
 `python tests/test_conus_dasymetric.py` (CONUS: strips = whole window for features and prediction, split held out
 in train, NoData for unused counties, tract validation train/test parts + density classes, terrain strips = whole
 window, `bui_qa.py`, `conus_counties.py` statuses; stubs `shap` and `plots`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,

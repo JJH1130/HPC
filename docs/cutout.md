@@ -56,6 +56,7 @@ purged 90 days after creation, so rerun the job to rebuild them.
 | `layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif` | Land use counts, 1940–2020 |
 | `layers/NTL/{YEAR}_NTL.tif` | Night lights, 2000, 2010, 2020 (int16) |
 | `qa/ntl_qa.csv` | NTL QA (`src/grid/ntl_qa.py`): range, bright-core centroid near Boston per year, Spearman NTL–BUI |
+| `layers/BUI_raw/{YEAR}_BUI.tif` | CONUS only: the BUI layer as cut, before `src/grid/bui_fix.py` replaced the cells above `bui_cap.max` in `layers/BUI/` (`docs/conus_plan.md`, "BUI fix and v3 base rerun") |
 | `layers/water_frac/water_frac.tif` | Static share of permanent-water 30 m pixels per 250 m cell (float32, 0–1, NaN = no JRC tile), from `src/grid/water_frac.py` |
 | `qa/water_qa.csv` | Water layer QA: range, shares in the study counties, JRC no-data share, reservoir pixels removed, QA points |
 | `qa/jrc_nodata_frac.tif`, `qa/jrc_nodata_by_county.csv`, `qa/jrc_nodata_map.png` | Diagnostic (`src/grid/jrc_nodata_check.py`): where JRC no-data (value > 100) lies, per cell and per county-year |

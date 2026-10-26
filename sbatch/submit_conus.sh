@@ -7,6 +7,9 @@
 #                                       # and v4 (v1 + distances + terrain) features/train/predict/validate (1960, 2010);
 #                                       # v1 + v2 validation rerun (density classes); county maps v1/v2/v4 (2010);
 #                                       # BUI outlier QA (independent: nothing waits for it)
+#   bash sbatch/submit_conus.sh bui     # BUI fix in the pilot cutout (bui_fix.sh) -> v1_bui and v3_bui (1920, 1960,
+#                                       # 2010) features/train/predict/validate; county maps v1_bui/v2/v3_bui/v4 (2010);
+#                                       # Massachusetts BUI cap count from the raw files (independent, changes nothing)
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -16,10 +19,12 @@
 # time without editing this file, e.g. PREDICT_TIME=12:00:00 bash sbatch/submit_conus.sh pilot.
 # v3v4 resources from the pilot (jobs 34918220-34918231, docs/conus_plan.md "Pilot result"): features v2 5 min /
 # 10 GB, train v2 19 min, predict 13 min / 15 GB, validate 5 min / 17 GB; v4 has 2 more features than v2.
+# bui resources from v3v4 (jobs 34921582-34921594): v3 / v4 features, train, predict, validate each well inside the
+# v3v4 wall times; v1_bui / v3_bui add 1920. bui_fix reads and writes the BUI layer once per year (estimate).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode == trial || $mode == pilot || $mode == v3v4 ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4"; exit 1; }
+[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -67,6 +72,24 @@ elif [[ $mode == v3v4 ]]; then
     # D: 4 rural counties 60-150 km from a 250k+ place where v2's rural tract error grew most (docs/conus_plan.md)
     jm=$(sub "$p4 $q4 $r1 $r2" --ntasks=4 --time=${MAPS_TIME:-00:30:00} --export=ALL,CONFIG=$S sbatch/county_maps.sh          --counties G5300070 G2001550 G0800430 G1701170          --versions Dasy_CONUS_RF_v1 Dasy_CONUS_RF_v2 Dasy_CONUS_RF_v4)
     echo "bui_qa $jb | dem_cutout $jd | validate rerun v1 $r1 v2 $r2$ids | county_maps $jm"         | tee logs/conus_v3v4_jobs.txt
+elif [[ $mode == bui ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years"
+    jf=$(sub "" --ntasks=2 --time=${FIX_TIME:-01:00:00} --export=ALL,CONFIG=$S sbatch/bui_fix.sh)
+    # Massachusetts: count cells above the cap in the raw HISDAC BUI over its window; nothing waits for it
+    jc=$(sub "" --ntasks=2 --time=${CHECK_TIME:-00:30:00} --export=ALL,CONFIG=configs/study_area.yaml sbatch/bui_fix.sh          --check --cap 3e7 --hisdac-dir "$HISDAC_DIR" --window-json results/cutout/massachusetts/window.json)
+    ids="" after=""
+    for v in v1_bui v3_bui; do
+        C=configs/conus_rf_$v.yaml
+        f=$(sub "$jf" --ntasks=6 --time=${FEATURES_TIME:-00:30:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+        t=$(sub "$f" --ntasks=16 --time=${TRAIN_TIME:-01:30:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+        p=$(sub "$t" --ntasks=32 --time=${PREDICT_TIME:-01:30:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+        q=$(sub "$p" --ntasks=8 --time=${VALIDATE_TIME:-01:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh             --version Dasy_CONUS_RF_$v --years 1920 1960 2010 $VAL)
+        ids="$ids | $v features $f train $t predict $p validate $q"
+        after="$after $p $q"
+    done
+    # same 4 rural counties as v3v4 (docs/conus_plan.md "County maps"); v2 / v4 tract errors are in results/validation
+    jm=$(sub "${after# }" --ntasks=4 --time=${MAPS_TIME:-00:30:00} --export=ALL,CONFIG=$S sbatch/county_maps.sh          --counties G5300070 G2001550 G0800430 G1701170          --versions Dasy_CONUS_RF_v1_bui Dasy_CONUS_RF_v2 Dasy_CONUS_RF_v3_bui Dasy_CONUS_RF_v4)
+    echo "bui_fix $jf | ma_check $jc$ids | county_maps $jm" | tee logs/conus_bui_jobs.txt
 else
     jc=$(sub "" sbatch/census_conus.sh --years 1920 1960 2010)
     jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-00:30:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh)

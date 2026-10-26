@@ -1,0 +1,62 @@
+# Dasy_CONUS_RF_v3_bui (docs/conus_plan.md "BUI outliers"; the CONUS base): Dasy_CONUS_RF_v3 (v1 + elev, slope) for
+# 1920, 1960 and 2010, run on the cutout after the BUI fix (src/grid/bui_fix.py). Compared with Dasy_CONUS_RF_v3
+# (raw BUI; 1960 + 2010 only, so 1920 has no CV / test comparison). Same split, folds and test counties.
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_bui/
+version: Dasy_CONUS_RF_v3_bui
+
+study_area: configs/conus_study_area.yaml
+years: [1920, 1960, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3
+
+split: configs/conus_split.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+eras:
+  # res_share / rent_share need Land_Use (1940+).
+  Y1920:
+    years: [1920]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+
+# elev and slope are separate groups, not one Terrain group (decided 2026-10-20).
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+
+maps:
+  years: [1920, 1960, 2010]
+  compare_years: [2010]
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 20
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:
+    fixed: {random_state: 42}
+    space:
+      n_estimators: [200, 300, 500, 800, 1000]
+      max_depth: [null, 5, 10, 15, 20]
+      min_samples_leaf: [1, 2, 4, 8]
+      max_features: [sqrt, 0.33, 0.5, 1.0]
