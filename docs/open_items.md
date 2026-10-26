@@ -48,16 +48,30 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
   as train (existing rows unchanged) and trained on when the area ratio is within 0.95-1.05 (status `filled_nhgis`);
   outside it they are `filled_nhgis_alloc`, allocated only.
 
-### CONUS: allocation-aware tuning and source gaps (open, 2026-10-27)
+### CONUS: hyperparameter sensitivity and source gaps (open, 2026-10-27)
 
-- Hyperparameters chosen by county CV can differ a lot on tracts: v3_bui 2010 picked `max_features: 1.0` over 0.5
-  on a 0.0007 RMSE CV difference, and tract MdAPE fell 29.2 -> 25.2 %. Option for the model-tuning stage (v6 in the
-  Ch1 plan): choose hyperparameters on tract error of the **train** counties' tracts and keep the test counties'
-  tracts for the final score, so tract validation stays independent. Until then, report the chosen settings with
-  each result.
-- Counties with almost no BUI (Macoupin IL: 95-99 % of the population on cells with BUI = 0 in every version):
-  likely gaps in the source records. Count such counties per year (share of county population on BUI = 0 cells,
-  or BUI total per person) before the full run.
+- Hyperparameters are chosen on county CV only; tracts are used only to validate the fixed model (decided
+  2026-10-27 with the user: choosing settings by tract error would make the validation data part of the fitting,
+  even if only train counties' tracts were used). Finding to report, not to tune on: settings that tie on county CV
+  can differ on tracts (v3 vs v3_bui in 2010: `max_features` 0.5 vs 1.0, CV RMSE 0.6336 vs 0.6302, tract MdAPE 29.2 vs
+  25.2 %). Report the chosen settings with every result; a sensitivity table of the near-tied CV candidates can be
+  added in the paper.
+- **Counties with (almost) no BUI**: counted 2026-10-27 from `county_features.csv` of v3_bui as BUI floor area per
+  person (county mean BUI x unmasked cells / pop) below 5 % of the national median (median 96 / 368 / 935 sq ft per
+  person in 1920 / 1960 / 2010):
+
+  | Year | Counties < 5 % of median | Population (share) | < 1 % of median |
+  |---|---|---|---|
+  | 1920 | 533 | 10.3 M (9.8 %) | 419 |
+  | 1960 | 479 | 11.6 M (6.5 %) | 409 |
+  | 2010 | 416 | 14.6 M (4.7 %) | 356 |
+
+  Concentrated in some states (2010: Illinois 56, Wisconsin 50, Michigan 43, North Dakota 43, South Dakota 39,
+  Louisiana 37, Virginia 22, Pennsylvania 17); large ones include DuPage IL (917 k), Lake IL, Dane WI, Jefferson LA,
+  Luzerne PA. Likely gaps in the source records (ZTRAX) of HISDAC-US v2. In these counties the model is no better
+  than areal weighting (2010 tract MdAPE 72.7 % vs baseline 75.6 %; other counties 24.2 % vs 74.5 %). To discuss with
+  Stefan (meeting 2026-10-28); a newer HISDAC version is planned and may close the gaps. Until then: keep them, flag
+  them in results, and report validation with and without them.
 
 ### Compute allocation (Ascent)
 

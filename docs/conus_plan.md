@@ -277,7 +277,7 @@ to 0 because all neighbours were 0); they held 2.6 / 9.0 / 10.6 % of all BUI. Ma
   county CV. With 1.0, SHAP puts `bui` far ahead (0.98) and `bldg_size` drops (0.25 -> 0.07). So the gain is real on
   tracts (train and test counties alike: 25.0 / 26.0 %) but was not chosen for it: county CV cannot tell these
   settings apart, while tract error differs by 4 points. Hyperparameters matter for allocation more than county CV
-  shows; see the open item on allocation-aware tuning.
+  shows (reported as a sensitivity, not tuned on tracts; `docs/open_items.md`).
 - v3_bui is the CONUS base (best in every year and density class).
 
 County maps (2010; `results/validation/conus/county_maps/`), share of the county population put on cells with BUI = 0:
@@ -297,7 +297,8 @@ County maps (2010; `results/validation/conus/county_maps/`), share of the county
 - v1 itself puts 25-45 % on empty cells: exp(y_hat) is positive everywhere, and in large rural counties the many
   empty cells add up. Terrain is what limits this.
 - Macoupin IL: 95-99 % on empty cells in every version, so its BUI is nearly empty: a likely gap in the source
-  records (ZTRAX coverage) for that county. To check how many counties have such gaps.
+  records (ZTRAX coverage) for that county. Counted 2026-10-27: 416 counties (4.7 % of the population) in
+  2010 have BUI per person below 5 % of the median (`docs/open_items.md`).
 
 ## BUI outliers (bui_qa, job 34921582)
 
