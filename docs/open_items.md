@@ -48,6 +48,17 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
   as train (existing rows unchanged) and trained on when the area ratio is within 0.95-1.05 (status `filled_nhgis`);
   outside it they are `filled_nhgis_alloc`, allocated only.
 
+### CONUS: allocation-aware tuning and source gaps (open, 2026-10-27)
+
+- Hyperparameters chosen by county CV can differ a lot on tracts: v3_bui 2010 picked `max_features: 1.0` over 0.5
+  on a 0.0007 RMSE CV difference, and tract MdAPE fell 29.2 -> 25.2 %. Option for the model-tuning stage (v6 in the
+  Ch1 plan): choose hyperparameters on tract error of the **train** counties' tracts and keep the test counties'
+  tracts for the final score, so tract validation stays independent. Until then, report the chosen settings with
+  each result.
+- Counties with almost no BUI (Macoupin IL: 95-99 % of the population on cells with BUI = 0 in every version):
+  likely gaps in the source records. Count such counties per year (share of county population on BUI = 0 cells,
+  or BUI total per person) before the full run.
+
 ### Compute allocation (Ascent)
 
 - **Status:** approved. Slurm account `ucb852_asc1`, 450,000 SU,
@@ -318,3 +329,4 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
 | 2026-10-27 | CONUS v3 (+ elev, slope) best on tracts (2010 MdAPE 29.2 vs 29.8 %, every density class) and becomes the CONUS base; v4 (+ distances + terrain) ~ v2: distances dropped. BUI unit = sq ft (README); cells > 3e7 sq ft are record errors (10 / 119 / 298 cells in 1920 / 1960 / 2010), treatment to decide. |
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
 | 2026-10-27 | BUI fix implemented as a separate step after the cutout (`src/grid/bui_fix.py`, in place on `layers/BUI/`, original kept in `layers/BUI_raw/`, reruns identical), switched on by `bui_cap` in the study area config (Massachusetts: none, check only). Neighbours above the cap, with nodata or outside the window are left out of the median (none left -> 0); strips use one halo row. New versions `Dasy_CONUS_RF_v1_bui` / `Dasy_CONUS_RF_v3_bui` (1920/1960/2010, compare_with v1 / v3) so the old v1 / v3 outputs stay. |
+| 2026-10-27 | BUI fix (cap 3e7 sq ft -> 3 x 3 neighbour median) applied; alone it changes tract error by about 0.1 point. v3_bui (v1 + terrain on fixed BUI) is the CONUS base: tract MdAPE 53.7 / 38.2 / 25.2 % (1920 / 1960 / 2010); the 2010 gain over v3 comes with `max_features` 1.0 picked on a CV tie. Distances spread population onto empty cells (county maps); terrain keeps it in valleys. |

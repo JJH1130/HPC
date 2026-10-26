@@ -238,9 +238,9 @@ Likely reasons (interpretation, not tested separately):
 1. **The model learns between counties and is applied within them.** Training rows are county means and the
    county total is known, so a feature helps only if its county-level relationship also holds inside a county.
    The county TEST R2 measures the first part only; the tract error measures what matters for allocation.
-2. **Distances (v2, v4).** Distance to large places explains how dense a county is (regional urbanisation), hence
-   the large R2 gain. Inside a county the distance surface is smooth and points toward the nearest city, so weight
-   moves to empty land on the city side and away from towns elsewhere in the county. The largest losses are in
+2. **Distances (v2, v4).** Distance to places explains how dense a county is (regional urbanisation), hence
+   the large R2 gain. Inside a county the distance surface is smooth (rings around the nearest small places), so
+   weight spreads onto empty land around them (confirmed by the county maps, "BUI fix + v1_bui / v3_bui result"). The largest losses are in
    rural tracts (2010 < 50 people / km2: 35.2 -> 49.8 %); single rural counties lose most (Chelan WA rural tracts
    12 -> 106 %, Reno KS 67 -> 161 %, Fremont CO 26 -> 105 %, Macoupin IL 42 -> 85 %). Adding terrain (v4) does not
    remove the effect, so the non-linear model does not turn distance into a within-county signal. The county maps
@@ -255,6 +255,49 @@ Likely reasons (interpretation, not tested separately):
    and has very large errors in every version.
 5. **BUI outliers** (below) were in every version's input; their effect on these comparisons is unknown but the same
    for all versions. The base runs are repeated after the fix.
+
+## BUI fix + v1_bui / v3_bui result (jobs 34926193-34926203, code fe4804c, run 2026-10-26)
+
+All 11 jobs completed. BUI cap 3e7 sq ft: 10 / 119 / 298 cells replaced (1920 / 1960 / 2010; 2 / 10 / 74 of them set
+to 0 because all neighbours were 0); they held 2.6 / 9.0 / 10.6 % of all BUI. Massachusetts: 0 cells above the cap.
+
+| Version | Tract MdAPE 1920 / 1960 / 2010 | MAE 2010 | 2010 test counties | County TEST R2 2010 |
+|---|---|---|---|---|
+| v1 | 55.7 / 38.4 / 29.8 % | 1,693 | 30.3 % | 0.775 |
+| v1_bui | 55.1 / 38.3 / 29.7 % | 1,683 | 30.4 % | 0.776 |
+| v3 | - / 38.3 / 29.2 % | 1,613 | 29.4 % | 0.875 |
+| **v3_bui** | **53.7 / 38.2 / 25.2 %** | **1,464** | **26.0 %** | 0.875 |
+
+2010 by tract density (people / km2), MdAPE: v3_bui 28.2 (<50), 23.7 (50-500), 21.5 (500-2000), 30.4 (2000+) vs v1
+35.2 / 29.2 / 25.4 / 34.2.
+
+- The BUI fix alone changes little: v1 -> v1_bui and v3 -> v3_bui in 1960 move by 0.1 point (same hyperparameters).
+- **The 2010 gain of v3_bui (29.2 -> 25.2 %) comes with a different hyperparameter choice**: the search picked
+  `max_features: 1.0` (v3 picked 0.5), a CV difference of 0.0007 RMSE (0.8647 vs 0.8644 R2), essentially a tie on
+  county CV. With 1.0, SHAP puts `bui` far ahead (0.98) and `bldg_size` drops (0.25 -> 0.07). So the gain is real on
+  tracts (train and test counties alike: 25.0 / 26.0 %) but was not chosen for it: county CV cannot tell these
+  settings apart, while tract error differs by 4 points. Hyperparameters matter for allocation more than county CV
+  shows; see the open item on allocation-aware tuning.
+- v3_bui is the CONUS base (best in every year and density class).
+
+County maps (2010; `results/validation/conus/county_maps/`), share of the county population put on cells with BUI = 0:
+
+| County | v1_bui | v2 | v3_bui | v4 |
+|---|---|---|---|---|
+| Chelan WA | 44 % | 68 % | 18 % | 56 % |
+| Fremont CO | 45 % | 68 % | 4 % | 48 % |
+| Reno KS | 25 % | 51 % | 6 % | 42 % |
+| Macoupin IL | 95 % | 99 % | 96 % | 99 % |
+
+- Distances spread people onto empty cells: v2 puts 51-68 % of the population on cells without buildings, against
+  25-45 % for v1. The maps show smooth rings around the nearest small places (d_10k, d_20k lead the v2 SHAP), not a
+  shift toward the large metro (population-weighted distance to it changes by 1-8 km). The earlier reading ("toward the
+  city") is replaced by this one.
+- Terrain does the opposite: v3_bui follows valley floors and rivers and puts only 4-18 % on empty cells.
+- v1 itself puts 25-45 % on empty cells: exp(y_hat) is positive everywhere, and in large rural counties the many
+  empty cells add up. Terrain is what limits this.
+- Macoupin IL: 95-99 % on empty cells in every version, so its BUI is nearly empty: a likely gap in the source
+  records (ZTRAX coverage) for that county. To check how many counties have such gaps.
 
 ## BUI outliers (bui_qa, job 34921582)
 
