@@ -1,0 +1,331 @@
+== job 34921582 (bui_qa) on c3cpu-c15-u1-1 at 2026-10-26T10:43:02-06:00
+== cores=2 gpus=none restart=0
+== git 84a2927
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus years=1920 1960 2010)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: 
+10:43:56 INFO arg cutout = /scratch/alpine/jaju1407/hisdac/cutouts/conus
+10:43:56 INFO arg years = [1920, 1960, 2010]
+10:43:56 INFO arg out_dir = results/cutout/conus
+10:43:56 INFO arg caps = [10000000.0, 30000000.0, 100000000.0]
+10:43:56 INFO arg top = 50
+10:43:56 INFO arg block_rows = 512
+10:43:56 INFO arg metro_rank = 50
+10:43:56 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+10:43:56 INFO doc files under /pl/active/Leyk_Lab/data/HISDAC_US_V2: 6
+10:43:56 INFO   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA_README.txt (2094 bytes)
+10:43:56 INFO   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI_README.txt (1947 bytes)
+10:43:56 INFO   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL_README.txt (2086 bytes)
+10:43:56 INFO   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR_README.txt (2495 bytes)
+10:43:56 INFO   /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY_README.txt (1997 bytes)
+10:43:56 INFO   /pl/active/Leyk_Lab/data/HISDAC_US_V2/LU_Count_README.txt (2438 bytes)
+10:43:56 INFO ==== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA_README.txt ====
+These files are part of the dataset
+"Historical built-up areas (BUA) - gridded surfaces for the U.S. from 1810 to 2020",
+contained in the dataverse HISDAC-US: Historical Settlement Data Compilation for the United States 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1�16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/OPSSWR, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96�114 (2020). doi:10.4324/9781315019444-13
+
+
+The gridded surfaces (*.tif) contained in the BUA.tar.gz archive represent built-up areas (1) versus not built-up areas (0)
+within grid cells of 250x250m, for each half-decade from 1810 to 2015. A grid cell is considered built-up if it contains at least one built-up property in a given year.
+
+Abbreviations and explanations:
+BUA:			Built-up areas. Grid cells containing at least one built-up property in a given year.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu
+==== end BUA_README.txt ====
+10:43:56 INFO ==== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI_README.txt ====
+These files are part of the dataset "Historical built-up intensity layer series for the U.S. 1810 � 2015,"
+contained in the dataverse �HISDAC-US: Historical Settlement Data Compilation for the United States� 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Yoonjung;Leyk, Stefan;Uhl, Johannes H.; McShane, Caitlin M., 2023, "Gridded Settlement Data for the Conterminous United States Over 200 years",
+https://doi.org/10.7910/DVN/1WB9E4, Harvard Dataverse
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of land development in the United States. Earth Syst. Sci. Data 96�114 (2020). doi:10.4324/9781315019444-13
+
+This dataset contains the following files:
+
+- BUI.tar.gz: Archive contains the time series of BUI raster layers between 1810 and 2015 (BUI_1810 � BUI_2015) with semi-decadal temporal resolution.
+
+Abbreviations and explanations:
+BUI:		Built-up intensity. Integer-valued raster datasets containing indoor building gross area sum per pixel area in square feet.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu
+==== end BUI_README.txt ====
+10:43:56 INFO ==== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL_README.txt ====
+These files are part of the dataset
+"Historical built-up property locations (BUPL) - gridded surfaces for the U.S. from 1810 to 2020",
+contained in the dataverse �HISDAC-US: Historical Settlement Data Compilation for the United States� 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1�16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/U2P66Z, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96�114 (2020). doi:10.4324/9781315019444-13
+
+
+The gridded surfaces (*.tif) contained in the BUPL.tar.gz archive represent built-up property locations (i.e., buildings)
+contained within grid cells of 250x250m, for each half-decade from 1810 to 2020.
+
+Abbreviations and explanations:
+BUPL:			Built-up property locations. Unique locations of built-up property records (i.e., buildings or building units), independent from ownership situation.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu
+==== end BUPL_README.txt ====
+10:43:56 INFO ==== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR_README.txt ====
+These files are part of the dataset
+"Historical built-up property records (BUPR) - gridded surfaces for the U.S. from 1810 to 2020",
+contained in the dataverse �HISDAC-US: Historical Settlement Data Compilation for the United States� 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1�16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/45B8IU, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96�114 (2020). doi:10.4324/9781315019444-13
+
+
+The gridded surfaces (*.tif) contained in the BUPR.tar.gz archive represent built-up property records (i.e., buildings or building units)
+contained within grid cells of 250x250m, for each half-decade from 1810 to 2020.
+Moreover, there is a file called BUPR_contemp.tif which contains all built-up property records from the underlying ZTRAX dataset,
+regardless the value or availability of the built year attribute. Thus, BUPR_contemp.tif represents the spatial distribution of built-up 
+property records approximately in 2016, when the underlying ZTRAX data were compiled.
+
+Abbreviations and explanations:
+BUPR:			Built-up property records. Individual built-up property records in ZTRAX, Parcel, and BuildZero Open City Model representing a building or building unit, depending on ownership situation.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu
+==== end BUPR_README.txt ====
+10:43:56 INFO ==== /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY_README.txt ====
+These files are part of the dataset "Historical settlement first built layer (FBUY) for the U.S. 1810 � 2020 ,"contained in the dataverse �HISDAC-US: Historical Settlement Data Compilation for the United States� 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Yoonjung;Leyk, Stefan;Uhl, Johannes H.; McShane, Caitlin M., 2023, "Gridded Settlement Data for the Conterminous United States Over 200 years", 
+https://doi.org/10.7910/DVN/HHFM5E, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96�114 (2020). doi:10.4324/9781315019444-13
+
+This dataset contains the following files:
+
+- FBUY.tiff: Archive that contains the FBUY (values indicates the presence of built structures built-year)
+- NobuiltYear.tiff: Archive that contains the values indicates the presence of built structures without built year 
+
+Abbreviations and explanations:
+FBUY:		First built-up year. A raster composite with each pixel value indicating the year of first settlement within the pixel area.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu
+==== end FBUY_README.txt ====
+10:43:56 INFO ==== /pl/active/Leyk_Lab/data/HISDAC_US_V2/LU_Count_README.txt ====
+These files are part of the dataset
+"Historical Land Use for the U.S. 1940-2015: Class Counts Version II",
+contained in the dataverse  HISDAC-US: Historical Settlement Data Compilation for the United States  
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1–16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/PRJBUF, Harvard Dataverse. 
+
+Related Publication:
+Mc Shane, Caitlin M.; Uhl, Johannes H.; Leyk, Stefan 2021, "Historical Land Use for the U.S. 1940-2015",
+https://doi.org/10.7910/DVN/LNBJIO, Harvard Dataverse
+
+The gridded surfaces (*.tif) contained in the counts.tar.gz archive represent number of records within grid cells of 250x250m, for each of the eight
+land use themes on an accumulative mid-decadal scale (i.e., 1940  means that values up to 1944 are summed up from 1810). 
+
+Historical Land Use for the U.S. 1940-2015 (Class Counts)
+Abbreviations and explanations:
+Geo-Referenced:		Records are geo referenced if an explicit latitude and longitude is provided in ZTRAX, Building records from Open City Model and Parcel Atlas used the centroid points of the polygons.
+Missing Grid-ID:	Records without an explicit latitude and longitude, which could not be grid-indexed.
+.tar.gz 'A': 		Agriculture
+.tar.gz 'C': 		Commercial
+.tar.gz 'I': 		Industrial
+.tar.gz 'RC': 		Recreational
+.tar.gz 'RI': 		Residential-Income
+.tar.gz 'RO': 		Residential-Owned
+.tar.gz 'GV': 		Governmental
+.tar.gz 'VL': 		VacantLand
+
+Grid Cell Value:	The number of records with a land use description for the individual theme
+				
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu
+==== end LU_Count_README.txt ====
+10:43:56 INFO tags of /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1810_BUI.tif: {'AREA_OR_POINT': 'Area'} | band tags {} | units (None,) | descriptions (None,) | dtype float64 nodata None
+10:44:12 INFO 1920: 214401285 cells, 1811310 with BUI > 0, 0 nodata | p50 3504 p99 2.59e+05 p99.9 1.828e+06 p99.99 6.88e+06 max 3.066e+08 | above caps {'n_gt_1e7': 85, 'n_gt_3e7': 10, 'n_gt_1e8': 3}
+10:44:12 INFO   1920 top 50: 25 in the 50 most populous counties, 25 elsewhere, 0 outside any county | 27 isolated (> 100 x the neighbour median) | 12 counties, 7 states | bldg_size median 2.7e+06
+10:44:12 INFO   1920 top cells by county:
+                                 cells      max_BUI  pop_rank  density  isolated
+state        name                                                               
+New York     New York County        20   75650664.0       2.0  38231.4         0
+Pennsylvania York County            16  148880432.0      90.0     61.3        16
+Oregon       Multnomah County        2   26752064.0      44.0    228.8         1
+New York     Kings County            2   27819794.0       3.0  10958.4         0
+Texas        Childress County        2   28713154.0    2231.0      5.9         2
+             Carson County           2   87704544.0    2923.0      1.3         2
+Idaho        Bonneville County       1   19198652.0    1556.0      3.6         1
+Michigan     Ingham County           1  306635552.0     176.0     56.2         1
+New York     Queens County           1   54190692.0      22.0   1654.6         1
+             Ulster County           1   16847812.0     194.0     24.9         1
+South Dakota Lake County             1   16645132.0    2082.0      8.2         1
+Texas        Nacogdoches County      1  157764640.0     777.0     11.2         1
+10:44:26 INFO 1960: 214401285 cells, 4456367 with BUI > 0, 0 nodata | p50 4024 p99 2.688e+05 p99.9 1.266e+06 p99.99 8.131e+06 max 7.1e+08 | above caps {'n_gt_1e7': 344, 'n_gt_3e7': 119, 'n_gt_1e8': 27}
+10:44:26 INFO   1960 top 50: 35 in the 50 most populous counties, 15 elsewhere, 0 outside any county | 30 isolated (> 100 x the neighbour median) | 10 counties, 6 states | bldg_size median 8.26e+06
+10:44:26 INFO   1960 top cells by county:
+                                 cells      max_BUI  pop_rank  density  isolated
+state        name                                                               
+New York     Queens County          17  368769184.0       6.0   6383.6         8
+             New York County        11  709978560.0       7.0  28425.9         2
+Texas        Carson County           6  109630672.0    2517.0      3.3         6
+New York     Kings County            5  187154176.0       4.0  14264.7         3
+Texas        Nacogdoches County      4  315546784.0    1075.0     11.0         4
+New York     Bronx County            2  278177536.0      10.0  13004.5         2
+Oregon       Multnomah County        2  104471184.0      57.0    433.5         2
+California   San Mateo County        1  285362432.0      69.0    378.5         1
+Michigan     Ingham County           1  306635552.0     154.0    145.5         1
+Pennsylvania York County             1  169180272.0     133.0    101.0         1
+10:44:41 INFO 2010: 214401285 cells, 10926198 with BUI > 0, 0 nodata | p50 6344 p99 3.206e+05 p99.9 1.268e+06 p99.99 6.941e+06 max 5.447e+09 | above caps {'n_gt_1e7': 743, 'n_gt_3e7': 298, 'n_gt_1e8': 86}
+10:44:41 INFO   2010 top 50: 33 in the 50 most populous counties, 17 elsewhere, 0 outside any county | 35 isolated (> 100 x the neighbour median) | 10 counties, 7 states | bldg_size median 2.09e+07
+10:44:41 INFO   2010 top cells by county:
+                                 cells       max_BUI  pop_rank  density  isolated
+state        name                                                                
+New York     Queens County          12  3.692431e+08      10.0   7869.3         8
+             New York County        11  1.661721e+09      20.0  26544.4         5
+Texas        Nacogdoches County     10  3.945177e+08     803.0     25.4        10
+New York     Kings County            5  3.292644e+08       7.0  13599.0         1
+             Bronx County            5  5.447140e+09      26.0  12642.1         5
+Nevada       Washoe County           2  1.006763e+09     159.0     24.9         1
+Missouri     Newton County           2  1.000159e+09     870.0     35.8         2
+California   San Mateo County        1  2.853990e+08      81.0    611.9         1
+Michigan     Ingham County           1  3.066356e+08     227.0    193.4         1
+Pennsylvania York County             1  2.046532e+08     150.0    184.4         1
+10:44:41 INFO BUI quantiles over cells with BUI > 0:
+ year     cells  nodata_cells  cells_bui_pos    p50       p99       p99.9       p99.99          max  n_gt_1e7  n_gt_3e7  n_gt_1e8
+ 1920 214401285             0        1811310 3504.0 258971.73 1827847.100 6.879629e+06  306635552.0        85        10         3
+ 1960 214401285             0        4456367 4024.0 268836.02 1266144.268 8.130899e+06  709978560.0       344       119        27
+ 2010 214401285             0       10926198 6344.0 320577.00 1268040.150 6.940733e+06 5447140352.0       743       298        86
+10:44:41 INFO wrote results/cutout/conus/bui_quantiles.csv, results/cutout/conus/bui_top.csv
+10:44:41 INFO DONE
+== done 2026-10-26T10:44:41-06:00

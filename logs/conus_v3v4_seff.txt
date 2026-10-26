@@ -1,0 +1,182 @@
+Job ID: 34921582
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 2
+
+-------- CPU Metrics --------
+CPU Utilized: 00:00:43
+CPU Efficiency: 20.28% of 00:03:32 core-walltime
+Job Wall-clock time: 00:01:46
+Memory Utilized: 1.29 GiB
+Memory Efficiency: 17.22% of 7.50 GiB (3.75 GiB/core)
+
+Job ID: 34921583
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 4
+
+-------- CPU Metrics --------
+CPU Utilized: 00:00:43
+CPU Efficiency: 6.25% of 00:11:28 core-walltime
+Job Wall-clock time: 00:02:52
+Memory Utilized: 8.06 GiB
+Memory Efficiency: 53.74% of 15.00 GiB (3.75 GiB/core)
+
+Job ID: 34921584
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+
+-------- CPU Metrics --------
+CPU Utilized: 00:03:13
+CPU Efficiency: 8.71% of 00:36:56 core-walltime
+Job Wall-clock time: 00:04:37
+Memory Utilized: 15.29 GiB
+Memory Efficiency: 50.97% of 30.00 GiB (3.75 GiB/core)
+
+Job ID: 34921585
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+
+-------- CPU Metrics --------
+CPU Utilized: 00:03:12
+CPU Efficiency: 8.60% of 00:37:12 core-walltime
+Job Wall-clock time: 00:04:39
+Memory Utilized: 15.19 GiB
+Memory Efficiency: 50.65% of 30.00 GiB (3.75 GiB/core)
+
+Job ID: 34921586
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 6
+
+-------- CPU Metrics --------
+CPU Utilized: 00:02:04
+CPU Efficiency: 12.92% of 00:16:00 core-walltime
+Job Wall-clock time: 00:02:40
+Memory Utilized: 9.53 GiB
+Memory Efficiency: 42.35% of 22.50 GiB (3.75 GiB/core)
+
+Job ID: 34921587
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 16
+
+-------- CPU Metrics --------
+CPU Utilized: 00:10:30
+CPU Efficiency: 9.53% of 01:50:08 core-walltime
+Job Wall-clock time: 00:06:53
+Memory Utilized: 4.21 GiB
+Memory Efficiency: 7.01% of 60.00 GiB (3.75 GiB/core)
+
+Job ID: 34921588
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 32
+
+-------- CPU Metrics --------
+CPU Utilized: 00:30:50
+CPU Efficiency: 11.05% of 04:38:56 core-walltime
+Job Wall-clock time: 00:08:43
+Memory Utilized: 13.74 GiB
+Memory Efficiency: 11.45% of 120.00 GiB (3.75 GiB/core)
+
+Job ID: 34921589
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+
+-------- CPU Metrics --------
+CPU Utilized: 00:03:56
+CPU Efficiency: 10.73% of 00:36:40 core-walltime
+Job Wall-clock time: 00:04:35
+Memory Utilized: 15.75 GiB
+Memory Efficiency: 52.51% of 30.00 GiB (3.75 GiB/core)
+
+Job ID: 34921590
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 6
+
+-------- CPU Metrics --------
+CPU Utilized: 00:02:32
+CPU Efficiency: 10.78% of 00:23:30 core-walltime
+Job Wall-clock time: 00:03:55
+Memory Utilized: 9.78 GiB
+Memory Efficiency: 43.46% of 22.50 GiB (3.75 GiB/core)
+
+Job ID: 34921591
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 16
+
+-------- CPU Metrics --------
+CPU Utilized: 00:16:52
+CPU Efficiency: 10.47% of 02:41:04 core-walltime
+Job Wall-clock time: 00:10:04
+Memory Utilized: 4.66 GiB
+Memory Efficiency: 7.77% of 60.00 GiB (3.75 GiB/core)
+
+Job ID: 34921592
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 32
+
+-------- CPU Metrics --------
+CPU Utilized: 00:40:49
+CPU Efficiency: 11.61% of 05:51:28 core-walltime
+Job Wall-clock time: 00:10:59
+Memory Utilized: 13.69 GiB
+Memory Efficiency: 11.40% of 120.00 GiB (3.75 GiB/core)
+
+Job ID: 34921593
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+
+-------- CPU Metrics --------
+CPU Utilized: 00:02:42
+CPU Efficiency: 10.28% of 00:26:16 core-walltime
+Job Wall-clock time: 00:03:17
+Memory Utilized: 15.55 GiB
+Memory Efficiency: 51.82% of 30.00 GiB (3.75 GiB/core)
+
+Job ID: 34921594
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: FAILED (exit code 1)
+Nodes: 1
+Cores per node: 4
+
+-------- CPU Metrics --------
+CPU Utilized: 00:00:07
+CPU Efficiency: 3.65% of 00:03:12 core-walltime
+Job Wall-clock time: 00:00:48
+Memory Utilized: 5.54 GiB
+Memory Efficiency: 36.95% of 15.00 GiB (3.75 GiB/core)
+

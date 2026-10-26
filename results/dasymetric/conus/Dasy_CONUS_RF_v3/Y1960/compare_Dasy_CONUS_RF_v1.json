@@ -1,0 +1,38 @@
+{
+  "version": "Dasy_CONUS_RF_v1",
+  "model": "rf",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "dist_built",
+    "res_share",
+    "rent_share"
+  ],
+  "n_rows_scored": 2477,
+  "folds": "same as this model (checked)",
+  "predictions": "Dasy_CONUS_RF_v1/Y1960/model/oof_predictions.csv",
+  "target": "Dasy_CONUS_RF_v1's own y",
+  "cv_rmse_mean": 0.801978011233343,
+  "cv_rmse_sd": 0.04576634510357619,
+  "cv_rmse_folds": [
+    0.8045280840894158,
+    0.7260399031392525,
+    0.8241243662205154,
+    0.789543781712697,
+    0.8656539210048346
+  ],
+  "cv_r2_mean": 0.7186680757633208,
+  "cv_r2_sd": 0.03613036758247849,
+  "cv_r2_folds": [
+    0.7230665417448052,
+    0.7488753404435766,
+    0.706286164292859,
+    0.7585215032331132,
+    0.6565908291022502
+  ],
+  "pooled_rmse": 0.8033677088996105,
+  "pooled_r2": 0.7198741188827291,
+  "reported_cv_rmse_mean": 0.801978011233343,
+  "reported_cv_r2_mean": 0.7186680757633208
+}

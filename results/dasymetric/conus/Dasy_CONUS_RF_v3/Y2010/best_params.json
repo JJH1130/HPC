@@ -1,0 +1,6 @@
+{
+  "n_estimators": 200,
+  "min_samples_leaf": 1,
+  "max_features": 0.5,
+  "max_depth": 15
+}

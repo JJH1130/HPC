@@ -1,0 +1,31 @@
+== job 34921594 (county_maps) on c3cpu-e2-u3 at 2026-10-26T11:15:16-06:00
+== cores=4 gpus=none restart=0
+== git 84a2927 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  census: /projects/jaju1407/data/processed/census_conus  args: --counties G5300070 G2001550 G0800430 G1701170 --versions Dasy_CONUS_RF_v1 Dasy_CONUS_RF_v2 Dasy_CONUS_RF_v4
+11:15:43 INFO arg study_config = configs/conus_study_area.yaml
+11:15:43 INFO arg counties = ['G5300070', 'G2001550', 'G0800430', 'G1701170']
+11:15:43 INFO arg versions = ['Dasy_CONUS_RF_v1', 'Dasy_CONUS_RF_v2', 'Dasy_CONUS_RF_v4']
+11:15:43 INFO arg year = 2010
+11:15:43 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+11:15:43 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:15:43 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+11:15:43 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+11:15:43 INFO arg validation_root = results/validation
+11:15:43 INFO arg out_dir = results/validation/conus/county_maps
+11:15:43 INFO arg margin_km = 5.0
+11:15:43 INFO arg metro_pop = 250000
+11:15:56 INFO CSV /projects/jaju1407/data/raw/plural/plural_2023/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv: 31768 places, PLURAL years [2010]
+Traceback (most recent call last):
+  File "/projects/jaju1407/HPC/src/validation/county_maps.py", line 253, in <module>
+    main()
+  File "/projects/jaju1407/HPC/src/validation/county_maps.py", line 232, in main
+    places = metros(args.study_config, year, args.metro_pop, crs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/jaju1407/HPC/src/validation/county_maps.py", line 81, in metros
+    pts = place_points(pcfg, [py], crs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/jaju1407/HPC/src/grid/place_dist.py", line 121, in place_points
+    crs.to_string() if crs.to_epsg() else crs.name)
+                                          ^^^^^^^^
+AttributeError: 'rasterio.crs.CRS' object has no attribute 'name'

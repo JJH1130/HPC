@@ -1,0 +1,48 @@
+{
+  "model": "rf",
+  "version": "Dasy_CONUS_RF_v3",
+  "era": "Y2010",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "dist_built",
+    "res_share",
+    "rent_share",
+    "elev",
+    "slope"
+  ],
+  "n_rows": 2487,
+  "n_counties": 2487,
+  "n_years": 1,
+  "cv": "5 folds, split table conus_split.csv by GISJOIN",
+  "scoring": "neg_root_mean_squared_error",
+  "cv_rmse_mean": 0.63364802938102,
+  "cv_rmse_sd": 0.028563799276270323,
+  "cv_rmse_folds": [
+    0.6369588414186548,
+    0.5932226306325821,
+    0.6405032271511599,
+    0.6177175422746317,
+    0.6798379054280719
+  ],
+  "cv_r2_mean": 0.8631052490760636,
+  "cv_r2_sd": 0.013733007682454895,
+  "cv_r2_folds": [
+    0.8613482667644481,
+    0.8732113822880029,
+    0.8621028555358855,
+    0.8795535548437106,
+    0.839310185948271
+  ],
+  "train_rmse": 0.25456935558736277,
+  "train_r2": 0.9780174901929943,
+  "y_sd": 1.7169888915635056,
+  "target": "log(pop / (0.0625 x unmasked cells))",
+  "n_test_rows": 622,
+  "n_test_counties": 622,
+  "test_rmse": 0.606273640101393,
+  "test_r2": 0.87450041755788,
+  "oof_pooled_rmse": 0.6342766027061479,
+  "oof_pooled_r2": 0.8635346441773996
+}

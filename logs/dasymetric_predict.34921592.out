@@ -1,0 +1,78 @@
+== job 34921592 (dasymetric_predict) on c3cpu-a9-u5-1 at 2026-10-26T11:00:28-06:00
+== cores=32 gpus=none restart=0
+== git 84a2927 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_rf_v4.yaml (name=conus version=Dasy_CONUS_RF_v4)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  out: /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4  n_jobs: 32  extra args: 
+11:00:58 INFO arg config = configs/conus_rf_v4.yaml
+11:00:58 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+11:00:58 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:00:58 INFO arg years = None
+11:00:58 INFO arg map_years = None
+11:00:58 INFO arg compare_years = None
+11:00:58 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census/counties_2020.gpkg
+11:00:58 INFO arg n_jobs = 32
+11:00:58 INFO arg measure = 0
+11:00:58 INFO maps: [1960, 2010] | side by side with Dasy_CONUS_RF_v1: [2010]
+11:01:14 INFO model rf era Y1960 (/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4/Y1960/model/rf.joblib) | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'd_10k', 'd_20k', 'd_50k', 'd_100k', 'd_250k', 'elev', 'slope'] | use_status ['ok', 'filled_nhgis', 'filled_nhgis_alloc']
+11:01:21 INFO model rf era Y2010 (/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4/Y2010/model/rf.joblib) | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'd_10k', 'd_20k', 'd_50k', 'd_100k', 'd_250k', 'elev', 'slope'] | use_status ['ok', 'filled_nhgis', 'filled_nhgis_alloc']
+11:01:21 INFO 2 years -> /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4
+11:01:51 INFO     1960: dist_built on the whole window in 19.2 s
+11:02:04 INFO     1960 strip 1/23 rows 0-512: 573151 cells | features 10.9 s, RF 0.3 s | 573151/124167622 cells, ETA 44 min
+11:02:16 INFO     1960 strip 2/23 rows 512-1024: 2218506 cells | features 11.3 s, RF 1.0 s | 2791657/124167622 cells, ETA 18 min
+11:02:25 INFO     1960 strip 3/23 rows 1024-1536: 4999567 cells | features 6.7 s, RF 1.9 s | 7791224/124167622 cells, ETA 8 min
+11:02:38 INFO     1960 strip 4/23 rows 1536-2048: 5983383 cells | features 9.9 s, RF 2.3 s | 13774607/124167622 cells, ETA 6 min
+11:02:53 INFO     1960 strip 5/23 rows 2048-2560: 7187612 cells | features 12.0 s, RF 2.7 s | 20962219/124167622 cells, ETA 5 min
+11:03:17 INFO     1960 strip 6/23 rows 2560-3072: 7405520 cells | features 19.5 s, RF 4.0 s | 28367739/124167622 cells, ETA 5 min
+11:03:29 INFO     1960 strip 7/23 rows 3072-3584: 8091247 cells | features 7.1 s, RF 4.5 s | 36458986/124167622 cells, ETA 4 min
+11:04:06 INFO     1960 strip 8/23 rows 3584-4096: 7972362 cells | features 34.0 s, RF 3.7 s | 44431348/124167622 cells, ETA 4 min
+11:04:14 INFO     1960 strip 9/23 rows 4096-4608: 8445502 cells | features 4.3 s, RF 3.3 s | 52876850/124167622 cells, ETA 3 min
+11:04:23 INFO     1960 strip 10/23 rows 4608-5120: 8283150 cells | features 4.5 s, RF 3.2 s | 61160000/124167622 cells, ETA 3 min
+11:04:40 INFO     1960 strip 11/23 rows 5120-5632: 8173297 cells | features 14.0 s, RF 3.2 s | 69333297/124167622 cells, ETA 2 min
+11:04:46 INFO     1960 strip 12/23 rows 5632-6144: 8139912 cells | features 2.3 s, RF 3.2 s | 77473209/124167622 cells, ETA 2 min
+11:04:52 INFO     1960 strip 13/23 rows 6144-6656: 8094490 cells | features 3.1 s, RF 3.3 s | 85567699/124167622 cells, ETA 1 min
+11:04:59 INFO     1960 strip 14/23 rows 6656-7168: 7553656 cells | features 3.4 s, RF 2.9 s | 93121355/124167622 cells, ETA 1 min
+11:05:05 INFO     1960 strip 15/23 rows 7168-7680: 6990213 cells | features 3.3 s, RF 2.7 s | 100111568/124167622 cells, ETA 1 min
+11:05:11 INFO     1960 strip 16/23 rows 7680-8192: 6486171 cells | features 3.2 s, RF 2.6 s | 106597739/124167622 cells, ETA 1 min
+11:05:17 INFO     1960 strip 17/23 rows 8192-8704: 5746071 cells | features 2.3 s, RF 2.8 s | 112343810/124167622 cells, ETA 0 min
+11:05:23 INFO     1960 strip 18/23 rows 8704-9216: 4714797 cells | features 3.1 s, RF 2.8 s | 117058607/124167622 cells, ETA 0 min
+11:05:29 INFO     1960 strip 19/23 rows 9216-9728: 3605063 cells | features 2.8 s, RF 2.7 s | 120663670/124167622 cells, ETA 0 min
+11:05:33 INFO     1960 strip 20/23 rows 9728-10240: 1767121 cells | features 2.4 s, RF 1.1 s | 122430791/124167622 cells, ETA 0 min
+11:05:36 INFO     1960 strip 21/23 rows 10240-10752: 1064229 cells | features 2.7 s, RF 0.6 s | 123495020/124167622 cells, ETA 0 min
+11:05:39 INFO     1960 strip 22/23 rows 10752-11264: 618690 cells | features 2.1 s, RF 0.5 s | 124113710/124167622 cells, ETA 0 min
+11:05:41 INFO     1960 strip 23/23 rows 11264-11615: 53912 cells | features 1.5 s, RF 0.1 s | 124167622/124167622 cells, ETA 0 min
+11:05:56 INFO   1960 (Y1960): 3095 counties, 124167622 cells (648728 masked) | y_hat -2.080..9.648 | pop 178270348 -> cells 178270348 | cell max 4749.3 | max rel diff 4.60e-09 | bad cells 0
+11:05:56 INFO   1960: 4.1 min
+11:06:53 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4/maps/pop_1960.png
+11:07:11 INFO     2010: dist_built on the whole window in 16.8 s
+11:07:16 INFO     2010 strip 1/23 rows 0-512: 573151 cells | features 3.7 s, RF 0.2 s | 573151/124576956 cells, ETA 15 min
+11:07:19 INFO     2010 strip 2/23 rows 512-1024: 2218506 cells | features 2.0 s, RF 1.0 s | 2791657/124576956 cells, ETA 5 min
+11:07:25 INFO     2010 strip 3/23 rows 1024-1536: 4999567 cells | features 3.5 s, RF 2.2 s | 7791224/124576956 cells, ETA 3 min
+11:07:33 INFO     2010 strip 4/23 rows 1536-2048: 5983383 cells | features 5.4 s, RF 2.4 s | 13774607/124576956 cells, ETA 3 min
+11:07:40 INFO     2010 strip 5/23 rows 2048-2560: 7187612 cells | features 3.6 s, RF 3.0 s | 20962219/124576956 cells, ETA 2 min
+11:07:46 INFO     2010 strip 6/23 rows 2560-3072: 7420650 cells | features 3.2 s, RF 3.2 s | 28382869/124576956 cells, ETA 2 min
+11:07:53 INFO     2010 strip 7/23 rows 3072-3584: 8091247 cells | features 3.6 s, RF 3.1 s | 36474116/124576956 cells, ETA 2 min
+11:08:00 INFO     2010 strip 8/23 rows 3584-4096: 7972362 cells | features 3.2 s, RF 3.1 s | 44446478/124576956 cells, ETA 1 min
+11:08:06 INFO     2010 strip 9/23 rows 4096-4608: 8445502 cells | features 3.1 s, RF 3.3 s | 52891980/124576956 cells, ETA 1 min
+11:08:14 INFO     2010 strip 10/23 rows 4608-5120: 8285319 cells | features 3.4 s, RF 3.2 s | 61177299/124576956 cells, ETA 1 min
+11:08:20 INFO     2010 strip 11/23 rows 5120-5632: 8173308 cells | features 3.1 s, RF 3.1 s | 69350607/124576956 cells, ETA 1 min
+11:08:29 INFO     2010 strip 12/23 rows 5632-6144: 8156684 cells | features 3.1 s, RF 3.2 s | 77507291/124576956 cells, ETA 1 min
+11:08:37 INFO     2010 strip 13/23 rows 6144-6656: 8094490 cells | features 4.0 s, RF 3.2 s | 85601781/124576956 cells, ETA 1 min
+11:08:43 INFO     2010 strip 14/23 rows 6656-7168: 7681672 cells | features 3.1 s, RF 3.0 s | 93283453/124576956 cells, ETA 1 min
+11:08:49 INFO     2010 strip 15/23 rows 7168-7680: 7237449 cells | features 3.1 s, RF 2.9 s | 100520902/124576956 cells, ETA 0 min
+11:08:55 INFO     2010 strip 16/23 rows 7680-8192: 6486171 cells | features 3.0 s, RF 2.8 s | 107007073/124576956 cells, ETA 0 min
+11:09:01 INFO     2010 strip 17/23 rows 8192-8704: 5746071 cells | features 3.0 s, RF 2.6 s | 112753144/124576956 cells, ETA 0 min
+11:09:07 INFO     2010 strip 18/23 rows 8704-9216: 4714797 cells | features 2.9 s, RF 2.2 s | 117467941/124576956 cells, ETA 0 min
+11:09:11 INFO     2010 strip 19/23 rows 9216-9728: 3605063 cells | features 2.5 s, RF 1.7 s | 121073004/124576956 cells, ETA 0 min
+11:09:14 INFO     2010 strip 20/23 rows 9728-10240: 1767121 cells | features 2.0 s, RF 0.8 s | 122840125/124576956 cells, ETA 0 min
+11:09:17 INFO     2010 strip 21/23 rows 10240-10752: 1064229 cells | features 2.1 s, RF 0.5 s | 123904354/124576956 cells, ETA 0 min
+11:09:19 INFO     2010 strip 22/23 rows 10752-11264: 618690 cells | features 2.3 s, RF 0.3 s | 124523044/124576956 cells, ETA 0 min
+11:09:21 INFO     2010 strip 23/23 rows 11264-11615: 53912 cells | features 1.6 s, RF 0.1 s | 124576956/124576956 cells, ETA 0 min
+11:09:37 INFO   2010 (Y2010): 3109 counties, 124576956 cells (771990 masked) | y_hat -1.441..9.548 | pop 306675006 -> cells 306675006 | cell max 4332.8 | max rel diff 4.64e-09 | bad cells 0
+11:09:37 INFO   2010: 2.4 min
+11:10:33 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4/maps/pop_2010.png
+11:11:20 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4/maps/pop_2010_Dasy_CONUS_RF_v1_vs_Dasy_CONUS_RF_v4.png
+11:11:21 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4/qa/reallocation_qa.csv
+11:11:21 INFO mass check: 6204 county-years, max rel diff 4.64e-09 (tolerance 1e-06), 0 fail | bad cells 0
+11:11:21 INFO DONE
+== done 2026-10-26T11:11:21-06:00
+723M	/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v4/predictions

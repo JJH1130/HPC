@@ -1,0 +1,26 @@
+== job 34921583 (grid_cutout) on c3cpu-e2-u5 at 2026-10-26T10:43:03-06:00
+== cores=4 gpus=none restart=0
+== git 84a2927
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: --layers DEM
+10:43:54 INFO arg config = configs/conus_study_area.yaml
+10:43:54 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+10:43:54 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+10:43:54 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+10:43:54 INFO arg years = None
+10:43:54 INFO arg layers = ['DEM']
+10:43:54 INFO study area 'conus': states=all | 3 config years 1920-2010 | writing 3 years -> /scratch/alpine/jaju1407/hisdac/cutouts/conus
+10:43:54 INFO layer DEM            single file            resampling average  float32 | files to write: 1
+10:43:55 INFO reference grid: 1920_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+10:43:55 INFO 0 rasters on the HISDAC grid (window read), 1 to warp onto it
+10:44:00 INFO 1920: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+10:44:04 INFO 1960: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+10:44:09 INFO 2010: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+10:44:09 INFO window: full (the whole HISDAC grid of 1920_BUI.tif)
+10:44:09 INFO window: col_off 0 row_off 0 | 18459 x 11615 cells | bounds [-2356399, 269249, 2258351, 3172999] (counties [-2356114, 269281, 2258244, 3172568])
+10:44:09 INFO --layers ['DEM']: window matches /scratch/alpine/jaju1407/hisdac/cutouts/conus/window.json; zones, window.json and cutout_qa.csv are kept
+10:44:09 INFO cutting 1 rasters
+10:45:48 INFO   DEM                float64, warped (average) -> float32 nodata=-32768.0 | min -115.9492884093901 max 4351.780934645269 | zeros 49624968 | nodata cells 0 | 436.8 MB
+10:45:48 INFO DONE
+2.7G	/scratch/alpine/jaju1407/hisdac/cutouts/conus
+== done 2026-10-26T10:45:49-06:00
