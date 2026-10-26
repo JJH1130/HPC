@@ -37,10 +37,9 @@ Last updated: 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL
   without a built year), 1810–2020 at 5-year steps, 250 m, ESRI:102039
   (USA Contiguous Albers Equal Area Conic, USGS version).
 - BUI definition (Harvard Dataverse description of HISDAC-US): the sum of the gross indoor area of all built-up
-  properties in a grid cell in a given year. **Unit to confirm (2026-10-27):** sq ft above follows ZTRAX (building
-  areas in sq ft); the dataset descriptions found do not state it. `sbatch/bui_qa.sh` prints the README / metadata
-  files under `$HISDAC_DIR` and the BUI raster tags into its log; record the unit here from that log. The CONUS
-  maxima (5.4e9 in one 250 m cell in 2010) are impossible in either unit (`docs/conus_plan.md`, "BUI outliers").
+  properties in a grid cell in a given year. **Unit: square feet** (confirmed 2026-10-27 from `$HISDAC_DIR/BUI_README.txt`: "Integer-valued raster datasets
+  containing indoor building gross area sum per pixel area in square feet"; job 34921582). A 250 m cell is 672,700 sq ft.
+  The CONUS maxima (5.4e9 sq ft in one cell in 2010) are record errors (`docs/conus_plan.md`, "BUI outliers").
 - Source data: ZTRAX (Zillow), Parcel Atlas, BuildZero Open City Model.
 - Notes: built from contemporary records filtered by year built, so demolished
   structures are missing and early periods are under-represented. No nodata value;

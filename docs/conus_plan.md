@@ -196,6 +196,40 @@ county mean `d_250k` (v2 `county_features.csv`) 60-150 km, largest rise of the m
 per state: Chelan WA (`G5300070`, 7 rural tracts, 12 -> 106 %, 141 km), Reno KS (`G2001550`, 6, 67 -> 161 %, 73 km),
 Fremont CO (`G0800430`, 5, 26 -> 105 %, 76 km), Macoupin IL (`G1701170`, 9, 42 -> 85 %, 76 km).
 
+## v3 / v4 result (1960, 2010; jobs 34921582-34921594, code 84a2927, run 2026-10-26)
+
+All jobs completed except `county_maps` (bug: `place_points` calls `crs.name` on a rasterio CRS).
+
+Tract MdAPE (%), all tracts and by observed tract density (people / km2), and county TEST R2:
+
+| Version | Year | All | <50 | 50-500 | 500-2000 | 2000+ | MAE | County TEST R2 |
+|---|---|---|---|---|---|---|---|---|
+| v1 base | 1960 | 38.4 | 119.6 | 55.4 | 31.0 | 36.3 | 2,167 | 0.740 |
+| v2 + distances | 1960 | 41.6 | 178.0 | 56.8 | 34.5 | 39.8 | 2,368 | 0.874 |
+| v3 + terrain | 1960 | **38.3** | 125.1 | 56.4 | **30.2** | **36.1** | **2,151** | 0.859 |
+| v4 + both | 1960 | 40.3 | 167.2 | 55.6 | 33.3 | 38.2 | 2,292 | 0.892 |
+| v1 base | 2010 | 29.8 | 35.2 | 29.2 | 25.4 | 34.2 | 1,693 | 0.775 |
+| v2 + distances | 2010 | 40.2 | 49.8 | 39.4 | 35.6 | 43.8 | 2,249 | 0.902 |
+| v3 + terrain | 2010 | **29.2** | **34.6** | **28.7** | **24.9** | **33.2** | **1,613** | 0.875 |
+| v4 + both | 2010 | 39.8 | 49.6 | 39.5 | 35.4 | 42.9 | 2,186 | 0.913 |
+
+- Terrain helps on CONUS: v3 is best on tracts in 2010 in every density class (MAE -5 %) and ties v1 in 1960,
+  while raising county TEST R2 0.775 -> 0.875. `elev` is the second feature in SHAP (0.34 in 2010). In
+  Massachusetts (14-22 counties) terrain overfit; with ~2,500 counties it does not.
+- Distances keep hurting allocation with or without terrain (v4 ~ v2): the non-linear model does not turn them
+  into a within-county signal. v1 + distances is dropped; v3 becomes the CONUS base, pending the BUI fix.
+- 1960 tracts below 50 people / km2 are few and have very large errors in every version (120-178 %).
+- County TEST R2 rises with every added feature while tract error does not follow it: features are chosen on tracts.
+
+## BUI outliers (bui_qa, job 34921582)
+
+Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
+672,700 sq ft; a very dense Manhattan cell (floor area about 20 x land) is about 1.3e7 sq ft. p99.99 of positive
+cells is 6.9-8.1e6 (plausible). Cells above 3e7: 10 (1920), 119 (1960), 298 (2010); above 1e8: 3, 27, 86. Of the top
+50 per year, 27-35 are more than 100 x their 3 x 3 neighbour median, and several have BUPL 0 or 2 (e.g. Ingham MI
+1920: BUI 3.1e8 with 2 buildings; Carson TX 1920: two cells 8.8e7 with 0 BUPL, county pop 3,078). These are record
+errors, not dense cores; they pull county population into single cells. Treatment to decide before the full run.
+
 ## Implementation decisions (2026-10-23)
 
 Made while implementing; each is the simplest option consistent with the decisions above.
