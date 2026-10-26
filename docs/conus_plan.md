@@ -22,12 +22,12 @@ Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.
 
 ## Feature sets to compare
 
-| Name (proposal) | Features | From MA |
-|---|---|---|
-| `Dasy_CONUS_RF_v1` | bui, bldg_size, mu_ratio, dist_built, (+ res_share, rent_share from 1940) | v3.4 set, yearly GDW water mask |
-| `Dasy_CONUS_RF_v2` | v1 + d_10k, d_20k, d_50k, d_100k, d_250k (from 1940) | v4.1 |
-| `Dasy_CONUS_RF_v3` | v1 + elev, slope (1960, 2010) | v4 terrain |
-| `Dasy_CONUS_RF_v4` | v1 + d_10k ... d_250k + elev, slope (1960, 2010) | v4 + v4.1 |
+| Name | Features | From MA | Status (2026-10-27) |
+|---|---|---|---|
+| `Dasy_CONUS_RF_v1` | bui, bldg_size, mu_ratio, dist_built, (+ res_share, rent_share from 1940) | v3.4 set, yearly GDW water mask | run 1920/1960/2010; reference |
+| `Dasy_CONUS_RF_v2` | v1 + d_10k, d_20k, d_50k, d_100k, d_250k (from 1940) | v4.1 | run 1960/2010; **dropped** (worse on tracts) |
+| `Dasy_CONUS_RF_v3` | v1 + elev, slope | v4 terrain | run 1960/2010; **CONUS base** (best on tracts) |
+| `Dasy_CONUS_RF_v4` | v1 + d_10k ... d_250k + elev, slope | v4 + v4.1 | run 1960/2010; dropped (~ v2) |
 
 `year` is constant within a per-year model and is dropped. In 1920 v1 and v2 are identical (distances start in 1940,
 `place_dist.first_year`), so 1920 runs v1 only.
@@ -221,6 +221,40 @@ Tract MdAPE (%), all tracts and by observed tract density (people / km2), and co
 - 1960 tracts below 50 people / km2 are few and have very large errors in every version (120-178 %).
 - County TEST R2 rises with every added feature while tract error does not follow it: features are chosen on tracts.
 
+## Version comparison v1-v4 and likely reasons (summary, 2026-10-27)
+
+| Version | County TEST R2 1960 / 2010 | Tract MdAPE 1960 / 2010 | Tract MAE 2010 | Verdict |
+|---|---|---|---|---|
+| v1 base | 0.740 / 0.775 | 38.4 / 29.8 % | 1,693 | reference |
+| v2 + distances | 0.874 / 0.902 | 41.6 / 40.2 % | 2,249 | dropped |
+| v3 + terrain | 0.859 / 0.875 | 38.3 / **29.2 %** | **1,613** | **CONUS base** |
+| v4 + both | 0.892 / 0.913 | 40.3 / 39.8 % | 2,186 | dropped |
+
+Areal weighting: 82.7 / 74.5 % (1960 / 2010). Density classes in "v3 / v4 result" above.
+
+Likely reasons (interpretation, not tested separately):
+
+1. **The model learns between counties and is applied within them.** Training rows are county means and the
+   county total is known, so a feature helps only if its county-level relationship also holds inside a county.
+   The county TEST R2 measures the first part only; the tract error measures what matters for allocation.
+2. **Distances (v2, v4).** Distance to large places explains how dense a county is (regional urbanisation), hence
+   the large R2 gain. Inside a county the distance surface is smooth and points toward the nearest city, so weight
+   moves to empty land on the city side and away from towns elsewhere in the county. The largest losses are in
+   rural tracts (2010 < 50 people / km2: 35.2 -> 49.8 %); single rural counties lose most (Chelan WA rural tracts
+   12 -> 106 %, Reno KS 67 -> 161 %, Fremont CO 26 -> 105 %, Macoupin IL 42 -> 85 %). Adding terrain (v4) does not
+   remove the effect, so the non-linear model does not turn distance into a within-county signal. The county maps
+   meant to show this failed on a bug and are rerun. A relative distance (cell minus county mean) cannot be used:
+   its county mean is always 0, so nothing can be learned at county level.
+3. **Terrain (v3).** Elevation and slope vary strongly inside counties (valley floors vs hills and mountains) in the
+   same direction as between counties (people live low and flat), so the county relationship transfers to cells.
+   It improves every 2010 density class a little (MAE -5 %). In Massachusetts it overfit with 14-22 counties; with
+   about 2,500 counties per year it does not (TEST R2 close to CV R2).
+4. **Validation coverage.** 1960 tracts cover metropolitan areas only (22,042 tracts, 56 % of the population), and
+   1920 only 8 large counties; rural allocation is checked only in 2010. The 1960 rural class (< 50 / km2) is small
+   and has very large errors in every version.
+5. **BUI outliers** (below) were in every version's input; their effect on these comparisons is unknown but the same
+   for all versions. The base runs are repeated after the fix.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
@@ -228,7 +262,14 @@ Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel 
 cells is 6.9-8.1e6 (plausible). Cells above 3e7: 10 (1920), 119 (1960), 298 (2010); above 1e8: 3, 27, 86. Of the top
 50 per year, 27-35 are more than 100 x their 3 x 3 neighbour median, and several have BUPL 0 or 2 (e.g. Ingham MI
 1920: BUI 3.1e8 with 2 buildings; Carson TX 1920: two cells 8.8e7 with 0 BUPL, county pop 3,078). These are record
-errors, not dense cores; they pull county population into single cells. Treatment to decide before the full run.
+errors, not dense cores; they pull county population into single cells.
+
+**Treatment (decided 2026-10-27, with the user):** a cell with BUI > 3e7 sq ft (about 45 x its land area, beyond any
+real block) is a record error; its BUI is replaced by the median BUI of its 3 x 3 neighbours (the cell itself left
+out). BUPL, BUPR and Land_Use are not changed. Applied in the cutout to every year, logged per year (cells replaced,
+before / after values, top cells) and listed in a QA CSV. Affects 10 / 119 / 298 cells (1920 / 1960 / 2010) of
+about 1.8 / 4.5 / 10.9 million built cells. The raw HISDAC files are not changed. Massachusetts runs are unchanged
+(no cell above the cap there to check in the same QA).
 
 ## Implementation decisions (2026-10-23)
 
@@ -255,4 +296,6 @@ Made while implementing; each is the simplest option consistent with the decisio
    (`docs/runbooks/Running_CONUS.md`, step 0). Adjust the resources in `sbatch/submit_conus.sh` from it.
 3. Pilot: CONUS cutout for 1920, 1960, 2010 + water mask + distances; census input on 2010 polygons; split
    table (`configs/conus_split.csv`, made 2026-10-23); per-year features, train (v1, v2), predict, tract validation.
-4. Review time, memory and results; then the remaining years (1900-2010), then 2020.
+4. Review time, memory and results. Done 2026-10-27: v3 chosen (above).
+5. BUI fix in the cutout; rerun v3 for 1920, 1960, 2010 (1920 not run with terrain yet); county maps (bug fixed).
+6. Then the remaining years (1900-2010) with v3, then 2020.
