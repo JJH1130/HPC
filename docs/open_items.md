@@ -22,6 +22,12 @@ Last updated: 2026-10-24 (CONUS trial + pilot fixes; CONUS implementation; v4.1 
   `configs/conus_split.csv` (seed 42, 2,483 train / 622 test, DC has no test county; + 4 filled counties appended
   as train 2026-10-24), never regenerated; tract
   totals QA by nominal county skipped for CONUS.
+- Pilot 2026-10-26 (jobs 34820550-34820561): grid_cutout failed, `BUI 2010 values 0.0..5447140510.0 don't fit
+  int32`; the 12 dependent jobs were cancelled. Fix: BUI dtype float32 in `configs/conus_study_area.yaml`; resubmit.
+- Open: implausible BUI maxima on the CONUS grid: 306,635,538 (1920), 709,978,539 (1960), 5,447,140,510 (2010) in a
+  single 250 m cell (62,500 m2), whatever the unit (BUI unit still to confirm, data inventory). Likely a few
+  outlier records; they enter `bui` and `bldg_size` (county means, cell weights). Before the full run: count cells
+  above a plausible cap per year and look at where they are.
 - Open: JRC no data counted as water was only checked in Massachusetts (trial: 2.0 % of the covered JRC pixels in
   the computed blocks). The pilot writes the share inside study cells and per county
   (`results/cutout/conus/water_jrc_nodata_by_county.csv`); decide from it before the full run.

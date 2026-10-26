@@ -18,7 +18,9 @@ grid_reference: BUI
 # Only the HISDAC layers the CONUS features use (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share).
 # FBUY / NobuiltYear (age is dropped), NTL and DEM (terrain later) are not cut. Field rules: configs/study_area.yaml.
 layers:
-  - {name: BUI,  path: "BUI/{YEAR}_BUI.tif",   years: all, resampling: none}
+  # BUI as float32: the 2010 CONUS maximum is 5,447,140,510 (pilot job 34820551), beyond int32. float32 keeps
+  # integers exactly up to 2^24 and larger ones to 1e-7 relative, enough for a feature.
+  - {name: BUI,  path: "BUI/{YEAR}_BUI.tif",   years: all, resampling: none, dtype: float32}
   - {name: BUPL, path: "BUPL/{YEAR}_BUPL.tif", years: all, resampling: none}
   - {name: BUPR, path: "BUPR/{YEAR}_BUPR.tif", years: all, resampling: none}
   - {name: BUA,  path: "BUA/{YEAR}_BUA.tif",   years: all, resampling: none}
