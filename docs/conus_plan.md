@@ -122,6 +122,36 @@ La Paz, Cibola, Menominee, 9 Virginia independent cities), no county with 0 cell
 in 1960 (ok). JRC no data = 2.0 % of the covered JRC pixels in the computed blocks (study-cell share is logged from
 the pilot on: `study_jrc_nodata_mean`, `study_cells_jrc_nodata_gt50`).
 
+## Pilot result (1920, 1960, 2010; v1 + v2; jobs 34918220-34918231, code b9b3dfa, run 2026-10-26)
+
+All 12 jobs completed (first submission 34820550-34820561 failed at the cutout: BUI 2010 does not fit int32, now
+float32). Wall time 3-19 min per job, peak memory 17 GB (water); mass check 0 fail in every county-year. JRC no data
+inside study cells: 0 (no county), so `nodata_as_water` is safe on CONUS. Filled counties: Miami-Dade (all three
+years), Shannon (1960, 2010; 1920 area ratio 0.46, allocation only), Broomfield and Bedford city (2010 only).
+
+| | v1 1920 | v1 1960 | v2 1960 | v1 2010 | v2 2010 |
+|---|---|---|---|---|---|
+| County CV R2 (train) | 0.637 | 0.719 | 0.860 | 0.756 | 0.894 |
+| County TEST R2 (622 counties) | 0.683 | 0.740 | 0.874 | 0.775 | 0.902 |
+| Tract MdAPE, all (areal weighting) | 55.7 % (79.2) | **38.4 %** (82.7) | 41.6 % | **29.8 %** (74.5) | 40.2 % |
+| Tract R2 of log density, all | -0.12 | 0.65 | 0.68 | **0.85** | 0.83 |
+| Tract MdAPE, test counties | 67.3 % | 35.6 % | 39.9 % | 30.3 % | 41.0 % |
+
+Tracts: 2,197 (1920, 9 % of the population), 22,042 (1960, 56 %), 72,243 (2010, all).
+
+- v1 works on CONUS: tract error less than half of areal weighting in 1960 and 2010, and test counties score like
+  train counties (no sign of overfitting with ~2,500 counties per year).
+- v2 (PLURAL-1 distances) fits the county target much better (TEST R2 0.77 -> 0.90 in 2010) but allocates worse
+  inside counties (tract MdAPE 29.8 -> 40.2 % in 2010). Distances explain how dense a county is (regional
+  urbanisation), not where people live inside it; at cell level their smooth gradient pulls weight away from the
+  buildings. Same direction as in Massachusetts (v4.1), now with enough counties to rule out overfitting.
+- Consequence: county CV / TEST is not the criterion for choosing features; tract validation is. v1 is the CONUS
+  base; distances are not used for allocation.
+- SHAP (v1): bui > bldg_size > mu_ratio > rent_share > res_share / dist_built; in v2, d_10k and d_20k come second
+  and fourth.
+- 1920: tracts only in 14 large counties (9 % of the population) and R2 of log density below 0, so 1920 is weakly
+  validated.
+
 ## Implementation decisions (2026-10-23)
 
 Made while implementing; each is the simplest option consistent with the decisions above.
