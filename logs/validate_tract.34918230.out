@@ -1,0 +1,78 @@
+== job 34918230 (validate_tract) on c3cpu-c15-u1-3 at 2026-10-26T09:25:06-06:00
+== cores=8 gpus=none restart=0
+== git b9b3dfa (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== coverage: none  args: --version Dasy_CONUS_RF_v1 --years 1920 1960 2010 --name conus --state-prefix= --split configs/conus_split.csv --map-years
+09:25:14 INFO arg version = Dasy_CONUS_RF_v1
+09:25:14 INFO arg name = conus
+09:25:14 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+09:25:14 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:25:14 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+09:25:14 INFO arg coverage_csv = None
+09:25:14 INFO arg results_root = results/validation
+09:25:14 INFO arg years = [1920, 1960, 2010]
+09:25:14 INFO arg map_years = []
+09:25:14 INFO arg state_prefix = 
+09:25:14 INFO arg split = configs/conus_split.csv
+09:25:15 INFO no --coverage-csv: tract totals QA of fully tracted counties skipped
+09:25:15 INFO split configs/conus_split.csv: {'train': 2487, 'test': 622}; metrics per part (train / test) as well as all
+09:25:15 INFO ===== 1920 =====
+09:25:27 INFO   2952 tracts | flags {'ok': 2197, 'not_ok': 742, 'outside_model': 8, 'no_cells': 5}
+09:25:27 INFO   all   model    n=2197 share=0.091 rmse=3742 mae=2535 mdape=55.7% r2_log=-0.697 | r2 log density=-0.124
+09:25:27 INFO   all   baseline n=2197 share=0.091 rmse=4665 mae=3320 mdape=79.2% r2_log=-1.769 | r2 log density=-0.802
+09:25:27 INFO   train model    n=2127 share=0.090 rmse=3792 mae=2578 mdape=55.2% r2_log=-0.627 | r2 log density=-0.083
+09:25:27 INFO   train baseline n=2127 share=0.090 rmse=4730 mae=3381 mdape=78.7% r2_log=-1.673 | r2 log density=-0.748
+09:25:27 INFO   test  model    n=70 share=0.001 rmse=1640 mae=1230 mdape=67.3% r2_log=-15.468 | r2 log density=-3.018
+09:25:27 INFO   test  baseline n=70 share=0.001 rmse=1825 mae=1468 mdape=88.3% r2_log=-23.202 | r2 log density=-4.733
+09:25:27 INFO ===== 1960 =====
+09:25:59 INFO   22915 tracts | flags {'ok': 22042, 'not_ok': 368, 'multi_county': 334, 'outside_model': 146, 'no_cells': 25}
+09:25:59 INFO   all   model    n=22042 share=0.564 rmse=3384 mae=2167 mdape=38.4% r2_log=-0.633 | r2 log density=0.652
+09:25:59 INFO   all   baseline n=22042 share=0.564 rmse=11086 mae=4862 mdape=82.7% r2_log=-5.033 | r2 log density=-0.260
+09:25:59 INFO   train model    n=17460 share=0.443 rmse=3393 mae=2177 mdape=39.2% r2_log=-0.595 | r2 log density=0.639
+09:25:59 INFO   train baseline n=17460 share=0.443 rmse=10403 mae=4773 mdape=82.4% r2_log=-4.522 | r2 log density=-0.222
+09:25:59 INFO   test  model    n=4582 share=0.121 rmse=3350 mae=2128 mdape=35.6% r2_log=-0.948 | r2 log density=0.715
+09:25:59 INFO   test  baseline n=4582 share=0.121 rmse=13376 mae=5201 mdape=83.3% r2_log=-8.966 | r2 log density=-0.465
+09:25:59 INFO ===== 2010 =====
+09:29:42 INFO   72271 tracts | flags {'ok': 72243, 'no_cells': 28}
+09:29:42 INFO   all   model    n=72243 share=1.000 rmse=3111 mae=1693 mdape=29.8% r2_log=-0.417 | r2 log density=0.852
+09:29:42 INFO   all   baseline n=72243 share=1.000 rmse=15330 mae=4245 mdape=74.5% r2_log=-4.796 | r2 log density=0.343
+09:29:42 INFO   train model    n=57451 share=0.795 rmse=3128 mae=1686 mdape=29.7% r2_log=-0.419 | r2 log density=0.850
+09:29:42 INFO   train baseline n=57451 share=0.795 rmse=14193 mae=4196 mdape=73.9% r2_log=-4.672 | r2 log density=0.349
+09:29:42 INFO   test  model    n=14792 share=0.204 rmse=3042 mae=1722 mdape=30.3% r2_log=-0.408 | r2 log density=0.861
+09:29:42 INFO   test  baseline n=14792 share=0.204 rmse=19115 mae=4439 mdape=76.6% r2_log=-5.327 | r2 log density=0.317
+09:29:43 INFO metrics (subset all):
+ year  part   method subset     n  pop_share         rmse         mae     mdape     r2_log  r2_logdens
+ 1920   all    model    all  2197   0.091008  3742.124794 2535.470678 55.670065  -0.696562   -0.124391
+ 1920   all baseline    all  2197   0.091008  4665.399258 3319.655468 79.228898  -1.769285   -0.802107
+ 1920 train    model    all  2127   0.089863  3791.543714 2578.445252 55.204338  -0.627162   -0.083310
+ 1920 train baseline    all  2127   0.089863  4729.969496 3380.607020 78.723933  -1.672514   -0.748266
+ 1920  test    model    all    70   0.001145  1640.341910 1229.657549 67.271634 -15.468075   -3.017965
+ 1920  test baseline    all    70   0.001145  1825.408569 1467.599012 88.342448 -23.201886   -4.733098
+ 1960   all    model    all 22042   0.564159  3383.913292 2167.068978 38.408765  -0.633401    0.651901
+ 1960   all baseline    all 22042   0.564159 11086.451199 4861.795559 82.665034  -5.033082   -0.259953
+ 1960 train    model    all 17460   0.442883  3392.772366 2177.267671 39.195632  -0.595471    0.638636
+ 1960 train baseline    all 17460   0.442883 10402.575169 4772.658014 82.436395  -4.521865   -0.221991
+ 1960  test    model    all  4582   0.121276  3349.940510 2128.206215 35.631079  -0.948156    0.714543
+ 1960  test baseline    all  4582   0.121276 13375.678956 5201.459794 83.302804  -8.965609   -0.464981
+ 2010   all    model    all 72243   0.999787  3110.877735 1693.046296 29.829382  -0.417157    0.852157
+ 2010   all baseline    all 72243   0.999787 15330.399727 4245.372292 74.515841  -4.796435    0.342808
+ 2010 train    model    all 57451   0.795417  3128.435821 1685.530365 29.735015  -0.419355    0.849817
+ 2010 train baseline    all 57451   0.795417 14193.476783 4195.594646 73.872758  -4.672181    0.349151
+ 2010  test    model    all 14792   0.204370  3041.722350 1722.237600 30.252906  -0.407945    0.861484
+ 2010  test baseline    all 14792   0.204370 19115.187346 4438.704870 76.608227  -5.326526    0.317293
+09:29:43 INFO totals QA: 18520 rows, 0 flagged (> 0.1%); by check:
+              size  sum
+check                  
+county_cells  9260    0
+masked_cells  9260    0
+09:29:43 INFO wrote results/validation/conus/Dasy_CONUS_RF_v1
+09:29:43 INFO DONE
+7.7M	results/validation/conus/Dasy_CONUS_RF_v1
+3.6M	results/validation/massachusetts/v2
+3.6M	results/validation/massachusetts/v3_1
+1.5M	results/validation/massachusetts/v3_2
+1.5M	results/validation/massachusetts/v3_3
+3.5M	results/validation/massachusetts/v3_4
+3.6M	results/validation/massachusetts/v4
+3.6M	results/validation/massachusetts/v4_1
+== done 2026-10-26T09:29:43-06:00

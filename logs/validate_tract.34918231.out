@@ -1,0 +1,65 @@
+== job 34918231 (validate_tract) on c3cpu-c11-u3-3 at 2026-10-26T09:40:23-06:00
+== cores=8 gpus=none restart=0
+== git b9b3dfa (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== coverage: none  args: --version Dasy_CONUS_RF_v2 --years 1960 2010 --name conus --state-prefix= --split configs/conus_split.csv --map-years
+09:40:33 INFO arg version = Dasy_CONUS_RF_v2
+09:40:33 INFO arg name = conus
+09:40:33 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+09:40:33 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:40:33 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+09:40:33 INFO arg coverage_csv = None
+09:40:33 INFO arg results_root = results/validation
+09:40:33 INFO arg years = [1960, 2010]
+09:40:33 INFO arg map_years = []
+09:40:33 INFO arg state_prefix = 
+09:40:33 INFO arg split = configs/conus_split.csv
+09:40:34 INFO no --coverage-csv: tract totals QA of fully tracted counties skipped
+09:40:34 INFO split configs/conus_split.csv: {'train': 2487, 'test': 622}; metrics per part (train / test) as well as all
+09:40:34 INFO ===== 1960 =====
+09:40:56 INFO   22915 tracts | flags {'ok': 22042, 'not_ok': 368, 'multi_county': 334, 'outside_model': 146, 'no_cells': 25}
+09:40:57 INFO   all   model    n=22042 share=0.564 rmse=3751 mae=2368 mdape=41.6% r2_log=-0.487 | r2 log density=0.683
+09:40:57 INFO   all   baseline n=22042 share=0.564 rmse=11086 mae=4862 mdape=82.7% r2_log=-5.033 | r2 log density=-0.260
+09:40:57 INFO   train model    n=17460 share=0.443 rmse=3697 mae=2365 mdape=42.2% r2_log=-0.456 | r2 log density=0.669
+09:40:57 INFO   train baseline n=17460 share=0.443 rmse=10403 mae=4773 mdape=82.4% r2_log=-4.522 | r2 log density=-0.222
+09:40:57 INFO   test  model    n=4582 share=0.121 rmse=3950 mae=2378 mdape=39.9% r2_log=-0.743 | r2 log density=0.748
+09:40:57 INFO   test  baseline n=4582 share=0.121 rmse=13376 mae=5201 mdape=83.3% r2_log=-8.966 | r2 log density=-0.465
+09:40:57 INFO ===== 2010 =====
+09:43:52 INFO   72271 tracts | flags {'ok': 72243, 'no_cells': 28}
+09:43:53 INFO   all   model    n=72243 share=1.000 rmse=4611 mae=2249 mdape=40.2% r2_log=-0.656 | r2 log density=0.828
+09:43:53 INFO   all   baseline n=72243 share=1.000 rmse=15330 mae=4245 mdape=74.5% r2_log=-4.796 | r2 log density=0.343
+09:43:53 INFO   train model    n=57451 share=0.795 rmse=4511 mae=2242 mdape=40.1% r2_log=-0.647 | r2 log density=0.827
+09:43:53 INFO   train baseline n=57451 share=0.795 rmse=14193 mae=4196 mdape=73.9% r2_log=-4.672 | r2 log density=0.349
+09:43:53 INFO   test  model    n=14792 share=0.204 rmse=4977 mae=2275 mdape=41.0% r2_log=-0.697 | r2 log density=0.832
+09:43:53 INFO   test  baseline n=14792 share=0.204 rmse=19115 mae=4439 mdape=76.6% r2_log=-5.327 | r2 log density=0.317
+09:43:53 INFO metrics (subset all):
+ year  part   method subset     n  pop_share         rmse         mae     mdape    r2_log  r2_logdens
+ 1960   all    model    all 22042   0.564159  3750.999225 2367.895680 41.636249 -0.486726    0.682888
+ 1960   all baseline    all 22042   0.564159 11086.451199 4861.795559 82.665034 -5.033082   -0.259953
+ 1960 train    model    all 17460   0.442883  3696.933060 2365.327906 42.168161 -0.456284    0.669289
+ 1960 train baseline    all 17460   0.442883 10402.575169 4772.658014 82.436395 -4.521865   -0.221991
+ 1960  test    model    all  4582   0.121276  3950.245190 2377.680343 39.938591 -0.742748    0.747558
+ 1960  test baseline    all  4582   0.121276 13375.678956 5201.459794 83.302804 -8.965609   -0.464981
+ 2010   all    model    all 72243   0.999787  4610.721709 2249.105023 40.202476 -0.656269    0.828016
+ 2010   all baseline    all 72243   0.999787 15330.399727 4245.372292 74.515841 -4.796435    0.342808
+ 2010 train    model    all 57451   0.795417  4511.471225 2242.477099 40.051983 -0.646795    0.826919
+ 2010 train baseline    all 57451   0.795417 14193.476783 4195.594646 73.872758 -4.672181    0.349151
+ 2010  test    model    all 14792   0.204370  4977.468190 2274.847371 40.965411 -0.696819    0.832367
+ 2010  test baseline    all 14792   0.204370 19115.187346 4438.704870 76.608227 -5.326526    0.317293
+09:43:53 INFO totals QA: 12408 rows, 0 flagged (> 0.1%); by check:
+              size  sum
+check                  
+county_cells  6204    0
+masked_cells  6204    0
+09:43:53 INFO wrote results/validation/conus/Dasy_CONUS_RF_v2
+09:43:53 INFO DONE
+7.7M	results/validation/conus/Dasy_CONUS_RF_v1
+7.3M	results/validation/conus/Dasy_CONUS_RF_v2
+3.6M	results/validation/massachusetts/v2
+3.6M	results/validation/massachusetts/v3_1
+1.5M	results/validation/massachusetts/v3_2
+1.5M	results/validation/massachusetts/v3_3
+3.5M	results/validation/massachusetts/v3_4
+3.6M	results/validation/massachusetts/v4
+3.6M	results/validation/massachusetts/v4_1
+== done 2026-10-26T09:43:53-06:00

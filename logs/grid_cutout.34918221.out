@@ -1,0 +1,74 @@
+== job 34918221 (grid_cutout) on c3cpu-e2-u2 at 2026-10-26T08:46:47-06:00
+== cores=4 gpus=none restart=0
+== git b9b3dfa (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: 
+08:47:14 INFO arg config = configs/conus_study_area.yaml
+08:47:14 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+08:47:14 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+08:47:14 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+08:47:14 INFO arg years = None
+08:47:14 INFO arg layers = None
+08:47:14 INFO study area 'conus': states=all | 3 config years 1920-2010 | writing 3 years -> /scratch/alpine/jaju1407/hisdac/cutouts/conus
+08:47:15 INFO layer BUI            years 1920-2010        resampling none     float32 | files to write: 3
+08:47:15 INFO layer BUPL           years 1920-2010        resampling none     int32 | files to write: 3
+08:47:15 INFO layer BUPR           years 1920-2010        resampling none     int32 | files to write: 3
+08:47:15 INFO layer BUA            years 1920-2010        resampling none     int32 | files to write: 3
+08:47:15 INFO layer Land_Use_A     years 1960-2010        resampling none     int32 | files to write: 2
+08:47:15 INFO layer Land_Use_C     years 1960-2010        resampling none     int32 | files to write: 2
+08:47:15 INFO layer Land_Use_GV    years 1960-2010        resampling none     int32 | files to write: 2
+08:47:15 INFO layer Land_Use_I     years 1960-2010        resampling none     int32 | files to write: 2
+08:47:15 INFO layer Land_Use_RC    years 1960-2010        resampling none     int32 | files to write: 2
+08:47:15 INFO layer Land_Use_RI    years 1960-2010        resampling none     int32 | files to write: 2
+08:47:15 INFO layer Land_Use_RO    years 1960-2010        resampling none     int32 | files to write: 2
+08:47:15 INFO layer Land_Use_VL    years 1960-2010        resampling none     int32 | files to write: 2
+08:47:16 INFO reference grid: 1920_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+08:47:17 INFO 28 rasters on the HISDAC grid (window read), 0 to warp onto it
+08:47:19 INFO 1920: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+08:47:21 INFO 1960: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+08:47:22 INFO 2010: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+08:47:22 INFO window: full (the whole HISDAC grid of 1920_BUI.tif)
+08:47:22 INFO window: col_off 0 row_off 0 | 18459 x 11615 cells | bounds [-2356399, 269249, 2258351, 3172999] (counties [-2356114, 269281, 2258244, 3172568])
+08:47:22 INFO cutting 28 rasters
+08:47:28 INFO   BUI 1920           float64, window read -> float32 nodata=nan | min 0.0 max 306635538.0 | zeros 212589975 | nodata cells 0 | 12.5 MB
+08:47:34 INFO   BUI 1960           float64, window read -> float32 nodata=nan | min 0.0 max 709978539.0 | zeros 209944918 | nodata cells 0 | 25.4 MB
+08:47:41 INFO   BUI 2010           float64, window read -> float32 nodata=nan | min 0.0 max 5447140510.0 | zeros 203475087 | nodata cells 0 | 50.5 MB
+08:47:45 INFO   BUPL 1920          float64, window read -> int32 nodata=None | min 0.0 max 482.0 | zeros 212448333 | nodata cells 0 | 5.3 MB
+08:47:51 INFO   BUPL 1960          float64, window read -> int32 nodata=None | min 0.0 max 555.0 | zeros 209675773 | nodata cells 0 | 10.3 MB
+08:47:58 INFO   BUPL 2010          float64, window read -> int32 nodata=None | min 0.0 max 556.0 | zeros 202817595 | nodata cells 0 | 19.8 MB
+08:48:03 INFO   BUPR 1920          float64, window read -> int32 nodata=None | min 0.0 max 2537.0 | zeros 212357045 | nodata cells 0 | 5.8 MB
+08:48:09 INFO   BUPR 1960          float64, window read -> int32 nodata=None | min 0.0 max 3534.0 | zeros 209494657 | nodata cells 0 | 11.3 MB
+08:48:15 INFO   BUPR 2010          float64, window read -> int32 nodata=None | min 0.0 max 7985.0 | zeros 202577016 | nodata cells 0 | 21.7 MB
+08:48:19 INFO   BUA 1920           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 212357045 | nodata cells 0 | 3.9 MB
+08:48:24 INFO   BUA 1960           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 209494657 | nodata cells 0 | 6.4 MB
+08:48:30 INFO   BUA 2010           float64, window read -> int32 nodata=None | min 0.0 max 1.0 | zeros 202577016 | nodata cells 0 | 10.0 MB
+08:48:32 INFO   Land_Use_A 1960    int16, window read -> int32 nodata=None | min 0 max 264 | zeros 214195756 | nodata cells 0 | 1.6 MB
+08:48:35 INFO   Land_Use_A 2010    int16, window read -> int32 nodata=None | min 0 max 868 | zeros 213926484 | nodata cells 0 | 2.2 MB
+08:48:37 INFO   Land_Use_C 1960    int16, window read -> int32 nodata=None | min 0 max 1004 | zeros 213050969 | nodata cells 0 | 3.9 MB
+08:48:40 INFO   Land_Use_C 2010    int16, window read -> int32 nodata=None | min 0 max 7112 | zeros 211149163 | nodata cells 0 | 7.2 MB
+08:48:43 INFO   Land_Use_GV 1960   int16, window read -> int32 nodata=None | min 0 max 543 | zeros 214313606 | nodata cells 0 | 1.2 MB
+08:48:45 INFO   Land_Use_GV 2010   int16, window read -> int32 nodata=None | min 0 max 543 | zeros 214195481 | nodata cells 0 | 1.5 MB
+08:48:48 INFO   Land_Use_I 1960    int16, window read -> int32 nodata=None | min 0 max 92 | zeros 214383757 | nodata cells 0 | 1.0 MB
+08:48:50 INFO   Land_Use_I 2010    int16, window read -> int32 nodata=None | min 0 max 476 | zeros 214344267 | nodata cells 0 | 1.1 MB
+08:48:53 INFO   Land_Use_RC 1960   int16, window read -> int32 nodata=None | min 0 max 301 | zeros 214372458 | nodata cells 0 | 1.1 MB
+08:48:55 INFO   Land_Use_RC 2010   int16, window read -> int32 nodata=None | min 0 max 527 | zeros 214314553 | nodata cells 0 | 1.2 MB
+08:48:58 INFO   Land_Use_RI 1960   int16, window read -> int32 nodata=None | min 0 max 753 | zeros 213975113 | nodata cells 0 | 2.0 MB
+08:49:01 INFO   Land_Use_RI 2010   int16, window read -> int32 nodata=None | min 0 max 2059 | zeros 213663930 | nodata cells 0 | 2.8 MB
+08:49:04 INFO   Land_Use_RO 1960   int16, window read -> int32 nodata=None | min 0 max 3488 | zeros 209686579 | nodata cells 0 | 11.0 MB
+08:49:10 INFO   Land_Use_RO 2010   int16, window read -> int32 nodata=None | min 0 max 7749 | zeros 203341808 | nodata cells 0 | 20.7 MB
+08:49:12 INFO   Land_Use_VL 1960   int16, window read -> int32 nodata=None | min 0 max 440 | zeros 214242106 | nodata cells 0 | 1.4 MB
+08:49:15 INFO   Land_Use_VL 2010   int16, window read -> int32 nodata=None | min 0 max 752 | zeros 213978138 | nodata cells 0 | 2.0 MB
+08:49:15 INFO zone grids
+08:49:27 INFO   zones 1920: 3109 counties, 124576956 cells assigned | area ratio min 0.980 median 1.000 max 1.019
+08:49:40 INFO   zones 1960: 3109 counties, 124576956 cells assigned | area ratio min 0.980 median 1.000 max 1.019
+08:49:52 INFO   zones 2010: 3109 counties, 124576956 cells assigned | area ratio min 0.980 median 1.000 max 1.019
+08:49:53 INFO QA by year:
+      counties  zero_cell  ratio_min  ratio_median  ratio_max
+year                                                         
+1920      3109          0       0.98           1.0      1.019
+1960      3109          0       0.98           1.0      1.019
+2010      3109          0       0.98           1.0      1.019
+08:49:53 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus
+08:49:53 INFO DONE
+1.2G	/scratch/alpine/jaju1407/hisdac/cutouts/conus
+== done 2026-10-26T08:49:53-06:00

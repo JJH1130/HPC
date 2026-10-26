@@ -6,22 +6,40 @@ study_cells,124576956
 study_uncovered_cells,0
 min,0.0
 max,1.0
-study_mean,0.009575460106134415
-study_share_gt0,0.0202044268925627
-study_share_eq1,0.00521067475753702
+study_mean,0.01112717017531395
+study_share_gt0,0.02196701611492257
+study_share_eq1,0.00620165257529651
 jrc_pixels,18087830173
 jrc_nodata_pixels,368227698
-water_pixels,1420044153
+water_pixels,1443414231
 reservoir_pixels_removed,3848079
+reservoir_pixels_water_1920,9791577
 reservoir_pixels_water_1960,46020100
+reservoir_pixels_water_2010,69390178
+study_jrc_nodata_mean,0.0
+study_cells_jrc_nodata_gt50,0
 jrc_nodata_share,0.020357759580784847
+study_share_eq1_1920,0.003758142878366686
 study_share_eq1_1960,0.00521067475753702
+study_share_eq1_2010,0.00620165257529651
+Quabbin Reservoir 1920: cells,441
+Quabbin Reservoir 1920: mean,0.0027598501183092594
+Quabbin Reservoir 1920: max,0.2110099494457245
+Quabbin Reservoir 1920: share_eq0,0.9183673469387755
+Quabbin Reservoir 1920: n_eq1,0
+Quabbin Reservoir 1920: expect dry,ok
 Quabbin Reservoir 1960: cells,441
 Quabbin Reservoir 1960: mean,0.5816143751144409
 Quabbin Reservoir 1960: max,1.0
 Quabbin Reservoir 1960: share_eq0,0.29024943310657597
 Quabbin Reservoir 1960: n_eq1,178
 Quabbin Reservoir 1960: expect full_water,ok
+Lake Mead (Boulder Basin) 1920: cells,169
+Lake Mead (Boulder Basin) 1920: mean,0.0
+Lake Mead (Boulder Basin) 1920: max,0.0
+Lake Mead (Boulder Basin) 1920: share_eq0,1.0
+Lake Mead (Boulder Basin) 1920: n_eq1,0
+Lake Mead (Boulder Basin) 1920: expect dry,ok
 Lake Mead (Boulder Basin) 1960: cells,169
 Lake Mead (Boulder Basin) 1960: mean,1.0
 Lake Mead (Boulder Basin) 1960: max,1.0
@@ -34,3 +52,9 @@ Lake Powell (Wahweap) 1960: max,0.2999972403049469
 Lake Powell (Wahweap) 1960: share_eq0,0.9704142011834319
 Lake Powell (Wahweap) 1960: n_eq1,0
 Lake Powell (Wahweap) 1960: expect dry,ok
+Lake Powell (Wahweap) 2010: cells,169
+Lake Powell (Wahweap) 2010: mean,0.47333404421806335
+Lake Powell (Wahweap) 2010: max,1.0
+Lake Powell (Wahweap) 2010: share_eq0,0.378698224852071
+Lake Powell (Wahweap) 2010: n_eq1,53
+Lake Powell (Wahweap) 2010: expect full_water,ok

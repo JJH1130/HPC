@@ -1,0 +1,146 @@
+== job 34918223 (place_dist) on c3cpu-e2-u1 at 2026-10-26T08:50:05-06:00
+== cores=8 gpus=none restart=0
+== git b9b3dfa (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  workers: 8  extra args: 
+08:50:35 INFO arg config = configs/conus_study_area.yaml
+08:50:35 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+08:50:35 INFO arg years = None
+08:50:35 INFO cutout /scratch/alpine/jaju1407/hisdac/cutouts/conus | window 18459 x 11615 cells | study years [1960, 2010] -> PLURAL [1960, 2010] | classes {'d_10k': (10000, 20000), 'd_20k': (20000, 50000), 'd_50k': (50000, 100000), 'd_100k': (100000, 250000), 'd_250k': (250000, None)} | fill_gaps True | 8 query workers
+08:50:38 INFO CSV /projects/jaju1407/data/raw/plural/plural_2023/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv: 31768 places, PLURAL years [1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2018]
+08:50:39 INFO shapefile CRS ESRI:102003 -> cutout CRS ESRI:102039
+08:50:39 INFO   1930: plural_indices_scaled_across_years_1930.shp: 16463 points (16463 placeids not seen in earlier years)
+08:50:40 INFO   1940: plural_indices_scaled_across_years_1940.shp: 16712 points (672 placeids not seen in earlier years)
+08:50:41 INFO   1950: plural_indices_scaled_across_years_1950.shp: 18525 points (2052 placeids not seen in earlier years)
+08:50:41 INFO   1960: plural_indices_scaled_across_years_1960.shp: 19679 points (1835 placeids not seen in earlier years)
+08:50:42 INFO   1970: plural_indices_scaled_across_years_1970.shp: 20543 points (1641 placeids not seen in earlier years)
+08:50:42 INFO   1980: plural_indices_scaled_across_years_1980.shp: 22121 points (1956 placeids not seen in earlier years)
+08:50:43 INFO   1990: plural_indices_scaled_across_years_1990.shp: 22860 points (1426 placeids not seen in earlier years)
+08:50:44 INFO   2000: plural_indices_scaled_across_years_2000.shp: 24556 points (1878 placeids not seen in earlier years)
+08:50:45 INFO   2010: plural_indices_scaled_across_years_2010.shp: 28724 points (4306 placeids not seen in earlier years)
+08:50:46 INFO   2018: plural_indices_scaled_across_years_2018.shp: 28814 points (170 placeids not seen in earlier years)
+08:50:46 INFO points: 32399 placeids; position change between years: median 0.0 m, p99 2482.5 m, max 212.5 km, 6692 > 1 km
+08:50:46 INFO gap fill: 716 place-years filled in total; per PLURAL year {1930: 0, 1940: 69, 1950: 70, 1960: 108, 1970: 249, 1980: 66, 1990: 93, 2000: 57, 2010: 4, 2018: 0}
+08:50:46 INFO gap fills per state (states with any fill; also in place_dist_fills.csv):
+                1930  1940  1950  1960  1970  1980  1990  2000  2010  2018
+state_name                                                                
+Maine              0    11     0     1     1     0     1     0     0     0
+Ohio               0     6     0     4     4     3     3     2     0     0
+Texas              0     4     1     4     6     3     1     0     0     0
+North Carolina     0     4     1     1     8     3     2     1     0     0
+Kentucky           0     4     0     2     6     5     1     1     0     0
+Missouri           0     4     0     2     0     2     2     2     0     0
+Oklahoma           0     4     0     2     0     0     0     2     0     0
+Alabama            0     3     0     4     0     0     1     0     0     0
+West Virginia      0     3     0     3     3     0     2     0     1     0
+New Jersey         0     2    13     4    29     5     4     2     0     0
+Pennsylvania       0     2    10     7    41    10     4     6     0     0
+Mississippi        0     2     1     1     1     0     2     0     0     0
+South Carolina     0     2     0     5     7     0     2     0     0     0
+Colorado           0     2     0     3     3     1     3     0     0     0
+Tennessee          0     2     0     2     7     0     1     0     0     0
+Maryland           0     2     0     2     4     2     4     2     0     0
+Washington         0     2     0     0     0     1     3     1     2     0
+Connecticut        0     1     5     0    14     1     3     2     0     0
+Florida            0     1     1     3    11     2     8     5     0     0
+Illinois           0     1     1     2     6     1     1     1     0     0
+Virginia           0     1     1     2     1     0     3     6     0     0
+Wisconsin          0     1     0     3     0     0     1     0     0     0
+Louisiana          0     1     0     1     1     1     0     0     0     0
+Arizona            0     1     0     0     2     0     0     3     0     0
+Wyoming            0     1     0     0     0     2     1     0     1     0
+Montana            0     1     0     0     0     0     3     0     0     0
+South Dakota       0     1     0     0     0     0     0     1     0     0
+Massachusetts      0     0    28     3    34     1     2     0     0     0
+Rhode Island       0     0     4     1     4     0     0     0     0     0
+California         0     0     2    10     6     9    10     4     0     0
+Arkansas           0     0     2     1     3     3     0     0     0     0
+New York           0     0     0    20    10     7     8     4     0     0
+Indiana            0     0     0     3    14     1     3     0     0     0
+Michigan           0     0     0     2     3     0     2     0     0     0
+New Mexico         0     0     0     2     2     1     2     3     0     0
+New Hampshire      0     0     0     2     1     0     0     0     0     0
+Kansas             0     0     0     2     0     0     0     0     0     0
+Georgia            0     0     0     1    12     1     5     3     0     0
+Vermont            0     0     0     1     3     0     0     4     0     0
+Utah               0     0     0     1     0     0     1     0     0     0
+Iowa               0     0     0     1     0     0     0     0     0     0
+North Dakota       0     0     0     0     1     0     1     1     0     0
+Idaho              0     0     0     0     1     0     0     0     0     0
+Nebraska           0     0     0     0     0     1     2     1     0     0
+Minnesota          0     0     0     0     0     0     1     0     0     0
+08:50:46 INFO Massachusetts places >= 10000 before fill: {1930: 39, 1940: 78, 1950: 47, 1960: 75, 1970: 48, 1980: 78, 1990: 79, 2000: 81, 2010: 86, 2018: 86}
+08:50:46 INFO Massachusetts places >= 10000 after fill:  {1930: 39, 1940: 78, 1950: 72, 1960: 75, 1970: 72, 1980: 78, 1990: 80, 2000: 81, 2010: 86, 2018: 86}
+08:50:46 INFO all places >= 10000 (before -> after fill): {1930: '915 -> 915', 1940: '1074 -> 1075', 1950: '1262 -> 1318', 1960: '1885 -> 1893', 1970: '2259 -> 2360', 1980: '2848 -> 2853', 1990: '3096 -> 3113', 2000: '3508 -> 3518', 2010: '3841 -> 3842', 2018: '3924 -> 3924'}
+08:50:46 INFO Massachusetts places with a fill (population after fill):
+                                 place  1930   1940   1950   1960   1970   1980   1990   2000   2010   2018
+placeid                                                                                                    
+G25001360                  Amherst CDP     0   6410   7900  10306  17926  17773  17411  17050  19065  20253
+G25001640                Arlington CDP     0  40013  44983  49953  49086  48219  44630  42389  42844  45147
+G25005105                  Belmont CDP     0  26867  27791  28715  27407  26100  24720  24194  24729  26043
+G25007700                Braintree CDP     0  16378  23723  31069  33703  36337  33836  33698      0      0
+G25009070               Brookfield CDP     0      0   1017   1107   1197   1037      0      0    833    752
+G25009210                Brookline CDP     0  49786  51915  54044  54553  55062  54718  57107  58732  59234
+G25014430                  Clinton CDP     0  12440  12287  12848  12809  12771   7943   7884   7389   7181
+G25016285                  Danvers CDP     0  14179  18052  21926  23013  24100  24174  25212  26493  27631
+G25016530                   Dedham CDP     0  15508  19688  23869  24583  25298  23782  23464  24729  25377
+G25024960               Framingham CDP     0  23214  33870  44526  54819  65113  64994  66910  68318  71649
+G25031575                   Hudson CDP     0   8042   7969   7897  14283  14156  14267  14388  14907  15508
+G25031680                     Hull CDP     0      0      0   7055   8384   9714  10466  11050  10293  10424
+G25034830         Leicester Center (U)     0      0   1465   2319   3173      0      0      0      0      0
+G25035250                Lexington CDP     0  13187  20439  27691  28585  29479  28974  30355  31394  33480
+G25038435               Marblehead CDP     0  10856  14688  18521  19323  20126  19971  20377  19808  20488
+G25039660                  Maynard CDP     0   6812   6978   7695   8642   9590  10325  10433  10106  10600
+G25039730                 Medfield CDP     0      0   1696   2424   4266   6108   5985   6670   6483   6776
+G25040710            Methuen Town city     0  21880  24997  28114      0      0      0  43789  47255  50019
+G25041662                       Milton     0  18708  22541  26375      0      0      0      0      0      0
+G25043615                   Nahant CDP     0      0      0   3960   3953   3947   3828   3632   3410   3495
+G25043948                  Natick (UT)     0  13851  21341  28831      0      0      0      0      0      0
+G25044140                  Needham CDP     0  12445  19119  25793  26847  27901  27557  28911  28886  30735
+G25046785             Northborough CDP     0      0   1442   2516   4093   5670   5761   6257   6167   6171
+G25050285                  Norwood CDP     0  15383  20140  24898  27304  29711  28700  28587  28602  29201
+G25050650                   Oak Bluffs     0      0   1487   1027   1075   1124      0      0      0      0
+G25053680                Pinehurst CDP     0      0   2905   1991   4289   6588   6614   6941   7152   7275
+G25055990                 Randolph CDP     0   7634  13267  18900  23559  28218  30093  30963  32112  33924
+G25056165                  Reading CDP     0  10886  15072  19259  20968  22678  22539  23708  24747  25100
+G25057845                 Rockport CDP     0   3556   2911   3511   4166   4807   5448   5606   4966   5245
+G25060050                   Saugus CDP     0  14825  17745  20666  22706  24746  25549  26078  26628  28158
+G25060820                   Sharon CDP     0      0   2815   5888   5932   5976   5893   5941   5658   5655
+G25062465                 Somerset CDP     0   5873   9034  12196  15504  18813  17655  18234  18165  18207
+G25067700                 Stoneham CDP     0  10765  14293  17821  19622  21424  22203  22219  21437  22144
+G25068680               Swampscott CDP     0  10761  12027  13294  13565  13837  13650  14412  13787  14755
+G25072250                Wakefield CDP     0  16223  20259  24295  24595  24895  24825  24804  24932  26960
+G25073440          Watertown Town city     0  35427  37259  39092  36738  34384  33284  32986  31915  35103
+G25074210                Wellesley CDP     0  15127  20599  26071  26640  27209  26615  26613  27982  29201
+G25075208  West Bridgewater Center (U)     0      0   1379   1649   1920      0      0      0      0      0
+G25075680             West Concord CDP     0      0   1285   1556   3443   5331   5761   5632   6028   7402
+G25078900                 Weymouth CDP     0  23868  36022  48177  51889  55601  54063  53988      0      0
+G25079600                 Whitman (UT)     0   7759   9122  10485      0      0      0      0      0      0
+G25080195               Wilmington CDP     0      0   1331   2250   9860  17471  17654  21363  22325  23658
+G25080545               Winchester CDP     0  15081  17228  19376  20038  20701  20267  20810  21374  22677
+G25081005                 Winthrop CDP     0  16768  18535  20303  19798  19294      0      0  17497  18535
+G25081245               Woods Hole CDP     0      0      0      0      0   1080   1002    925    781    883
+08:50:50 INFO 1960 (PLURAL 1960): places per class {'d_10k': 935, 'd_20k': 629, 'd_50k': 198, 'd_100k': 81, 'd_250k': 50}
+08:51:05 INFO   1960 d_10k: 935 places | study cells km min 0.0 mean 83.9 max 346.8
+08:51:29 INFO   1960 d_20k: 629 places | study cells km min 0.0 mean 114.8 max 448.8
+08:51:50 INFO   1960 d_50k: 198 places | study cells km min 0.0 mean 201.5 max 725.9
+08:52:18 INFO   1960 d_100k: 81 places | study cells km min 0.0 mean 247.0 max 970.3
+08:52:39 INFO   1960 d_250k: 50 places | study cells km min 0.0 mean 291.4 max 1064.4
+08:52:39 INFO   QA point Boston 1960 d_250k = 6.80 km (expect -..7 km): ok
+08:52:39 INFO   QA point Denver 1960 d_250k = 1.15 km (expect -..7 km): ok
+08:52:39 INFO   QA point Ely NV (remote) 1960 d_250k = 572.01 km (expect 250..- km): ok
+08:52:48 INFO wrote 5 layers for 1960
+08:52:48 INFO 2010 (PLURAL 2010): places per class {'d_10k': 1774, 'd_20k': 1300, 'd_50k': 488, 'd_100k': 208, 'd_250k': 72}
+08:53:06 INFO   2010 d_10k: 1774 places | study cells km min 0.0 mean 74.3 max 408.0
+08:53:34 INFO   2010 d_20k: 1300 places | study cells km min 0.0 mean 90.0 max 448.8
+08:53:59 INFO   2010 d_50k: 488 places | study cells km min 0.0 mean 122.5 max 446.5
+08:54:25 INFO   2010 d_100k: 208 places | study cells km min 0.0 mean 163.6 max 547.4
+08:54:54 INFO   2010 d_250k: 72 places | study cells km min 0.0 mean 262.7 max 1064.4
+08:54:54 INFO   QA point Boston 2010 d_250k = 6.80 km (expect -..7 km): ok
+08:54:54 INFO   QA point Denver 2010 d_250k = 1.15 km (expect -..7 km): ok
+08:54:54 INFO   QA point Ely NV (remote) 2010 d_250k = 343.55 km (expect 250..- km): ok
+08:55:04 INFO wrote 5 layers for 2010
+08:55:04 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/place_dist_qa.csv and /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/place_dist_fills.csv
+08:55:04 INFO DONE
+== 10 PLACEDIST layers in /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/PLACEDIST
+== done 2026-10-26T08:55:04-06:00

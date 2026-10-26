@@ -332,7 +332,7 @@ zone_id,GISJOIN,state,name,pop,status,area_km2
 331,G1200810,Florida,Manatee County,69168.0,ok,1949.6818984664137
 332,G1200830,Florida,Marion County,51616.0,ok,4306.137854487445
 333,G1200850,Florida,Martin County,16932.0,ok,1703.5030041393072
-334,G1200860,Florida,Miami-Dade County,,no_value,5132.389520676713
+334,G1200860,Florida,Miami-Dade County,935047.0,filled_nhgis,5132.389520676713
 335,G1200870,Florida,Monroe County,47921.0,ok,2662.736109504184
 336,G1200890,Florida,Nassau County,17189.0,ok,1691.1927888739654
 337,G1200910,Florida,Okaloosa County,61175.0,ok,2432.552120870456
@@ -2382,7 +2382,7 @@ zone_id,GISJOIN,state,name,pop,status,area_km2
 2381,G4601070,South Dakota,Potter County,4926.0,ok,2327.5393427362806
 2382,G4601090,South Dakota,Roberts County,13190.0,ok,2941.6317119343244
 2383,G4601110,South Dakota,Sanborn County,4641.0,ok,1477.52618246675
-2384,G4601130,South Dakota,Shannon County,,no_value,5429.9741335262
+2384,G4601130,South Dakota,Shannon County,6000.0,filled_nhgis,5429.9741335262
 2385,G4601150,South Dakota,Spink County,11706.0,ok,3910.2105511855525
 2386,G4601170,South Dakota,Stanley County,4085.0,ok,3929.4453055675717
 2387,G4601190,South Dakota,Sully County,2607.0,ok,2772.0311589809226
