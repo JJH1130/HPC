@@ -1,0 +1,13 @@
+year,GISJOIN,state,name,source,source_name,nhgis_status,pop,area_2010_km2,area_nhgis_km2,area_ratio,filled,status
+1920,G0800140,Colorado,Broomfield County,,,,,87.023706776025,,,False,no_value
+1920,G1200860,Florida,Miami-Dade County,G1200250,Dade,ok,42753.0,5132.389520676713,5123.402723177614,0.9982490032249317,True,filled_nhgis
+1920,G4601130,South Dakota,Shannon County,G4601130,Shannon,ok,2003.0,5429.9741335262,2473.815396079654,0.4555851161068368,True,filled_nhgis_alloc
+1920,G5105150,Virginia,Bedford city,,,,,17.875499419452645,,,False,no_value
+1960,G0800140,Colorado,Broomfield County,,,,,87.023706776025,,,False,no_value
+1960,G1200860,Florida,Miami-Dade County,G1200250,Dade,ok,935047.0,5132.389520676713,5123.402723177614,0.9982490032249317,True,filled_nhgis
+1960,G4601130,South Dakota,Shannon County,G4601130,Shannon,ok,6000.0,5429.9741335262,5429.974683796221,1.000000101339345,True,filled_nhgis
+1960,G5105150,Virginia,Bedford city,,,,,17.875499419452645,,,False,no_value
+2010,G0800140,Colorado,Broomfield County,G0800140,Broomfield County,ok,55889.0,87.023706776025,87.023706776025,1.0,True,filled_nhgis
+2010,G1200860,Florida,Miami-Dade County,G1200860,Miami-Dade County,ok,2496435.0,5132.389520676713,5132.389520676713,1.0,True,filled_nhgis
+2010,G4601130,South Dakota,Shannon County,G4601130,Shannon County,ok,13586.0,5429.9741335262,5429.9741335262,1.0,True,filled_nhgis
+2010,G5105150,Virginia,Bedford city,G5105150,Bedford city,ok,6222.0,17.875499419452645,17.875499419452645,1.0,True,filled_nhgis

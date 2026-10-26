@@ -1,0 +1,35 @@
+== job 34820551 (grid_cutout) on c3cpu-e2-u9 at 2026-10-23T10:48:32-06:00
+== cores=4 gpus=none restart=0
+== git ee1f204 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: 
+10:49:29 INFO arg config = configs/conus_study_area.yaml
+10:49:29 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+10:49:29 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+10:49:29 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+10:49:29 INFO arg years = None
+10:49:29 INFO arg layers = None
+10:49:29 INFO study area 'conus': states=all | 3 config years 1920-2010 | writing 3 years -> /scratch/alpine/jaju1407/hisdac/cutouts/conus
+10:49:29 INFO layer BUI            years 1920-2010        resampling none     int32 | files to write: 3
+10:49:29 INFO layer BUPL           years 1920-2010        resampling none     int32 | files to write: 3
+10:49:29 INFO layer BUPR           years 1920-2010        resampling none     int32 | files to write: 3
+10:49:29 INFO layer BUA            years 1920-2010        resampling none     int32 | files to write: 3
+10:49:29 INFO layer Land_Use_A     years 1960-2010        resampling none     int32 | files to write: 2
+10:49:29 INFO layer Land_Use_C     years 1960-2010        resampling none     int32 | files to write: 2
+10:49:29 INFO layer Land_Use_GV    years 1960-2010        resampling none     int32 | files to write: 2
+10:49:29 INFO layer Land_Use_I     years 1960-2010        resampling none     int32 | files to write: 2
+10:49:29 INFO layer Land_Use_RC    years 1960-2010        resampling none     int32 | files to write: 2
+10:49:29 INFO layer Land_Use_RI    years 1960-2010        resampling none     int32 | files to write: 2
+10:49:29 INFO layer Land_Use_RO    years 1960-2010        resampling none     int32 | files to write: 2
+10:49:29 INFO layer Land_Use_VL    years 1960-2010        resampling none     int32 | files to write: 2
+10:49:30 INFO reference grid: 1920_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+10:49:31 INFO 28 rasters on the HISDAC grid (window read), 0 to warp onto it
+10:49:33 INFO 1920: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+10:49:34 INFO 1960: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+10:49:36 INFO 2010: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+10:49:36 INFO window: full (the whole HISDAC grid of 1920_BUI.tif)
+10:49:36 INFO window: col_off 0 row_off 0 | 18459 x 11615 cells | bounds [-2356399, 269249, 2258351, 3172999] (counties [-2356114, 269281, 2258244, 3172568])
+10:49:36 INFO cutting 28 rasters
+10:49:42 INFO   BUI 1920           float64, window read -> int32 nodata=None | min 0.0 max 306635538.0 | zeros 212589975 | nodata cells 0 | 11.6 MB
+10:49:47 INFO   BUI 1960           float64, window read -> int32 nodata=None | min 0.0 max 709978539.0 | zeros 209944918 | nodata cells 0 | 24.1 MB
+ERROR: BUI 2010 values 0.0..5447140510.0 don't fit int32

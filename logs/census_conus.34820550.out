@@ -1,0 +1,66 @@
+== job 34820550 (census_conus) on c3cpu-e2-u7 at 2026-10-23T10:47:27-06:00
+== cores=2 gpus=none restart=0
+== git ee1f204
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== in: /projects/jaju1407/data/processed/census/counties_std_2010.gpkg  out: /projects/jaju1407/data/processed/census_conus  extra args: --years 1920 1960 2010
+10:47:36 INFO arg std_gpkg = /projects/jaju1407/data/processed/census/counties_std_2010.gpkg
+10:47:36 INFO arg census_dir = /projects/jaju1407/data/processed/census
+10:47:36 INFO arg out_dir = /projects/jaju1407/data/processed/census_conus
+10:47:36 INFO arg area_tol = (0.95, 1.05)
+10:47:36 INFO arg results_dir = results/census_conus
+10:47:36 INFO arg years = [1920, 1960, 2010]
+10:47:40 INFO /projects/jaju1407/data/processed/census/counties_std_2010.gpkg: 3109 polygons, 4 without a CSV row, CRS EPSG:5070
+10:47:44 INFO   1920 G0800140 Broomfield County: not filled (NHGIS no county, status None, pop nan): no_value
+10:47:44 INFO   1920 G1200860 Miami-Dade County: filled from NHGIS G1200250 (Dade): pop 42,753, area NHGIS / 2010 0.998 -> filled_nhgis (within 0.95-1.05: training + allocation)
+10:47:44 INFO   1920 G4601130 Shannon County: filled from NHGIS G4601130 (Shannon): pop 2,003, area NHGIS / 2010 0.456 -> filled_nhgis_alloc (outside 0.95-1.05: allocation only)
+10:47:44 INFO   1920 G5105150 Bedford city: not filled (NHGIS no county, status None, pop nan): no_value
+10:47:45 INFO Created 3,109 records
+10:47:48 INFO 1920: {'filled_nhgis': 1, 'filled_nhgis_alloc': 1, 'no_value': 53, 'ok': 3054} | pop (ok) 105,516,543 | wrote /projects/jaju1407/data/processed/census_conus/counties_1920.gpkg
+10:47:48 INFO   not ok (first 30): [('G0400120', 'Arizona', 'La Paz County', 'no_value'), ('G0800140', 'Colorado', 'Broomfield County', 'no_value'), ('G1200150', 'Florida', 'Charlotte County', 'no_value'), ('G1200210', 'Florida', 'Collier County', 'no_value'), ('G1200290', 'Florida', 'Dixie County', 'no_value'), ('G1200410', 'Florida', 'Gilchrist County', 'no_value'), ('G1200430', 'Florida', 'Glades County', 'no_value'), ('G1200450', 'Florida', 'Gulf County', 'no_value'), ('G1200490', 'Florida', 'Hardee County', 'no_value'), ('G1200510', 'Florida', 'Hendry County', 'no_value'), ('G1200550', 'Florida', 'Highlands County', 'no_value'), ('G1200610', 'Florida', 'Indian River County', 'no_value'), ('G1200850', 'Florida', 'Martin County', 'no_value'), ('G1200860', 'Florida', 'Miami-Dade County', 'filled_nhgis'), ('G1201150', 'Florida', 'Sarasota County', 'no_value'), ('G1201250', 'Florida', 'Union County', 'no_value'), ('G1300250', 'Georgia', 'Brantley County', 'no_value'), ('G1301710', 'Georgia', 'Lamar County', 'no_value'), ('G1301730', 'Georgia', 'Lanier County', 'no_value'), ('G1301830', 'Georgia', 'Long County', 'no_value'), ('G1302250', 'Georgia', 'Peach County', 'no_value'), ('G1302530', 'Georgia', 'Seminole County', 'no_value'), ('G2700770', 'Minnesota', 'Lake of the Woods County', 'no_value'), ('G3000190', 'Montana', 'Daniels County', 'no_value'), ('G3000370', 'Montana', 'Golden Valley County', 'no_value'), ('G3000450', 'Montana', 'Judith Basin County', 'no_value'), ('G3000470', 'Montana', 'Lake County', 'no_value'), ('G3000690', 'Montana', 'Petroleum County', 'no_value'), ('G3500030', 'New Mexico', 'Catron County', 'no_value'), ('G3500060', 'New Mexico', 'Cibola County', 'no_value')]
+10:47:52 INFO   1960 G0800140 Broomfield County: not filled (NHGIS no county, status None, pop nan): no_value
+10:47:52 INFO   1960 G1200860 Miami-Dade County: filled from NHGIS G1200250 (Dade): pop 935,047, area NHGIS / 2010 0.998 -> filled_nhgis (within 0.95-1.05: training + allocation)
+10:47:52 INFO   1960 G4601130 Shannon County: filled from NHGIS G4601130 (Shannon): pop 6,000, area NHGIS / 2010 1.000 -> filled_nhgis (within 0.95-1.05: training + allocation)
+10:47:52 INFO   1960 G5105150 Bedford city: not filled (NHGIS no county, status None, pop nan): no_value
+10:47:52 INFO Created 3,109 records
+10:47:54 INFO 1960: {'filled_nhgis': 2, 'no_value': 14, 'ok': 3093} | pop (ok) 177,329,301 | wrote /projects/jaju1407/data/processed/census_conus/counties_1960.gpkg
+10:47:54 INFO   not ok (first 30): [('G0400120', 'Arizona', 'La Paz County', 'no_value'), ('G0800140', 'Colorado', 'Broomfield County', 'no_value'), ('G1200860', 'Florida', 'Miami-Dade County', 'filled_nhgis'), ('G3500060', 'New Mexico', 'Cibola County', 'no_value'), ('G4601130', 'South Dakota', 'Shannon County', 'filled_nhgis'), ('G5105150', 'Virginia', 'Bedford city', 'no_value'), ('G5105500', 'Virginia', 'Chesapeake city', 'no_value'), ('G5105950', 'Virginia', 'Emporia city', 'no_value'), ('G5106000', 'Virginia', 'Fairfax city', 'no_value'), ('G5106200', 'Virginia', 'Franklin city', 'no_value'), ('G5106780', 'Virginia', 'Lexington city', 'no_value'), ('G5106830', 'Virginia', 'Manassas city', 'no_value'), ('G5106850', 'Virginia', 'Manassas Park city', 'no_value'), ('G5107350', 'Virginia', 'Poquoson city', 'no_value'), ('G5107750', 'Virginia', 'Salem city', 'no_value'), ('G5500780', 'Wisconsin', 'Menominee County', 'no_value')]
+10:47:57 INFO   2010 G0800140 Broomfield County: filled from NHGIS G0800140 (Broomfield County): pop 55,889, area NHGIS / 2010 1.000 -> filled_nhgis (within 0.95-1.05: training + allocation)
+10:47:57 INFO   2010 G1200860 Miami-Dade County: filled from NHGIS G1200860 (Miami-Dade County): pop 2,496,435, area NHGIS / 2010 1.000 -> filled_nhgis (within 0.95-1.05: training + allocation)
+10:47:57 INFO   2010 G4601130 Shannon County: filled from NHGIS G4601130 (Shannon County): pop 13,586, area NHGIS / 2010 1.000 -> filled_nhgis (within 0.95-1.05: training + allocation)
+10:47:57 INFO   2010 G5105150 Bedford city: filled from NHGIS G5105150 (Bedford city): pop 6,222, area NHGIS / 2010 1.000 -> filled_nhgis (within 0.95-1.05: training + allocation)
+10:47:58 INFO Created 3,109 records
+10:48:00 INFO 2010: {'filled_nhgis': 4, 'ok': 3105} | pop (ok) 304,102,874 | wrote /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+10:48:00 INFO   not ok (first 30): [('G0800140', 'Colorado', 'Broomfield County', 'filled_nhgis'), ('G1200860', 'Florida', 'Miami-Dade County', 'filled_nhgis'), ('G4601130', 'South Dakota', 'Shannon County', 'filled_nhgis'), ('G5105150', 'Virginia', 'Bedford city', 'filled_nhgis')]
+10:48:00 INFO summary:
+ year             status  counties         pop     area_km2  area_share
+ 1920       filled_nhgis         1     42753.0 5.132390e+03    0.000659
+ 1920 filled_nhgis_alloc         1      2003.0 5.429974e+03    0.000697
+ 1920           no_value        53         0.0 1.311707e+05    0.016847
+ 1920                 ok      3054 105516543.0 7.644323e+06    0.981797
+ 1960       filled_nhgis         2    941047.0 1.056236e+04    0.001357
+ 1960           no_value        14         0.0 2.558420e+04    0.003286
+ 1960                 ok      3093 177329301.0 7.749910e+06    0.995358
+ 2010       filled_nhgis         4   2572132.0 1.066726e+04    0.001370
+ 2010                 ok      3105 304102874.0 7.775389e+06    0.998630
+10:48:00 INFO polygons without a CSV row (filled from NHGIS where possible):
+ year  GISJOIN        state              name   source       source_name nhgis_status       pop  area_2010_km2  area_nhgis_km2  area_ratio  filled             status
+ 1920 G0800140     Colorado Broomfield County      NaN               NaN          NaN       NaN      87.023707             NaN         NaN   False           no_value
+ 1920 G1200860      Florida Miami-Dade County G1200250              Dade           ok   42753.0    5132.389521     5123.402723    0.998249    True       filled_nhgis
+ 1920 G4601130 South Dakota    Shannon County G4601130           Shannon           ok    2003.0    5429.974134     2473.815396    0.455585    True filled_nhgis_alloc
+ 1920 G5105150     Virginia      Bedford city      NaN               NaN          NaN       NaN      17.875499             NaN         NaN   False           no_value
+ 1960 G0800140     Colorado Broomfield County      NaN               NaN          NaN       NaN      87.023707             NaN         NaN   False           no_value
+ 1960 G1200860      Florida Miami-Dade County G1200250              Dade           ok  935047.0    5132.389521     5123.402723    0.998249    True       filled_nhgis
+ 1960 G4601130 South Dakota    Shannon County G4601130           Shannon           ok    6000.0    5429.974134     5429.974684    1.000000    True       filled_nhgis
+ 1960 G5105150     Virginia      Bedford city      NaN               NaN          NaN       NaN      17.875499             NaN         NaN   False           no_value
+ 2010 G0800140     Colorado Broomfield County G0800140 Broomfield County           ok   55889.0      87.023707       87.023707    1.000000    True       filled_nhgis
+ 2010 G1200860      Florida Miami-Dade County G1200860 Miami-Dade County           ok 2496435.0    5132.389521     5132.389521    1.000000    True       filled_nhgis
+ 2010 G4601130 South Dakota    Shannon County G4601130    Shannon County           ok   13586.0    5429.974134     5429.974134    1.000000    True       filled_nhgis
+ 2010 G5105150     Virginia      Bedford city G5105150      Bedford city           ok    6222.0      17.875499       17.875499    1.000000    True       filled_nhgis
+10:48:00 INFO DONE
+total 769120
+drwxr-sr-x 2 jaju1407 jaju1407grp       108 Oct 23 10:48 .
+drwxr-sr-x 5 jaju1407 jaju1407grp        77 Oct 23 09:04 ..
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 23 10:47 counties_1920.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 23 10:47 counties_1960.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 23 10:47 counties_2010.gpkg
+== done 2026-10-23T10:48:00-06:00
