@@ -50,12 +50,15 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
 
 ### CONUS: hyperparameter sensitivity and source gaps (open, 2026-10-27)
 
-- Hyperparameters are chosen on county CV only; tracts are used only to validate the fixed model (decided
-  2026-10-27 with the user: choosing settings by tract error would make the validation data part of the fitting,
-  even if only train counties' tracts were used). Finding to report, not to tune on: settings that tie on county CV
-  can differ on tracts (v3 vs v3_bui in 2010: `max_features` 0.5 vs 1.0, CV RMSE 0.6336 vs 0.6302, tract MdAPE 29.2 vs
-  25.2 %). Report the chosen settings with every result; a sensitivity table of the near-tied CV candidates can be
-  added in the paper.
+- Hyperparameters of a model are chosen on county CV only (5 folds within the train counties, lowest mean RMSE of
+  log density); tracts are never used inside the search. The fixed model is then scored on the county TEST set and on
+  tracts. Settings that tie on county CV can differ on tracts (v3 vs v3_bui in 2010: `max_features` 0.5 vs 1.0, CV
+  RMSE 0.6336 vs 0.6302, tract MdAPE 29.2 vs 25.2 %), which is expected (different scale) and is why tract validation
+  is the main criterion. Report the chosen settings with every result.
+- **Model family (decided 2026-10-27)**: before the run over all years, compare RF, LightGBM, XGBoost and CatBoost on
+  the v3_bui features for 1920 / 1960 / 2010 (each tuned by the same county CV, same split and folds) and choose the
+  family from the validation results: tract validation first (all tracts, density classes, gap counties left out),
+  county TEST R2 second. Request: `docs/handoff/conus_models_request.md`.
 - **Counties with (almost) no BUI**: counted 2026-10-27 from `county_features.csv` of v3_bui as BUI floor area per
   person (county mean BUI x unmasked cells / pop) below 5 % of the national median (median 96 / 368 / 935 sq ft per
   person in 1920 / 1960 / 2010):
@@ -342,5 +345,6 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
 | 2026-10-27 | CONUS pilot (1920/1960/2010): v1 tract MdAPE 38.4 % (1960) and 29.8 % (2010) vs 82.7 / 74.5 % areal weighting, test ~ train. v2 (+ PLURAL-1 distances) better on county TEST R2 (0.90 vs 0.78 in 2010) but worse on tracts (40.2 vs 29.8 %): distances not used for allocation; tract validation, not county CV, chooses features. JRC no data inside study cells = 0, `nodata_as_water` kept. |
 | 2026-10-27 | CONUS v3 (+ elev, slope) best on tracts (2010 MdAPE 29.2 vs 29.8 %, every density class) and becomes the CONUS base; v4 (+ distances + terrain) ~ v2: distances dropped. BUI unit = sq ft (README); cells > 3e7 sq ft are record errors (10 / 119 / 298 cells in 1920 / 1960 / 2010), treatment to decide. |
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
+| 2026-10-27 | Hyperparameters: county CV only (tracts never in the search). Model family chosen before the all-years run: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, picked by tract validation + county TEST R2. Gap counties (BUI per person < 5 % of the median): 533 / 479 / 416 in 1920 / 1960 / 2010; kept, flagged, validation reported with and without. |
 | 2026-10-27 | BUI fix implemented as a separate step after the cutout (`src/grid/bui_fix.py`, in place on `layers/BUI/`, original kept in `layers/BUI_raw/`, reruns identical), switched on by `bui_cap` in the study area config (Massachusetts: none, check only). Neighbours above the cap, with nodata or outside the window are left out of the median (none left -> 0); strips use one halo row. New versions `Dasy_CONUS_RF_v1_bui` / `Dasy_CONUS_RF_v3_bui` (1920/1960/2010, compare_with v1 / v3) so the old v1 / v3 outputs stay. |
 | 2026-10-27 | BUI fix (cap 3e7 sq ft -> 3 x 3 neighbour median) applied; alone it changes tract error by about 0.1 point. v3_bui (v1 + terrain on fixed BUI) is the CONUS base: tract MdAPE 53.7 / 38.2 / 25.2 % (1920 / 1960 / 2010); the 2010 gain over v3 comes with `max_features` 1.0 picked on a CV tie. Distances spread population onto empty cells (county maps); terrain keeps it in valleys. |

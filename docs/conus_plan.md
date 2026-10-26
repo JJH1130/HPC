@@ -276,8 +276,8 @@ to 0 because all neighbours were 0); they held 2.6 / 9.0 / 10.6 % of all BUI. Ma
   `max_features: 1.0` (v3 picked 0.5), a CV difference of 0.0007 RMSE (0.8647 vs 0.8644 R2), essentially a tie on
   county CV. With 1.0, SHAP puts `bui` far ahead (0.98) and `bldg_size` drops (0.25 -> 0.07). So the gain is real on
   tracts (train and test counties alike: 25.0 / 26.0 %) but was not chosen for it: county CV cannot tell these
-  settings apart, while tract error differs by 4 points. Hyperparameters matter for allocation more than county CV
-  shows (reported as a sensitivity, not tuned on tracts; `docs/open_items.md`).
+  settings apart, while tract error differs by 4 points (expected: different scale; tracts are not used for tuning,
+  `docs/open_items.md`).
 - v3_bui is the CONUS base (best in every year and density class).
 
 County maps (2010; `results/validation/conus/county_maps/`), share of the county population put on cells with BUI = 0:
@@ -358,4 +358,6 @@ Made while implementing; each is the simplest option consistent with the decisio
 4. Review time, memory and results. Done 2026-10-27: v3 chosen (above).
 5. BUI fix in the cutout; rerun v3 for 1920, 1960, 2010 (1920 not run with terrain yet); county maps (bug fixed).
    Code 2026-10-27 ("BUI fix and v3 base rerun"; `bash sbatch/submit_conus.sh bui`).
-6. Then the remaining years (1900-2010) with v3, then 2020.
+6. Model family: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, chosen by tract
+   validation + county TEST R2 (`docs/handoff/conus_models_request.md`).
+7. Then the remaining years (1900-2010) with the chosen model and v3 features, then 2020.
