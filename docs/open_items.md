@@ -56,7 +56,8 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
   RMSE 0.6336 vs 0.6302, tract MdAPE 29.2 vs 25.2 %), which is expected (different scale) and is why tract validation
   is the main criterion. Report the chosen settings with every result.
 - **Model family (decided 2026-10-27)**: before the run over all years, compare RF, LightGBM, XGBoost and CatBoost on
-  the v3_bui features for 1920 / 1960 / 2010 (each tuned by the same county CV, same split and folds) and choose the
+  the v3_bui features for 1920 / 1960 / 2010 (each tuned by the same county CV with the same budget: RandomizedSearchCV, 60 candidates, continuous ranges
+  (log-uniform for learning rate and regularisation); same split and folds; RF rerun with 60 too) and choose the
   family from the validation results: tract validation first (all tracts, density classes, gap counties left out),
   county TEST R2 second. Request: `docs/handoff/conus_models_request.md`.
 - **Counties with (almost) no BUI**: counted 2026-10-27 from `county_features.csv` of v3_bui as BUI floor area per
