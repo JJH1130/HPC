@@ -78,7 +78,7 @@ rasterization would bias every tract comparison). Other flags are reported, not 
 | File | Content |
 |---|---|
 | `tract_errors_{YEAR}.csv` | every Massachusetts tract: `GISJOIN, county_gisjoin, status, flag, n_cells, small, pop_obs, pop_model, pop_baseline, lon, lat` (lon/lat = WGS84 representative point, to look a tract up) |
-| `metrics_by_year.csv` | `year, method, subset, n, pop_share, rmse, mae, mdape, r2_log, r2_logdens` |
+| `metrics_by_year.csv` | `year, method, subset, n, pop_share, rmse, mae, mdape, r2_log, r2_logdens` (CONUS: + `part`; from 2026-10-27 + `area_share` and the density subsets `dens_0_50`, `dens_50_500`, `dens_500_2000`, `dens_2000_plus` = observed pop / (n_cells x 0.0625 km2) in people per km2; `area_share` = subset tract area / evaluated tract area of the part) |
 | `qa_totals.csv` | totals QA above |
 | `tract_validation_{YEAR}.png` | 1940, 1970, 2020: map of the model's % error by tract (blue = under, red = over, clipped at ±100 %; grey = not evaluated) and observed vs predicted scatter (model and baseline, log axes) |
 

@@ -9,7 +9,9 @@ in a temporary folder, a split table with make_split.py, and checks:
   - train with `split`: test counties are not in the training / CV rows; test score reported
   - predict in strips = whole window with the same model; mass preserved; no_value / zero_pop counties and
     cells outside counties are NoData; test counties are allocated; --measure writes nothing
-  - tract_validate with --split and --state-prefix '' reports train and test parts
+  - tract_validate with --split and --state-prefix '' reports train and test parts, and the density classes
+  - terrain (elev, slope; v3 / v4): strips (one halo row) == whole window, cell by cell and as county features
+  - bui_qa.py: quantiles, cap counts and the top cells with their county and bldg_size
   - conus_counties.py: status ok / no_value / zero_pop and the same row order every year
 """
 from __future__ import annotations
@@ -25,7 +27,7 @@ import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[1]
-for sub in ("src/dasymetric", "src/validation", "src/census"):
+for sub in ("src/dasymetric", "src/validation", "src/census", "src/grid"):
     sys.path.insert(0, str(REPO / sub))
 
 # stub `shap` (not needed to test the split / strips logic)
@@ -63,6 +65,8 @@ import yaml  # noqa: E402
 from affine import Affine  # noqa: E402
 from shapely.geometry import box  # noqa: E402
 
+import bui_qa  # noqa: E402
+import common as dcommon  # noqa: E402
 import county_features  # noqa: E402
 import make_split  # noqa: E402
 import predict  # noqa: E402
@@ -107,6 +111,11 @@ def make_cutout(tmp: Path, counties: pd.DataFrame):
     for r in counties.itertuples():
         zones[r.r0:r.r0 + CS, r.c0:r.c0 + CS] = r.zone_id
     centre = np.hypot(*np.meshgrid(np.arange(W) - 30, np.arange(H) - 20))  # a "city" near row 20, col 30
+    dem = (100 + 3 * np.arange(H)[:, None] ** 1.5 + 40 * np.sin(np.arange(W) / 4)[None, :]
+           + 5 * rng.random((H, W))).astype("float32")  # rough terrain, slope varies from row to row
+    dem[:3, :] = np.nan  # "sea" rows at the top (nodata -> 0 m), incl. inside zone rows 1-2
+    dem[30:33, 40:] = np.nan  # an inland nodata patch across a strip boundary (block_rows 7: rows 28 / 35)
+    write_tif(cut / "layers" / "DEM" / "DEM.tif", dem, float("nan"))
     for year in YEARS:
         dens = np.exp(-centre / (8 if year == 1960 else 14)) * (1 + 0.3 * rng.random((H, W)))
         bupl = rng.poisson(dens * 20).astype("int32")
@@ -158,8 +167,11 @@ def write_configs(tmp: Path, split_path: Path):
                               "space": {"n_estimators": [10, 20], "max_depth": [None, 5],
                                         "min_samples_leaf": [1, 2], "max_features": [1.0]}}}}
     paths = {}
+    terrain = {"eras": {f"Y{y}": {"years": [y], "features": feats + ["elev", "slope"]} for y in YEARS},
+               "feature_groups": {**base["feature_groups"], "Elevation": ["elev"], "Slope": ["slope"]}}
     for version, extra in (("blocks", {"block_rows": 7}), ("whole", {}),
-                           ("v2", {"block_rows": 7, "compare_with": "blocks"})):
+                           ("v2", {"block_rows": 7, "compare_with": "blocks"}),
+                           ("tblocks", {"block_rows": 7, **terrain}), ("twhole", terrain)):
         p = tmp / "configs" / f"{version}.yaml"
         p.write_text(yaml.safe_dump({**base, "version": version, **extra}))
         paths[version] = p
@@ -191,13 +203,27 @@ def test_pipeline():
         out_root = tmp / "dasym"
         common = ["--out-root", str(out_root)]
 
+        # 0. terrain: strips with one halo row == whole window (elev and slope, every cell)
+        _, _, grid = dcommon.read_zones(cut, YEARS[0])
+        ew, sw = dcommon.terrain(cut, grid)
+        for k in (1, 7, 512):
+            parts = [dcommon.terrain(cut, grid, r) for r in dcommon.strips(grid["shape"], k)]
+            assert np.array_equal(np.vstack([e for e, _ in parts]), ew)
+            assert np.array_equal(np.vstack([sl for _, sl in parts]), sw), k
+        assert (ew[:3] == 0).all() and np.isfinite(sw).all() and sw.max() > 1
+        print("ok terrain: strips (1, 7, 512 rows) == whole window; nodata -> 0 m")
+
         # 1. features: strips == whole window
-        for v in ("blocks", "whole", "v2"):
+        for v in ("blocks", "whole", "v2", "tblocks", "twhole"):
             county_features.main(["--config", str(cfgs[v]), "--cutout-root", str(tmp / "cutouts")] + common)
         for y in YEARS:
             a = pd.read_csv(out_root / "conus" / "blocks" / f"Y{y}" / "features" / "county_features.csv")
             b = pd.read_csv(out_root / "conus" / "whole" / f"Y{y}" / "features" / "county_features.csv")
             pd.testing.assert_frame_equal(a, b, rtol=1e-12)
+            ta = pd.read_csv(out_root / "conus" / "tblocks" / f"Y{y}" / "features" / "county_features.csv")
+            tb = pd.read_csv(out_root / "conus" / "twhole" / f"Y{y}" / "features" / "county_features.csv")
+            pd.testing.assert_frame_equal(ta, tb, rtol=1e-12)
+            assert ta["elev"].std() > 0 and ta["slope"].std() > 0
             assert NO_VALUE.get(y) not in a["zone_id"].tolist() and ZERO_POP.get(y) not in a["zone_id"].tolist()
             assert len(a) == 47 and np.isfinite(a["y"]).all()
         print("ok features: strips == whole window, no_value / zero_pop counties left out")
@@ -263,7 +289,16 @@ def test_pipeline():
                 assert sums[FILLED[y]] > 0
         qa = pd.read_csv(out_root / "conus" / "blocks" / "qa" / "reallocation_qa.csv")
         assert len(qa) == 94 and (qa["rel_diff"] < 1e-6).all()
-        print("ok predict: strips == whole window, mass preserved, NoData for unused counties, test counties allocated")
+        train.main(["--config", str(cfgs["tblocks"]), "--n-jobs", "1"] + common)  # terrain (v3 / v4)
+        for y in YEARS:
+            shutil.copytree(out_root / "conus" / "tblocks" / f"Y{y}" / "model",
+                            out_root / "conus" / "twhole" / f"Y{y}" / "model")
+        for v in ("tblocks", "twhole"):
+            predict.main(["--config", str(cfgs[v]), "--cutout-root", str(tmp / "cutouts"), "--n-jobs", "2"] + common)
+        for y in YEARS:
+            assert np.array_equal(read(out_root / "conus" / "tblocks" / "predictions" / f"pop_{y}.tif"),
+                                  read(out_root / "conus" / "twhole" / "predictions" / f"pop_{y}.tif"))
+        print("ok predict (+ terrain): strips == whole window, mass preserved, NoData for unused counties, test counties allocated")
 
         # 4. tract validation with the split
         tracts_dir = tmp / "tracts"
@@ -291,7 +326,32 @@ def test_pipeline():
             assert a[(y, "train")] + a[(y, "test")] == a[(y, "all")] > 0
         te = pd.read_csv(tmp / "val" / "conus" / "blocks" / "tract_errors_2010.csv")
         assert set(te.loc[te["flag"] == "ok", "part"]) == {"train", "test"}
-        print("ok tract_validate: train / test parts reported")
+        d = met[met["subset"].str.startswith("dens_")]
+        assert set(d["subset"]) <= {"dens_0_50", "dens_50_500", "dens_500_2000", "dens_2000_plus"} and len(d)
+        s_n = d.groupby(["year", "part", "method"])["n"].sum()
+        s_a = d.groupby(["year", "part", "method"])["area_share"].sum()
+        full = met[met["subset"] == "all"].set_index(["year", "part", "method"])
+        assert (s_n == full["n"].loc[s_n.index]).all() and np.allclose(s_a, 1.0)
+        print("ok tract_validate: train / test parts reported; density classes add up to all tracts")
+
+        # 5. bui_qa: quantiles over BUI > 0 cells, cap counts, top cells with county and bldg_size
+        bui_qa.main(["--cutout", str(cut), "--years", *map(str, YEARS), "--out-dir", str(tmp / "bq"),
+                     "--caps", "5", "50", "--top", "5", "--block-rows", "7", "--metro-rank", "3"])
+        q = pd.read_csv(tmp / "bq" / "bui_quantiles.csv").set_index("year")
+        top = pd.read_csv(tmp / "bq" / "bui_top.csv")
+        for y in YEARS:
+            b = read(cut / "layers" / "BUI" / f"{y}_BUI.tif").astype(float)
+            pl = read(cut / "layers" / "BUPL" / f"{y}_BUPL.tif").astype(float)
+            pos = b[b > 0]
+            assert q.loc[y, "cells_bui_pos"] == pos.size and q.loc[y, "max"] == pos.max()
+            assert np.isclose(q.loc[y, "p99"], np.quantile(pos.astype("float32"), 0.99))
+            assert q.loc[y, "n_gt_5e0"] == (pos > 5).sum() and q.loc[y, "n_gt_5e1"] == (pos > 50).sum()
+            t = top[top["year"] == y]
+            assert len(t) == 5 and (np.diff(t["BUI"]) <= 0).all() and t["BUI"].iloc[0] == pos.max()
+            assert (t["BUI"].to_numpy() == b[t["row"], t["col"]]).all()
+            assert (t["zone_id"].to_numpy() == zones[t["row"], t["col"]]).all()
+            assert np.allclose(t["bldg_size"], b[t["row"], t["col"]] / pl[t["row"], t["col"]])
+        print("ok bui_qa: quantiles, caps, top cells with zone and bldg_size")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

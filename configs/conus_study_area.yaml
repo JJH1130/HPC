@@ -16,7 +16,7 @@ years: [1920, 1960, 2010]
 grid_reference: BUI
 
 # Only the HISDAC layers the CONUS features use (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share).
-# FBUY / NobuiltYear (age is dropped), NTL and DEM (terrain later) are not cut. Field rules: configs/study_area.yaml.
+# FBUY / NobuiltYear (age is dropped) and NTL are not cut. Field rules: configs/study_area.yaml.
 layers:
   # BUI as float32: the 2010 CONUS maximum is 5,447,140,510 (pilot job 34820551), beyond int32. float32 keeps
   # integers exactly up to 2^24 and larger ones to 1e-7 relative, enough for a feature.
@@ -30,6 +30,10 @@ layers:
     years: {start: 1940, stop: 2020, step: 10}
     resampling: none
     out: "Land_Use/{CLASS}/{YEAR}_{CLASS}.tif"
+  # GMTED2010 mean elevation for Dasy_CONUS_RF_v3 / v4 (elev, slope), as Massachusetts v4: averaged onto the HISDAC
+  # grid, float32 metres, sea = nodata (set to 0 m in src/dasymetric/common.py). Static (one file). Added to the
+  # pilot cutout with `grid_cutout.sh --layers DEM` (sbatch/submit_conus.sh v3v4).
+  - {name: DEM, path: "/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd", years: none, resampling: average, dtype: float32, out: "DEM/DEM.tif"}
 
 # Yearly water fraction with GDW reservoir years (as Massachusetts v4/v4.1; field rules in configs/study_area.yaml).
 # only_zone_blocks: only 256 x 256 blocks holding a cell of a 2010 county are computed (the rest of the window:

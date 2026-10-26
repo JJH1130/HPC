@@ -4,11 +4,18 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-24 (CONUS trial + pilot fixes; CONUS implementation; v4.1 design: PLURAL-1 distances; Stefan meeting)
+Last updated: 2026-10-27 (CONUS pilot result; v3 / v4 terrain, BUI check, density classes, county maps submitted as code)
 
 ## Open items
 
-### CONUS Dasy_CONUS_RF_v1 / v2
+### CONUS Dasy_CONUS_RF_v1 - v4
+
+- **Status (2026-10-27):** pilot passed (`docs/conus_plan.md`, "Pilot result"). Code written for the next submission
+  (`bash sbatch/submit_conus.sh v3v4`, `docs/runbooks/Running_CONUS.md` section 2), not run yet: BUI outlier check
+  (look only), DEM cutout, `Dasy_CONUS_RF_v3` (v1 + elev, slope) and `Dasy_CONUS_RF_v4` (v1 + distances + elev, slope)
+  for 1960 / 2010, tract density classes (v1 / v2 validation rerun), zoomed county maps v1 / v2 / v4 (2010).
+- Open (BUI): treatment of the implausible BUI maxima (cap, neighbour value, nothing) waits for `bui_quantiles.csv` /
+  `bui_top.csv` and the BUI unit from the HISDAC README (printed by `bui_qa`).
 
 - **Status (2026-10-23):** scale review done (`docs/conus_plan.md`, "Scale checks"); trial (1960, v1) passed, jobs
   34814376-34814382: whole chain ~25 min, peak 16 GB (water), prediction ~4 min per year (far below the estimate);
@@ -303,4 +310,5 @@ Last updated: 2026-10-24 (CONUS trial + pilot fixes; CONUS implementation; v4.1 
 | 2026-10-24 | CONUS: Miami-Dade, Shannon SD, Broomfield, Bedford city (no CSV row under any code) filled from the NHGIS nominal county of the same year (Dade = G1200250), status `filled_nhgis`, allocation only (`train_status: [ok]`, split unchanged). JRC no-data share checked per county in the pilot before deciding the inland rule. Pilot resources from the trial (features 6 cores, wall times ~3-4x measured). |
 | 2026-10-23 | CONUS implementation (`docs/conus_plan.md`, "Implementation decisions"): configs `configs/conus_study_area.yaml`, `conus_rf_v1.yaml`, `conus_rf_v2.yaml` (Massachusetts configs unchanged); window = whole HISDAC raster; Stefan CSV on 2010 polygons via `conus_counties.py` with status ok / no_value / zero_pop (only ok used); unallocatable counties skipped (NoData); per-year eras; split table `configs/conus_split.csv` made once (seed 42); trial run (1960, prediction timed only) before the 1920/1960/2010 pilot. |
 | 2026-10-23 | CONUS (`docs/conus_plan.md`): name `Dasy_CONUS_RF_v1`; RF; census years 1900-2010 first (2020 later from NHGIS; CSV 2015 is an estimate); Stefan CSV on 2010 polygons; one model per year; counties split at random 80:20 within each state (stratified, fixed seed) into train/test before tuning, 5-fold CV grouped by county inside train (whole-state hold-out rejected: every state's land-use coding should be seen in training; tract validation is the independent check); trial years 1920, 1960, 2010; feature sets v1 (MA v3.4 set) and v2 (+ PLURAL-1 distances). |
+| 2026-10-27 | CONUS v3 = v1 + elev, slope; v4 = v1 + distances + elev, slope (1960, 2010; split, folds and compare_with v1 as v2). Absolute elevation only: elevation relative to the county mean has county mean 0, so a county-level model can't learn it. Slope computed per strip with one halo row (= whole window). BUI outliers: look first (`bui_qa`), treatment decided after. Tract metrics get observed-density classes < 50, 50-500, 500-2000, 2000+ people/km2. |
 | 2026-10-27 | CONUS pilot (1920/1960/2010): v1 tract MdAPE 38.4 % (1960) and 29.8 % (2010) vs 82.7 / 74.5 % areal weighting, test ~ train. v2 (+ PLURAL-1 distances) better on county TEST R2 (0.90 vs 0.78 in 2010) but worse on tracts (40.2 vs 29.8 %): distances not used for allocation; tract validation, not county CV, chooses features. JRC no data inside study cells = 0, `nodata_as_water` kept. |

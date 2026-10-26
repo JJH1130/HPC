@@ -23,7 +23,7 @@ Last updated: 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL
 | Global Dam Watch (GDW) reservoirs + barriers | v1.0 | `/projects/jaju1407/data/raw/water/gdw/` | Reservoir polygons with dam years → year-dependent water fraction | Downloaded 2026-10-12; in code for v4 (`water_frac.py`, `reservoir_source: gdw`), not run yet |
 | County census by 2010 FIPS (+ CBSA/CSA codes), from Stefan Leyk | `all_county_census_MSA_full.csv`, 1900–2010 + 2015 est. | `/projects/jaju1407/data/raw/census_std/` (git: `data/census_std/`) | Massachusetts: CBSA attributes only. **CONUS (2026-10-23): county population input** on 2010 polygons (`src/census/conus_counties.py`, `docs/conus_plan.md`) + the train/test split's county list (`configs/conus_split.csv`) | In use; publisher to confirm |
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
-| USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | Downloaded 2026-10-12; in code for v4 (cutout layer `DEM`, `average`), not run yet |
+| USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | In use: Massachusetts v4 (2026-10-19); CONUS v3 / v4 (cutout layer `DEM`, `average`; code 2026-10-27) |
 | PLURAL place-level urban–rural indices | 2023 release (points, 1930–2018) | `/projects/jaju1407/data/raw/plural/plural_2023/` | Distance features `d_10k` … `d_250k` (v4.1: place populations + points → km to the nearest place per size class) | On Alpine; in code for v4.1 (`src/grid/place_dist.py`), not run yet |
 | PLURAL gridded + tract (from Siqiao) | received 2026-10-24: 900 m grid 1940, 1980, 2010; tracts 1990–2020 on 2010 boundaries | `/projects/jaju1407/data/raw/plural/siqiao_2026/` | Not a feature: comparison check of the `d_*` distance layers (v2) | On Alpine; method of the grid ("index3") to confirm with Siqiao |
 
@@ -36,6 +36,11 @@ Last updated: 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL
   (built-up area, 0/1), FBUY (first built-up year), NobuiltYear (count of records
   without a built year), 1810–2020 at 5-year steps, 250 m, ESRI:102039
   (USA Contiguous Albers Equal Area Conic, USGS version).
+- BUI definition (Harvard Dataverse description of HISDAC-US): the sum of the gross indoor area of all built-up
+  properties in a grid cell in a given year. **Unit to confirm (2026-10-27):** sq ft above follows ZTRAX (building
+  areas in sq ft); the dataset descriptions found do not state it. `sbatch/bui_qa.sh` prints the README / metadata
+  files under `$HISDAC_DIR` and the BUI raster tags into its log; record the unit here from that log. The CONUS
+  maxima (5.4e9 in one 250 m cell in 2010) are impossible in either unit (`docs/conus_plan.md`, "BUI outliers").
 - Source data: ZTRAX (Zillow), Parcel Atlas, BuildZero Open City Model.
 - Notes: built from contemporary records filtered by year built, so demolished
   structures are missing and early periods are under-represented. No nodata value;

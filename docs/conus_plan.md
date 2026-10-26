@@ -3,10 +3,10 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-24 (trial measured; 4 counties filled from NHGIS; JRC no-data QA; pilot resources)
+Last updated: 2026-10-27 (pilot result; v3 / v4 = terrain; BUI outlier check; tract density classes; county maps)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
-`configs/conus_rf_v2.yaml`, split `configs/conus_split.csv`.
+`configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, split `configs/conus_split.csv`.
 
 ## Decisions (2026-10-23)
 
@@ -26,7 +26,8 @@ Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.
 |---|---|---|
 | `Dasy_CONUS_RF_v1` | bui, bldg_size, mu_ratio, dist_built, (+ res_share, rent_share from 1940) | v3.4 set, yearly GDW water mask |
 | `Dasy_CONUS_RF_v2` | v1 + d_10k, d_20k, d_50k, d_100k, d_250k (from 1940) | v4.1 |
-| later | + elev, slope (absolute or relative to the county mean) | v4 |
+| `Dasy_CONUS_RF_v3` | v1 + elev, slope (1960, 2010) | v4 terrain |
+| `Dasy_CONUS_RF_v4` | v1 + d_10k ... d_250k + elev, slope (1960, 2010) | v4 + v4.1 |
 
 `year` is constant within a per-year model and is dropped. In 1920 v1 and v2 are identical (distances start in 1940,
 `place_dist.first_year`), so 1920 runs v1 only.
@@ -152,6 +153,49 @@ Tracts: 2,197 (1920, 9 % of the population), 22,042 (1960, 56 %), 72,243 (2010, 
 - 1920: tracts only in 14 large counties (9 % of the population) and R2 of log density below 0, so 1920 is weakly
   validated.
 
+## v3 and v4: terrain (request 2026-10-27; run steps `docs/runbooks/Running_CONUS.md`, section 2)
+
+| Topic | Decision |
+|---|---|
+| Versions | `Dasy_CONUS_RF_v3` = v1 + `elev`, `slope`; `Dasy_CONUS_RF_v4` = v1 + the five distances + `elev`, `slope`. 1960 and 2010 (as v2), same split and folds, `compare_with: Dasy_CONUS_RF_v1`. SHAP groups `Elevation`, `Slope` (separate, 2026-10-20) |
+| Elevation | absolute (m). Elevation relative to the county mean is not used: its county mean is 0 for every county, so the county-level model can't learn anything from it |
+| DEM layer | GMTED2010 `mn75_grd` (as Massachusetts v4), `resampling: average` onto the HISDAC grid, float32, cut into the pilot cutout with `grid_cutout.sh --layers DEM` (`layers/DEM/DEM.tif`; entry in `configs/conus_study_area.yaml`) |
+| Sea / nodata | set to 0 m (as Massachusetts `common.py`), before the slope |
+| Slope in strips | `common.terrain`: each `block_rows` strip is read with one extra row above and below, so `numpy.gradient` uses the same neighbours as on the whole window; the window's own first / last rows stay one-sided. Strips = whole window exactly (`tests/test_conus_dasymetric.py`, strips of 1, 7 and 512 rows); no whole-window DEM array in memory |
+| Reused | pilot cutout, water (`{YEAR}_water_frac.tif`) and distances (`PLACEDIST`); nothing recomputed |
+
+## BUI outliers (request 2026-10-27): look first, decide after
+
+Pilot BUI maxima in one 250 m cell (62,500 m2): 306,635,538 (1920), 709,978,539 (1960), 5,447,140,510 (2010). Even a
+cell built over 20 times its land area holds ~1.25e6 m2 (~1.35e7 sq ft), so the maxima are impossible in m2 or sq ft.
+`src/grid/bui_qa.py` (`sbatch/bui_qa.sh`, in the v3v4 submission, nothing depends on it) writes per year
+`results/cutout/conus/bui_quantiles.csv` (p50, p99, p99.9, p99.99, max over BUI > 0 cells; cells above 1e7, 3e7, 1e8)
+and `bui_top.csv` (top 50 cells: lon/lat, county, state, BUI, BUPL, BUPR, bldg_size, BUI / median of the 8 neighbours,
+county pop rank and density) and logs whether the top cells sit in the 50 most populous counties or elsewhere, and
+how many are isolated spikes (> 100 x the neighbour median). It also prints the README / metadata files under
+`$HISDAC_DIR` for the BUI unit (`docs/data_sources.md`). No treatment (cap, neighbour value) until the results are
+reviewed.
+
+## Tract density classes (request 2026-10-27)
+
+`tract_validate.py` adds, per year and part, the subsets `dens_0_50`, `dens_50_500`, `dens_500_2000`,
+`dens_2000_plus` (observed pop / (n_cells x 0.0625 km2), people per km2) to `metrics_by_year.csv`, with `area_share`
+(tract area / evaluated tract area of the part); `n`, `pop_share`, `mae`, `mdape` as for the other subsets. The v1 and
+v2 pilot validation is rerun to get them. Claude's check from the pilot `tract_errors_2010.csv` (MdAPE, tracts with
+observed > 0): v1 / v2 = 35.2 / 49.8 % (< 50, 13,060 tracts), 29.2 / 39.4 % (50-500, 16,261), 25.4 / 35.6 %
+(500-2000, 24,660), 34.2 / 43.8 % (2000+, 18,036): v1 better in every class, v2 worst in the rural class.
+
+## County maps (request 2026-10-27)
+
+`src/validation/county_maps.py` (`sbatch/county_maps.sh`, after v4): 2010, v1 / v2 / v4 people per cell, the tract
+error of each and v2 - v1, v4 - v1, on BUI with county and tract boundaries and an arrow to the nearest PLURAL place
+of 250k+ people; `county_maps.csv` gives per county and version the share of people on BUI = 0 cells and the
+people-weighted distance to that place (lower in v2 = people moved towards the metro). Counties (picked by Claude
+from the pilot `tract_errors_2010.csv`, 2026-10-27): county density < 25 people/km2, >= 4 tracts under 50 people/km2,
+county mean `d_250k` (v2 `county_features.csv`) 60-150 km, largest rise of the median rural tract error v1 -> v2, one
+per state: Chelan WA (`G5300070`, 7 rural tracts, 12 -> 106 %, 141 km), Reno KS (`G2001550`, 6, 67 -> 161 %, 73 km),
+Fremont CO (`G0800430`, 5, 26 -> 105 %, 76 km), Macoupin IL (`G1701170`, 9, 42 -> 85 %, 76 km).
+
 ## Implementation decisions (2026-10-23)
 
 Made while implementing; each is the simplest option consistent with the decisions above.
@@ -167,7 +211,7 @@ Made while implementing; each is the simplest option consistent with the decisio
 | Test score | `test_rmse`, `test_r2` in `metrics.json`, `test_predictions.csv`; v2 also scores v1's saved test predictions on the same rows |
 | Jobs | the Massachusetts stage scripts with `CONFIG=` (and `CENSUS_DIR=`, `COVERAGE=`) passed by `sbatch/submit_conus.sh`, which also holds the CONUS resources |
 | Tract validation | all states; metrics for `all`, `train`, `test` (part of the 2010 county the tract lies in); the totals QA by nominal county (`coverage_by_county`) is skipped, because the zones are 2010 counties |
-| Layers not cut | FBUY, NobuiltYear (`age` dropped), NTL, DEM (terrain later) |
+| Layers not cut | FBUY, NobuiltYear (`age` dropped), NTL. DEM added 2026-10-27 for v3 / v4 |
 | JRC no data | counted as water as in Massachusetts; checked only there (open sea). From the pilot on, `water_frac.py` logs the share inside study cells (`study_jrc_nodata_mean`, `study_cells_jrc_nodata_gt50` in `water_qa.csv`) and per county (`qa/water_jrc_nodata_by_county.csv`, top 20 in the log); decide from it before the full run |
 
 ## Order

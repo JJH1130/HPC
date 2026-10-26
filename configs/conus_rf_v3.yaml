@@ -1,0 +1,59 @@
+# Dasy_CONUS_RF_v3 (docs/conus_plan.md, "v3 and v4"): Dasy_CONUS_RF_v1 + terrain (elev, slope; Massachusetts v4),
+# from the GMTED2010 `DEM` cutout layer. Absolute elevation (m) and slope (degrees on the 250 m grid); elevation
+# relative to the county mean is not used: its county mean is always 0, so it can't be learned from county rows.
+# 1960 and 2010 only (as v2); same split, folds and test counties; compared with v1.
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3/
+version: Dasy_CONUS_RF_v3
+
+study_area: configs/conus_study_area.yaml
+years: [1960, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v1
+
+split: configs/conus_split.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+eras:
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+
+# elev and slope are separate groups, not one Terrain group (decided 2026-10-20).
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+
+maps:
+  years: [1960, 2010]
+  compare_years: [2010]
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 20
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:
+    fixed: {random_state: 42}
+    space:
+      n_estimators: [200, 300, 500, 800, 1000]
+      max_depth: [null, 5, 10, 15, 20]
+      min_samples_leaf: [1, 2, 4, 8]
+      max_features: [sqrt, 0.33, 0.5, 1.0]

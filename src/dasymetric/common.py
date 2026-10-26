@@ -300,13 +300,15 @@ def water_mask(cutout: Path, year: int, grid: dict, mask: np.ndarray, mode=True,
     return full & (bui == 0), int((full & (bui > 0)).sum())
 
 
-def dem_full(cutout: Path, grid: dict) -> np.ndarray:
-    """Whole-window elevation (m) from layers/DEM/DEM.tif. Nodata (sea in GMTED2010) is set to 0 m so that
-    coastal cells and slope near the shore stay defined; the number of such cells is logged."""
-    arr, bad, path = read_layer_full(cutout, DEM_LAYER, None, grid)
+def dem_rows(cutout: Path, grid: dict, rows: slice | None = None) -> np.ndarray:
+    """Elevation (m) from layers/DEM/DEM.tif for the whole window or the row strip `rows`. Nodata (sea in
+    GMTED2010) is set to 0 m so that coastal cells and slope near the shore stay defined; the number of such
+    cells is logged for the whole window (strips: not logged)."""
+    arr, bad, path = read_layer_full(cutout, DEM_LAYER, None, grid, rows)
     if bad.any():
-        log.info("  DEM: %d nodata cells in the window set to 0 m (sea)", int(bad.sum()))
-        arr = np.where(bad, 0.0, arr)
+        if rows is None:
+            log.info("  DEM: %d nodata cells in the window set to 0 m (sea)", int(bad.sum()))
+        arr[bad] = 0.0
     return arr
 
 
@@ -316,11 +318,26 @@ def slope_deg(dem: np.ndarray) -> np.ndarray:
     return np.degrees(np.arctan(np.hypot(dzdx, dzdy)))
 
 
+def terrain(cutout: Path, grid: dict, rows: slice | None = None):
+    """(elev, slope) of the whole window or of the row strip `rows`. A strip is read with one extra row above
+    and below (where the window has one), so its central differences use the same neighbours as the whole
+    window and the strips give exactly the whole-window slope (CONUS, docs/conus_plan.md); the window's own
+    first and last rows stay one-sided, as for the whole window."""
+    if rows is None:
+        dem = dem_rows(cutout, grid)
+        return dem, slope_deg(dem)
+    lo, hi = max(rows.start - 1, 0), min(rows.stop + 1, grid["shape"][0])
+    dem = dem_rows(cutout, grid, slice(lo, hi))
+    keep = slice(rows.start - lo, rows.stop - lo)
+    return dem[keep], slope_deg(dem)[keep]
+
+
 def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, rows: slice | None = None,
                   full: dict | None = None) -> pd.DataFrame:
     """Cell features (docs/dasymetric_v1.md, v2) for the masked cells, columns in `names` order. With `rows`,
-    only that strip of the window is read (mask has the strip's shape). Features that need the whole window
-    (dist_built, elev, slope) are computed once and kept in `full` (one dict per year, shared by its strips)."""
+    only that strip of the window is read (mask has the strip's shape). dist_built needs the whole window: it is
+    computed once and kept in `full` (one dict per year, shared by its strips). elev / slope are read per strip
+    (slope with one halo row each side, `terrain`)."""
     cache = {}
     full = {} if full is None else full
 
@@ -357,11 +374,9 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, 
                 full["dist_built"] = dist_built(cutout, year, grid)
             out[f] = sub(full["dist_built"])
         elif f in ("elev", "slope"):  # v4: static terrain from the DEM layer (docs/dasymetric_v4.md)
-            if "dem" not in full:
-                full["dem"] = dem_full(cutout, grid)
-            if f == "slope" and "slope" not in full:
-                full["slope"] = slope_deg(full["dem"])
-            out[f] = sub(full["dem"] if f == "elev" else full["slope"])
+            if "terrain" not in cache:  # the strip (+ 1 halo row each side) or the whole window
+                cache["terrain"] = terrain(cutout, grid, rows)
+            out[f] = cache["terrain"][0 if f == "elev" else 1][mask]
         elif f == "year":
             out[f] = np.full(int(mask.sum()), float(year))
     return pd.DataFrame(out, columns=list(names))

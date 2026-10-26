@@ -1,7 +1,7 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 / v2)
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4)
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
-layers, water, distances), `configs/conus_rf_v1.yaml`, `configs/conus_rf_v2.yaml` (models), split table
+layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml` (models), split table
 `configs/conus_split.csv` (made once, 2026-10-23; never regenerate it). The Massachusetts configs
 (`configs/study_area.yaml`, `configs/model.yaml`) and runbooks are unchanged.
 
@@ -11,7 +11,8 @@ All jobs are the usual stage scripts (`sbatch/*.sh`, account `ucb852_asc1`, env 
 
 **Status:** trial passed 2026-10-23 (jobs 34814376-34814382; result in `docs/conus_plan.md`, "Trial result"). Fixed
 before the pilot (2026-10-24): 4 counties without a CSV row filled from NHGIS (`filled_nhgis`), per-county JRC
-no-data QA, pilot resources from the trial. Next: section 1 (pilot).
+no-data QA, pilot resources from the trial. Pilot passed 2026-10-26 (jobs 34918220-34918231; `docs/conus_plan.md`,
+"Pilot result"). Next: section 2 (v3 + v4, BUI check, density classes, county maps; 2026-10-27).
 
 ## Inputs / outputs
 
@@ -24,9 +25,10 @@ no-data QA, pilot resources from the trial. Next: section 1 (pilot).
 | PLURAL | `/projects/jaju1407/data/raw/plural/plural_2023/` |
 | tracts | `/projects/jaju1407/data/processed/tract/tracts_{YEAR}.gpkg` |
 | cutout (scratch) | `/scratch/alpine/jaju1407/hisdac/cutouts/conus/` (~5-10 GB) |
-| models, predictions (scratch) | `/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v{1,2}/` |
+| models, predictions (scratch) | `/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v{1,2,3,4}/` |
+| DEM (v3, v4) | `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd` -> cutout `layers/DEM/DEM.tif` |
 | results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/` |
-| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt` |
+| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt` |
 
 ## 0. Trial: measure time and memory (1960, v1)
 
@@ -150,13 +152,80 @@ git push
 `tract_errors_2010.csv` has one row per tract (~73 k rows, ~8 MB); if `du` shows the validation folders above
 ~50 MB, commit only `metrics_by_year.csv` + `qa_totals.csv` and tell Claude.
 
+## 2. v3 + v4, BUI check, density classes, county maps (2026-10-27)
+
+On the pilot cutout (water and distances of 1960 / 2010 are reused; nothing is recomputed). One submission, 14 jobs:
+
+| Job | Needs | What |
+|---|---|---|
+| `bui_qa` | nothing | BUI quantiles, cells above 1e7 / 3e7 / 1e8, top 50 cells per year with county -> `results/cutout/conus/bui_quantiles.csv`, `bui_top.csv`; prints the HISDAC README / metadata files (BUI unit). Nothing waits for it: if it fails, the rest still runs |
+| `grid_cutout --layers DEM` | nothing | GMTED2010 averaged onto the HISDAC grid (float32) -> cutout `layers/DEM/DEM.tif`; zones and the other layers are kept |
+| `validate_tract` v1, v2 | nothing | rerun on the pilot predictions: same metrics + the density classes (`subset` `dens_0_50`, `dens_50_500`, `dens_500_2000`, `dens_2000_plus`, column `area_share`) |
+| features, train, predict, validate for v3 and for v4 | DEM | 1960 + 2010; compared with v1 (same split and folds) |
+| `county_maps` | v4 predict + validate, v1/v2 validation reruns | 2010, 4 rural counties, v1 / v2 / v4 side by side -> `results/validation/conus/county_maps/` |
+
+Preflight + submit (login node; nothing is submitted if an input is missing):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+source sbatch/cluster_env.sh
+C=$HISDAC_SCRATCH/cutouts/conus; D=$HISDAC_SCRATCH/dasymetric/conus
+ok=1
+for f in $DATA_ROOT/raw/dem/gmted2010/mn75_grd $C/window.json $C/zones/zones_2010.tif          $C/layers/BUI/{1920,1960,2010}_BUI.tif $C/layers/water_frac/{1960,2010}_water_frac.tif          $C/layers/PLACEDIST/d_250k/{1960,2010}_d_250k.tif          $D/Dasy_CONUS_RF_v1/predictions/pop_{1920,1960,2010}.tif $D/Dasy_CONUS_RF_v2/predictions/pop_{1960,2010}.tif          $D/Dasy_CONUS_RF_v1/Y2010/model/oof_predictions.csv $DATA_ROOT/processed/census_conus/counties_2010.gpkg          $DATA_ROOT/processed/tract/tracts_{1920,1960,2010}.gpkg          $DATA_ROOT/raw/plural/plural_2023/PLURAL_SHP/PLURAL_SHP/plural_indices_scaled_across_years_2010.shp; do
+    [[ -e $f ]] || { echo "MISSING $f"; ok=0; }
+done
+grep -E '^(version|years|compare_with):' configs/conus_rf_v3.yaml configs/conus_rf_v4.yaml
+grep -n 'name: DEM' configs/conus_study_area.yaml
+if (( ok )); then bash sbatch/submit_conus.sh v3v4; else echo "NOT SUBMITTED: fix the MISSING inputs above first"; fi
+```
+
+Good: no `MISSING` line; v3 / v4 show `years: [1960, 2010]` and `compare_with: Dasy_CONUS_RF_v1`; one `name: DEM` line;
+one line with 14 job ids (also in `logs/conus_v3v4_jobs.txt`). If a scratch file is missing (purged or never written),
+send Claude the `MISSING` lines: the pilot chain (section 1) has to be rerun first.
+
+Monitor: as in step 0 with `logs/conus_v3v4_jobs.txt`. Check:
+- `bui_qa`: `doc files under /pl/active/...: N` + the printed README text, `tags of .../BUI/...tif`, per year
+  `1920: N cells, N with BUI > 0 ... | p50 ... max ... | above caps {...}`, `top 50: N in the 50 most populous
+  counties, N elsewhere ...`, a `top cells by county` table, `DONE`
+- `grid_cutout` (DEM): `--layers ['DEM']: window matches ...`, `1 to warp onto it`, one line
+  `DEM  float64, warped (average) -> float32 ... | min ... max ...` (min about -100 m Death Valley / sea level, max about
+  4,300 m), `DONE`
+- `dasymetric_features` v3 / v4: `strip 5/23` progress, `feature summary` with `elev` (m) and `slope` (degrees) rows,
+  `era Y2010: ~3,1xx training rows`
+- `dasymetric_train` v3 / v4: `split ...: 2487 train / 622 test`, `CV RMSE ...`, `TEST ...`, `Dasy_CONUS_RF_v1 on the
+  same N test rows ...`
+- `dasymetric_predict` v3 / v4: `mass check: ... 0 fail | bad cells 0`, `DONE`
+- `validate_tract` (all four): per year `all model all n=...` lines, then `by observed tract density (people/km2),
+  MdAPE %` table, `DONE`
+- `county_maps`: `metros: N PLURAL places with >= 250000 people in 2010`, per county and version `pop ... | on BUI = 0
+  cells ... % | people-weighted km to <place> ...`, four `plot ... county_G..._2010.png` lines, `DONE`
+
+Close the loop (login node, after the last job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v3v4_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_v3v4_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_v3v4_seff.txt
+cat logs/conus_v3v4_sacct.txt
+du -sh results/validation/conus/* results/dasymetric/conus/* results/cutout/conus
+git add logs/ results/cutout/conus results/dasymetric/conus results/validation/conus
+git commit -m "run: CONUS v3 + v4, BUI check, density classes, county maps (logs + results)"
+git pull --rebase
+git push
+```
+
 ## If it fails
 
 | Symptom | Fix |
 |---|---|
 | `counties_std_2010.gpkg not found` | run `Checking_Std_Counties.md` first |
 | `--years [...] not in the config years` | the config on the cluster is old: `git pull` |
-| `CANCELLED ... DUE TO TIME LIMIT` | rerun with a longer wall: `WATER_TIME=03:00:00 bash sbatch/submit_conus.sh pilot` (also `CUTOUT_TIME`, `PLACE_TIME`, `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`) and send Claude the log |
+| `CANCELLED ... DUE TO TIME LIMIT` | rerun with a longer wall: `WATER_TIME=03:00:00 bash sbatch/submit_conus.sh pilot` (also `CUTOUT_TIME`, `PLACE_TIME`, `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`; v3v4 also `BUI_TIME`, `MAPS_TIME`) and send Claude the log |
+| v3v4: `bui_qa` failed | nothing else depends on it; send the log. Rerun alone: `sbatch --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/bui_qa.sh` |
+| v3v4: `county_maps` failed (e.g. a plotting error) | rerun alone after fixing: `sbatch sbatch/county_maps.sh --counties G5300070 G2001550 G0800430 G1701170 --versions Dasy_CONUS_RF_v1 Dasy_CONUS_RF_v2 Dasy_CONUS_RF_v4` |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

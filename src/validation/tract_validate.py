@@ -8,7 +8,9 @@ Per year:
   3. Only tracts whose cells all lie in one used county are evaluated (others flagged).
   4. RMSE, MAE, median absolute % error, R2 on log(pop + 1), and R2 on log(density + 1)
      (density = tract pop / area of its cells) for model and baseline, for all / non-small
-     (>= 4 cells) / small tracts.
+     (>= 4 cells) / small tracts, and per observed density class (subset dens_<lo>_<hi>: observed
+     pop / (n_cells x 0.0625 km2) in [lo, hi) people per km2; DENSITY_CLASSES). area_share = the subset's
+     tract area / the area of the evaluated tracts of that part.
   5. Totals QA: county pop = sum of cells; for fully tracted county-years, observed tracts,
      predicted cells inside tracts and baseline cells inside tracts all sum to the county pop.
      Stops (after writing everything) if the predicted or baseline sums fail.
@@ -45,6 +47,8 @@ CELL_KM2 = 0.25 * 0.25  # area of one 250 m cell
 TOTAL_TOL = 0.001  # 0.1 %
 FULL_COVERAGE = (0.999, 1.001)
 FATAL_CHECKS = ("tracts_model", "tracts_baseline")
+# observed tract density classes, people per km2 [lo, hi) (CONUS request 2026-10-27: rural vs urban errors)
+DENSITY_CLASSES = [(0, 50), (50, 500), (500, 2000), (2000, None)]
 TRACT_COLS = ["GISJOIN", "county_gisjoin", "status", "flag", "n_cells", "small", "pop_obs", "pop_model",
               "pop_baseline", "lon", "lat"]
 SPLIT_COLS = ["zone_gisjoin", "part"]  # with --split: the (2010) county zone of an evaluated tract + its part
@@ -97,6 +101,11 @@ def read_tracts(path: Path, grid: dict, prefix: str = MA_PREFIX) -> gpd.GeoDataF
 
 
 # ---------------------------------------------------------------- metrics + QA
+
+def density_label(lo, hi) -> str:
+    """subset name of a density class: dens_0_50, ..., dens_2000_plus"""
+    return f"dens_{lo}_{'plus' if hi is None else hi}"
+
 
 def r2(obs: np.ndarray, pred: np.ndarray) -> float:
     ss_tot = ((obs - obs.mean()) ** 2).sum()
@@ -200,17 +209,23 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
         parts += [(p, ev[ev["part"] == p]) for p in ("train", "test")]
     rows = []
     for part, pe in parts:
-        for subset, sel in (("all", pe), ("non_small", pe[~pe["small"]]), ("small", pe[pe["small"]])):
+        dens = pe["pop_obs"] / (pe["n_cells"] * CELL_KM2)
+        subsets = [("all", pe), ("non_small", pe[~pe["small"]]), ("small", pe[pe["small"]])]
+        subsets += [(density_label(lo, hi), pe[(dens >= lo) & (dens < (np.inf if hi is None else hi))])
+                    for lo, hi in DENSITY_CLASSES]
+        part_cells = pe["n_cells"].sum()
+        for subset, sel in subsets:
             obs = sel["pop_obs"].to_numpy()
             for method in ("model", "baseline"):
                 m = metrics(obs, sel[f"pop_{method}"].to_numpy(), sel["n_cells"].to_numpy() * CELL_KM2)
                 rows.append({"year": year, "part": part, "method": method, "subset": subset, "n": len(sel),
-                             "pop_share": obs.sum() / study_total if study_total else np.nan, **m})
+                             "pop_share": obs.sum() / study_total if study_total else np.nan,
+                             "area_share": sel["n_cells"].sum() / part_cells if part_cells else np.nan, **m})
     for r in rows:
-        if r["subset"] == "all":
-            log.info("  %-5s %-8s n=%d share=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | r2 log density=%.3f",
-                     r["part"], r["method"], r["n"], r["pop_share"], r["rmse"], r["mae"], r["mdape"], r["r2_log"],
-                     r["r2_logdens"])
+        if r["subset"] == "all" or (r["subset"].startswith("dens_") and r["part"] == "all"):
+            log.info("  %-5s %-8s %-14s n=%d share=%.3f area=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | "
+                     "r2 log density=%.3f", r["part"], r["method"], r["subset"], r["n"], r["pop_share"],
+                     r["area_share"], r["rmse"], r["mae"], r["mdape"], r["r2_log"], r["r2_logdens"])
 
     # totals QA over tracted counties
     zone_of = dict(zip(ztable["GISJOIN"], ztable["zone_id"]))
@@ -318,6 +333,11 @@ def main(argv=None):
     qa_df = pd.DataFrame(qa, columns=QA_COLS)
     qa_df.to_csv(args.out / "qa_totals.csv", index=False)
     log.info("metrics (subset all):\n%s", met[met["subset"] == "all"].to_string(index=False))
+    dens = met[met["subset"].str.startswith("dens_")]
+    log.info("by observed tract density (people/km2), MdAPE %%:\n%s",
+             dens.pivot_table(index=["year", "part", "subset"], columns="method", values="mdape", sort=False)
+             .join(dens[dens["method"] == "model"].set_index(["year", "part", "subset"])[["n", "pop_share", "area_share"]])
+             .round(3).to_string())
     flagged = qa_df[qa_df["flag"]]
     log.info("totals QA: %d rows, %d flagged (> %.1f%%); by check:\n%s", len(qa_df), len(flagged), 100 * TOTAL_TOL,
              qa_df.groupby("check")["flag"].agg(["size", "sum"]).to_string())
