@@ -1,0 +1,35 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+34926193                    bui_fix  COMPLETED   00:01:56                   2  00:25.418 
+34926193.ba+                  batch  COMPLETED   00:01:56   1434032K        2  00:25.417 
+34926193.ex+                 extern  COMPLETED   00:01:56          0        2  00:00.001 
+34926194                    bui_fix  COMPLETED   00:00:53                   2  00:05.630 
+34926194.ba+                  batch  COMPLETED   00:00:53    617096K        2  00:05.628 
+34926194.ex+                 extern  COMPLETED   00:00:53       256K        2  00:00.001 
+34926195        dasymetric_features  COMPLETED   00:02:47                   6  02:27.970 
+34926195.ba+                  batch  COMPLETED   00:02:47   9804428K        6  02:27.969 
+34926195.ex+                 extern  COMPLETED   00:02:47          0        6  00:00.001 
+34926196           dasymetric_train  COMPLETED   00:06:39                  16  13:25.027 
+34926196.ba+                  batch  COMPLETED   00:06:39   4237492K       16  13:25.026 
+34926196.ex+                 extern  COMPLETED   00:06:39       256K       16  00:00.001 
+34926197         dasymetric_predict  COMPLETED   00:13:22                  32   01:34:03 
+34926197.ba+                  batch  COMPLETED   00:13:22  14888520K       32   01:34:03 
+34926197.ex+                 extern  COMPLETED   00:13:22       256K       32  00:00.001 
+34926198             validate_tract  COMPLETED   00:05:00                   8  03:27.494 
+34926198.ba+                  batch  COMPLETED   00:05:00  16477972K        8  03:27.492 
+34926198.ex+                 extern  COMPLETED   00:05:00       256K        8  00:00.001 
+34926199        dasymetric_features  COMPLETED   00:03:02                   6  02:24.986 
+34926199.ba+                  batch  COMPLETED   00:03:02  10242340K        6  02:24.985 
+34926199.ex+                 extern  COMPLETED   00:03:02          0        6  00:00.001 
+34926200           dasymetric_train  COMPLETED   00:09:19                  16  17:20.116 
+34926200.ba+                  batch  COMPLETED   00:09:19   4773156K       16  17:20.114 
+34926200.ex+                 extern  COMPLETED   00:09:19          0       16  00:00.001 
+34926201         dasymetric_predict  COMPLETED   00:09:33                  32  55:44.484 
+34926201.ba+                  batch  COMPLETED   00:09:33  14420764K       32  55:44.482 
+34926201.ex+                 extern  COMPLETED   00:09:33       256K       32  00:00.001 
+34926202             validate_tract  COMPLETED   00:04:54                   8  04:02.727 
+34926202.ba+                  batch  COMPLETED   00:04:54  16272140K        8  04:02.726 
+34926202.ex+                 extern  COMPLETED   00:04:54       256K        8  00:00.001 
+34926203                county_maps  COMPLETED   00:02:35                   4  01:49.918 
+34926203.ba+                  batch  COMPLETED   00:02:35   5809656K        4  01:49.917 
+34926203.ex+                 extern  COMPLETED   00:02:35          0        4  00:00.001 

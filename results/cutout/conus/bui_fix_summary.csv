@@ -1,0 +1,4 @@
+year,applied,cap,source,cells_valid,cells_bui_pos,n_over_cap,n_set_to_0,max_before,max_after,sum_over_cap_before,sum_over_cap_after,bui_total_before,bui_total_after,share_of_total_removed
+1920,True,30000000.0,/scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI_raw/1920_BUI.tif,214401285,1811310,10,2,306635552.0,28713154.0,1023643254.0,17945599.0,38231225942.0,37225528287.0,0.026305660627407773
+1960,True,30000000.0,/scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI_raw/1960_BUI.tif,214401285,4456367,119,10,709978560.0,29794980.0,11292177898.0,368846955.0,122023069243.0,111099738300.0,0.08951857227297723
+2010,True,30000000.0,/scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI_raw/2010_BUI.tif,214401285,10926198,298,74,5447140352.0,29888614.0,43734763690.0,844866116.0,405515560291.0,362625662717.0,0.10576634234016075

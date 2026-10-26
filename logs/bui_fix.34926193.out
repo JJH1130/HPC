@@ -1,0 +1,76 @@
+== job 34926193 (bui_fix) on c3cpu-e2-u8 at 2026-10-26T13:34:59-06:00
+== cores=2 gpus=none restart=0
+== git fe4804c
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: 
+13:36:17 INFO arg config = configs/conus_study_area.yaml
+13:36:17 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+13:36:17 INFO arg qa_dir = results/cutout/conus
+13:36:17 INFO arg years = None
+13:36:17 INFO arg block_rows = 512
+13:36:17 INFO arg check = False
+13:36:17 INFO arg cap = None
+13:36:17 INFO arg hisdac_dir = None
+13:36:17 INFO arg window_json = None
+13:36:18 INFO study area 'conus' | cap 3e+07 | replace by the neighbour median (in place) | years [1920, 1960, 2010] | cutout /scratch/alpine/jaju1407/hisdac/cutouts/conus
+13:36:18 INFO 1920: moved /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1920_BUI.tif -> /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI_raw/1920_BUI.tif
+13:36:28 INFO 1920: 10 cells above 3e+07 of 214401285 valid (1811310 with BUI > 0) | 2 set to 0 | max 3.066e+08 -> 2.871e+07 | BUI total 3.823e+10 -> 3.723e+10 (2.631 % removed)
+13:36:28 INFO   1920 largest:
+ row   col        lon      lat        state               name  BUI_before  BUI_after  nb_used  nb_over_cap  BUPL
+3692 13146  -84.54368 42.74076     Michigan      Ingham County 306635552.0    24546.5        8            0     2
+8892  9935  -94.65090 31.61562        Texas Nacogdoches County 157764640.0     1247.5        8            0     0
+4516 15918  -76.70592 39.92460 Pennsylvania        York County 148880432.0    10454.5        8            0     0
+7196  7495 -101.35440 35.29916        Texas      Carson County  87704544.0        0.0        8            0     0
+7140  7465 -101.44634 35.42024        Texas      Carson County  87704544.0        0.0        8            0     0
+3952 16739  -73.96496 40.75842     New York    New York County  75650664.0  1933007.5        8            0    28
+3938 16783  -73.82748 40.76619     New York      Queens County  54190692.0    38657.5        8            0     7
+3960 16734  -73.98498 40.74361     New York    New York County  41466868.0  8664105.5        8            0    21
+3932 16734  -73.96577 40.80444     New York    New York County  33265388.0  3968112.0        8            0    33
+3974 16730  -74.00618 40.71524     New York    New York County  30379930.0  3305468.0        8            0    51
+13:36:28 INFO 1960: moved /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1960_BUI.tif -> /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI_raw/1960_BUI.tif
+13:36:37 INFO 1960: 119 cells above 3e+07 of 214401285 valid (4456367 with BUI > 0) | 10 set to 0 | max 7.1e+08 -> 2.979e+07 | BUI total 1.22e+11 -> 1.111e+11 (8.952 % removed)
+13:36:37 INFO   1960 largest:
+ row   col        lon      lat      state               name  BUI_before  BUI_after  nb_used  nb_over_cap  BUPL
+3968 16736  -73.98465 40.72520   New York    New York County 709978560.0  2551097.5        8            0    86
+3909 16737  -73.94124 40.85287   New York    New York County 660973312.0        0.0        5            3     6
+3966 16733  -73.99199 40.73108   New York    New York County 371451776.0  6296458.0        7            1    14
+3950 16793  -73.80672 40.73497   New York      Queens County 368769184.0   349303.0        7            1    18
+8892  9935  -94.65090 31.61562      Texas Nacogdoches County 315546784.0     6227.5        6            2     7
+3692 13146  -84.54368 42.74076   Michigan      Ingham County 306635552.0   101495.0        8            0     2
+3951 16793  -73.80741 40.73280   New York      Queens County 305642816.0   749142.0        5            3    14
+4986   336 -122.29203 37.52893 California   San Mateo County 285362432.0   216314.5        8            0    53
+3884 16743  -73.90656 40.90410   New York       Bronx County 278177536.0   203816.0        8            0    19
+3881 16743  -73.90449 40.91061   New York       Bronx County 267650128.0   382871.0        8            0    23
+3928 16797  -73.77989 40.78068   New York      Queens County 239337456.0  2866745.5        8            0     4
+3953 16757  -73.91335 40.74701   New York      Queens County 213288496.0  4910909.5        8            0   156
+3943 16809  -73.75542 40.74189   New York      Queens County 200270016.0   617749.0        7            1     9
+3982 16741  -73.97972 40.69222   New York       Kings County 187154176.0  1667185.0        8            0     8
+3969 16782  -73.85176 40.69938   New York      Queens County 183803264.0   221921.0        8            0    26
+13:36:37 INFO 2010: moved /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif -> /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI_raw/2010_BUI.tif
+13:36:47 INFO 2010: 298 cells above 3e+07 of 214401285 valid (10926198 with BUI > 0) | 74 set to 0 | max 5.447e+09 -> 2.989e+07 | BUI total 4.055e+11 -> 3.626e+11 (10.577 % removed)
+13:36:47 INFO   2010 largest:
+ row   col        lon      lat    state               name   BUI_before  BUI_after  nb_used  nb_over_cap  BUPL
+3892 16772  -73.82768 40.87178 New York       Bronx County 5447140352.0   311000.0        7            1     1
+3893 16772  -73.82837 40.86960 New York       Bronx County 2875037696.0   777615.0        7            1     7
+3935 16745  -73.93585 40.79227 New York    New York County 1661721472.0  1577003.0        7            1     1
+3936 16744  -73.93944 40.79062 New York    New York County 1605804928.0  1758006.0        7            1    17
+4347  1407 -119.78020 39.52733   Nevada      Washoe County 1006762624.0        0.0        8            0     4
+6555  9992  -94.39575 36.84088 Missouri      Newton County 1000159360.0      899.0        8            0     2
+6556  9994  -94.39014 36.83858 Missouri      Newton County 1000122688.0    29427.5        8            0     6
+3920 16747  -73.91972 40.82383 New York       Bronx County  825847616.0  4204764.0        8            0     9
+3968 16736  -73.98465 40.72520 New York    New York County  710020480.0  2979300.5        8            0    87
+3909 16737  -73.94124 40.85287 New York    New York County  661258496.0        0.0        5            3     7
+3952 16738  -73.96787 40.75894 New York    New York County  558716800.0 17557704.0        5            3    45
+3923 16742  -73.93632 40.81988 New York    New York County  472541696.0  2108153.5        8            0    22
+8893  9923  -94.68268 31.61375    Texas Nacogdoches County  394517664.0    15571.0        8            0     7
+8910  9952  -94.60663 31.57465    Texas Nacogdoches County  394489184.0     1674.0        7            1     0
+3966 16733  -73.99199 40.73108 New York    New York County  373146496.0  7787314.0        7            1    16
+13:36:47 INFO summary:
+ year  applied        cap  cells_valid  cells_bui_pos  n_over_cap  n_set_to_0   max_before  max_after  sum_over_cap_before  sum_over_cap_after  bui_total_before  bui_total_after  share_of_total_removed
+ 1920     True 30000000.0    214401285        1811310          10           2  306635552.0 28713154.0         1.023643e+09          17945599.0      3.823123e+10     3.722553e+10                0.026306
+ 1960     True 30000000.0    214401285        4456367         119          10  709978560.0 29794980.0         1.129218e+10         368846955.0      1.220231e+11     1.110997e+11                0.089519
+ 2010     True 30000000.0    214401285       10926198         298          74 5447140352.0 29888614.0         4.373476e+10         844866116.0      4.055156e+11     3.626257e+11                0.105766
+13:36:47 INFO years with cells above the cap: [1920, 1960, 2010]
+13:36:47 INFO wrote results/cutout/conus/bui_fix_summary.csv
+13:36:47 INFO DONE
+== done 2026-10-26T13:36:48-06:00
