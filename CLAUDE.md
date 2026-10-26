@@ -11,7 +11,7 @@ the one place this repo's Alpine paths live), `logs/` (tracked job logs pulled b
 matplotlib, JupyterLab; conda-forge only). On Alpine the env lives at
 `/projects/jaju1407/software/envs/analysis`; build/update steps are in
 `docs/runbooks/Creating_Cluster_Envs.md`, and `sbatch/test_env_analysis.sh` checks it. Locally:
-`conda env create -f environment.yml`. A second env, `hisdac` (rasterio/geopandas/LightGBM/SHAP
+`conda env create -f environment.yml`. A second env, `hisdac` (rasterio/geopandas/LightGBM/XGBoost/CatBoost/SHAP
 stack for the HISDAC_US_V2 work), is defined in `envs/hisdac/environment.yml`, lives at
 `/projects/jaju1407/software/envs/hisdac`, is built per `docs/runbooks/Creating_Env_hisdac.md`, and
 is checked by `sbatch/test_env_hisdac.sh`. First pipeline stage: `src/census/prepare_census.py` (NHGIS
@@ -24,7 +24,9 @@ population column per source table from the codebooks, overrides in `configs/nhg
 `tracts_{YEAR}.gpkg` (1910–2020, `$DATA_ROOT/processed/tract`) + QA/coverage CSVs in `results/tract/`, for fine-scale validation. `src/validation/tract_validate.py` (`sbatch/validate_tract.sh --version <v>`,
 `docs/runbooks/Validating_Tracts.md`, design `docs/validation_tract.md`) scores a dasymetric version's Massachusetts predictions against those tracts
 and an areal-weighting baseline (+ totals QA; metrics for all / small / non-small tracts and observed-density classes `dens_*`) → `results/validation/<name>/<version>/`;
-`src/validation/county_maps.py` (`sbatch/county_maps.sh`) draws zoomed county maps of several CONUS versions side by side. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+`src/validation/county_maps.py` (`sbatch/county_maps.sh`) draws zoomed county maps of several CONUS versions side by side;
+`src/validation/compare_models.py` (`sbatch/compare_models.sh`) tabulates CV / TEST / tract metrics of several versions
+(`model_comparison.csv`); `--gap-share 0.05` (CONUS) adds tract parts without / within BUI gap counties. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -45,24 +47,28 @@ per `docs/runbooks/Running_Dasymetric.md`. CONUS (`docs/conus_plan.md`, scale ta
 steps `docs/runbooks/Running_CONUS.md`): separate configs `configs/conus_study_area.yaml` (`window: full` = the whole
 HISDAC raster, 1920/1960/2010, water `only_zone_blocks`), `configs/conus_rf_v1.yaml` / `conus_rf_v2.yaml`
 (`Dasy_CONUS_RF_v1/v2`; `conus_rf_v3.yaml` / `conus_rf_v4.yaml` = v1 + terrain / v1 + distances + terrain, 1960 + 2010; `conus_rf_v1_bui.yaml` /
-`conus_rf_v3_bui.yaml` = v1 / v3 on the BUI-fixed cutout, 1920 + 1960 + 2010, compared with v1 / v3 (v3_bui = CONUS base); one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
+`conus_rf_v3_bui.yaml` = v1 / v3 on the BUI-fixed cutout, 1920 + 1960 + 2010, compared with v1 / v3 (v3_bui = CONUS base);
+`conus_{rf,lgbm,xgb,cat}_v3_n60.yaml` = the model family comparison on v3_bui's features (60 candidates each); one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
 `src/dasymetric/make_split.py`, never regenerated; `block_rows` = strip-wise features/prediction (terrain slope per strip with one halo row = whole window); `unusable: skip`;
 `years`), county input `src/census/conus_counties.py` (`sbatch/census_conus.sh`: Stefan's CSV on 2010 polygons, status
 ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0.95-1.05: trained, appended to the split as
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
-zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui` (stage scripts take `CONFIG=`,
+zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models` (stage scripts take `CONFIG=`,
 `CENSUS_DIR=`, `COVERAGE=` env overrides; CONUS resources live there). Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
-years live in `configs/model.yaml` (model registry `MODELS` in `train.py`; only `rf` is implemented). Outputs go to
+years live in `configs/model.yaml` (model registry `MODELS` in `src/dasymetric/models.py`: rf, lgbm, xgb, catboost, single-threaded models with a parallel
+search; a space value is a list or a distribution `{dist: loguniform|uniform|randint, low, high}`). Outputs go to
 `$HISDAC_SCRATCH/dasymetric/<name>/<version>[/<era>]`; small files are copied to `results/dasymetric/`. Env changes go through the yml files + `conda env update
 --prune`, never ad-hoc `mamba install`. There is no build step. Lint sbatch scripts with
 `python <CURC_Alpine skill>/scripts/check_sbatch.py sbatch/*.sh`. Tests (plain scripts, no pytest; need the local
 `hisdac` env): `python tests/test_place_dist.py` (synthetic check of `place_dist.py` distances and gap fill; `crs_label` / `place_points`
-with a rasterio CRS), `python tests/test_bui_fix.py` (BUI cap: isolated cell, neighbours above the cap, window edges,
+with a rasterio CRS), `python tests/test_models.py` (model registry: list spaces unchanged, distributions, builders, search + pickle per model),
+`python tests/test_bui_fix.py` (BUI cap: isolated cell, neighbours above the cap, window edges,
 strips = whole window = brute force, rerun, `--check`),
 `python tests/test_conus_dasymetric.py` (CONUS: strips = whole window for features and prediction, split held out
 in train, NoData for unused counties, tract validation train/test parts + density classes, terrain strips = whole
-window, `bui_qa.py`, `conus_counties.py` statuses; stubs `shap` and `plots`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+window, `bui_qa.py`, gap-county parts, LightGBM / XGBoost / CatBoost search -> predict with mass preserved,
+`compare_models.py`, `conus_counties.py` statuses; stubs `shap` and `plots`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:

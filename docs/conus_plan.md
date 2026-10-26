@@ -3,11 +3,11 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-27 (pilot result; v3 / v4 = terrain; BUI outlier check + fix; v1_bui / v3_bui; county maps)
+Last updated: 2026-10-27 (pilot result; v3 / v4 = terrain; BUI fix; v1_bui / v3_bui; model family comparison code)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
 `configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
-`configs/conus_rf_v3_bui.yaml`, split `configs/conus_split.csv`.
+`configs/conus_rf_v3_bui.yaml`, `configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, split `configs/conus_split.csv`.
 
 ## Decisions (2026-10-23)
 
@@ -330,6 +330,30 @@ about 1.8 / 4.5 / 10.9 million built cells. The raw HISDAC files are not changed
 | Validation | tract validation 1920 / 1960 / 2010 with the density classes for both |
 | County maps | 2010, v1_bui / v2 / v3_bui / v4 on the same 4 counties; differences against v1_bui; BUI drawn = fixed BUI. `place_points` CRS bug fixed (`place_dist.crs_label` takes pyproj and rasterio CRS; `tests/test_place_dist.py`) |
 
+## Model family (request 2026-10-27; run steps `docs/runbooks/Running_CONUS.md`, section 4)
+
+RF, LightGBM, XGBoost and CatBoost under the same conditions, to choose the model before the run over all years.
+
+| Topic | Decision |
+|---|---|
+| Versions | `Dasy_CONUS_RF_v3_n60`, `Dasy_CONUS_LGBM_v3_n60`, `Dasy_CONUS_XGB_v3_n60`, `Dasy_CONUS_CAT_v3_n60` (`configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml` = `conus_rf_v3_bui.yaml` with only `model`, `models` and `search.n_iter` changed). `Dasy_CONUS_RF_v3_bui` (20 candidates) stays as it is, for reference |
+| Features | exactly v3_bui's: its `<era>/features/county_features.csv` (1920, 1960, 2010; BUI-fixed cutout) is copied into each version by `submit_conus.sh models`, nothing recomputed. Prediction computes the cell features from the same cutout |
+| Split / folds | `configs/conus_split.csv`. `folds_from` can't be combined with `split` (`common.load_config` stops), and it is not needed: the split table gives v3_bui's folds, and train.py checks them against v3_bui's saved out-of-fold predictions (`compare_with: Dasy_CONUS_RF_v3_bui`, error if a fold differs) |
+| Search | RandomizedSearchCV, 60 candidates for every model, 5-fold county CV, scoring negative RMSE of log density, `random_state` 42; no early stopping (same CV procedure as RF). Tracts are never used in the search |
+| Threads | parallel candidates only (`--n-jobs` = cores); each model single-threaded and quiet: RF / LightGBM / XGBoost `n_jobs=1`, CatBoost `thread_count=1`; `verbose=-1` / `verbosity=0` / `verbose=0`, CatBoost `allow_writing_files=False`; XGBoost `tree_method: hist` (`src/dasymetric/models.py`). Seeds `random_state` / `random_seed` 42 |
+| Space syntax | `models.<name>.space`: a list = one of the values (as before; the Massachusetts configs are unchanged), a dict = a distribution: `{dist: loguniform, low, high}` = `scipy.stats.loguniform(low, high)`, `{dist: uniform, ...}` = `uniform(low, high - low)`, `{dist: randint, ...}` = `randint(low, high + 1)` (high included). With a distribution the search draws `n_iter` candidates; with lists only, at most the number of combinations. An era's `params:` still replaces a key with `[value]`. The space and the chosen values go to the log and `metrics.json` (`search_space`, `fixed_params`, `best_params`, `n_candidates`, `search_seconds`, `train_seconds`) |
+| RF | `n_estimators` randint 200-1000, `max_depth` [null, 5, 10, 15, 20, 30], `min_samples_leaf` randint 1-10, `max_features` [sqrt, 0.33, 0.5, 0.75, 1.0] |
+| LightGBM | `n_estimators` randint 200-2000, `learning_rate` loguniform 0.01-0.2, `num_leaves` randint 7-63, `min_child_samples` randint 5-50, `subsample` uniform 0.5-1.0 (fixed `subsample_freq: 1`), `colsample_bytree` uniform 0.5-1.0, `reg_lambda` / `reg_alpha` loguniform 1e-3-10 |
+| XGBoost | `n_estimators` randint 200-2000, `learning_rate` loguniform 0.01-0.2, `max_depth` randint 3-8, `min_child_weight` randint 1-10, `subsample` / `colsample_bytree` uniform 0.5-1.0, `reg_lambda` / `reg_alpha` loguniform 1e-3-10 |
+| CatBoost | `iterations` randint 300-2000, `learning_rate` loguniform 0.01-0.2, `depth` randint 4-8, `l2_leaf_reg` loguniform 0.1-10, `rsm` uniform 0.5-1.0, `subsample` uniform 0.5-1.0 (fixed `bootstrap_type: Bernoulli`) |
+| Prediction | unchanged: whole CONUS (allocation divides by the county's cell sum, so it can't be limited to tracted areas), w = exp(y_hat), county mass preserved. The fitted model is pickled with joblib as before (`<model>.joblib`) |
+| Env | `xgboost>=2.1.4`, `catboost>=1.2.8` added to `envs/hisdac/environment.yml` (conda-forge). CatBoost 1.2.7 has no `__sklearn_tags__` and fails in RandomizedSearchCV with scikit-learn >= 1.6 (seen locally 2026-10-27), hence the pin. `sbatch/test_env_hisdac.sh` runs a search with a distribution, a pickle round trip and SHAP for LightGBM, XGBoost, CatBoost; every job of the chain waits for it |
+| Gap counties | `tract_validate.py --gap-share 0.05` (CONUS; default off, so Massachusetts is unchanged): county BUI floor area per person = mean `bui` x (`n_cells` - `n_masked`) / `pop` from the version's `county_features.csv`; below 5 % of that year's median over the counties = gap county (533 / 479 / 416 in 1920 / 1960 / 2010, reproduced from the v3_bui features). Parts `no_gap` and `gap` next to all / train / test, columns `gap_counties`, `gap_tracts`; `gap` column in `tract_errors_{YEAR}.csv`. v3_bui is validated again to get them |
+| Comparison | `src/validation/compare_models.py` (`sbatch/compare_models.sh`, end of the chain) -> `results/validation/conus/model_comparison.csv`: per version (4 x n60 + v3_bui) and year CV RMSE mean / sd, CV R2, TEST RMSE / R2, tract MdAPE / MAE / R2 (log pop) for all / train / test / no_gap / gap, MdAPE per density class, areal weighting MdAPE, chosen hyperparameters, train time (empty for v3_bui, trained before the timing was recorded); a summary per year in the log |
+| County maps | 2010, the same 4 counties, the four n60 models (differences against RF n60) |
+| Choice | tract validation first (all tracts, density classes, no_gap), county TEST R2 second (`docs/open_items.md`) |
+| Resources | train 16 cores, 2 h (3 x the candidates of v3_bui, whose train took ~9 min; boosting time unknown); predict, validate, maps as the bui chain |
+
 ## Implementation decisions (2026-10-23)
 
 Made while implementing; each is the simplest option consistent with the decisions above.
@@ -359,5 +383,6 @@ Made while implementing; each is the simplest option consistent with the decisio
 5. BUI fix in the cutout; rerun v3 for 1920, 1960, 2010 (1920 not run with terrain yet); county maps (bug fixed).
    Code 2026-10-27 ("BUI fix and v3 base rerun"; `bash sbatch/submit_conus.sh bui`).
 6. Model family: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, chosen by tract
-   validation + county TEST R2 (`docs/handoff/conus_models_request.md`).
+   validation + county TEST R2 (`docs/handoff/conus_models_request.md`). Code 2026-10-27 ("Model family";
+   `bash sbatch/submit_conus.sh models`).
 7. Then the remaining years (1900-2010) with the chosen model and v3 features, then 2020.

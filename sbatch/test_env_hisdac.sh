@@ -3,7 +3,8 @@
 # inside a batch job — python comes from the env, and a tiny end-to-end pass
 # through each package succeeds: rasterio raster write/read with a CRS (GDAL/PROJ
 # data found), geopandas reproject + parquet (pyarrow) + GeoPackage (pyogrio),
-# LightGBM fit, SHAP values, scikit-learn metric, YAML, headless plot.
+# LightGBM fit, SHAP values, scikit-learn metric, YAML, headless plot; XGBoost and CatBoost (CONUS model
+# comparison, 2026-10-27): RandomizedSearchCV with a scipy distribution, SHAP TreeExplainer, pickle round trip.
 # Ends with "ENV OK". Test files go to $SCRATCH/test_env_hisdac_<jobid>/ (not git).
 #
 # Submit from the repo root (logs/ must exist):
@@ -47,6 +48,8 @@ import pyarrow
 import sklearn
 from sklearn.metrics import r2_score
 import lightgbm as lgb
+import xgboost as xgb
+import catboost
 import shap
 import yaml
 import matplotlib
@@ -59,6 +62,7 @@ print(f"rasterio {rasterio.__version__} (GDAL {rasterio.__gdal_version__}) | geo
       f"| pyogrio {pyogrio.__version__} | pyarrow {pyarrow.__version__}")
 print(f"scikit-learn {sklearn.__version__} | lightgbm {lgb.__version__} | shap {shap.__version__} "
       f"| pyyaml {yaml.__version__} | matplotlib {matplotlib.__version__} | ipykernel {ipykernel.__version__}")
+print(f"xgboost {xgb.__version__} | catboost {catboost.__version__}")
 
 # rasterio: write + read a small GeoTIFF in CONUS Albers (EPSG:5070) — fails if PROJ/GDAL data is missing
 rng = np.random.default_rng(0)
@@ -89,6 +93,25 @@ print(f"lightgbm ok: train R2={r2_score(y, model.predict(X)):.3f}")
 sv = shap.TreeExplainer(model).shap_values(X[:100])
 top = np.abs(sv).mean(axis=0).argmax()
 print(f"shap ok: values {sv.shape}, top feature = x{top} (expected x0)")
+
+# XGBoost, CatBoost (and LightGBM) the way train.py uses them: sklearn search with a distribution, SHAP, pickle
+import pickle
+from scipy.stats import loguniform
+from sklearn.model_selection import RandomizedSearchCV
+Xdf = pd.DataFrame(X, columns=[f"x{i}" for i in range(5)])
+for name, est, space in (
+        ("lightgbm", lgb.LGBMRegressor(n_jobs=1, verbose=-1, random_state=42), {"n_estimators": [50, 80]}),
+        ("xgboost", xgb.XGBRegressor(n_jobs=1, verbosity=0, tree_method="hist", random_state=42),
+         {"n_estimators": [50, 80]}),
+        ("catboost", catboost.CatBoostRegressor(thread_count=1, verbose=0, allow_writing_files=False, random_seed=42,
+                                                bootstrap_type="Bernoulli"), {"iterations": [50, 80]})):
+    s = RandomizedSearchCV(est, {**space, "learning_rate": loguniform(0.01, 0.2)}, n_iter=2, cv=3, random_state=0,
+                           scoring="neg_root_mean_squared_error").fit(Xdf, y)
+    m = pickle.loads(pickle.dumps(s.best_estimator_))
+    assert np.allclose(m.predict(Xdf), s.best_estimator_.predict(Xdf))
+    sv = np.asarray(shap.TreeExplainer(m).shap_values(Xdf.iloc[:100]))
+    print(f"{name} ok: search R2={r2_score(y, m.predict(Xdf)):.3f} | pickle round trip | shap {sv.shape}, "
+          f"top x{np.abs(sv).mean(axis=0).argmax()} (expected x0)")
 
 # pyyaml + matplotlib
 assert yaml.safe_load("a: 1\nb: [2, 3]") == {"a": 1, "b": [2, 3]}

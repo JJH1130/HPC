@@ -1,0 +1,69 @@
+# Dasy_CONUS_XGB_v3_n60 (docs/conus_plan.md "Model family"): the model family comparison of 2026-10-27. Features, years,
+# cutout (BUI fixed), split and folds exactly as Dasy_CONUS_RF_v3_bui (its county_features.csv is copied by
+# sbatch/submit_conus.sh models); only the model and its search differ: xgb, 60 candidates drawn from continuous
+# ranges (lists = one of the values; {dist, low, high} = distribution, src/dasymetric/models.py), 5-fold county CV,
+# no early stopping. The folds come from the split table (identical to v3_bui's; `folds_from` can't be combined with
+# `split`, and train.py checks the folds against v3_bui's saved out-of-fold predictions).
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_XGB_v3_n60/
+version: Dasy_CONUS_XGB_v3_n60
+
+study_area: configs/conus_study_area.yaml
+years: [1920, 1960, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3_bui
+
+split: configs/conus_split.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+eras:
+  # res_share / rent_share need Land_Use (1940+).
+  Y1920:
+    years: [1920]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+
+# elev and slope are separate groups, not one Terrain group (decided 2026-10-20).
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+
+maps:
+  years: [1920, 1960, 2010]
+  compare_years: [2010]
+
+correlation_threshold: 0.8
+
+model: xgb
+
+search:
+  n_iter: 60   # same budget for every model (2026-10-27)
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  xgb:        # xgboost.XGBRegressor (n_jobs 1, verbosity 0, tree_method hist set in src/dasymetric/models.py)
+    fixed: {random_state: 42, tree_method: hist}
+    space:
+      n_estimators: {dist: randint, low: 200, high: 2000}
+      learning_rate: {dist: loguniform, low: 0.01, high: 0.2}
+      max_depth: {dist: randint, low: 3, high: 8}
+      min_child_weight: {dist: randint, low: 1, high: 10}
+      subsample: {dist: uniform, low: 0.5, high: 1.0}
+      colsample_bytree: {dist: uniform, low: 0.5, high: 1.0}
+      reg_lambda: {dist: loguniform, low: 1.0e-3, high: 10.0}
+      reg_alpha: {dist: loguniform, low: 1.0e-3, high: 10.0}

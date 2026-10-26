@@ -9,7 +9,11 @@ in a temporary folder, a split table with make_split.py, and checks:
   - train with `split`: test counties are not in the training / CV rows; test score reported
   - predict in strips = whole window with the same model; mass preserved; no_value / zero_pop counties and
     cells outside counties are NoData; test counties are allocated; --measure writes nothing
-  - tract_validate with --split and --state-prefix '' reports train and test parts, and the density classes
+  - tract_validate with --split and --state-prefix '' reports train and test parts, and the density classes;
+    with --gap-share the parts no_gap / gap (BUI gap counties from county_features.csv)
+  - model family (models.py): LightGBM, XGBoost, CatBoost with distribution spaces on the copied features of
+    another version: search -> fit -> save -> load -> predict, mass preserved, era params fixed, same folds as
+    compare_with; compare_models.py table
   - terrain (elev, slope; v3 / v4): strips (one halo row) == whole window, cell by cell and as county features
   - bui_qa.py: quantiles, cap counts and the top cells with their county and bldg_size
   - conus_counties.py: status ok / no_value / zero_pop and the same row order every year
@@ -67,6 +71,7 @@ from shapely.geometry import box  # noqa: E402
 
 import bui_qa  # noqa: E402
 import common as dcommon  # noqa: E402
+import compare_models  # noqa: E402
 import county_features  # noqa: E402
 import make_split  # noqa: E402
 import predict  # noqa: E402
@@ -169,6 +174,32 @@ def write_configs(tmp: Path, split_path: Path):
     paths = {}
     terrain = {"eras": {f"Y{y}": {"years": [y], "features": feats + ["elev", "slope"]} for y in YEARS},
                "feature_groups": {**base["feature_groups"], "Elevation": ["elev"], "Slope": ["slope"]}}
+    boost = {  # small spaces with distributions (models.py); the real ones are in configs/conus_*_v3_n60.yaml
+        "lgbm": ({"random_state": 42, "subsample_freq": 1},
+                 {"n_estimators": {"dist": "randint", "low": 20, "high": 40},
+                  "learning_rate": {"dist": "loguniform", "low": 0.05, "high": 0.2},
+                  "num_leaves": {"dist": "randint", "low": 4, "high": 15},
+                  "min_child_samples": {"dist": "randint", "low": 3, "high": 10},
+                  "subsample": {"dist": "uniform", "low": 0.6, "high": 1.0}}),
+        "xgb": ({"random_state": 42, "tree_method": "hist"},
+                {"n_estimators": {"dist": "randint", "low": 20, "high": 40},
+                 "learning_rate": {"dist": "loguniform", "low": 0.05, "high": 0.2},
+                 "max_depth": {"dist": "randint", "low": 2, "high": 4}}),
+        "catboost": ({"random_seed": 42, "bootstrap_type": "Bernoulli"},
+                     {"iterations": {"dist": "randint", "low": 20, "high": 40},
+                      "learning_rate": {"dist": "loguniform", "low": 0.05, "high": 0.2},
+                      "depth": {"dist": "randint", "low": 2, "high": 4},
+                      "subsample": {"dist": "uniform", "low": 0.6, "high": 1.0}}),
+    }
+    for name, (fixed, space) in boost.items():
+        eras = {f"Y{y}": {"years": [y], "features": feats} for y in YEARS}
+        if name == "lgbm":
+            eras["Y1960"]["params"] = {"num_leaves": 7}  # an era's fixed value overrides the distribution
+        p = tmp / "configs" / f"m_{name}.yaml"
+        p.write_text(yaml.safe_dump({**base, "version": f"m_{name}", "block_rows": 7, "compare_with": "blocks",
+                                     "eras": eras, "model": name, "search": {**base["search"], "n_iter": 3},
+                                     "models": {name: {"fixed": fixed, "space": space}}}))
+        paths[f"m_{name}"] = p
     for version, extra in (("blocks", {"block_rows": 7}), ("whole", {}),
                            ("v2", {"block_rows": 7, "compare_with": "blocks"}),
                            ("tblocks", {"block_rows": 7, **terrain}), ("twhole", terrain)):
@@ -334,6 +365,82 @@ def test_pipeline():
         assert (s_n == full["n"].loc[s_n.index]).all() and np.allclose(s_a, 1.0)
         print("ok tract_validate: train / test parts reported; density classes add up to all tracts")
 
+        # 4b. BUI gap counties (--gap-share): parts no_gap / gap from the version's county_features.csv
+        tv_args = ["--name", "conus", "--dasym-root", str(out_root), "--cutout-root", str(tmp / "cutouts"),
+                   "--tract-dir", str(tracts_dir), "--years", *map(str, YEARS), "--map-years", "--state-prefix", "",
+                   "--split", str(split_path)]
+        tract_validate.main(["--version", "blocks", "--results-root", str(tmp / "val_gap"), "--gap-share", "0.8"]
+                            + tv_args)
+        mg = pd.read_csv(tmp / "val_gap" / "conus" / "blocks" / "metrics_by_year.csv")
+        assert set(mg["part"]) == {"all", "train", "test", "no_gap", "gap"}
+        n = mg[(mg["subset"] == "all") & (mg["method"] == "model")].set_index(["year", "part"])["n"]
+        for y in YEARS:
+            f = pd.read_csv(out_root / "conus" / "blocks" / f"Y{y}" / "features" / "county_features.csv")
+            f = f[f["pop"] > 0]
+            floor = f["bui"] * (f["n_cells"] - f["n_masked"]) / f["pop"]
+            want = set(f.loc[floor < 0.8 * floor.median(), "GISJOIN"])
+            te = pd.read_csv(tmp / "val_gap" / "conus" / "blocks" / f"tract_errors_{y}.csv")
+            ok = te[te["flag"] == "ok"]
+            assert (ok["gap"] == ok["zone_gisjoin"].isin(want)).all() and not te.loc[te["flag"] != "ok", "gap"].any()
+            assert 0 < n[(y, "gap")] < n[(y, "all")] and n[(y, "no_gap")] + n[(y, "gap")] == n[(y, "all")]
+            assert n[(y, "gap")] == ok["gap"].sum()
+            g = mg[mg["year"] == y]
+            assert (g["gap_tracts"] == ok["gap"].sum()).all() and (g["gap_counties"] == len(want)).all()
+        print("ok tract_validate --gap-share: gap counties from county_features, no_gap + gap = all")
+
+        # 6. model family: LightGBM / XGBoost / CatBoost on the copied features of `blocks` (as submit_conus.sh models)
+        for name in ("lgbm", "xgb", "catboost"):
+            v = f"m_{name}"
+            for y in YEARS:
+                d = out_root / "conus" / v / f"Y{y}" / "features"
+                d.mkdir(parents=True)
+                shutil.copy(out_root / "conus" / "blocks" / f"Y{y}" / "features" / "county_features.csv", d)
+            train.main(["--config", str(cfgs[v]), "--n-jobs", "2"] + common)
+            predict.main(["--config", str(cfgs[v]), "--cutout-root", str(tmp / "cutouts"), "--n-jobs", "2"] + common)
+            for y in YEARS:
+                m = out_root / "conus" / v / f"Y{y}" / "model"
+                met = json.loads((m / "metrics.json").read_text())
+                assert met["model"] == name and met["n_candidates"] == 3 and np.isfinite(met["test_rmse"])
+                assert met["train_seconds"] >= met["search_seconds"] >= 0
+                assert isinstance(met["search_space"][next(iter(met["search_space"]))], (dict, list))
+                assert json.loads((m / "best_params.json").read_text()) == met["best_params"]
+                if name == "lgbm":
+                    assert (met["best_params"]["num_leaves"] == 7) == (y == 1960), met["best_params"]
+                    assert met["search_space"]["num_leaves"] == ([7] if y == 1960 else boost_space(cfgs[v]))
+                bundle = predict.joblib.load(m / f"{name}.joblib")
+                assert type(bundle["model"]).__name__ == {"lgbm": "LGBMRegressor", "xgb": "XGBRegressor",
+                                                          "catboost": "CatBoostRegressor"}[name]
+                assert json.loads((m / "compare_blocks.json").read_text())["folds"] == "same as this model (checked)"
+                a = read(out_root / "conus" / v / "predictions" / f"pop_{y}.tif")
+                zt = pd.read_csv(cut / "zones" / f"zones_{y}.csv")
+                sums = np.bincount(zones[a >= 0], weights=a[a >= 0].astype("float64"), minlength=49)
+                used = zt[zt["status"].isin(["ok", "filled_nhgis", "filled_nhgis_alloc"])]
+                assert np.allclose(sums[used["zone_id"]], used["pop"], rtol=1e-6), name
+            print(f"ok model {name}: search -> fit -> save -> load -> predict, mass preserved, same folds as blocks")
+
+        # 7. compare_models: the result layout of the sbatch copies (<version>/<era>/metrics.json, cv_summary.csv)
+        res = tmp / "results"
+        for v in ("blocks", "m_lgbm", "m_xgb", "m_catboost"):
+            dst = res / "dasymetric" / "conus" / v
+            for y in YEARS:
+                shutil.copytree(out_root / "conus" / v / f"Y{y}" / "model", dst / f"Y{y}")
+            shutil.copy(out_root / "conus" / v / "cv_summary.csv", dst)
+            if v != "blocks":
+                tract_validate.main(["--version", v, "--results-root", str(res / "validation"), "--gap-share", "0.8"]
+                                    + tv_args)
+        shutil.copytree(tmp / "val_gap" / "conus" / "blocks", res / "validation" / "conus" / "blocks")
+        compare_models.main(["--versions", "blocks", "m_lgbm", "m_xgb", "m_catboost", "--results-root", str(res)])
+        cmp = pd.read_csv(res / "validation" / "conus" / "model_comparison.csv")
+        assert len(cmp) == 4 * len(YEARS) and set(cmp["model"]) == {"rf", "lgbm", "xgb", "catboost"}
+        r = cmp[(cmp["version"] == "blocks") & (cmp["year"] == 2010)].iloc[0]
+        g = mg[(mg["year"] == 2010) & (mg["method"] == "model") & (mg["subset"] == "all")].set_index("part")
+        assert np.isclose(r["tract_no_gap_mdape"], g.loc["no_gap", "mdape"]) and r["tract_gap_n"] == g.loc["gap", "n"]
+        assert np.isclose(r["cv_rmse_mean"], json.loads((out_root / "conus" / "blocks" / "Y2010" / "model" /
+                                                         "metrics.json").read_text())["cv_rmse_mean"])
+        dens = [c for c in cmp if c.startswith("tract_dens_")]
+        assert len(dens) == 4 and cmp[dens].notna().any().any() and cmp["best_params"].notna().all()
+        print("ok compare_models: one row per version and year, CV / TEST / tract columns from the result files")
+
         # 5. bui_qa: quantiles over BUI > 0 cells, cap counts, top cells with county and bldg_size
         bui_qa.main(["--cutout", str(cut), "--years", *map(str, YEARS), "--out-dir", str(tmp / "bq"),
                      "--caps", "5", "50", "--top", "5", "--block-rows", "7", "--metro-rank", "3"])
@@ -354,6 +461,10 @@ def test_pipeline():
         print("ok bui_qa: quantiles, caps, top cells with zone and bldg_size")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def boost_space(cfg_path: Path):
+    return yaml.safe_load(cfg_path.read_text())["models"]["lgbm"]["space"]["num_leaves"]
 
 
 def test_conus_counties():

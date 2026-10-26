@@ -38,6 +38,7 @@ import rasterio
 from affine import Affine
 
 import plots
+from models import set_threads
 from common import (NODATA_OUT, add_common_args, cell_features, county_selection, dist_built, era_of, load_config,
                     log, log_args, out_dir, read_zones, setup_logging, strips, used_mask, water_mask, write_tif)
 
@@ -234,8 +235,7 @@ def main(argv=None):
         if not mpath.exists():
             sys.exit(f"ERROR: {mpath} not found (run stage 2, train.py, first)")
         bundle = joblib.load(mpath)
-        if hasattr(bundle["model"], "n_jobs"):
-            bundle["model"].n_jobs = args.n_jobs
+        set_threads(bundle["model"], args.n_jobs)
         if bundle["features"] != cfg["eras"][era]["features"]:
             sys.exit(f"ERROR: {mpath} was trained on {bundle['features']}, the config says "
                      f"{cfg['eras'][era]['features']}; rerun stages 1-2")

@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui written as code)
+Last updated: 2026-10-27 (CONUS model family comparison written as code)
 
 ## Open items
 
@@ -59,7 +59,9 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
   the v3_bui features for 1920 / 1960 / 2010 (each tuned by the same county CV with the same budget: RandomizedSearchCV, 60 candidates, continuous ranges
   (log-uniform for learning rate and regularisation); same split and folds; RF rerun with 60 too) and choose the
   family from the validation results: tract validation first (all tracts, density classes, gap counties left out),
-  county TEST R2 second. Request: `docs/handoff/conus_models_request.md`.
+  county TEST R2 second. Request: `docs/handoff/conus_models_request.md`. Code written 2026-10-27, not run yet
+  (`bash sbatch/submit_conus.sh models`, `docs/runbooks/Running_CONUS.md` section 4; `docs/conus_plan.md`,
+  "Model family"): `Dasy_CONUS_{RF,LGBM,XGB,CAT}_v3_n60`, `compare_models.py` -> `model_comparison.csv`.
 - **Counties with (almost) no BUI**: counted 2026-10-27 from `county_features.csv` of v3_bui as BUI floor area per
   person (county mean BUI x unmasked cells / pop) below 5 % of the national median (median 96 / 368 / 935 sq ft per
   person in 1920 / 1960 / 2010):
@@ -349,3 +351,4 @@ Last updated: 2026-10-27 (CONUS v3 / v4 result; BUI fix + v1_bui / v3_bui writte
 | 2026-10-27 | Hyperparameters: county CV only (tracts never in the search). Model family chosen before the all-years run: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, picked by tract validation + county TEST R2. Gap counties (BUI per person < 5 % of the median): 533 / 479 / 416 in 1920 / 1960 / 2010; kept, flagged, validation reported with and without. |
 | 2026-10-27 | BUI fix implemented as a separate step after the cutout (`src/grid/bui_fix.py`, in place on `layers/BUI/`, original kept in `layers/BUI_raw/`, reruns identical), switched on by `bui_cap` in the study area config (Massachusetts: none, check only). Neighbours above the cap, with nodata or outside the window are left out of the median (none left -> 0); strips use one halo row. New versions `Dasy_CONUS_RF_v1_bui` / `Dasy_CONUS_RF_v3_bui` (1920/1960/2010, compare_with v1 / v3) so the old v1 / v3 outputs stay. |
 | 2026-10-27 | BUI fix (cap 3e7 sq ft -> 3 x 3 neighbour median) applied; alone it changes tract error by about 0.1 point. v3_bui (v1 + terrain on fixed BUI) is the CONUS base: tract MdAPE 53.7 / 38.2 / 25.2 % (1920 / 1960 / 2010); the 2010 gain over v3 comes with `max_features` 1.0 picked on a CV tie. Distances spread population onto empty cells (county maps); terrain keeps it in valleys. |
+| 2026-10-27 | Model family comparison implemented: `models.py` registry (rf, lgbm, xgb, catboost; single-threaded models, parallel search, no early stopping), search spaces may use distributions (`{dist: loguniform|uniform|randint, low, high}`; lists unchanged), 60 candidates each, v3_bui features copied (not recomputed), split table folds checked against v3_bui. Tract metrics get BUI gap-county parts `no_gap` / `gap` (`--gap-share 0.05`, CONUS only). `catboost>=1.2.8` pinned: 1.2.7 fails with scikit-learn >= 1.6. |

@@ -110,7 +110,8 @@ cat logs/test_env_hisdac.$jid.out
 
 Good: `== python: /projects/jaju1407/software/envs/hisdac/bin/python`, a version line per group,
 then `rasterio GeoTIFF ok: EPSG:5070 50x50`, `geopandas ok`, `lightgbm ok`, `shap ok ... top feature =
-x0`, `yaml + matplotlib ok`, `ENV OK`, `== done`. Well under a minute once running.
+x0`, `lightgbm ok: search ...`, `xgboost ok: search ...`, `catboost ok: search ...` (each `top x0`),
+`yaml + matplotlib ok`, `ENV OK`, `== done`. Well under a minute once running.
 
 ## 7. If it fails
 
@@ -148,6 +149,18 @@ eval "$(/projects/jaju1407/software/miniforge3/bin/conda shell.bash hook)"
 cd /projects/jaju1407/HPC/envs/hisdac
 conda env update -f environment.yml -p /projects/jaju1407/software/envs/hisdac --prune
 ```
+
+Then check the imports in the same session and run the batch test (step 5). 2026-10-27: `xgboost` and `catboost`
+added for the CONUS model comparison (`docs/conus_plan.md`, "Model family"); the update block with the check is in
+`docs/runbooks/Running_CONUS.md`, section 4:
+
+```bash
+conda activate /projects/jaju1407/software/envs/hisdac
+python -c "import lightgbm, xgboost, catboost, shap, sklearn; print('ok | lightgbm', lightgbm.__version__, '| xgboost', xgboost.__version__, '| catboost', catboost.__version__, '| shap', shap.__version__, '| sklearn', sklearn.__version__)"
+```
+
+Good: one line starting with `ok | lightgbm`. The batch test (step 5) then also prints `xgboost ok: ...` and
+`catboost ok: ...` before `ENV OK`.
 
 ## Laptop (optional)
 

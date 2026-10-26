@@ -22,7 +22,8 @@ With eras, <version>/cv_summary.csv has one row per era (CV of the era model and
 Folds: `folds_from: <version>` reuses that version's model/folds.csv (filtered to the era's counties);
 otherwise GroupKFold(cv_folds) by GISJOIN, so all years of a county stay in one fold and CV measures
 performance on unseen counties. The model and its search space come from configs/model.yaml; an era's
-`params:` fixes those hyperparameters (v3_3: all four fixed for E3, so one candidate and no search).
+`params:` fixes those hyperparameters (v3_3: all four fixed for E3, so one candidate and no search). Models and
+space syntax (lists or distributions {dist, low, high}): models.py; rf, lgbm, xgb, catboost (CONUS model family).
 
 `split: <csv>` (CONUS, docs/conus_plan.md; table from make_split.py): GISJOIN -> part (train/test) + fold (train
 counties). Only train rows are used for the search, the refit, SHAP and the out-of-fold predictions; the folds
@@ -37,6 +38,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 import joblib
@@ -48,6 +50,7 @@ from sklearn.base import clone
 from sklearn.model_selection import GroupKFold, RandomizedSearchCV, cross_val_predict
 
 import plots
+from models import MODELS, parse_space, plain
 from common import add_common_args, era_groups, load_config, log, log_args, out_dir, setup_logging, year_filter
 
 SPLIT_PARTS = {"train", "test"}
@@ -62,22 +65,7 @@ def parse_args(argv=None):
     return p.parse_args(argv)
 
 
-# ---------------------------------------------------------------- model registry
-
-def make_rf(fixed: dict):
-    from sklearn.ensemble import RandomForestRegressor
-    return RandomForestRegressor(n_jobs=1, **fixed)  # parallelism is in the search
-
-
-def not_in_v1(name):
-    def build(fixed):
-        sys.exit(f"ERROR: model {name!r} is a placeholder, not implemented in v1 (configs/model.yaml). "
-                 "Use model: rf")
-    return build
-
-
-MODELS = {"rf": make_rf, "lgbm": not_in_v1("lgbm"), "xgb": not_in_v1("xgb"), "catboost": not_in_v1("catboost")}
-
+# ---------------------------------------------------------------- model registry (models.py)
 
 def build_model(cfg: dict):
     name = cfg["model"]
@@ -339,6 +327,8 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
             sys.exit(f"ERROR: era {era} params {unknown} are not in models.{cfg['model']}.space")
         space = {**space, **{k: [v] for k, v in fixed.items()}}  # keys not given are still searched
         log.info("%sfixed hyperparameters from the config (no search): %s", tag, fixed)
+    space_cfg = space
+    space, n_cand = parse_space(space_cfg)
     s = cfg["search"]
     mdir = out / "model"
     mdir.mkdir(parents=True, exist_ok=True)
@@ -359,14 +349,18 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
     log.info("%sfolds (%s): counties per fold %s -> %s", tag, source,
              folds["fold"].value_counts().sort_index().to_dict(), mdir / "folds.csv")
     correlation_check(X, cfg.get("correlation_threshold", 0.8), mdir)
-    n_cand = int(np.prod([len(v) for v in space.values()]))
-    log.info("%smodel %s | search %d of %d candidates | %d folds | scoring %s | n_jobs %d", tag, cfg["model"],
-             min(s["n_iter"], n_cand), n_cand, len(cv), s["scoring"], args.n_jobs)
+    n_iter = s["n_iter"] if n_cand is None else min(s["n_iter"], n_cand)  # distributions: always n_iter draws
+    log.info("%smodel %s | search %d of %s candidates | %d folds | scoring %s | n_jobs %d", tag, cfg["model"],
+             n_iter, "continuous" if n_cand is None else n_cand, len(cv), s["scoring"], args.n_jobs)
+    log.info("%ssearch space %s | fixed %s", tag, space_cfg, cfg["models"][cfg["model"]].get("fixed") or {})
+    t_start = time.perf_counter()
     search = RandomizedSearchCV(
-        estimator, space, n_iter=min(s["n_iter"], n_cand), random_state=s["random_state"],
+        estimator, space, n_iter=n_iter, random_state=s["random_state"],
         scoring={"score": s["scoring"], "r2": "r2"}, refit="score",
         cv=cv, n_jobs=args.n_jobs, error_score="raise")
     search.fit(X, y)
+    search_seconds = time.perf_counter() - t_start
+    best_params = plain(search.best_params_)
 
     res, best = search.cv_results_, search.best_index_
     rmse_folds = [-float(res[f"split{i}_test_score"][best]) for i in range(len(cv))]
@@ -378,7 +372,9 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
     metrics = {
         "model": cfg["model"], "version": cfg["version"], "era": era or None, "features": feats,
         "n_rows": len(df), "n_counties": int(groups.nunique()), "n_years": int(df["year"].nunique()),
-        "cv": f"{len(cv)} folds, {source}", "scoring": s["scoring"],
+        "cv": f"{len(cv)} folds, {source}", "scoring": s["scoring"], "n_candidates": n_iter,
+        "search_space": space_cfg, "fixed_params": cfg["models"][cfg["model"]].get("fixed") or {},
+        "best_params": best_params, "search_seconds": round(search_seconds, 1),
         "cv_rmse_mean": float(np.mean(rmse_folds)), "cv_rmse_sd": float(np.std(rmse_folds)),
         "cv_rmse_folds": rmse_folds,
         "cv_r2_mean": float(np.mean(r2_folds)), "cv_r2_sd": float(np.std(r2_folds)), "cv_r2_folds": r2_folds,
@@ -387,7 +383,7 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
         "target": ("log(pop / (0.0625 x unmasked cells))" if cfg.get("water_mask")
                    else "log(pop / polygon area_km2)"),
     }
-    log.info("%sbest params %s", tag, search.best_params_)
+    log.info("%sbest params %s (search %.0f s)", tag, best_params, search_seconds)
     log.info("%sCV RMSE %.4f +/- %.4f | CV R2 %.3f +/- %.3f | train RMSE %.4f | sd(y) %.4f", tag,
              metrics["cv_rmse_mean"], metrics["cv_rmse_sd"], metrics["cv_r2_mean"], metrics["cv_r2_sd"],
              metrics["train_rmse"], metrics["y_sd"])
@@ -421,7 +417,7 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
     cvr = pd.DataFrame(res)
     cvr["params"] = cvr["params"].astype(str)
     cvr.sort_values("rank_test_score").to_csv(mdir / "cv_results.csv", index=False)
-    (mdir / "best_params.json").write_text(json.dumps(search.best_params_, indent=2))
+    (mdir / "best_params.json").write_text(json.dumps(best_params, indent=2))
     imp.to_csv(mdir / "feature_importance.csv", index=False)
     grouped = shap_explain(model, X, df, pred, cfg, mdir)
 
@@ -438,11 +434,14 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
     if test_pred is not None:
         prev_test = compare_test(cfg, args.out_root, era, test_pred, mdir)
         test_pred.to_csv(mdir / "test_predictions.csv", index=False)
+    metrics["train_seconds"] = round(time.perf_counter() - t_start, 1)  # search + refit + importance + SHAP + OOF
     (mdir / "metrics.json").write_text(json.dumps(metrics, indent=2))
     row = {"era": era or None, "years": f"{int(df['year'].min())}-{int(df['year'].max())}", "n_rows": len(df),
            "n_counties": int(groups.nunique()), "n_folds": len(cv), "features": " ".join(feats),
            "cv_rmse": metrics["cv_rmse_mean"], "cv_r2": metrics["cv_r2_mean"],
-           "pooled_rmse": metrics["oof_pooled_rmse"], "pooled_r2": metrics["oof_pooled_r2"]}
+           "pooled_rmse": metrics["oof_pooled_rmse"], "pooled_r2": metrics["oof_pooled_r2"],
+           "model": cfg["model"], "n_candidates": n_iter, "best_params": json.dumps(best_params),
+           "train_seconds": metrics["train_seconds"]}
     if "test_rmse" in metrics:
         row.update({"n_test_rows": metrics["n_test_rows"], "test_rmse": metrics["test_rmse"],
                     "test_r2": metrics["test_r2"]})

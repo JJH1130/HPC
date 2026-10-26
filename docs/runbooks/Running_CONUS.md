@@ -1,7 +1,7 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui)
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60)
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
-layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml` (models), split table
+layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml` (models), split table
 `configs/conus_split.csv` (made once, 2026-10-23; never regenerate it). The Massachusetts configs
 (`configs/study_area.yaml`, `configs/model.yaml`) and runbooks are unchanged.
 
@@ -13,7 +13,8 @@ All jobs are the usual stage scripts (`sbatch/*.sh`, account `ucb852_asc1`, env 
 before the pilot (2026-10-24): 4 counties without a CSV row filled from NHGIS (`filled_nhgis`), per-county JRC
 no-data QA, pilot resources from the trial. Pilot passed 2026-10-26 (jobs 34918220-34918231; `docs/conus_plan.md`,
 "Pilot result"). Section 2 (v3 + v4, BUI check, density classes) ran 2026-10-26 (jobs 34921582-34921594; county maps
-failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 / 1960 / 2010, county maps).
+failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 / 1960 / 2010, county maps). Section 3 ran 2026-10-26 (jobs 34926193-34926203). Next: section 4
+(model family).
 
 ## Inputs / outputs
 
@@ -30,7 +31,7 @@ failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 
 | BUI fix (scratch) | cutout `layers/BUI/` = fixed (from section 3 on), `layers/BUI_raw/` = original |
 | DEM (v3, v4) | `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd` -> cutout `layers/DEM/DEM.tif` |
 | results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/` |
-| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt` |
+| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt` |
 
 ## 0. Trial: measure time and memory (1960, v1)
 
@@ -309,6 +310,127 @@ echo "== end of block 3"
 Good: `sacct` shows `COMPLETED` for every job, `git push` ends with `main -> main`, the last commit is the
 `run: CONUS BUI fix ...` one, then `== end of block 3`.
 
+## 4. Model family: RF / LightGBM / XGBoost / CatBoost, 60 candidates each (2026-10-27)
+
+On the BUI-fixed cutout with v3_bui's features (`docs/conus_plan.md`, "Model family"). First the env update
+(xgboost, catboost), then one submission of 16 jobs:
+
+| Job | Needs | What |
+|---|---|---|
+| `test_env_hisdac` | nothing | env check incl. LightGBM / XGBoost / CatBoost search, pickle, SHAP. Every other job waits for it |
+| `validate_tract` v3_bui | env check | rerun with `--gap-share 0.05`: parts `no_gap` / `gap` (20-candidate reference) |
+| train, predict, validate for RF / LGBM / XGB / CAT n60 | env check | 1920 + 1960 + 2010; features copied from v3_bui at submit time; compared with v3_bui (same folds, checked) |
+| `compare_models` | the 5 validations | `results/validation/conus/model_comparison.csv` + a summary per year in the log |
+| `county_maps` | the 4 predicts + validations | 2010, the 4 counties, the four n60 models -> `results/validation/conus/county_maps/` |
+
+Block 0, env update (login node, then the compile node; about 5-15 min):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+sinteractive --partition=acompile --qos=compile --ntasks=4 --time=01:00:00
+```
+
+Then, inside `sinteractive` (the prompt shows a compute node):
+
+```bash
+export USER=jaju1407
+export TMPDIR=/scratch/alpine/jaju1407/tmp
+mkdir -p "$TMPDIR"
+eval "$(/projects/jaju1407/software/miniforge3/bin/conda shell.bash hook)"
+cd /projects/jaju1407/HPC/envs/hisdac
+conda env update -f environment.yml -p /projects/jaju1407/software/envs/hisdac --prune
+conda activate /projects/jaju1407/software/envs/hisdac
+python -c "import numpy as np, catboost, xgboost, lightgbm, shap, sklearn; from sklearn.model_selection import RandomizedSearchCV as R; X = np.random.rand(60, 3); R(catboost.CatBoostRegressor(verbose=0, allow_writing_files=False, thread_count=1), {'depth': [2, 3]}, n_iter=2, cv=2).fit(X, X[:, 0]); print('ENV UPDATED | xgboost', xgboost.__version__, '| catboost', catboost.__version__, '| lightgbm', lightgbm.__version__, '| shap', shap.__version__, '| sklearn', sklearn.__version__)"
+cd /projects/jaju1407/HPC
+echo "== end of block 0"
+exit
+```
+
+Good: `conda env update` ends without an error, then one line `ENV UPDATED | xgboost 3.x | catboost 1.2.8 or later
+| ...`, `== end of block 0`, and `exit` returns to the login node. If the `python -c` line prints a traceback, stop
+and send it to Claude (do not run block 1).
+
+Block 1, preflight + submit (login node; nothing is copied or submitted if an input is missing or the env lacks a
+package):
+
+```bash
+cd /projects/jaju1407/HPC
+git log --oneline -1
+source sbatch/cluster_env.sh
+C=$HISDAC_SCRATCH/cutouts/conus
+D=$HISDAC_SCRATCH/dasymetric/conus
+V=$D/Dasy_CONUS_RF_v3_bui
+P=$DATA_ROOT/raw/plural/plural_2023
+need=()
+need+=($V/Y{1920,1960,2010}/features/county_features.csv)
+need+=($V/Y{1920,1960,2010}/model/oof_predictions.csv $V/Y{1920,1960,2010}/model/test_predictions.csv)
+need+=($V/predictions/pop_{1920,1960,2010}.tif $V/qa/reallocation_qa.csv)
+need+=($C/zones/zones_{1920,1960,2010}.tif $C/layers/BUI/{1920,1960,2010}_BUI.tif)
+need+=($C/layers/DEM/DEM.tif $C/layers/water_frac/{1920,1960,2010}_water_frac.tif)
+need+=($DATA_ROOT/processed/tract/tracts_{1920,1960,2010}.gpkg)
+need+=($DATA_ROOT/processed/census_conus/counties_2010.gpkg)
+need+=($P/PLURAL_SHP/PLURAL_SHP/plural_indices_scaled_across_years_2010.shp)
+need+=($P/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv)
+ok=1
+for f in "${need[@]}"; do [[ -e $f ]] || { echo "MISSING $f"; ok=0; }; done
+echo "checked ${#need[@]} inputs"
+$ENVS/hisdac/bin/python -c "import xgboost, catboost, lightgbm; print('env ok | catboost', catboost.__version__)" || ok=0
+grep -E '^(version|model|compare_with):|n_iter' configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml
+if (( ok )); then bash sbatch/submit_conus.sh models; else echo "NOT SUBMITTED: fix the MISSING inputs / env above first"; fi
+echo "== end of block 1"
+```
+
+Good: no `MISSING` line, `checked 29 inputs`, `env ok | catboost 1.2.8` (or later), per config `version`, `model`
+(rf / lgbm / xgb / catboost), `compare_with: Dasy_CONUS_RF_v3_bui`, `n_iter: 60`, then `copied Dasy_CONUS_RF_v3_bui
+features ...`, one line `env_check N | validate Dasy_CONUS_RF_v3_bui N | rf train N predict N validate N | lgbm ...
+| xgb ... | cat ... | compare_models N | county_maps N` (16 ids, also in `logs/conus_models_jobs.txt`) and
+`== end of block 1`. If `== end of block 1` is missing, the paste was cut: run `cat logs/conus_models_jobs.txt` and
+`squeue -u $USER` before pasting again (never submit twice).
+
+Block 2, monitor:
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+for j in $(grep -oE '[0-9]{6,}' logs/conus_models_jobs.txt); do f=$(ls logs/*.$j.out 2>/dev/null); [[ -n $f ]] && { echo "== $f"; tail -n 3 "$f"; }; done
+echo "== end of block 2"
+```
+
+Good: the last lines of the started jobs (`== done ...` when finished) and `== end of block 2`. Check in the logs:
+- `test_env_hisdac`: `lightgbm ok: search ...`, `xgboost ok: search ...`, `catboost ok: search ...` (each `top x0`),
+  `ENV OK`. If it fails, every other job stays `(DependencyNeverSatisfied)`: `scancel` them and send the log
+- `dasymetric_train` (each model, per era): `model <name> | search 60 of continuous candidates | 5 folds`, the
+  `search space` line, `best params {...} (search N s)`, `CV RMSE ...`, `TEST ...`, `Dasy_CONUS_RF_v3_bui (its saved
+  out-of-fold predictions, same folds ...)`, `DONE`
+- `dasymetric_predict`: `mass check: ... 0 fail | bad cells 0`, `DONE`
+- `validate_tract` (5): per year `BUI gap counties (floor area per person < 5 % of the median ...): 533 / 479 / 416
+  of ...` (1920 / 1960 / 2010), `N evaluated tracts in N gap counties`, `DONE`
+- `compare_models`: one table per year (5 versions), `chosen hyperparameters`, `wrote ... model_comparison.csv`,
+  `DONE`
+- `county_maps`: four `plot ...` lines, `DONE`
+
+Block 3, close the loop (after the last job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_models_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_models_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_models_seff.txt
+cat logs/conus_models_sacct.txt
+du -sh results/validation/conus/* results/dasymetric/conus/*
+git add logs/ results/dasymetric/conus results/validation/conus
+git commit -m "run: CONUS model family (RF/LGBM/XGB/CAT n60), v3_bui gap validation, comparison (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: `sacct` shows `COMPLETED` for all 16 jobs, `git push` ends with `main -> main`, the last commit is the
+`run: CONUS model family ...` one, then `== end of block 3`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -322,6 +444,10 @@ Good: `sacct` shows `COMPLETED` for every job, `git push` ends with `main -> mai
 | bui: `has no bui_cap block` | the config on the cluster is old (`git pull`), or the Massachusetts config was given without `--check` (intended: it is never changed) |
 | bui: Massachusetts `--check` failed | nothing depends on it; rerun alone: `sbatch --export=ALL,CONFIG=configs/study_area.yaml sbatch/bui_fix.sh --check --cap 3e7 --hisdac-dir "$HISDAC_DIR" --window-json results/cutout/massachusetts/window.json` |
 | bui: `county_maps` failed | rerun alone: `sbatch sbatch/county_maps.sh --counties G5300070 G2001550 G0800430 G1701170 --versions Dasy_CONUS_RF_v1_bui Dasy_CONUS_RF_v2 Dasy_CONUS_RF_v3_bui Dasy_CONUS_RF_v4` |
+| models: `CatBoostRegressor object has no attribute __sklearn_tags__` | catboost older than 1.2.8 in the env: block 0 was not run or the update failed; rerun block 0 |
+| models: `ModuleNotFoundError: xgboost` / `catboost` | the env was not updated (block 0) |
+| models: train `CANCELLED ... DUE TO TIME LIMIT` | boosting slower than estimated: resubmit only that model's train / predict / validate with `TRAIN_TIME=04:00:00` (send Claude the log first) |
+| models: `compare_with Dasy_CONUS_RF_v3_bui: its folds differ` | the split table changed: never regenerate it; send Claude the log |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

@@ -20,6 +20,8 @@ dependencies:
   - pyogrio
   - scikit-learn
   - lightgbm
+  - xgboost>=2.1.4   # CONUS model family comparison (2026-10-27); CPU build on nodes without a GPU
+  - catboost>=1.2.8   # 1.2.7 and older break sklearn >= 1.6 searches (no __sklearn_tags__)
   - shap=*=cpu*   # CPU build; the CUDA build drags in GBs of CUDA libs we don't use
   - pyyaml
   - pyarrow

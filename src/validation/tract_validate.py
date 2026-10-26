@@ -22,6 +22,10 @@ CONUS (docs/conus_plan.md): --name conus --state-prefix "" takes the tracts of e
 --coverage-csv the tract totals QA (step 5, fully tracted counties) is skipped, because the zones are 2010
 counties and the coverage table is by nominal county; --split adds the metrics per part (train / test county,
 the 2010 county = zone the tract's cells lie in) next to `all`, and a `part` column in tract_errors_{YEAR}.csv.
+BUI gap counties (CONUS model comparison, docs/conus_plan.md "Model family"): a county whose BUI floor area per
+person, county mean bui x (n_cells - n_masked) / pop from the version's <era>/features/county_features.csv, is below
+--gap-share (CONUS: 0.05) x that year's median over the counties is a likely gap in the source records; parts `no_gap` (all
+evaluated tracts outside them) and `gap` (inside) are added, and a `gap` column in tract_errors_{YEAR}.csv.
 """
 from __future__ import annotations
 
@@ -72,6 +76,9 @@ def parse_args(argv=None):
     p.add_argument("--state-prefix", default=MA_PREFIX,
                    help="GISJOIN prefix of the tracts and counties to evaluate (G250 = Massachusetts; '' = all)")
     p.add_argument("--split", type=Path, help="configs/conus_split.csv: also report train and test counties")
+    p.add_argument("--gap-share", type=float, default=0.0,
+                   help="BUI gap county: floor area per person below this share of the year's median, e.g. 0.05 "
+                        "(CONUS; parts no_gap / gap; default 0 = off; needs county_features.csv with bui)")
     return p.parse_args(argv)
 
 
@@ -98,6 +105,28 @@ def read_tracts(path: Path, grid: dict, prefix: str = MA_PREFIX) -> gpd.GeoDataF
     t = gpd.read_file(path, engine="pyogrio", columns=["GISJOIN", "county_gisjoin", "pop", "status"])
     t = t[t["GISJOIN"].str.startswith(prefix)].reset_index(drop=True)
     return t.to_crs(grid["crs"].to_wkt())
+
+
+def gap_counties(pred_dir: Path, year: int, share: float):
+    """GISJOINs of the BUI gap counties of `year` + a summary dict, or (None, None) without features / bui."""
+    if share <= 0:
+        return None, None
+    paths = sorted(pred_dir.glob("*/features/county_features.csv")) + sorted(pred_dir.glob("features/county_features.csv"))
+    frames = [f[f["year"] == year] for f in (pd.read_csv(p) for p in paths) if {"year", "bui", "pop"} <= set(f.columns)]
+    df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    if df.empty:
+        log.warning("  %d: no county_features.csv with bui under %s; no gap parts", year, pred_dir)
+        return None, None
+    df = df[df["pop"] > 0]
+    cells = df["n_cells"] - (df["n_masked"] if "n_masked" in df else 0)
+    floor = df["bui"] * cells / df["pop"]  # sq ft of building floor area per person
+    med = float(floor.median())
+    gap = df[floor < share * med]
+    info = {"median_floor_per_person": med, "gap_counties": len(gap), "gap_pop": float(gap["pop"].sum()),
+            "gap_pop_share": float(gap["pop"].sum() / df["pop"].sum())}
+    log.info("  BUI gap counties (floor area per person < %.0f %% of the median %.0f sq ft): %d of %d, pop %.0f "
+             "(%.1f %%)", 100 * share, med, len(gap), len(df), info["gap_pop"], 100 * info["gap_pop_share"])
+    return set(gap["GISJOIN"]), info
 
 
 # ---------------------------------------------------------------- metrics + QA
@@ -188,15 +217,21 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
     pts = t.geometry.representative_point().to_crs("EPSG:4326")  # where to look a tract up
     t["lon"], t["lat"] = pts.x.round(5), pts.y.round(5)
     cols = TRACT_COLS
-    if args.split_parts is not None:  # the zone of each single-county tract -> its 2010 county -> train / test
-        one = n_zones[pairs[0] - 1] == 1
-        zone_of_tract = np.zeros(n, dtype=np.int64)
-        zone_of_tract[pairs[0][one]] = pairs[1][one]
-        gj_of_zone = dict(zip(ztable["zone_id"], ztable["GISJOIN"]))
-        t["zone_gisjoin"] = [gj_of_zone.get(int(v)) for v in zone_of_tract[1:]]
+    # the zone of each single-county tract -> its (2010) county: train / test part, gap county
+    one = n_zones[pairs[0] - 1] == 1
+    zone_of_tract = np.zeros(n, dtype=np.int64)
+    zone_of_tract[pairs[0][one]] = pairs[1][one]
+    gj_of_zone = dict(zip(ztable["zone_id"], ztable["GISJOIN"]))
+    zone_gj = pd.Series([gj_of_zone.get(int(v)) for v in zone_of_tract[1:]], index=t.index)
+    zone_gj[t["flag"] != "ok"] = None
+    if args.split_parts is not None:
+        t["zone_gisjoin"] = zone_gj
         t["part"] = t["zone_gisjoin"].map(args.split_parts)
-        t.loc[t["flag"] != "ok", ["zone_gisjoin", "part"]] = None
         cols = TRACT_COLS + SPLIT_COLS
+    gaps, gap_info = gap_counties(pred_dir, year, args.gap_share)
+    if gaps is not None:
+        t["gap"] = zone_gj.isin(gaps) & (t["flag"] == "ok")
+        cols = cols + ["gap"]
     log.info("  %d tracts | flags %s", len(t), t["flag"].value_counts().to_dict())
     out = args.out / f"tract_errors_{year}.csv"
     t[cols].sort_values("GISJOIN").to_csv(out, index=False)
@@ -207,6 +242,10 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
     parts = [("all", ev)]
     if args.split_parts is not None:
         parts += [(p, ev[ev["part"] == p]) for p in ("train", "test")]
+    if gaps is not None:
+        parts += [("no_gap", ev[~ev["gap"]]), ("gap", ev[ev["gap"]])]
+        log.info("  %d evaluated tracts in %d gap counties, %d outside", int(ev["gap"].sum()),
+                 zone_gj[ev.index[ev["gap"]]].nunique(), int((~ev["gap"]).sum()))
     rows = []
     for part, pe in parts:
         dens = pe["pop_obs"] / (pe["n_cells"] * CELL_KM2)
@@ -220,7 +259,9 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
                 m = metrics(obs, sel[f"pop_{method}"].to_numpy(), sel["n_cells"].to_numpy() * CELL_KM2)
                 rows.append({"year": year, "part": part, "method": method, "subset": subset, "n": len(sel),
                              "pop_share": obs.sum() / study_total if study_total else np.nan,
-                             "area_share": sel["n_cells"].sum() / part_cells if part_cells else np.nan, **m})
+                             "area_share": sel["n_cells"].sum() / part_cells if part_cells else np.nan, **m,
+                             **({"gap_counties": gap_info["gap_counties"], "gap_tracts": int(ev["gap"].sum())}
+                                if gaps is not None else {})})
     for r in rows:
         if r["subset"] == "all" or (r["subset"].startswith("dens_") and r["part"] == "all"):
             log.info("  %-5s %-8s %-14s n=%d share=%.3f area=%.3f rmse=%.0f mae=%.0f mdape=%.1f%% r2_log=%.3f | "
