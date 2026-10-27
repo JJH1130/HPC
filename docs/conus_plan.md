@@ -300,6 +300,48 @@ County maps (2010; `results/validation/conus/county_maps/`), share of the county
   records (ZTRAX coverage) for that county. Counted 2026-10-27: 416 counties (4.7 % of the population) in
   2010 have BUI per person below 5 % of the median (`docs/open_items.md`).
 
+## Model family result (jobs 34932548-34932563, code 7abfaf6, run 2026-10-27)
+
+All 16 jobs COMPLETED. v3_bui features, same split and folds, RandomizedSearchCV with 60 candidates per model and
+continuous ranges (`configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`); `RF_v3_bui` = the earlier RF with 20 candidates.
+Table: `results/validation/conus/model_comparison.csv`.
+
+| Year | Version | CV RMSE | TEST R2 | Tract MdAPE all | train / test part | no gap counties | dens < 50 | dens 2000+ |
+|---|---|---|---|---|---|---|---|---|
+| 1920 | RF n60 | 0.576 | 0.834 | **53.3** | 53.1 / 65.4 | 53.3 | 141 | 50.1 |
+| 1920 | RF 20 | 0.576 | 0.837 | 53.7 | 53.2 / 65.7 | 53.7 | 156 | 50.4 |
+| 1920 | XGB | 0.583 | 0.836 | 55.1 | 54.4 / 72.0 | 55.1 | 211 | 51.0 |
+| 1920 | LGBM | 0.588 | 0.828 | 56.9 | 56.4 / 70.0 | 56.9 | 299 | 52.6 |
+| 1920 | CatBoost | 0.578 | 0.836 | 54.3 | 53.6 / 74.1 | 54.3 | 364 | 50.9 |
+| 1960 | RF n60 | 0.600 | 0.861 | **37.9** | 38.8 / 34.6 | 37.1 | 127 | 35.8 |
+| 1960 | RF 20 | 0.601 | 0.861 | 38.2 | 39.1 / 34.9 | 37.4 | 128 | 36.1 |
+| 1960 | XGB | 0.600 | 0.855 | 38.1 | 39.0 / 34.7 | 37.3 | 116 | 36.9 |
+| 1960 | LGBM | 0.610 | 0.854 | 39.0 | 39.5 / 37.0 | 38.2 | 95 | 38.3 |
+| 1960 | CatBoost | 0.594 | 0.856 | 38.7 | 39.6 / 34.9 | 38.0 | 128 | 37.1 |
+| 2010 | RF n60 | 0.626 | 0.878 | 26.6 | 26.4 / 27.4 | 25.6 | 30.7 | 31.7 |
+| 2010 | RF 20 | 0.630 | 0.875 | **25.2** | 25.0 / 26.0 | 24.1 | 28.2 | 30.4 |
+| 2010 | XGB | 0.625 | 0.879 | 27.2 | 27.0 / 28.0 | 26.1 | 31.0 | 32.8 |
+| 2010 | LGBM | 0.618 | 0.877 | 28.1 | 27.9 / 28.7 | 27.0 | 30.4 | 35.0 |
+| 2010 | CatBoost | 0.612 | 0.882 | 35.6 | 35.5 / 36.3 | 34.6 | 43.1 | 39.2 |
+
+Areal-weighting baseline: 79.2 / 82.7 / 74.5 %. Tracts in gap counties: ~90 % (1960) and ~72 % (2010) for every model.
+
+- **County level the four are a tie** (CV RMSE within 0.01-0.02, TEST R2 within 0.01). **On tracts RF is best or tied
+  in every year**; the boosting models lose most in 2010 and in sparse tracts (1920 density < 50: RF 141 %, CatBoost
+  364 %).
+- 2010: lower county CV RMSE goes with *higher* tract error (CatBoost 0.612 -> 35.6 %, LGBM 0.618 -> 28.1 %, XGB 0.625
+  -> 27.2 %, RF 0.626 -> 26.6 %, RF 20 0.630 -> 25.2 %). Likely reason (not tested): the model is fit on county means
+  and applied to cells, whose feature values are far more extreme; finer county-level fits (boosting, deeper RF)
+  transfer worse to cells (change of support). RF averages bounded leaf means and extrapolates least.
+- 1920 tracts cover 10 counties only (New York City boroughs, Chicago, Detroit, Pittsburgh, Cleveland, Milwaukee, ...;
+  4 more with 1 tract), so 1920 compares big cities; the test part is a few counties.
+- Ranges: chosen values mostly inside the ranges; near an edge: learning rate near the lower bound 0.01 (XGB 2010
+  0.011), XGB 2010 `reg_lambda` 7.1 (upper 10), RF `min_samples_leaf` 1 (lower bound) and `max_depth` none / 30.
+  `tract r2_log` (log1p of tract counts) is negative for all and not informative (tracts have similar populations);
+  MdAPE and density classes are used.
+- **Decision: RF** (see `docs/open_items.md`). Hyperparameters stay those chosen by county CV with 60 candidates
+  (`RF_v3_n60`); the 20-candidate run is better on 2010 tracts but choosing it for that would tune on tracts.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
