@@ -10,11 +10,11 @@ Last updated: 2026-10-28 (CONUS NTL test, Dasy_CONUS_RF_v3_ntl, written as code)
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
-- **Status (2026-10-28):** NTL test written as code, not run yet (`bash sbatch/submit_conus.sh ntl`,
-  `docs/runbooks/Running_CONUS.md` section 6, `docs/conus_plan.md` "NTL test"): NTL 2000 / 2010 into the CONUS
-  cutout, NTL QA, `Dasy_CONUS_RF_v3_ntl` (v3_all + ntl) features / train / predict / validate, `ntl_comparison.csv`,
-  county maps v3_all vs v3_ntl. Open: whether ntl stays in 2000 / 2010 (and goes into 2020), decided with the user
-  from the tract metrics.
+- **Status (2026-10-28):** NTL test ran (jobs 34956826-34956833; `ntl_qa` FAILED only on the known DN >= 60 box rule,
+  everything else COMPLETED). ntl ranks first (permutation and SHAP) and lifts county CV R2 from 0.86 to 0.96, but tract
+  MdAPE gets worse (2000: 27.2 -> 32.8 %, 2010: 26.6 -> 31.0 %), and people move onto cells without buildings (2010
+  share on BUI = 0: Chelan 15 -> 41 %, Reno 7 -> 21 %, Fremont 5 -> 36 %). Same pattern as the PLURAL distances.
+  Proposed: leave ntl out (also of 2020); to confirm with the user. Details: `docs/conus_plan.md` "NTL test result".
 
 - **Status (2026-10-27, later):** v3 / v4 ran (jobs 34921582-34921594): v3 = CONUS base, distances dropped, BUI
   treatment decided (`docs/conus_plan.md`, "Version comparison v1-v4", "BUI outliers"). County maps failed on a CRS
@@ -371,6 +371,7 @@ Last updated: 2026-10-28 (CONUS NTL test, Dasy_CONUS_RF_v3_ntl, written as code)
 | 2026-10-27 | CONUS v3 (+ elev, slope) best on tracts (2010 MdAPE 29.2 vs 29.8 %, every density class) and becomes the CONUS base; v4 (+ distances + terrain) ~ v2: distances dropped. BUI unit = sq ft (README); cells > 3e7 sq ft are record errors (10 / 119 / 298 cells in 1920 / 1960 / 2010), treatment to decide. |
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
 | 2026-10-27 | Hyperparameters: county CV only (tracts never in the search). Model family chosen before the all-years run: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, picked by tract validation + county TEST R2. Gap counties (BUI per person < 5 % of the median): 533 / 479 / 416 in 1920 / 1960 / 2010; kept, flagged, validation reported with and without. |
+| 2026-10-28 | NTL test result: county CV R2 0.86 -> 0.96 with ntl (rank 1), tract MdAPE worse in 2000 (27.2 -> 32.8 %) and 2010 (26.6 -> 31.0 %); better only in tracts < 50 / km2 (29.4 -> 27.4, 30.7 -> 27.7 %). Glow puts people on empty cells (Fremont 5 -> 36 % on BUI = 0). Proposed: ntl out. |
 | 2026-10-28 | NTL test in CONUS: MA dropped `ntl` on 14 counties only (v3.2: tract error unchanged). Features stay era-specific (pre-1940 no Land_Use; 2000+ may add NTL, available from 1992), so `Dasy_CONUS_RF_v3_ntl` = v3_all features + ntl for 2000 / 2010, compared with v3_all on tracts (`docs/handoff/conus_ntl_request.md`). |
 | 2026-10-28 | NTL test implementation: the MA NTL layer definition in `conus_study_area.yaml` (2000 / 2010), cut with `--layers NTL`; NTL nodata inside a used county stops the features (no silent 0); NTL QA runs on CONUS but nothing waits for it (the DN >= 60 rule may fail as in MA); comparison `compare_models.py --years 2000 2010 --rank-features ntl` -> `results/validation/conus/ntl_comparison.csv`; county maps in their own folder `county_maps_ntl/`. |
 | 2026-10-28 | CONUS RF v3 all census years 1900-2010 ran (jobs 34939345-34939353): 12 models, 1920/1960/2010 identical to RF_v3_n60, mass check passes. Tract MdAPE 53 % (1910) -> 27 % (2010) vs 74-87 % areal weighting; early years cover a few big cities only. Next: 2020 county input. |

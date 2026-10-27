@@ -409,6 +409,28 @@ enter 2000 / 2010 (2020 with the 2020 step). Request: `docs/handoff/conus_ntl_re
 | County maps | 2010, Chelan WA / Reno KS / Fremont CO / Macoupin IL, v3_all vs v3_ntl -> `results/validation/conus/county_maps_ntl/` (own folder: the model family maps stay); `county_maps.csv` has the share of people on BUI = 0 cells |
 | Decision rule | not fixed in advance; read with the user: tract MdAPE (all, test, no_gap, density classes) first, county TEST R2 second, as for the model family |
 
+## NTL test result (jobs 34956826-34956833, run 2026-10-28)
+
+All jobs COMPLETED except `ntl_qa` (fails only on the DN >= 60 box rule, on hold since 2026-10-06). NTL in study
+counties: no nodata; Spearman ntl ~ bui 0.40 (2010); glow (BUI = 0, DN >= 30) on 9.9 % of cells within 5 km of the
+coast / border vs 2.8 % inland. Same hyperparameters as v3_all in both years. `results/validation/conus/ntl_comparison.csv`.
+
+| Year | Version | CV R2 | TEST R2 | Tract MdAPE all | test part | < 50 | 50-500 | 500-2000 | 2000+ |
+|---|---|---|---|---|---|---|---|---|---|
+| 2000 | v3_all | 0.863 | 0.875 | **27.2** | 27.4 | 29.4 | 27.4 | 23.1 | 31.2 |
+| 2000 | v3_ntl | 0.963 | 0.955 | 32.8 | 32.4 | 27.4 | 38.0 | 27.5 | 39.6 |
+| 2010 | v3_all | 0.866 | 0.878 | **26.6** | 27.4 | 30.7 | 25.4 | 22.5 | 31.7 |
+| 2010 | v3_ntl | 0.958 | 0.952 | 31.0 | 31.1 | 27.7 | 33.6 | 26.1 | 38.2 |
+
+Share of the county population on BUI = 0 cells (2010, `county_maps_ntl/`): Chelan 15 -> 41 %, Reno 7 -> 21 %,
+Fremont 5 -> 36 %, Macoupin 96 -> 99 %.
+
+- ntl is the top feature (permutation and SHAP rank 1) and explains county density very well (CV R2 +0.10), but
+  allocation inside counties gets worse except in the sparsest tracts: the same pattern as the PLURAL distances (v2).
+- Likely reason: the lights are ~1 km and bloom over unbuilt land around towns, so within a county the weight spreads
+  onto empty cells; between counties total brightness tracks total population, hence the county gain.
+- Proposed: leave ntl out (2000, 2010 and 2020); to confirm with the user.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
