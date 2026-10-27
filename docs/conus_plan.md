@@ -358,6 +358,37 @@ Areal-weighting baseline: 79.2 / 82.7 / 74.5 %. Tracts in gap counties: ~90 % (1
 - **Decision: RF** (see `docs/open_items.md`). Hyperparameters stay those chosen by county CV with 60 candidates
   (`RF_v3_n60`); the 20-candidate run is better on 2010 tracts but choosing it for that would tune on tracts.
 
+## All census years result (jobs 34939345-34939353, run 2026-10-27)
+
+`Dasy_CONUS_RF_v3_all`: RF, v3 features, 60 candidates, one model per year (12 models), same split and folds. All 9
+jobs COMPLETED; wall time ~3.6 h (train 1:37, predict 0:47, features 0:16, water 0:14, validate 0:12, cutout 0:10).
+1920 / 1960 / 2010 reproduce `RF_v3_n60` exactly (same hyperparameters, CV RMSE, tract MdAPE); mass check: 0
+county-years fail. Table `results/validation/conus/Dasy_CONUS_RF_v3_all/summary_by_year.csv`, figure `mdape_by_year.png`.
+
+| Year | Train counties | CV R2 | TEST R2 | Tract counties | Tracts | MdAPE all | test part | no gap | areal weighting |
+|---|---|---|---|---|---|---|---|---|---|
+| 1900 | 2,238 | 0.815 | 0.845 | 0 | - | - | - | - | - |
+| 1910 | 2,344 | 0.812 | 0.822 | 10 | 1,897 | 53.2 | 72.1 | 53.2 | 82.9 |
+| 1920 | 2,443 | 0.823 | 0.834 | 8 | 2,197 | 53.3 | 65.4 | 53.3 | 79.2 |
+| 1930 | 2,471 | 0.815 | 0.839 | 24 | 6,362 | 49.7 | 50.5 | 49.7 | 81.5 |
+| 1940 | 2,471 | 0.827 | 0.858 | 74 | 7,350 | 42.6 | 39.8 | 42.6 | 86.9 |
+| 1950 | 2,474 | 0.832 | 0.856 | 114 | 12,300 | 41.8 | 37.4 | 41.5 | 83.1 |
+| 1960 | 2,477 | 0.843 | 0.861 | 295 | 22,042 | 37.9 | 34.6 | 37.1 | 82.7 |
+| 1970 | 2,483 | 0.853 | 0.863 | 607 | 33,298 | 34.0 | 32.9 | 33.2 | 81.3 |
+| 1980 | 2,484 | 0.857 | 0.861 | 1,772 | 44,586 | 32.3 | 31.4 | 31.2 | 79.9 |
+| 1990 | 2,486 | 0.860 | 0.876 | 3,016 | 57,338 | 28.5 | 28.3 | 27.3 | 76.9 |
+| 2000 | 2,486 | 0.863 | 0.875 | 3,007 | 62,380 | 27.2 | 27.4 | 26.1 | 75.9 |
+| 2010 | 2,487 | 0.866 | 0.878 | 3,109 | 72,243 | 26.6 | 27.4 | 25.6 | 74.5 |
+
+- Every year beats areal weighting by 30-50 points. Tract error falls over time, but the tract set changes (big
+  cities only before 1940, nationwide from 1990), so years are not directly comparable; 1910-1930 are a few big
+  cities and their test part is a handful of counties.
+- No tracts in gap counties before 1950; from 1950 the gap-county tracts stay near or above areal weighting (72-90 %).
+- Density class < 50 people/km2 is not meaningful before ~1980: it is mostly tiny tracts (median 3-9 cells) with
+  population 0 or near 0 (1910: 22 tracts, MdAPE 9,228 %).
+- Hyperparameters repeat across years (same 60 candidates every year, random_state 42): `max_features` 0.5 / 0.75,
+  `min_samples_leaf` 1-2, depth 20 / 30 / none.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
@@ -444,4 +475,4 @@ Made while implementing; each is the simplest option consistent with the decisio
    validation + county TEST R2 (`docs/handoff/conus_models_request.md`). Code 2026-10-27 ("Model family";
    `bash sbatch/submit_conus.sh models`).
 7. Then the remaining years (1900-2010) with the chosen model and v3 features, then 2020. Code 2026-10-27 ("All
-   census years"; `bash sbatch/submit_conus.sh all`).
+   census years"; `bash sbatch/submit_conus.sh all`). Done 2026-10-27 ("All census years result"). Next: 2020.
