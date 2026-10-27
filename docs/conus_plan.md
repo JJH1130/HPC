@@ -456,6 +456,30 @@ NPP-VIIRS-like NTL (`docs/data_sources.md`).
 | County maps | 2010, Chelan WA, Reno KS, Fremont CO, Macoupin IL (BUI gap), DuPage IL (BUI gap, G1700430); v3_all / v3_ntl / v3_ntlv -> `results/validation/conus/county_maps_ntlv/` (own folder) with the share of people on BUI = 0 cells |
 | Decision rule | not fixed in advance: gap vs no_gap tract MdAPE first (does ntlv keep the gap gain and lose less elsewhere?), density classes, county TEST R2 second |
 
+## VIIRS-like NTL test result (jobs 34961482-34961489, run 2026-10-28)
+
+`Dasy_CONUS_RF_v3_ntlv` = v3_all + `ntlv` (VIIRS-like NTL, Chen et al. 2021, 16 arc-sec, sea -> 0), 2000 / 2010. All
+jobs COMPLETED except `ntl_qa` (DMSP box rule). Far less glow than DMSP: lit share of BUI = 0 cells within 5 km of the
+coast / border 0.11-0.12 vs 0.58-0.59 (DMSP); 96-97 % of window cells are 0. Table `ntl_viirs_comparison.csv`.
+
+| Year | Version | Tract MdAPE all | gap counties | other counties | < 50 | 50-500 | 500-2000 | 2000+ |
+|---|---|---|---|---|---|---|---|---|
+| 2000 | v3_all | **27.2** | 75.7 | **26.1** | 29.4 | **27.4** | **23.1** | **31.2** |
+| 2000 | + DMSP ntl | 32.8 | **39.0** | 32.5 | **27.4** | 38.0 | 27.5 | 39.6 |
+| 2000 | + VIIRS-like ntlv | 35.0 | 40.4 | 34.8 | 33.9 | 42.9 | 30.2 | 37.0 |
+| 2010 | v3_all | **26.6** | 72.0 | **25.6** | 30.7 | **25.4** | **22.5** | **31.7** |
+| 2010 | + DMSP ntl | 31.0 | **35.1** | 30.8 | **27.7** | 33.6 | 26.1 | 38.2 |
+| 2010 | + VIIRS-like ntlv | 36.2 | 38.6 | 36.0 | 35.3 | 44.1 | 31.6 | 37.8 |
+
+Share on BUI = 0 cells (2010): Chelan 15 / 41 / 29 %, Reno 7 / 21 / 16 %, Fremont 5 / 36 / 37 % (v3 / DMSP / VIIRS-like).
+
+- Less glow did not help: VIIRS-like is worse than DMSP outside gap counties and slightly worse inside them. So the
+  loss is not (only) blooming: night light is the top feature for county density (rank 1), and inside a county its
+  coarse, peaked pattern (lit cores, zero elsewhere) concentrates people in lit cells and empty land near them.
+- Night light helps only where HISDAC records are missing (gap counties 72 -> 35-39 %).
+- Next idea (not decided): use night light only in BUI gap counties (v3 elsewhere); the gap rule comes from county data
+  (BUI per person), not from tracts.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
