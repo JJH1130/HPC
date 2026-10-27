@@ -1,0 +1,51 @@
+# External gridded population products compared with CONUS v5.4 (= Dasy_CONUS_RF_v3_all) on the same census tracts
+# (docs/conus_plan.md "External comparison"; request docs/handoff/external_grids_request.md; data registered in
+# docs/data_sources.md). Read by src/validation/external_compare.py; files downloaded by sbatch/external_download.sh.
+#
+# path: relative to --data-root ($DATA_ROOT/raw/external); {YEAR} = 4-digit year, {YY} = last 2 digits; a glob
+#   (`*`, `**`) must match exactly one file or Esri GRID folder (matched without case if the exact glob finds none);
+#   `exclude` drops matches whose name matches the regex.
+# years: census years with US tracts (1910-2010) the product has.
+# input_unit: the census unit the product used as input in the US, from the cited documents ("unverified" where the
+#   official documents could not be read; finer than tracts = an advantage on a tract validation).
+reference: Dasy_CONUS_RF_v3_all
+reference_label: "v5.4 (Dasy_CONUS_RF_v3_all)"
+
+products:
+  ghs_pop:
+    label: GHS-POP R2023A (100 m)
+    path: ghs_pop/GHS_POP_E{YEAR}_GLOBE_R2023A_54009_100_V1_0.tif
+    years: [1980, 1990, 2000, 2010]
+    input_unit: "GPWv4.11 census units (US: unverified, see gpw4); 1980 / 1990 = GPWv4.11 counts extrapolated back, not that year's census"
+    input_unit_source: "https://data.europa.eu/89h/2ff68a52-5b5b-4a22-8f40-c41da8332cfe"
+  worldpop:
+    label: WorldPop (100 m, unconstrained)
+    path: worldpop/usa_ppp_{YEAR}.tif
+    years: [2000, 2010]
+    input_unit: "subnational census-based counts (CIESIN / GPWv4 units); US level unverified"
+    input_unit_source: "https://hub.worldpop.org/geodata/summary?id=4055"
+  gpw4:
+    label: GPW v4.11 (30 arc-sec)
+    path: gpw4/{YEAR}/*population_count*{YEAR}_30_sec.tif
+    years: [2000, 2010]
+    input_unit: "unverified (2010-round census units; the USA row of the GPWv4.11 country summary is printed by the inventory)"
+    input_unit_source: "https://data.earthdata.nasa.gov/nasa-earth/human-dimensions/sedac-root/downloads/docs-repo/gpw-v4-rev11-country-level-summary-general-documentation.xlsx"
+  grump1:
+    label: GRUMP v1 (30 arc-sec)
+    path: grump1/{YEAR}/**/*.bil
+    exclude: "ag\\.bil$"   # glup<yy>ag = UN-adjusted, if the zip holds both
+    years: [1990, 2000]
+    input_unit: "unverified (GPWv3 census units)"
+    input_unit_source: "https://data.earthdata.nasa.gov/nasa-earth/human-dimensions/sedac-root/downloads/docs-repo/gpw-v3-documentation.pdf"
+  fj_m3:
+    label: Fang & Jawitz 2018 M3 (1 km)
+    path: fang_jawitz/grids/**/pop_m3_{YEAR}
+    years: [1910, 1920, 1930, 1940, 1950, 1970, 1980, 1990, 2000, 2010]
+    input_unit: "county (NHGIS); 2000 tracts used for the low-population mask and calibration"
+    input_unit_source: "https://doi.org/10.1038/sdata.2018.67"
+  fj_m5:
+    label: Fang & Jawitz 2018 M5 (1 km)
+    path: fang_jawitz/grids/**/pop_m5_{YEAR}
+    years: [1910, 1920, 1930, 1940, 1950, 1970, 1980, 1990, 2000, 2010]
+    input_unit: "county (NHGIS); 2000 tracts used for the low-population mask and calibration"
+    input_unit_source: "https://doi.org/10.1038/sdata.2018.67"

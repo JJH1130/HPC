@@ -1,7 +1,8 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all, v3_ntl, v3_ntlv)
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all, v3_ntl, v3_ntlv) and the external comparison
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
-layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), split table
+layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), `configs/external_grids.yaml`
+(external products, section 8), split table
 `configs/conus_split.csv` (made once, 2026-10-23; never regenerate it). The Massachusetts configs
 (`configs/study_area.yaml`, `configs/model.yaml`) and runbooks are unchanged.
 
@@ -17,6 +18,8 @@ failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 
 (model family). Section 4 ran 2026-10-27 (jobs 34932548-34932563; RF chosen). Next: section 5
 (all census years 1900-2010). Section 5 ran 2026-10-27 (jobs 34939345-34939353). Next: section 6 (night lights
 test, 2000 / 2010). Section 6 ran 2026-10-28 (jobs 34956826-34956833). Next: section 7 (VIIRS-like night lights).
+Section 7 ran 2026-10-28 (jobs 34961482-34961489). Next: section 8 (external products on the same tracts; written
+2026-10-28, not run yet).
 
 ## Inputs / outputs
 
@@ -34,8 +37,9 @@ test, 2000 / 2010). Section 6 ran 2026-10-28 (jobs 34956826-34956833). Next: sec
 | DEM (v3, v4) | `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd` -> cutout `layers/DEM/DEM.tif` |
 | NTL (v3_ntl) | `/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif` -> cutout `layers/NTL/{YEAR}_NTL.tif` (2000, 2010) |
 | NTLV (v3_ntlv) | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/{YEAR}/*.tif` (`sbatch/ntlv_download.sh`) -> cutout `layers/NTLV/{YEAR}_NTLV.tif` (2000, 2010) |
-| results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/` |
-| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt`, `logs/conus_all_jobs.txt`, `logs/conus_ntl_jobs.txt`, `logs/conus_ntlv_jobs.txt` |
+| external products (section 8) | `/projects/jaju1407/data/raw/external/{ghs_pop,worldpop,gpw4,grump1,fang_jawitz,docs}/` (`sbatch/external_download.sh`) -> tract sums `/scratch/alpine/jaju1407/hisdac/external/conus/sums/` |
+| results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/`, `results/validation/conus/external/` |
+| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt`, `logs/conus_all_jobs.txt`, `logs/conus_ntl_jobs.txt`, `logs/conus_ntlv_jobs.txt`, `logs/conus_external_jobs.txt` |
 
 ## 0. Trial: measure time and memory (1960, v1)
 
@@ -755,6 +759,135 @@ Good: `sacct` shows `COMPLETED` for 7 jobs (`ntl_qa` may be `FAILED` on the DMSP
 are copied anyway), `git push` ends with `main -> main`, the last commit is the `run: CONUS RF v3 + VIIRS-like ...`
 one, then `== end of block 3`.
 
+## 8. External gridded population products vs v5.4 on the same tracts (2026-10-28)
+
+How good is v5.4 (= `Dasy_CONUS_RF_v3_all`) next to published population grids, on the same tracts with the same
+metrics (`docs/conus_plan.md`, "External comparison"; request `docs/handoff/external_grids_request.md`)? Products and
+years: `configs/external_grids.yaml`; sources, licenses and each product's US input unit: `docs/data_sources.md`. The
+products are summed per tract in their own CRS (exactextract, no reprojection or resampling of the rasters); v5.4 and
+areal weighting are taken from `tract_errors_{YEAR}.csv` on the same tracts. Env change: `exactextract`, `py7zr`,
+`openpyxl` (block 1a).
+
+| Step | Where | What | Estimate |
+|---|---|---|---|
+| env update | `sinteractive` (acompile) | three packages added to `envs/hisdac/environment.yml` | 5-15 min |
+| `.netrc` (once, optional) | login node | NASA Earthdata login for GPW v4.11 and GRUMP v1; without it both are skipped | 1 min |
+| `external_download.sh` | login node, not a job | GHS-POP 4 x 4.2-5.1 GB, WorldPop 2 x 4.0 GB (size checked), Fang & Jawitz 602 MB (md5) + unpack, GPW 2 x 405 MB + GRUMP 2 x ~280 MB (zip checked) + GPW / GRUMP documents -> `$DATA_ROOT/raw/external/` (~27 GB) | 20-90 min (network) |
+| inventory | login node | per product and year: the file found, CRS, cell size, nodata, bounds; USA rows of the GPWv4 country summary -> `results/validation/conus/external/external_inventory.csv` | seconds |
+| `extract` x product | jobs, no dependency | tract sums per year -> `$HISDAC_SCRATCH/external/conus/sums/<product>_<year>.csv` | GHS-POP / WorldPop: unknown (100 m, 46-72k tracts per year; 16 cores, 6 h / 4 h wall); 1 km products: minutes |
+| `evaluate` | after all extract jobs (`afterany`) | `external_comparison.csv` (product x year x method) + `external_mdape_by_year.png`; a product without sums is a `missing` row | minutes |
+
+Block 1a, env update (login node, then the compile node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+sinteractive --partition=acompile --qos=compile --ntasks=4 --time=01:00:00
+```
+
+Then, inside `sinteractive` (the prompt shows a compute node):
+
+```bash
+export USER=jaju1407
+export TMPDIR=/scratch/alpine/jaju1407/tmp
+mkdir -p "$TMPDIR"
+eval "$(/projects/jaju1407/software/miniforge3/bin/conda shell.bash hook)"
+cd /projects/jaju1407/HPC/envs/hisdac
+conda env update -f environment.yml -p /projects/jaju1407/software/envs/hisdac --prune
+conda activate /projects/jaju1407/software/envs/hisdac
+python -c "import exactextract, py7zr, openpyxl, rasterio, geopandas; print('ENV UPDATED | exactextract', exactextract.__version__, '| py7zr', py7zr.__version__, '| openpyxl', openpyxl.__version__)"
+cd /projects/jaju1407/HPC
+echo "== end of block 1a"
+exit
+```
+
+Good: one line `ENV UPDATED | exactextract 0.x | py7zr 1.x | openpyxl 3.x`, `== end of block 1a`, and `exit` returns
+to the login node. A traceback: stop and send it to Claude.
+
+Earthdata login (once, optional; login node). An account from https://urs.earthdata.nasa.gov/users/new. This asks for
+the user name and password (the password is not shown and does not go into the shell history), so paste it alone:
+
+```bash
+read -p "Earthdata user name: " EDU; read -s -p "Earthdata password: " EDP; echo
+printf 'machine urs.earthdata.nasa.gov login %s password %s\n' "$EDU" "$EDP" >> ~/.netrc; chmod 600 ~/.netrc; unset EDP
+grep -c urs.earthdata.nasa.gov ~/.netrc
+```
+
+Good: the last line prints `1`. Without an account skip this: GPW v4.11 and GRUMP v1 are then left out and everything
+else runs.
+
+Block 1b, download + check (login node; the download takes a while, keep the terminal open; a broken run resumes when
+the block is pasted again):
+
+```bash
+cd /projects/jaju1407/HPC
+git log --oneline -1
+mkdir -p logs
+f=logs/external_download.$(date +%Y%m%d_%H%M).log
+bash sbatch/external_download.sh 2>&1 | tee "$f"; echo "download exit code ${PIPESTATUS[0]}"
+bash sbatch/external_compare.sh inventory 2>&1 | tail -n 45
+echo "== end of block 1"
+```
+
+Good: `download exit code 0`; in the summary `ghs_pop: ok`, `worldpop: ok`, `fang_jawitz: ok`, and `gpw4: ok` /
+`grump1: ok` (or `skipped` without `.netrc`); the Fang & Jawitz listing shows `pop_m3_*` and `pop_m5_*` folders; the
+inventory ends with `products with all files: ghs_pop worldpop gpw4 grump1 fj_m3 fj_m5` (fewer without `.netrc`),
+`wrote .../external_inventory.csv`, `DONE`, then `== end of block 1`. Exit code 1 or `ERROR:` lines: the summary says
+which product; the others are fine and block 2 can still run (it submits only products with all files), but send the
+log `logs/external_download.*.log` to Claude with the block 3 commit. If the GPWv4 country summary was downloaded, the
+inventory also prints its USA rows (the US input unit): keep them in the log.
+
+Block 2, preflight + submit (login node; nothing is submitted if an input or a package is missing):
+
+```bash
+cd /projects/jaju1407/HPC
+source sbatch/cluster_env.sh
+ls $DATA_ROOT/processed/tract/tracts_{1910,1920,1930,1940,1950,1970,1980,1990,2000,2010}.gpkg | wc -l
+ls results/validation/conus/Dasy_CONUS_RF_v3_all/tract_errors_{1910,1920,1930,1940,1950,1970,1980,1990,2000,2010}.csv | wc -l
+df -h $HISDAC_SCRATCH | tail -1
+bash sbatch/submit_conus.sh external
+squeue -u $USER
+echo "== end of block 2"
+```
+
+Good: `10` and `10`, then one line `extract_ghs_pop N | extract_worldpop N | ... | evaluate N` (also in
+`logs/conus_external_jobs.txt`), `== not downloaded (skipped): ` (empty, or `gpw4 grump1` without `.netrc`), the jobs in
+`squeue`, then `== end of block 2`. `MISSING ...` + `ERROR: nothing submitted`: send it to Claude. If `== end of block
+2` is missing, the paste was cut: run `cat logs/conus_external_jobs.txt; squeue -u $USER` before pasting again (never
+submit twice). The jobs need no attention: a failed extract job only turns that product into `missing` rows.
+
+Block 3, close the loop (later, after the last job left `squeue`; evaluate starts after all extract jobs end):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_external_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_external_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_external_seff.txt
+cat logs/conus_external_sacct.txt
+ls -l results/validation/conus/external/
+git add logs/ results/validation/conus/external
+git commit -m "run: external gridded population products vs v5.4 on tracts (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: `squeue` shows no `external_*` job; `sacct` lists every job of `conus_external_jobs.txt` with `COMPLETED` (an
+extract job `FAILED` / `TIMEOUT` is allowed: its product is `missing` in the table; `evaluate` must be `COMPLETED`);
+`external_comparison.csv`, `external_mdape_by_year.png` and `external_inventory.csv` listed; `git push` ends with
+`main -> main`; the last commit is the `run: external ...` one; then `== end of block 3`. If jobs are still in
+`squeue`, wait and paste the block again later.
+
+What to look for in the logs (Claude reads them after the pull):
+- `extract`: per year the raster header, `N tracts: ... fully inside the raster, ... with nodata pixels ...`, the
+  product's population in the tracts vs the census, `DONE`
+- `evaluate`: per product and year `kept / left out` (outside the raster, nodata pixels: e.g. coastal tracts that reach
+  over the sea), the MdAPE table (product, v5.4 and areal weighting on the same tracts), the MAPE / p90 / gap / density
+  table, `missing (skipped): ...` for products without sums, `DONE`
+
 ## If it fails
 
 | Symptom | Fix |
@@ -788,6 +921,13 @@ one, then `== end of block 3`.
 | ntlv: `ntlv_check` `ERROR: VIIRS-like check failed` | CRS, coverage or negative values: do not submit block 1; send the check log |
 | ntlv: features `nodata cells inside the used counties` (`.../NTLV/..._NTLV.tif`) | nodata left after `nodata_to` (should not happen): send the features and cutout logs |
 | ntlv: `ntl_qa` `FAILED` with `NTL 2010: no cell with DN >= 60` only | the known DMSP rule; nothing waits for it. Any `NTLV ...` line in the error (negative values): send the log |
+| external: `ModuleNotFoundError: exactextract` / `py7zr` / `openpyxl`, or `MISSING exactextract ...` | block 1a (env update) was not run or failed |
+| external: `gpw4` / `grump1` `ERROR: ... download failed (Earthdata login ...)` or `not a valid zip (a login page?)` | `.netrc` missing or wrong, or the Earthdata account has not authorized the data app yet: log in once at https://urs.earthdata.nasa.gov, open one GPW file link in the browser and accept; then block 1b again (only the missing files are fetched). Or leave them out: the rest runs without them |
+| external: `curl: (6)` / `(7)` / `(28)` for GHS-POP or WorldPop | no route from the login node: send the log; the files can come from the laptop through `dtn.rc.colorado.edu` (as section 7) into `/projects/jaju1407/data/raw/external/<product>/` with the same names (the script then only checks sizes) |
+| external: `WARNING: ... size changed since 2026-10-28` | the file was replaced at the source: the new size is used; send the log (record it in `docs/data_sources.md`) |
+| external: inventory `MISSING: N matches for ...` | the zip / archive holds more files than the config path expects: send the inventory log (fix in `configs/external_grids.yaml`) |
+| external: an extract job `CANCELLED ... DUE TO TIME LIMIT` / `OUT_OF_MEMORY` | that product is `missing` in the table; send `seff` + log. Rerun it alone, then evaluate again: `sbatch --ntasks=16 --time=10:00:00 --job-name=external_ghs_pop sbatch/external_compare.sh extract --product ghs_pop`, then `sbatch --ntasks=2 --time=00:30:00 --job-name=external_evaluate sbatch/external_compare.sh evaluate` |
+| external: evaluate `ERROR: .../tract_errors_<YEAR>.csv not found` | the v5.4 tract validation files are missing on the cluster: `git pull` |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

@@ -28,6 +28,10 @@
 #                                       # (--layers NTLV) -> NTL QA of NTL and NTLV side by side (nothing waits for
 #                                       # it) and features / train / predict / validate -> comparison v3_all / v3_ntl /
 #                                       # v3_ntlv (ntl_viirs_comparison.csv) + county maps of the three (2010)
+#   bash sbatch/submit_conus.sh external  # external gridded products vs v5.4 (= v3_all) on the same tracts, after
+#                                       # sbatch/external_download.sh: one extract job per product with all its files
+#                                       # (tract sums, exactextract) -> evaluate after all of them (afterany: a failed
+#                                       # product is skipped) -> results/validation/conus/external/
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -52,7 +56,7 @@
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui || $mode == models || $mode == all || $mode == ntl || $mode == ntlv ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv"; exit 1; }
+[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui || $mode == models || $mode == all || $mode == ntl || $mode == ntlv || $mode == external ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -278,6 +282,37 @@ elif [[ $mode == ntlv ]]; then
          --out-dir results/validation/conus/county_maps_ntlv)
     echo "ntlv_cutout $jn | ntl_qa $jq | features $jf | train $jt | predict $jp | validate $jv | compare $jc | county_maps $jm" \
         | tee logs/conus_ntlv_jobs.txt
+elif [[ $mode == external ]]; then
+    REF=Dasy_CONUS_RF_v3_all
+    TR=$DATA_ROOT/processed/tract
+    miss=()
+    for y in 1910 1920 1930 1940 1950 1970 1980 1990 2000 2010; do  # the years of configs/external_grids.yaml
+        for f in $TR/tracts_$y.gpkg results/validation/conus/$REF/tract_errors_$y.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    activate_env hisdac
+    python -c "import exactextract, py7zr, openpyxl" 2>/dev/null \
+        || miss+=("exactextract / py7zr / openpyxl in the hisdac env (env update: Running_CONUS.md section 8, block 1a)")
+    avail=$(python src/validation/external_compare.py inventory --available --data-root "$DATA_ROOT/raw/external")
+    [[ -n $avail ]] || miss+=("any product with all its files under $DATA_ROOT/raw/external (run sbatch/external_download.sh)")
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    # cores / wall time per product (estimate: exactextract on 46-72k tracts per year; 100 m products have ~70 x
+    # the pixels of the 1 km ones): GHS-POP 4 years, WorldPop 2 years at 100 m / 3 arc-sec
+    declare -A RES=([ghs_pop]="16 06:00:00" [worldpop]="16 04:00:00" [gpw4]="4 01:00:00" [grump1]="4 01:00:00"
+                    [fj_m3]="4 01:30:00" [fj_m5]="4 01:30:00")
+    ids=() line=""
+    for p in $avail; do
+        read -r n t <<< "${RES[$p]:-4 02:00:00}"
+        j=$(sub "" --ntasks=$n --time=$t --job-name=external_$p sbatch/external_compare.sh extract --product $p)
+        ids+=("$j")
+        line+="extract_$p $j | "
+    done
+    # evaluate after all extract jobs, however they ended: a failed product is a `missing` row, not a stop
+    je=$(sbatch --parsable --dependency=afterany:$(IFS=:; echo "${ids[*]}") --ntasks=2 --time=00:30:00 \
+         --job-name=external_evaluate sbatch/external_compare.sh evaluate)
+    echo "${line}evaluate $je" | tee logs/conus_external_jobs.txt
+    echo "== not downloaded (skipped): $(for p in ghs_pop worldpop gpw4 grump1 fj_m3 fj_m5; do [[ " $avail " == *" $p "* ]] || printf '%s ' $p; done)"
 else
     jc=$(sub "" sbatch/census_conus.sh --years 1920 1960 2010)
     jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-00:30:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh)

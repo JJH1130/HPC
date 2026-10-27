@@ -3,7 +3,7 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-28 (VIIRS-like NTL test code: Dasy_CONUS_RF_v3_ntlv, 2000 / 2010)
+Last updated: 2026-10-28 (external comparison code: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz vs v5.4 on tracts); 2026-10-28 (VIIRS-like NTL test code)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
 `configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
@@ -483,6 +483,33 @@ Share on BUI = 0 cells (2010): Chelan 15 / 41 / 29 %, Reno 7 / 21 / 16 %, Fremon
   counties 94.1 / 49.3 / 55.0 %, others 51.8 / 81.4 / 88.8 %. Night light raises the mean much more than the median
   (a few tracts get very large overestimates), while the 90th percentile APE drops a little with DMSP (83.1 -> 77.2 %).
 
+## External comparison (request 2026-10-28; run steps `docs/runbooks/Running_CONUS.md`, section 8)
+
+Where does v5.4 (= `Dasy_CONUS_RF_v3_all`: RF, v3 features, 60 candidates) stand next to published population grids,
+on the same tracts and with the same metrics? Request: `docs/handoff/external_grids_request.md`. Version names: CONUS =
+v5 series (`docs/open_items.md`, 2026-10-28). Products, years and paths: `configs/external_grids.yaml`; sources,
+licenses, US input units: `docs/data_sources.md` ("External gridded population products").
+
+| Product | Years (with US tracts) | Grid / CRS | US input unit (Details in data_sources.md) |
+|---|---|---|---|
+| GHS-POP R2023A | 1980, 1990, 2000, 2010 | 100 m, Mollweide | GPWv4.11 units (US level unverified); 1980 / 1990 extrapolated, not that year's census |
+| WorldPop USA, unconstrained | 2000, 2010 | 3 arc-sec, WGS84 | unverified (CIESIN / GPWv4 units) |
+| GPW v4.11 count | 2000, 2010 | 30 arc-sec, WGS84 | unverified (2010-round units; printed by the inventory once the country summary is downloaded) |
+| GRUMP v1 count | 1990, 2000 | 30 arc-sec, WGS84 | unverified (GPWv3 units) |
+| Fang & Jawitz 2018, M3 and M5 | 1910-2010 without 1960 | 1 km, ESRI:102003 | **county** (as ours); M3-M5 also use 2000 tracts (low-population mask, calibration) |
+
+| Topic | Decision |
+|---|---|
+| Aggregation | each product's pixel population is summed per tract **in the product's own CRS**: the tract polygons are reprojected (vector only), the raster is not reprojected or resampled. exactextract: each pixel x the share of its area inside the tract (partial pixels exact; tested against a brute-force polygon intersection). Our own numbers are not recomputed this way: v5.4 and areal weighting come from `tract_errors_{YEAR}.csv` (250 m cells by cell centre, as in every tract validation so far) |
+| Tracts | the tracts evaluated for v5.4 that year (`flag == ok` in its `tract_errors_{YEAR}.csv`: same tract files, same filter), of those only the tracts the product covers completely without nodata: tract inside the raster (pixel coverage = tract area), no nodata pixel touched (`--max-nodata-share 0`, as requested), no negative pixel. Coastal tracts that reach over a sea masked as nodata drop out; the log gives how many and their population share. Allowing some nodata share needs only `evaluate` again (the sums keep the nodata coverage) |
+| Fair subsets | per product and year, v5.4 and areal weighting are recomputed on exactly that product's tracts (three rows: product, `Dasy_CONUS_RF_v3_all`, `areal_weighting`); rows `all_tracts` = v5.4 and areal weighting on all evaluated tracts (the usual numbers) |
+| Metrics | MdAPE (tracts with observed pop > 0, as `tract_validate.py`), MAPE (tracts >= 10 people), p90 APE, total ratio (sum predicted / sum observed), MdAPE per observed density class (people per km2 over the tract's 250 m cells, the same 4 classes), MdAPE in / outside BUI gap counties (the `gap` column of v5.4), tract count, share of the evaluated tracts and of their population, tracts left out (outside / nodata) |
+| Outputs | `results/validation/conus/external/external_comparison.csv` (year x product x method, with `input_unit` + its source URL), `external_mdape_by_year.png` (v5.4 and areal weighting on all tracts as lines, each product on its tracts), `external_inventory.csv` (files, CRS, cell size, nodata). Tract sums on scratch only (`$HISDAC_SCRATCH/external/conus/sums/`) |
+| Download | `sbatch/external_download.sh` (login node, as `ntlv_download.sh`): GHS-POP from JRC's AWS bucket (the JRC FTP did not answer 2026-10-28; same R2023A V1-0 files, uncompressed GeoTIFF), 100 m Mollweide (preferred over 3 arc-sec: half the size); size checks from the listings of 2026-10-28; F&J md5 from figshare; GPW / GRUMP with a NASA Earthdata login (`~/.netrc`), zip integrity; without the login those two are skipped |
+| Chain | `bash sbatch/submit_conus.sh external`: one `extract` job per product whose files are all there (no dependencies between them), `evaluate` with `afterany` on all of them: a failed or missing product becomes `missing` rows, the rest is still evaluated |
+| Interpretation | products with input units finer than tracts (likely GPW / GHS-POP / WorldPop in 2000 / 2010, if US blocks or block groups) start from near-correct tract totals; only Fang & Jawitz has county input like v5.4. Read the table by input unit, and F&J 2000 as not independent (their M3-M5 used 2000 tracts) |
+| Env | `exactextract`, `py7zr` (the F&J archive; no 7z on Alpine, and `p7zip` has no Windows build for the laptop env), `openpyxl` (GPW country summary) added to `envs/hisdac/environment.yml` |
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
@@ -574,3 +601,6 @@ Made while implementing; each is the simplest option consistent with the decisio
    `bash sbatch/submit_conus.sh ntl`). If NTL helps, 2020 gets it too. Ran 2026-10-28 ("NTL test result").
 9. VIIRS-like NTL test for 2000 / 2010 (`Dasy_CONUS_RF_v3_ntlv` vs v3_all and v3_ntl). Code 2026-10-28 ("VIIRS-like
    NTL test"; `bash sbatch/ntlv_download.sh`, `sbatch --wait sbatch/ntlv_check.sh`, `bash sbatch/submit_conus.sh ntlv`).
+   Ran 2026-10-28 ("VIIRS-like NTL test result"): night light left out of the base model.
+10. External comparison: v5.4 vs GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz (M3, M5) on the same tracts.
+   Code 2026-10-28 ("External comparison"; `bash sbatch/external_download.sh`, `bash sbatch/submit_conus.sh external`).

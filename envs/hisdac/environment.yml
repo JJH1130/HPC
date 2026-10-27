@@ -26,4 +26,7 @@ dependencies:
   - pyyaml
   - pyarrow
   - matplotlib
+  - exactextract   # external grid comparison (2026-10-28): exact pixel x polygon coverage, raster in its own CRS
+  - py7zr   # unpacks the Fang & Jawitz (2018) .7z on Alpine (no 7z there; p7zip has no win-64 build)
+  - openpyxl   # reads the GPWv4 country-level summary (.xlsx) for the US input units
   - ipykernel   # lets Jupyter run this env as a kernel (register: see runbook)

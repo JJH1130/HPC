@@ -152,7 +152,8 @@ conda env update -f environment.yml -p /projects/jaju1407/software/envs/hisdac -
 
 Then check the imports in the same session and run the batch test (step 5). 2026-10-27: `xgboost` and `catboost`
 added for the CONUS model comparison (`docs/conus_plan.md`, "Model family"); the update block with the check is in
-`docs/runbooks/Running_CONUS.md`, section 4:
+`docs/runbooks/Running_CONUS.md`, section 4 (2026-10-28: `exactextract`, `py7zr`, `openpyxl` added for the external
+comparison; update block: `Running_CONUS.md`, section 8, block 1a):
 
 ```bash
 conda activate /projects/jaju1407/software/envs/hisdac

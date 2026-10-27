@@ -4,11 +4,20 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-28 (VIIRS-like NTL test, Dasy_CONUS_RF_v3_ntlv, written as code)
+Last updated: 2026-10-28 (external comparison written as code; VIIRS-like NTL test)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
+
+- **Status (2026-10-28, external comparison):** written as code, not run yet (`docs/runbooks/Running_CONUS.md`
+  section 8, `docs/conus_plan.md` "External comparison"): GHS-POP R2023A, WorldPop, GPW v4.11, GRUMP v1, Fang &
+  Jawitz (2018) M3 / M5 summed per tract in their own CRS (exactextract), compared with v5.4 and areal weighting on
+  the same tracts -> `results/validation/conus/external/external_comparison.csv`. Open: the US input unit of GPW v4.11,
+  GHS-POP (= GPW's), WorldPop and GRUMP is unverified (SEDAC documents need an Earthdata login; the inventory prints
+  the USA rows of the GPWv4 country summary); GPW / GRUMP need the user's Earthdata account (skipped without it);
+  coastal tracts over a sea stored as nodata drop out under the strict no-nodata rule (rerun `evaluate` with
+  `--max-nodata-share` if many do).
 
 - **Status (2026-10-28, later):** VIIRS-like NTL test written as code, not run yet (`docs/runbooks/Running_CONUS.md`
   section 7, `docs/conus_plan.md` "VIIRS-like NTL test"): download (`sbatch/ntlv_download.sh`) + check
@@ -381,6 +390,7 @@ Last updated: 2026-10-28 (VIIRS-like NTL test, Dasy_CONUS_RF_v3_ntlv, written as
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
 | 2026-10-27 | Hyperparameters: county CV only (tracts never in the search). Model family chosen before the all-years run: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, picked by tract validation + county TEST R2. Gap counties (BUI per person < 5 % of the median): 533 / 479 / 416 in 1920 / 1960 / 2010; kept, flagged, validation reported with and without. |
 | 2026-10-28 | External benchmark: compare v5.4 on the same tracts with GHS-POP, WorldPop, GPW v4, GRUMP and Fang & Jawitz (2018, county input, M3 / M5); record each product's US input unit (finer than tract = advantage on tract validation). Request `docs/handoff/external_grids_request.md`. |
+| 2026-10-28 | External comparison implementation: products summed per tract in their own CRS with exactextract (partial pixels by area share; rasters not reprojected / resampled); tracts = v5.4's evaluated tracts that the product covers fully without nodata (strict, as requested); v5.4 and areal weighting recomputed on each product's subset from `tract_errors_{YEAR}.csv`; GHS-POP 100 m Mollweide from JRC's AWS bucket (FTP did not answer); Fang & Jawitz M3 and M5 (the paper's lowest tract error is M4, M5 nearly equal; M3-M5 use 2000 tracts for the low-population mask and calibration, so 2000 is not independent for them); GRUMP kept on the cluster only (no redistribution); env + `exactextract`, `py7zr`, `openpyxl`. |
 | 2026-10-28 | Night lights left out of the CONUS base model (both products; 2020 too unless EOG VIIRS changes the picture). Gap-county gain kept as a finding; revisit if gaps remain in the next HISDAC version. MA pilot v3.4 vs CONUS v3 on MA tracts: 30.5 vs 30.1 % (2010), 29.8 vs 27.4 % (2000), 37.2 vs 41.5 % (1960). Proposal version table: CONUS = v5 series (v5-v5.5), HISDAC-US v3 = v6. |
 | 2026-10-28 | Night light only in gap counties rejected (the model learned from all counties; choosing it by region is after the fact). Mean APE (tracts >= 10 people, 2010): v3 54.0 %, DMSP 79.7 %, VIIRS-like 87.0 %. |
 | 2026-10-28 | VIIRS-like NTL test implementation: Chen et al. 2021 **Version1** (the cited paper; Version2 on the same record left for later), CC0 1.0; files from the Dataverse API with md5 check; layer `NTLV` float32 `nearest` (cells smaller than the source pixels; bilinear would spread light); `nodata_to: 0` for its sea mask (no light; counted in the cutout log; DMSP NTL keeps the stop rule); `ntl_qa.py` takes several layers: DMSP rules unchanged, VIIRS-like fails only on negative values, box = p99 of lit zone cells (warning only), glow >= 10 nW (logged only), scale-free lit share / mean ratio of BUI = 0 cells side by side (`ntl_edges_compare.csv`); `Dasy_CONUS_RF_v3_ntlv` = v3_ntl with ntlv; comparison with v3_all and v3_ntl (`ntl_viirs_comparison.csv`); county maps + DuPage IL in `county_maps_ntlv/`. |

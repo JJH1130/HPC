@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -19,6 +19,11 @@ Last updated: 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao'
 | Census Bureau historical totals (Forstall 1996) | 1996 publication | (reference only) | Manual fills, QA | In use |
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | NPP-VIIRS-like global NTL | Chen et al. (2021), Harvard Dataverse doi:10.7910/DVN/YGIVCD, **Version1**, 2000 and 2010 | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/` | CONUS feature test `ntlv` (`Dasy_CONUS_RF_v3_ntlv`, cutout layer `NTLV`) | Registered 2026-10-28; download by `sbatch/ntlv_download.sh`, not run yet |
+| GHS-POP R2023A (JRC) | R2023A V1-0, 100 m Mollweide, epochs 1980 / 1990 / 2000 / 2010 | `/projects/jaju1407/data/raw/external/ghs_pop/` | External comparison on tracts (`configs/external_grids.yaml`) | Registered 2026-10-28; `sbatch/external_download.sh`, not run yet |
+| WorldPop USA, unconstrained top-down | Global 2000-2020 (2018 release), `usa_ppp_{2000,2010}.tif`, 3 arc-sec, not UN-adjusted | `/projects/jaju1407/data/raw/external/worldpop/` | External comparison on tracts | Registered 2026-10-28; not downloaded yet |
+| GPW v4.11 population count (CIESIN, NASA SEDAC) | Revision 11, 30 arc-sec, 2000 / 2010, not UN-adjusted | `/projects/jaju1407/data/raw/external/gpw4/` | External comparison on tracts | Registered 2026-10-28; needs an Earthdata login; not downloaded yet |
+| GRUMP v1 population count (CIESIN et al., NASA SEDAC) | v1.00, 30 arc-sec, 1990 / 2000, global `.bil` | `/projects/jaju1407/data/raw/external/grump1/` | External comparison on tracts | Registered 2026-10-28; needs an Earthdata login; **no redistribution**; not downloaded yet |
+| Fang & Jawitz (2018) US population 1790-2010 | figshare 5803110 v1, 1 km Albers (ESRI:102003), models M1-M5 (M3, M5 used), 1910-2010 without 1960 | `/projects/jaju1407/data/raw/external/fang_jawitz/` | External comparison on tracts (the only one with county input, as ours) | Registered 2026-10-28; not downloaded on Alpine yet (archive checked on the laptop) |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction (v3.1) | Superseded by GDW for reservoir removal |
 | Global Dam Watch (GDW) reservoirs + barriers | v1.0 | `/projects/jaju1407/data/raw/water/gdw/` | Reservoir polygons with dam years → year-dependent water fraction | Downloaded 2026-10-12; in code for v4 (`water_frac.py`, `reservoir_source: gdw`), not run yet |
@@ -156,6 +161,108 @@ Common to all extracts:
   time series (2000-2018) of global NPP-VIIRS-like nighttime light data from a cross-sensor calibration. *Earth
   System Science Data*, 13, 889-906. https://doi.org/10.5194/essd-13-889-2021
 - Data: Chen, Z., Yu, B., et al. (2020). Harvard Dataverse. https://doi.org/10.7910/DVN/YGIVCD
+
+### External gridded population products (comparison on tracts, 2026-10-28)
+
+Compared with CONUS v5.4 (`Dasy_CONUS_RF_v3_all`) on the same census tracts (`docs/conus_plan.md`, "External
+comparison"; paths and years in `configs/external_grids.yaml`). Downloaded by `bash sbatch/external_download.sh` (login
+node) into `/projects/jaju1407/data/raw/external/<product>/`; none of these files go into git. **US input unit** = the
+census unit a product spreads over its grid in the US. A product whose input is finer than tracts (blocks, block
+groups) starts from counts that already add up to (nearly) the tract totals, so it has an advantage on a tract
+validation; ours and Fang & Jawitz start from counties. "Unverified" = the official document could not be read on
+2026-10-28 (the SEDAC documents need an Earthdata login; the inventory step prints the USA rows of the GPWv4.11 country
+summary once it is downloaded). Write the verified unit here and in `configs/external_grids.yaml` when known.
+
+#### GHS-POP R2023A
+
+- What: residential population per 100 m cell (World Mollweide, ESRI:54009), epochs 1975-2030 every 5 years; used:
+  1980, 1990, 2000, 2010. People per cell.
+- US input unit: the CIESIN **GPWv4.11** census / administrative units, spread over cells with the GHS built-up volume
+  (dataset description: residential population estimates "derived from CIESIN GPWv4.11 were disaggregated from census
+  or administrative units to grid cells"; https://data.europa.eu/89h/2ff68a52-5b5b-4a22-8f40-c41da8332cfe). So the US
+  unit is GPWv4.11's (unverified, see GPW). GPWv4.11 starts in 2000: the 1980 and 1990 epochs are estimates for those
+  units, not that year's census counts (method: GHSL Data Package 2023, not read here).
+- Files (JRC's own AWS bucket, Registry of Open Data `ghs-pop`, no account):
+  `https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-pop/r2023a/54009/100m/<YEAR>/GHS_POP_E<YEAR>_GLOBE_R2023A_54009_100_V1_0.tif`;
+  bytes (bucket listing 2026-10-28): 1980 4,189,468,816; 1990 4,542,378,023; 2000 4,742,953,518; 2010 5,121,499,452
+  (size checked; the bucket's ETags are multipart, not md5). The JRC FTP
+  (`https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_POP_GLOBE_R2023A/`, one zip per epoch) did not answer
+  from the laptop on 2026-10-28. The 3 arc-sec WGS84 version (8.9-12.6 GB per epoch) is in the same bucket
+  (`ghs-pop/r2023a/4326/3asec/`); not used.
+- License: CC BY 4.0.
+- Citation: Schiavina, M., Freire, S., Carioli, A., & MacManus, K. (2023). GHS-POP R2023A - GHS population grid
+  multitemporal (1975-2030). European Commission, Joint Research Centre.
+  https://doi.org/10.2905/2FF68A52-5B5B-4A22-8F40-C41DA8332CFE
+
+#### WorldPop USA (unconstrained, top-down)
+
+- What: people per ~100 m cell (3 arc-seconds, WGS84), random-forest dasymetric redistribution of census-based unit
+  counts, unconstrained (every land cell may get people); `usa_ppp_2000.tif`, `usa_ppp_2010.tif` (not the `_UNadj`
+  files).
+- US input unit: **unverified**. The 2000-2020 global series uses subnational census-based counts prepared with
+  CIESIN (Lloyd et al. 2019, GPWv4 units); the dataset pages (https://hub.worldpop.org/geodata/summary?id=4055 and
+  `?id=1573`) do not name the US unit level.
+- Files: `https://data.worldpop.org/GIS/Population/Global_2000_2020/<YEAR>/USA/usa_ppp_<YEAR>.tif`; bytes (2026-10-28):
+  2000 4,006,455,556; 2010 4,012,143,985 (size checked).
+- License: CC BY 4.0 (https://hub.worldpop.org/data/licence.txt).
+- Citation: WorldPop (School of Geography and Environmental Science, University of Southampton; Department of
+  Geography and Geosciences, University of Louisville; Departement de Geographie, Universite de Namur) and CIESIN,
+  Columbia University (2018). Global High Resolution Population Denominators Project (OPP1134076).
+  https://doi.org/10.5258/SOTON/WP00645
+
+#### GPW v4.11 population count
+
+- What: people per 30 arc-second cell (WGS84), census units spread evenly over their area (no ancillary data), 2000 /
+  2005 / 2010 / 2015 / 2020; used: 2000, 2010, the population count (not the one adjusted to UN WPP).
+- US input unit: **unverified** here: 2010-round census units at "the most detailed spatial resolution available"
+  (https://www.earthdata.nasa.gov/data/projects/gpw). The US row of the country-level summary
+  (`gpw-v4-rev11-country-level-summary-general-documentation.xlsx`, Earthdata login) is printed by the inventory step.
+- Files (NASA Earthdata login, `~/.netrc`):
+  `https://data.earthdata.nasa.gov/nasa-earth/human-dimensions/sedac-root/downloads/data/gpw-v4/gpw-v4-population-count-rev11/gpw-v4-population-count-rev11_<YEAR>_30_sec_tif.zip`
+  (~405 MB each, CMR granule listing 2026-10-28; zip integrity checked); documents in
+  `.../sedac-root/downloads/docs-repo/` (`gpw-v4-rev11-documentation.pdf`, the country summary `.xlsx`).
+- License: CC BY 4.0 (CMR collection CIESIN_SEDAC_GPWv4_POPCOUNT_R11).
+- Citation: Center for International Earth Science Information Network (CIESIN), Columbia University (2018).
+  Gridded Population of the World, Version 4 (GPWv4): Population Count, Revision 11. NASA SEDAC.
+  https://doi.org/10.7927/H4JW8BX5
+
+#### GRUMP v1 population count
+
+- What: people per 30 arc-second cell, 1990 / 1995 / 2000; GPWv3 census units allocated with urban extents (urban /
+  rural split); used: 1990, 2000, global `.bil` (`gl_grumpv1_pcount_{90,00}_bil_30.zip`; a UN-adjusted grid in the
+  same zip, if any, is left out by `exclude` in the config).
+- US input unit: **unverified** (GPWv3 units; `gpw-v3-documentation.pdf` is downloaded with the GPW documents).
+- Files (Earthdata login):
+  `https://data.earthdata.nasa.gov/nasa-earth/human-dimensions/sedac-root/gpw/app/_region_Global_file_grumpv1_data_pcount_type_bil_level-scope_continent_resolut_30_year_<YY>`
+  (CMR collection CIESIN_SEDAC_GRUMPv1_POPCOUNT; 1990 281 MB, 2000 277 MB; zip integrity checked).
+- License (CMR use constraints): copyright CIESIN, IFPRI, The World Bank, CIAT; **no commercial use, resale or
+  redistribution without written permission**; acknowledge the four as the source. Kept on the cluster only.
+- Citation: CIESIN, IFPRI, The World Bank, & CIAT (2011). Global Rural-Urban Mapping Project, Version 1 (GRUMPv1):
+  Population Count Grid. NASA SEDAC. https://doi.org/10.7927/H4VT1Q1H; Balk, D. L., et al. (2006). Determining global
+  population distribution: methods, applications and data. Advances in Parasitology, 62, 119-156.
+
+#### Fang & Jawitz (2018): conterminous US population 1790-2010
+
+- What: people per 1 km cell, USA Contiguous Albers (ESRI:102003, NAD83), every census decade 1790-2010 **without
+  1960** (no digital urban population for 1960); five models M1-M5, Esri GRID folders `pop_m<model>_<year>` (+ the
+  shared `info/` folder). M1: county pop spread evenly; M2: urban / rural split; **M3**: + non-inhabitable areas
+  removed (water bodies, protected areas, highlands, **low-population census tracts**); M4: + topography; **M5**: +
+  socio-economic desirability. Used: M3 and M5 (request: M3 the most efficient, M5 the most complete; in the paper's
+  tract validation M4 had the lowest mean error, M5 almost the same).
+- US input unit: **county** (NHGIS county totals and urban population; paper: "we use county-level census data, as
+  this is the highest resolution data consistently available from 1790 to 2010"). But M3-M5 use 2000 census tracts:
+  tracts below a cutoff population (per census division) are non-inhabitable, and the s / d parameters were calibrated
+  on 2000 data; the paper validates on 2000 tracts and county subdivisions. So 2000 is not an independent test for M3 /
+  M5.
+- Files: figshare collection https://doi.org/10.6084/m9.figshare.c.3890191, article 5803110: one archive
+  `USA_HistoricalPopulationDataset.7z` (file 10257111, 601,757,624 bytes, md5 a7e869b0cd128721b1594151bd8f45d7, from the
+  figshare API 2026-10-28), LZMA2, unpacked with py7zr into `fang_jawitz/grids/USA_HistoricalPopulationDataset/`.
+  Checked on the laptop 2026-10-28: `pop_m3_2010` float32, 5999 x 3232 cells of 1000 m, nodata outside CONUS and on
+  the sea, sum 306.6 million (2010); `pop_m5_1910` sum 91.8 million.
+- License: data CC0 (figshare); paper CC BY 4.0.
+- Citation: Fang, Y., & Jawitz, J. W. (2018). High-resolution reconstruction of the United States human population
+  distribution, 1790 to 2010. Scientific Data, 5, 180067. https://doi.org/10.1038/sdata.2018.67; data: Fang, Y., &
+  Jawitz, J. W. (2018). figshare. https://doi.org/10.6084/m9.figshare.c.3890191
 
 ### JRC Global Surface Water
 

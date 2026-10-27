@@ -11,7 +11,7 @@ the one place this repo's Alpine paths live), `logs/` (tracked job logs pulled b
 matplotlib, JupyterLab; conda-forge only). On Alpine the env lives at
 `/projects/jaju1407/software/envs/analysis`; build/update steps are in
 `docs/runbooks/Creating_Cluster_Envs.md`, and `sbatch/test_env_analysis.sh` checks it. Locally:
-`conda env create -f environment.yml`. A second env, `hisdac` (rasterio/geopandas/LightGBM/XGBoost/CatBoost/SHAP
+`conda env create -f environment.yml`. A second env, `hisdac` (rasterio/geopandas/LightGBM/XGBoost/CatBoost/SHAP/exactextract
 stack for the HISDAC_US_V2 work), is defined in `envs/hisdac/environment.yml`, lives at
 `/projects/jaju1407/software/envs/hisdac`, is built per `docs/runbooks/Creating_Env_hisdac.md`, and
 is checked by `sbatch/test_env_hisdac.sh`. First pipeline stage: `src/census/prepare_census.py` (NHGIS
@@ -25,6 +25,12 @@ population column per source table from the codebooks, overrides in `configs/nhg
 `docs/runbooks/Validating_Tracts.md`, design `docs/validation_tract.md`) scores a dasymetric version's Massachusetts predictions against those tracts
 and an areal-weighting baseline (+ totals QA; metrics for all / small / non-small tracts and observed-density classes `dens_*`) → `results/validation/<name>/<version>/`;
 `src/validation/county_maps.py` (`sbatch/county_maps.sh`) draws zoomed county maps of several CONUS versions side by side;
+`src/validation/external_compare.py` (`sbatch/external_compare.sh inventory|extract|evaluate`; products, years, paths and US
+input units in `configs/external_grids.yaml`; data fetched by `sbatch/external_download.sh` on a login node into
+`$DATA_ROOT/raw/external/`) sums external population grids (GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz M3 / M5)
+per tract in each grid's own CRS with exactextract (`extract`, one job per product, sums on scratch) and compares them with
+v5.4 (= `Dasy_CONUS_RF_v3_all`) and areal weighting on the same tracts (`evaluate`: tracts the product covers without
+nodata; v5.4 rows from its `tract_errors_{YEAR}.csv`) -> `results/validation/conus/external/external_comparison.csv` + figure;
 `src/validation/compare_models.py` (`sbatch/compare_models.sh`) tabulates CV / TEST / tract metrics of several versions
 (`model_comparison.csv`; for one version over years `--out summary_by_year.csv --plot ... --repro-with <version>`;
 `--years` filters, `--rank-features ntl ntlv` adds a feature's permutation / SHAP rank; logs tract MdAPE by part side by side);
@@ -64,7 +70,7 @@ layer NTLV) instead of `ntl`; one era per year, `split: configs/conus_split.csv`
 `years`), county input `src/census/conus_counties.py` (`sbatch/census_conus.sh`: Stefan's CSV on 2010 polygons, status
 ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0.95-1.05: trained, appended to the split as
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
-zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv` (stage scripts take `CONFIG=`,
+zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external` (stage scripts take `CONFIG=`,
 `CENSUS_DIR=`, `COVERAGE=` env overrides; CONUS resources live there). Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
 years live in `configs/model.yaml` (model registry `MODELS` in `src/dasymetric/models.py`: rf, lgbm, xgb, catboost, single-threaded models with a parallel
@@ -84,7 +90,9 @@ window, `bui_qa.py`, gap-county parts, LightGBM / XGBoost / CatBoost search -> p
 `--repro-with`, summary figure), `conus_counties.py` statuses, NTL (`test_ntl`: real configs, ntl era next to one
 without, NTL nodata, `ntl_qa.py` against brute force, `compare_models --years --rank-features`), VIIRS-like NTL (`test_ntlv`: real configs, `nodata_to`, `ntlv_check.py`,
 county ntlv, `ntl_qa.py` NTL + NTLV); stubs `shap` and `plots`;
-one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_conus_dasymetric as t; t.test_ntl()"`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_conus_dasymetric as t; t.test_ntl()"`), `python tests/test_external_compare.py` (tract sums of a projected and a lon / lat raster = brute-force polygon x
+pixel intersection, nodata / outside tracts left out, extract -> evaluate: product, v5.4 and areal weighting metrics on
+the kept subset = by hand, a missing product = `missing` row, path resolution), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:
