@@ -477,8 +477,11 @@ Share on BUI = 0 cells (2010): Chelan 15 / 41 / 29 %, Reno 7 / 21 / 16 %, Fremon
   loss is not (only) blooming: night light is the top feature for county density (rank 1), and inside a county its
   coarse, peaked pattern (lit cores, zero elsewhere) concentrates people in lit cells and empty land near them.
 - Night light helps only where HISDAC records are missing (gap counties 72 -> 35-39 %).
-- Next idea (not decided): use night light only in BUI gap counties (v3 elsewhere); the gap rule comes from county data
-  (BUI per person), not from tracts.
+- Rejected (2026-10-28, user): using the night-light model only in gap counties. That model learned its relationships
+  mostly from complete counties, so applying it to one group of counties picks a model by region after the fact.
+- Mean APE (tracts >= 10 people, 2010): v3 54.0 %, + DMSP 79.7 %, + VIIRS-like 87.0 % (areal weighting 273.5 %); gap
+  counties 94.1 / 49.3 / 55.0 %, others 51.8 / 81.4 / 88.8 %. Night light raises the mean much more than the median
+  (a few tracts get very large overestimates), while the 90th percentile APE drops a little with DMSP (83.1 -> 77.2 %).
 
 ## BUI outliers (bui_qa, job 34921582)
 
