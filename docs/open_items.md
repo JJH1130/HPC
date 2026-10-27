@@ -72,6 +72,21 @@ Last updated: 2026-10-28 (external comparison written as code; VIIRS-like NTL te
   as train (existing rows unchanged) and trained on when the area ratio is within 0.95-1.05 (status `filled_nhgis`);
   outside it they are `filled_nhgis_alloc`, allocated only.
 
+### Meeting with Stefan, 2026-10-28 (to do; details to be settled)
+
+- Stefan: R2 and MdAPE cannot be ranked as metrics; report both. Compute tract MdAPE for every decade 1920-2020 so
+  the trajectory over time is clear (2020 needs the 2020 county input).
+1. County level: MdAPE (not only R2) for the TEST counties.
+2. Tract validation on two sets: (a) all tracts of each year (as now); (b) a fixed set usable in every year (e.g. a box,
+   a county or a state), so that improvement from better input data over time can be separated from a changing
+   tract set.
+3. PLURAL 900 m grid (Siqiao, `index3`): resample to 250 m (bilinear / cubic), align to the HISDAC grid, test as a
+   continuous feature and as a few classes.
+4. HISDAC record uncertainty: overlay the complete record counts (with or without built year) and the time-series
+   counts (records with a built year only); per cell / county, share of records without a built year (e.g. 15 of 40).
+   Leave counties above a threshold out of training and testing; choose the threshold by sensitivity analysis
+   (how many counties remain vs accuracy).
+
 ### CONUS: hyperparameter sensitivity and source gaps (open, 2026-10-27)
 
 - Hyperparameters of a model are chosen on county CV only (5 folds within the train counties, lowest mean RMSE of
