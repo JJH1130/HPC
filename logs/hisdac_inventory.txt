@@ -1,0 +1,449 @@
+== tree
+/pl/active/Leyk_Lab/data/HISDAC_US_V2
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1810_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1815_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1820_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1825_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1830_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1835_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1840_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1845_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1850_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1855_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1860_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1865_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1870_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1875_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1880_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1885_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1890_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1895_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1900_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1905_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1910_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1915_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1920_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1925_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1930_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1935_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1940_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1945_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1950_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1955_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1960_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1965_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1970_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1975_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1980_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1985_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1990_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/1995_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/2000_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/2005_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/2010_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/2015_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/2020_BUA.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1810_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1815_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1820_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1825_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1830_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1835_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1840_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1845_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1850_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1855_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1860_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1865_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1870_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1875_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1880_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1885_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1890_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1895_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1900_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1905_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1910_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1915_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1920_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1925_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1930_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1935_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1940_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1945_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1950_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1955_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1960_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1965_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1970_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1975_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1980_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1985_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1990_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/1995_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2000_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2005_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2010_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2015_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2020_BUI.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1810_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1815_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1820_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1825_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1830_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1835_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1840_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1845_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1850_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1855_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1860_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1865_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1870_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1875_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1880_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1885_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1890_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1895_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1900_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1905_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1910_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1915_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1920_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1925_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1930_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1935_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1940_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1945_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1950_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1955_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1960_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1965_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1970_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1975_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1980_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1985_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1990_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/1995_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/2000_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/2005_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/2010_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/2015_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/2020_BUPL.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1810_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1815_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1820_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1825_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1830_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1835_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1840_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1845_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1850_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1855_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1860_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1865_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1870_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1875_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1880_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1885_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1890_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1895_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1900_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1905_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1910_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1915_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1920_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1925_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1930_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1935_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1940_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1945_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1950_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1955_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1960_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1965_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1970_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1975_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1980_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1985_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1990_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/1995_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2000_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2005_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2010_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2015_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2020_BUPR.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/FBUY.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/A
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/C
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/GV
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/I
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/RC
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/RI
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/RO
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/VL
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/LU_Count_README.txt
+== readmes
+find: warning: you have specified the -maxdepth option after a non-option argument -iname, but options are not positional (-maxdepth affects tests specified before it as well as those specified after it).  Please specify options before other arguments.
+
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/LU_Count_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY_README.txt
+/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL_README.txt
+===== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI_README.txt
+These files are part of the dataset "Historical built-up intensity layer series for the U.S. 1810 – 2015,"
+contained in the dataverse “HISDAC-US: Historical Settlement Data Compilation for the United States” 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Yoonjung;Leyk, Stefan;Uhl, Johannes H.; McShane, Caitlin M., 2023, "Gridded Settlement Data for the Conterminous United States Over 200 years",
+https://doi.org/10.7910/DVN/1WB9E4, Harvard Dataverse
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of land development in the United States. Earth Syst. Sci. Data 96Ð114 (2020). doi:10.4324/9781315019444-13
+
+This dataset contains the following files:
+
+- BUI.tar.gz: Archive contains the time series of BUI raster layers between 1810 and 2015 (BUI_1810 … BUI_2015) with semi-decadal temporal resolution.
+
+Abbreviations and explanations:
+BUI:		Built-up intensity. Integer-valued raster datasets containing indoor building gross area sum per pixel area in square feet.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu===== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR_README.txt
+These files are part of the dataset
+"Historical built-up property records (BUPR) - gridded surfaces for the U.S. from 1810 to 2020",
+contained in the dataverse “HISDAC-US: Historical Settlement Data Compilation for the United States” 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1Ð16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/45B8IU, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96Ð114 (2020). doi:10.4324/9781315019444-13
+
+
+The gridded surfaces (*.tif) contained in the BUPR.tar.gz archive represent built-up property records (i.e., buildings or building units)
+contained within grid cells of 250x250m, for each half-decade from 1810 to 2020.
+Moreover, there is a file called BUPR_contemp.tif which contains all built-up property records from the underlying ZTRAX dataset,
+regardless the value or availability of the built year attribute. Thus, BUPR_contemp.tif represents the spatial distribution of built-up 
+property records approximately in 2016, when the underlying ZTRAX data were compiled.
+
+Abbreviations and explanations:
+BUPR:			Built-up property records. Individual built-up property records in ZTRAX, Parcel, and BuildZero Open City Model representing a building or building unit, depending on ownership situation.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu===== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA_README.txt
+These files are part of the dataset
+"Historical built-up areas (BUA) - gridded surfaces for the U.S. from 1810 to 2020",
+contained in the dataverse HISDAC-US: Historical Settlement Data Compilation for the United States 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1Ð16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/OPSSWR, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96Ð114 (2020). doi:10.4324/9781315019444-13
+
+
+The gridded surfaces (*.tif) contained in the BUA.tar.gz archive represent built-up areas (1) versus not built-up areas (0)
+within grid cells of 250x250m, for each half-decade from 1810 to 2015. A grid cell is considered built-up if it contains at least one built-up property in a given year.
+
+Abbreviations and explanations:
+BUA:			Built-up areas. Grid cells containing at least one built-up property in a given year.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu===== /pl/active/Leyk_Lab/data/HISDAC_US_V2/LU_Count_README.txt
+These files are part of the dataset
+"Historical Land Use for the U.S. 1940-2015: Class Counts Version II",
+contained in the dataverse  HISDAC-US: Historical Settlement Data Compilation for the United States  
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1â€“16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/PRJBUF, Harvard Dataverse. 
+
+Related Publication:
+Mc Shane, Caitlin M.; Uhl, Johannes H.; Leyk, Stefan 2021, "Historical Land Use for the U.S. 1940-2015",
+https://doi.org/10.7910/DVN/LNBJIO, Harvard Dataverse
+
+The gridded surfaces (*.tif) contained in the counts.tar.gz archive represent number of records within grid cells of 250x250m, for each of the eight
+land use themes on an accumulative mid-decadal scale (i.e., 1940  means that values up to 1944 are summed up from 1810). 
+
+Historical Land Use for the U.S. 1940-2015 (Class Counts)
+Abbreviations and explanations:
+Geo-Referenced:		Records are geo referenced if an explicit latitude and longitude is provided in ZTRAX, Building records from Open City Model and Parcel Atlas used the centroid points of the polygons.
+Missing Grid-ID:	Records without an explicit latitude and longitude, which could not be grid-indexed.
+.tar.gz 'A': 		Agriculture
+.tar.gz 'C': 		Commercial
+.tar.gz 'I': 		Industrial
+.tar.gz 'RC': 		Recreational
+.tar.gz 'RI': 		Residential-Income
+.tar.gz 'RO': 		Residential-Owned
+.tar.gz 'GV': 		Governmental
+.tar.gz 'VL': 		VacantLand
+
+Grid Cell Value:	The number of records with a land use description for the individual theme
+				
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu===== /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY_README.txt
+These files are part of the dataset "Historical settlement first built layer (FBUY) for the U.S. 1810 Ð 2020 ,"contained in the dataverse “HISDAC-US: Historical Settlement Data Compilation for the United States” 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Yoonjung;Leyk, Stefan;Uhl, Johannes H.; McShane, Caitlin M., 2023, "Gridded Settlement Data for the Conterminous United States Over 200 years", 
+https://doi.org/10.7910/DVN/HHFM5E, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96Ð114 (2020). doi:10.4324/9781315019444-13
+
+This dataset contains the following files:
+
+- FBUY.tiff: Archive that contains the FBUY (values indicates the presence of built structures built-year)
+- NobuiltYear.tiff: Archive that contains the values indicates the presence of built structures without built year 
+
+Abbreviations and explanations:
+FBUY:		First built-up year. A raster composite with each pixel value indicating the year of first settlement within the pixel area.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu===== /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL_README.txt
+These files are part of the dataset
+"Historical built-up property locations (BUPL) - gridded surfaces for the U.S. from 1810 to 2020",
+contained in the dataverse “HISDAC-US: Historical Settlement Data Compilation for the United States” 
+(https://dataverse.harvard.edu/dataverse/hisdacus).
+
+Reference:
+Ahn, Y., Leyk, S., Uhl, J. H., & McShane, C. M. (2024). An Integrated Multi-Source Dataset for Measuring Settlement Evolution in the United States from 1810 to 2020. Scientific Data 2024 11:1, 11(1), 1Ð16. https://doi.org/10.1038/s41597-024-03081-x
+https://doi.org/10.7910/DVN/U2P66Z, Harvard Dataverse. 
+
+Related Publication:
+Leyk, Stefan; Uhl, Johannes H., 2018, "HISDAC-US: Historical Settlement Data Compilation for the Conterminous United States Over 200 Years," Scientific Data 5:180175
+https://doi.org/10.1038/sdata.2018.175
+Uhl, J. H. et al. Fine-grained, spatio-temporal datasets measuring 200 years of landdevelopment in the United States. Earth Syst. Sci. Data 96Ð114 (2020). doi:10.4324/9781315019444-13
+
+
+The gridded surfaces (*.tif) contained in the BUPL.tar.gz archive represent built-up property locations (i.e., buildings)
+contained within grid cells of 250x250m, for each half-decade from 1810 to 2020.
+
+Abbreviations and explanations:
+BUPL:			Built-up property locations. Unique locations of built-up property records (i.e., buildings or building units), independent from ownership situation.
+
+Data source: 
+- Zillow Transaction and Assessment Dataset (ZTRAX) (c) Zillow Inc.
+- Parcel (c) Parcel Atlas
+- BuildZero Open City Model
+
+Spatial resolution: 250m
+Coordinate reference system:
+USA Contiguous Albers Equal Area Conic USGS version (EPSG:5070)
+https://spatialreference.org/ref/sr-org/usa_contiguous_albers_equal_area_conic_usgs_version-2/
+Proj4: +proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23.0 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs
+
+Contact:
+Stefan Leyk
+Department of Geography
+University of Colorado Boulder
+GUGG 110, 260 UCB 
+Boulder, CO 80309-0260, United States of America
+stefan.leyk@colorado.edu
