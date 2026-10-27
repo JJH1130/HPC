@@ -1,0 +1,108 @@
+== job 34961483 (ntl_qa) on c3cpu-e2-u3 at 2026-10-27T11:49:57-06:00
+== cores=8 gpus=none restart=0
+== git af5e6fb
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: --layer NTL NTLV
+11:50:33 INFO arg config = configs/conus_study_area.yaml
+11:50:33 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:50:33 INFO arg layer = ['NTL', 'NTLV']
+11:50:33 INFO arg lon = -71.06
+11:50:33 INFO arg lat = 42.36
+11:50:33 INFO arg box_km = 20.0
+11:50:33 INFO arg bright = 60
+11:50:33 INFO arg bright_pct = 99.0
+11:50:33 INFO arg edge_km = 5.0
+11:50:33 INFO arg glow_dn = 30
+11:50:33 INFO arg glow_rad = 10.0
+11:50:33 INFO arg top = 15
+11:50:33 INFO cutout /scratch/alpine/jaju1407/hisdac/cutouts/conus | layers {'NTL': [2000, 2010], 'NTLV': [2000, 2010]} | box 20 km around (-71.06, 42.36) | DN layers ['NTL']: DN >= 60, others: >= p99 of the lit zone cells
+11:51:01 INFO   NTL 2000: 0..62 | nodata 0 | zero share 0.716 | box: bright DN >= 60: 5053 of 6400 cells, centroid (-71.0839, 42.3615), shift - km | Spearman ntl~bui 0.389 over 124576956 zone cells
+11:51:01 INFO   NTL 2000 edges: outside every zone 9217528 lit / 211544 bright cells | zone cells with nodata 0 | glow (BUI 0, >= 30): edge (<= 5 km) 310752 of 2782557 cells (0.1117), interior 4185990 of 121794399 (0.0344) | lit share of BUI 0 cells: edge 0.5854, interior 0.3655 | mean on BUI 0 cells: edge 11.731, interior 4.841 (x 0.277, x 0.183 of the mean on built cells)
+11:51:01 INFO   NTL 2000: counties with the most edge glow cells:
+ zone_id  edge_glow_cells  glow_cells  zone_cells  GISJOIN         state                name
+    1846             7702       12063       38145 G3601030      New York      Suffolk County
+     326             7522       15265       34007 G1200710       Florida          Lee County
+     194             4863       15156      175587 G0600730    California    San Diego County
+     296             4155        6475       43698 G1200090       Florida      Brevard County
+     337             3423        4867       38922 G1200910       Florida     Okaloosa County
+    1745             3309        3642       10752 G3400090    New Jersey     Cape May County
+     610             3146       19361       19500 G1700970      Illinois         Lake County
+     319             3122       10231       44318 G1200570       Florida Hillsborough County
+    1184             2908        3593       17303 G2500010 Massachusetts   Barnstable County
+     164             2780        7254       30640 G0600130    California Contra Costa County
+    2590             2726       28318       73019 G4802010         Texas       Harris County
+    1161             2630        5439       17287 G2400030      Maryland Anne Arundel County
+    2597             2566        8597       65591 G4802150         Texas      Hidalgo County
+    1279             2525       12473       25606 G2601630      Michigan        Wayne County
+    1755             2521        7051       26500 G3400290    New Jersey        Ocean County
+11:51:15 INFO   NTLV 2000: 0.0..300.722412109375 | nodata 0 | zero share 0.958 | box: bright >= 57.57 (p99 of the lit zone cells; radiance, no DN rule): 458 of 6400 cells, centroid (-71.0685, 42.3555), shift - km | Spearman ntl~bui 0.404 over 124576956 zone cells
+11:51:15 INFO   NTLV 2000 edges: outside every zone 949351 lit / 12079 bright cells | zone cells with nodata 0 | glow (BUI 0, >= 10): edge (<= 5 km) 68703 of 2782557 cells (0.0247), interior 540061 of 121794399 (0.0044) | lit share of BUI 0 cells: edge 0.1187, interior 0.0348 | mean on BUI 0 cells: edge 1.140, interior 0.197 (x 0.116, x 0.051 of the mean on built cells)
+11:51:15 INFO   NTLV 2000: counties with the most edge glow cells:
+ zone_id  edge_glow_cells  glow_cells  zone_cells  GISJOIN      state               name
+     194             2534        5347      175587 G0600730 California   San Diego County
+     326             2071        2948       34007 G1200710    Florida         Lee County
+     610             1794        7804       19500 G1700970   Illinois        Lake County
+    2590             1598       13183       73019 G4802010      Texas      Harris County
+    1752             1569        3076       13022 G3400230 New Jersey   Middlesex County
+    1279             1535        6357       25606 G2601630   Michigan       Wayne County
+    1846             1512        3934       38145 G3601030   New York     Suffolk County
+     187             1140        5837       33048 G0600590 California      Orange County
+    1105             1059        2828       15127 G2200510  Louisiana   Jefferson Parish
+     577             1037        8762       39685 G1700310   Illinois        Cook County
+     708              965        1820       20891 G1800890    Indiana        Lake County
+     289              936        2047       17972 G1000030   Delaware  New Castle County
+     176              932        7664      169294 G0600370 California Los Angeles County
+     158              916        1763       30863 G0600010 California     Alameda County
+    3019              895        2378       22161 G5500090  Wisconsin       Brown County
+11:51:43 INFO   NTL 2010: 0..59 | nodata 0 | zero share 0.708 | box: bright DN >= 60: 0 of 6400 cells, centroid (nan, nan), shift - km | Spearman ntl~bui 0.404 over 124576956 zone cells
+11:51:43 INFO   NTL 2010 edges: outside every zone 9525845 lit / 0 bright cells | zone cells with nodata 0 | glow (BUI 0, >= 30): edge (<= 5 km) 276403 of 2782557 cells (0.0993), interior 3386416 of 121794399 (0.0278) | lit share of BUI 0 cells: edge 0.5871, interior 0.3742 | mean on BUI 0 cells: edge 10.326, interior 4.078 (x 0.259, x 0.168 of the mean on built cells)
+11:51:43 INFO   NTL 2010: counties with the most edge glow cells:
+ zone_id  edge_glow_cells  glow_cells  zone_cells  GISJOIN          state                name
+     326             7409       15269       34007 G1200710        Florida          Lee County
+    1846             6270       10421       38145 G3601030       New York      Suffolk County
+     194             4422       13230      175587 G0600730     California    San Diego County
+     296             3148        5289       43698 G1200090        Florida      Brevard County
+     610             3117       19263       19500 G1700970       Illinois         Lake County
+     319             2920        9215       44318 G1200570        Florida Hillsborough County
+     337             2778        4178       38922 G1200910        Florida     Okaloosa County
+    1184             2747        3416       17303 G2500010  Massachusetts   Barnstable County
+    2597             2701        8368       65591 G4802150          Texas      Hidalgo County
+    1745             2689        2788       10752 G3400090     New Jersey     Cape May County
+    2590             2627       25025       73019 G4802010          Texas       Harris County
+    1923             2624        3201       31678 G3701330 North Carolina       Onslow County
+     164             2592        6696       30640 G0600130     California Contra Costa County
+    1195             2547        7205       28682 G2500230  Massachusetts     Plymouth County
+    1279             2459       12039       25606 G2601630       Michigan        Wayne County
+11:51:45 WARNING   NTLV 2010: bright-cell centroid moved 1.40 km from 2000 (expected well under 1 km)
+11:51:57 INFO   NTLV 2010: 0.0..319.6817626953125 | nodata 0 | zero share 0.959 | box: bright >= 40.68 (p99 of the lit zone cells; radiance, no DN rule): 536 of 6400 cells, centroid (-71.0688, 42.3430), shift 1.398 km | Spearman ntl~bui 0.418 over 124576956 zone cells
+11:51:57 INFO   NTLV 2010 edges: outside every zone 812894 lit / 13866 bright cells | zone cells with nodata 0 | glow (BUI 0, >= 10): edge (<= 5 km) 48223 of 2782557 cells (0.0173), interior 395483 of 121794399 (0.0032) | lit share of BUI 0 cells: edge 0.1117, interior 0.0322 | mean on BUI 0 cells: edge 0.790, interior 0.154 (x 0.122, x 0.055 of the mean on built cells)
+11:51:57 INFO   NTLV 2010: counties with the most edge glow cells:
+ zone_id  edge_glow_cells  glow_cells  zone_cells  GISJOIN      state                name
+     326             1907        3542       34007 G1200710    Florida          Lee County
+     194             1650        3746      175587 G0600730 California    San Diego County
+    1279             1378        5565       25606 G2601630   Michigan        Wayne County
+     610             1196        5015       19500 G1700970   Illinois         Lake County
+    2590             1110        9405       73019 G4802010      Texas       Harris County
+    1752             1044        2111       13022 G3400230 New Jersey    Middlesex County
+     708              928        1711       20891 G1800890    Indiana         Lake County
+     187              850        4974       33048 G0600590 California       Orange County
+    1846              844        2394       38145 G3601030   New York      Suffolk County
+     577              792        6388       39685 G1700310   Illinois         Cook County
+     176              749        5258      169294 G0600370 California  Los Angeles County
+    1105              727        2671       15127 G2200510  Louisiana    Jefferson Parish
+     319              724        1752       44318 G1200570    Florida Hillsborough County
+    1749              700         719        2003 G3400170 New Jersey       Hudson County
+    2560              680        2302       42068 G4801410      Texas      El Paso County
+11:51:57 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/ntl_qa.csv
+11:51:57 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/ntl_glow_counties.csv
+11:51:57 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/ntlv_qa.csv
+11:51:57 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/ntlv_glow_counties.csv
+11:51:57 INFO edges side by side (glow = BUI 0 and >= glow_threshold; lit_bui0_share = lit share of BUI 0 cells; bui0_to_built = mean on BUI 0 cells / mean on built cells):
+ year layer  glow_threshold  outside_lit_cells  zone_nodata_cells  edge_glow_share  interior_glow_share  edge_lit_bui0_share  interior_lit_bui0_share  edge_bui0_to_built  interior_bui0_to_built
+ 2000   NTL            30.0            9217528                  0           0.1117               0.0344               0.5854                   0.3655              0.2766                  0.1826
+ 2000  NTLV            10.0             949351                  0           0.0247               0.0044               0.1187                   0.0348              0.1160                  0.0510
+ 2010   NTL            30.0            9525845                  0           0.0993               0.0278               0.5871                   0.3742              0.2592                  0.1681
+ 2010  NTLV            10.0             812894                  0           0.0173               0.0032               0.1117                   0.0322              0.1218                  0.0548
+11:51:57 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/ntl_edges_compare.csv
+ERROR: NTL QA failed:
+  NTL 2010: no cell with DN >= 60 in the box

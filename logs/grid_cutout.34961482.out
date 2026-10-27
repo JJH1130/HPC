@@ -1,0 +1,36 @@
+== job 34961482 (grid_cutout) on c3cpu-e2-u3 at 2026-10-27T11:47:51-06:00
+== cores=8 gpus=none restart=0
+== git af5e6fb
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: --layers NTLV
+11:48:03 INFO arg config = configs/conus_study_area.yaml
+11:48:03 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+11:48:03 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+11:48:03 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:48:03 INFO arg years = None
+11:48:03 INFO arg layers = ['NTLV']
+11:48:03 INFO study area 'conus': states=all | 12 config years 1900-2010 | writing 12 years -> /scratch/alpine/jaju1407/hisdac/cutouts/conus
+11:48:10 INFO layer NTLV           years 2000-2010        resampling nearest  float32 | files to write: 2
+11:48:10 INFO reference grid: 1900_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+11:48:10 INFO 0 rasters on the HISDAC grid (window read), 2 to warp onto it
+11:48:13 INFO 1900: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:16 INFO 1910: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:19 INFO 1920: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:22 INFO 1930: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:26 INFO 1940: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:29 INFO 1950: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:32 INFO 1960: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:36 INFO 1970: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:38 INFO 1980: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:43 INFO 1990: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:46 INFO 2000: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:49 INFO 2010: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+11:48:49 INFO window: full (the whole HISDAC grid of 1900_BUI.tif)
+11:48:49 INFO window: col_off 0 row_off 0 | 18459 x 11615 cells | bounds [-2356399, 269249, 2258351, 3172999] (counties [-2356114, 269281, 2258244, 3172568])
+11:48:49 INFO --layers ['NTLV']: window matches /scratch/alpine/jaju1407/hisdac/cutouts/conus/window.json; zones, window.json and cutout_qa.csv are kept
+11:48:49 INFO cutting 2 rasters
+11:49:13 INFO   NTLV 2000          float64, warped (nearest) -> float32 nodata=-3.4028234663852886e+38 | min 0.0 max 300.722412109375 | zeros 205472540 | nodata cells 0 | 26.0 MB
+11:49:39 INFO   NTLV 2010          float64, warped (nearest) -> float32 nodata=-3.4028234663852886e+38 | min 0.0 max 319.6817626953125 | zeros 205659075 | nodata cells 0 | 25.9 MB
+11:49:39 INFO DONE
+3.9G	/scratch/alpine/jaju1407/hisdac/cutouts/conus
+== done 2026-10-27T11:49:42-06:00

@@ -1,0 +1,39 @@
+== job 34961411 (ntlv_check) on c3cpu-e2-u7 at 2026-10-27T11:45:50-06:00
+== cores=2 gpus=none restart=0
+== git af5e6fb
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: 
+11:46:14 INFO arg config = configs/conus_study_area.yaml
+11:46:14 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:46:14 INFO arg layer = NTLV
+11:46:14 INFO arg out = results/cutout/conus/ntlv_check.csv
+11:46:18 INFO layer NTLV: /projects/jaju1407/data/raw/ntl/viirs_like/v1/{YEAR}/*.tif | years [2000, 2010] | resampling nearest, float32 | window as lon/lat box (-127.893, 22.871, -65.342, 51.609)
+11:46:32 INFO   2000: /projects/jaju1407/data/raw/ntl/viirs_like/v1/2000/LongNTL_2000.tif (8128.9 MB)
+11:46:35 INFO     Atlantic, off New Jersey   ( -72.000, 38.500) sea  -> 0
+11:46:35 INFO     Gulf of Mexico             ( -90.000, 27.000) sea  -> 0
+11:46:35 INFO     Pacific, off N California  (-125.500, 40.500) sea  -> 0
+11:46:35 INFO     Lake Michigan centre       ( -87.000, 43.500) lake -> 0
+11:46:35 INFO     Great Salt Lake            (-112.500, 41.100) lake -> 0
+11:46:35 INFO     Nevada, Great Basin        (-116.600, 39.300) dark -> 0
+11:46:35 INFO     Chicago Loop               ( -87.630, 41.880) city -> 139.754
+11:46:35 INFO     Midtown Manhattan          ( -73.980, 40.750) city -> 99.511
+11:46:35 INFO     Las Vegas Strip            (-115.170, 36.110) city -> 67.6555
+11:46:35 INFO     Boston downtown            ( -71.060, 42.360) city -> 93.6744
+11:46:35 INFO   2000: EPSG:4326 | cell 0.004492 deg = 16.17 arc-sec | 79744x25472 float32 nodata=-3.4028234663852886e+38 | bounds W -178.275 S -55.453 E 179.901 N 58.956 | covers the window: True
+11:46:35 INFO   2000: window box 89098548 cells: nodata 0 (0.0 %), negative 0, zero 86162959 (96.7 %), lit 2935589 (3.3 %) | min 0 max 300.722 | lit quantiles p50 3.26, p90 21.7, p99 57.8, p99.9 94.4
+11:46:35 INFO   2010: /projects/jaju1407/data/raw/ntl/viirs_like/v1/2010/LongNTL_2010.tif (9220.5 MB)
+11:46:38 INFO     Atlantic, off New Jersey   ( -72.000, 38.500) sea  -> 0
+11:46:38 INFO     Gulf of Mexico             ( -90.000, 27.000) sea  -> 0
+11:46:38 INFO     Pacific, off N California  (-125.500, 40.500) sea  -> 0
+11:46:38 INFO     Lake Michigan centre       ( -87.000, 43.500) lake -> 0
+11:46:38 INFO     Great Salt Lake            (-112.500, 41.100) lake -> 0
+11:46:38 INFO     Nevada, Great Basin        (-116.600, 39.300) dark -> 0
+11:46:38 INFO     Chicago Loop               ( -87.630, 41.880) city -> 83.4594
+11:46:38 INFO     Midtown Manhattan          ( -73.980, 40.750) city -> 0
+11:46:38 INFO     Las Vegas Strip            (-115.170, 36.110) city -> 42.5852
+11:46:38 INFO     Boston downtown            ( -71.060, 42.360) city -> 114.277
+11:46:38 INFO   2010: EPSG:4326 | cell 0.004492 deg = 16.17 arc-sec | 80000x28800 float32 nodata=-3.4028234663852886e+38 | bounds W -179.425 S -55.453 E 179.901 N 73.904 | covers the window: True
+11:46:38 INFO   2010: window box 89098548 cells: nodata 0 (0.0 %), negative 0, zero 86245930 (96.8 %), lit 2852618 (3.2 %) | min 0 max 319.682 | lit quantiles p50 3.33, p90 15.4, p99 41.4, p99.9 69.7
+11:46:38 INFO wrote results/cutout/conus/ntlv_check.csv
+11:46:38 INFO DONE
+== done 2026-10-27T11:46:38-06:00
