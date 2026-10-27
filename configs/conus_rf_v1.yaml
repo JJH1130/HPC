@@ -6,6 +6,7 @@
 version: Dasy_CONUS_RF_v1
 
 study_area: configs/conus_study_area.yaml
+years: [1920, 1960, 2010]   # the study area has 1900-2010 since 2026-10-27; this version stays on its 3 years
 
 water_mask: yearly
 compare_with: null

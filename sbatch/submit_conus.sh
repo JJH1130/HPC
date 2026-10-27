@@ -3,6 +3,8 @@
 # Not a job itself: run it on a login node from the repo root.
 #   bash sbatch/submit_conus.sh trial   # step 0: 1960 only, v1; times the prediction (--measure), writes no map
 #   bash sbatch/submit_conus.sh pilot   # 1920, 1960, 2010: cutout + water + distances, v1 and v2, tract validation
+#                                       # (history: since the study area has 1900-2010, its cutout / water / distance
+#                                       # jobs would run all 12 years)
 #   bash sbatch/submit_conus.sh v3v4    # on the pilot cutout (distances, water reused): DEM layer -> v3 (v1 + terrain)
 #                                       # and v4 (v1 + distances + terrain) features/train/predict/validate (1960, 2010);
 #                                       # v1 + v2 validation rerun (density classes); county maps v1/v2/v4 (2010);
@@ -14,6 +16,9 @@
 #                                       # v3_bui features (copied here, not recomputed): env check -> train / predict /
 #                                       # validate per model + v3_bui validation rerun (BUI gap parts) ->
 #                                       # compare_models -> county maps of the four (2010)
+#   bash sbatch/submit_conus.sh all     # Dasy_CONUS_RF_v3_all, 1900-2010: census input (all 12 years) -> cutout of
+#                                       # the 9 new years -> BUI fix (new years) + water (all 12) -> features / train /
+#                                       # predict (12 eras) -> tract validation 1910-2010 -> summary_by_year + figure
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -26,10 +31,12 @@
 # bui resources from v3v4 (jobs 34921582-34921594): v3 / v4 features, train, predict, validate each well inside the
 # v3v4 wall times; v1_bui / v3_bui add 1920. bui_fix reads and writes the BUI layer once per year (estimate).
 # models: train 2 h (3 x the candidates of v3_bui, whose train took ~9 min; boosting time unknown), the rest as bui.
+# all: from the 3-year runs (pilot / bui / models): cutout 3 min, water 12 min, bui_fix 1 min, features 3 min, RF 60
+# train 23 min, predict 13 min, validate 4 min; x 3-4 for 9-12 years, then ~2-3 x for the wall time.
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui || $mode == models ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models"; exit 1; }
+[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui || $mode == models || $mode == all ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -129,6 +136,40 @@ elif [[ $mode == models ]]; then
     jc=$(sub "$after_val" sbatch/compare_models.sh --versions $SRC ${VER[rf]} ${VER[lgbm]} ${VER[xgb]} ${VER[cat]})
     jm=$(sub "${after_maps# }" --ntasks=4 --time=${MAPS_TIME:-00:30:00} --export=ALL,CONFIG=$S sbatch/county_maps.sh          --counties G5300070 G2001550 G0800430 G1701170          --versions ${VER[rf]} ${VER[lgbm]} ${VER[xgb]} ${VER[cat]})
     echo "env_check $je | validate $SRC $r0$ids | compare_models $jc | county_maps $jm" | tee logs/conus_models_jobs.txt
+elif [[ $mode == all ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    C=configs/conus_rf_v3_all.yaml
+    V=Dasy_CONUS_RF_v3_all
+    REF=Dasy_CONUS_RF_v3_n60
+    NEW="1900 1910 1930 1940 1950 1970 1980 1990 2000"  # 1920 / 1960 / 2010 are in the cutout already (BUI fixed)
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    miss=()  # everything is checked before anything is submitted
+    for y in 1900 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010; do
+        [[ -f $DATA_ROOT/processed/census/counties_$y.gpkg ]] || miss+=("$DATA_ROOT/processed/census/counties_$y.gpkg")
+    done
+    for f in $DATA_ROOT/processed/census/counties_std_2010.gpkg $CUT/window.json $CUT/layers/DEM/DEM.tif \
+             $CUT/layers/BUI_raw/{1920,1960,2010}_BUI.tif $D/$REF/Y{1920,1960,2010}/model/oof_predictions.csv \
+             results/validation/conus/$REF/metrics_by_year.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    jc=$(sub "" --time=${CENSUS_TIME:-00:30:00} sbatch/census_conus.sh)  # 1900-2010 (default years)
+    jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-01:00:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh \
+         --years $NEW)
+    jb=$(sub "$jg" --ntasks=2 --time=${FIX_TIME:-01:00:00} --export=ALL,CONFIG=$S sbatch/bui_fix.sh --years $NEW)
+    # all 12 years: the QA points (1920 / 1960 / 2010) and one QA file; the 3 old layers come out the same
+    jw=$(sub "$jg" --ntasks=16 --time=${WATER_TIME:-02:00:00} --export=ALL,CONFIG=$S sbatch/water_frac.sh)
+    jf=$(sub "$jb $jw" --ntasks=6 --time=${FEATURES_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+    jt=$(sub "$jf" --ntasks=16 --time=${TRAIN_TIME:-05:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+    jp=$(sub "$jt" --ntasks=32 --time=${PREDICT_TIME:-03:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+    jv=$(sub "$jp" --ntasks=8 --time=${VALIDATE_TIME:-02:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+         --version $V --years 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010 $VAL)  # no tracts in 1900
+    R=results/validation/conus/$V
+    js=$(sub "$jv" --time=${SUMMARY_TIME:-00:20:00} sbatch/compare_models.sh --versions $V --repro-with $REF \
+         --out $R/summary_by_year.csv --plot $R/mdape_by_year.png)
+    echo "census_conus $jc | grid_cutout $jg | bui_fix $jb | water_frac $jw | features $jf | train $jt | predict $jp | validate $jv | summary $js" \
+        | tee logs/conus_all_jobs.txt
 else
     jc=$(sub "" sbatch/census_conus.sh --years 1920 1960 2010)
     jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-00:30:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh)

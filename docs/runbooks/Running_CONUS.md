@@ -1,7 +1,7 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60)
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all)
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
-layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml` (models), split table
+layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml` (models), split table
 `configs/conus_split.csv` (made once, 2026-10-23; never regenerate it). The Massachusetts configs
 (`configs/study_area.yaml`, `configs/model.yaml`) and runbooks are unchanged.
 
@@ -14,14 +14,15 @@ before the pilot (2026-10-24): 4 counties without a CSV row filled from NHGIS (`
 no-data QA, pilot resources from the trial. Pilot passed 2026-10-26 (jobs 34918220-34918231; `docs/conus_plan.md`,
 "Pilot result"). Section 2 (v3 + v4, BUI check, density classes) ran 2026-10-26 (jobs 34921582-34921594; county maps
 failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 / 1960 / 2010, county maps). Section 3 ran 2026-10-26 (jobs 34926193-34926203). Next: section 4
-(model family).
+(model family). Section 4 ran 2026-10-27 (jobs 34932548-34932563; RF chosen). Next: section 5
+(all census years 1900-2010).
 
 ## Inputs / outputs
 
 | | Path |
 |---|---|
 | county input (in) | `/projects/jaju1407/data/processed/census/counties_std_2010.gpkg` (`Checking_Std_Counties.md`) |
-| county input (out) | `/projects/jaju1407/data/processed/census_conus/counties_{1920,1960,2010}.gpkg` |
+| county input (out) | `/projects/jaju1407/data/processed/census_conus/counties_{YEAR}.gpkg` (1920 / 1960 / 2010; 1900-2010 from section 5) |
 | HISDAC | `/pl/active/Leyk_Lab/data/HISDAC_US_V2` (read only) |
 | water | `/projects/jaju1407/data/raw/water/jrc_occurrence/` (21 tiles), `.../water/gdw/GDW_v1_0_shp/` |
 | PLURAL | `/projects/jaju1407/data/raw/plural/plural_2023/` |
@@ -31,7 +32,7 @@ failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 
 | BUI fix (scratch) | cutout `layers/BUI/` = fixed (from section 3 on), `layers/BUI_raw/` = original |
 | DEM (v3, v4) | `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd` -> cutout `layers/DEM/DEM.tif` |
 | results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/` |
-| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt` |
+| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt`, `logs/conus_all_jobs.txt` |
 
 ## 0. Trial: measure time and memory (1960, v1)
 
@@ -431,6 +432,119 @@ echo "== end of block 3"
 Good: `sacct` shows `COMPLETED` for all 16 jobs, `git push` ends with `main -> main`, the last commit is the
 `run: CONUS model family ...` one, then `== end of block 3`.
 
+## 5. All census years 1900-2010: Dasy_CONUS_RF_v3_all (2026-10-27)
+
+The CONUS base (RF, v3 features, 60 candidates; `docs/conus_plan.md`, "All census years") for the 12 census years of
+Stefan's CSV, one era per year. Everything runs as batch jobs; **no step needs a compute node** (no env change: the
+hisdac env of section 4 has everything). One submission of 9 jobs, each waiting for the one before (bui_fix and
+water_frac side by side):
+
+| Job | What | Estimate (from the 3-year runs) |
+|---|---|---|
+| `census_conus` | all 12 years (1920 / 1960 / 2010 rewritten the same) | < 5 min |
+| `grid_cutout --years <9 new>` | 1900, 1910, 1930, 1940, 1950, 1970, 1980, 1990, 2000: BUI, BUPL, BUPR, BUA, Land_Use (1940+ only), zones; DEM kept; `cutout_qa.csv` keeps the old years' rows | ~10 min |
+| `bui_fix --years <9 new>` | BUI cap on the new years (`bui_fixed_{YEAR}.csv`; the summary keeps the old rows); the fixed 1920 / 1960 / 2010 are not touched | ~2 min |
+| `water_frac` | all 12 yearly layers (GDW completion years), so the QA points (1920 / 1960 / 2010) and one QA file stay as before; the 3 old layers come out the same | ~30-45 min |
+| features, train, predict | 12 eras; train = 12 searches of 60 candidates | ~15 min, ~1.5-2 h, ~1 h |
+| `validate_tract` | 1910-2010 (no tracts in 1900), split parts, density classes, `--gap-share 0.05`, areal weighting | ~20-30 min |
+| `compare_models` (summary) | `results/validation/conus/Dasy_CONUS_RF_v3_all/summary_by_year.csv` + `mdape_by_year.png`; repro check against `Dasy_CONUS_RF_v3_n60` | < 1 min |
+
+Block 0, preflight + submit (login node; nothing is submitted if an input is missing or the env fails):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+source sbatch/cluster_env.sh
+C=$HISDAC_SCRATCH/cutouts/conus
+D=$HISDAC_SCRATCH/dasymetric/conus
+N=$D/Dasy_CONUS_RF_v3_n60
+NEW="1900 1910 1930 1940 1950 1970 1980 1990 2000"
+need=()
+for y in 1900 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010; do need+=($DATA_ROOT/processed/census/counties_$y.gpkg); done
+need+=($DATA_ROOT/processed/census/counties_std_2010.gpkg $DATA_ROOT/processed/census/counties_2020.gpkg)
+for y in $NEW; do for n in BUI BUPL BUPR BUA; do need+=($HISDAC_DIR/$n/${y}_$n.tif); done; done
+for y in 1940 1950 1970 1980 1990 2000; do for c in A C GV I RC RI RO VL; do need+=($HISDAC_DIR/Land_Use/$c/Count_${y}_$c.tif); done; done
+need+=($C/window.json $C/layers/DEM/DEM.tif $C/layers/BUI_raw/{1920,1960,2010}_BUI.tif)
+need+=($N/Y{1920,1960,2010}/model/oof_predictions.csv $N/Y{1920,1960,2010}/model/test_predictions.csv)
+need+=(results/validation/conus/Dasy_CONUS_RF_v3_n60/metrics_by_year.csv)
+for y in 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010; do need+=($DATA_ROOT/processed/tract/tracts_$y.gpkg); done
+need+=($DATA_ROOT/raw/water/jrc_occurrence $DATA_ROOT/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp)
+ok=1
+for f in "${need[@]}"; do [[ -e $f ]] || { echo "MISSING $f"; ok=0; }; done
+echo "checked ${#need[@]} inputs"
+per=$(du -cb $C/layers/*/1960_*.tif $C/layers/Land_Use/*/1960_*.tif $C/zones/zones_1960.* | tail -1 | cut -f1)
+echo "cutout: 1960 files $((per / 1000000)) MB -> 9 new years ~$((9 * per / 1000000)) MB"
+v=$(du -sb $N | cut -f1)
+echo "Dasy_CONUS_RF_v3_n60 (3 years) $((v / 1000000)) MB -> Dasy_CONUS_RF_v3_all (12 years) ~$((4 * v / 1000000)) MB"
+r=$(du -cb results/validation/conus/Dasy_CONUS_RF_v3_n60 results/dasymetric/conus/Dasy_CONUS_RF_v3_n60 | tail -1 | cut -f1)
+echo "results in git (3 years) $((r / 1000000)) MB -> 12 years ~$((4 * r / 1000000)) MB"
+df -h $HISDAC_SCRATCH | tail -1
+curc-quota 2>/dev/null | grep -iE "scratch|projects" || true
+$ENVS/hisdac/bin/python -c "import sklearn, rasterio, geopandas, shap; print('env ok | sklearn', sklearn.__version__)" || ok=0
+grep -E '^(version|compare_with):|^years:' configs/conus_rf_v3_all.yaml configs/conus_study_area.yaml
+if (( ok )); then bash sbatch/submit_conus.sh all; else echo "NOT SUBMITTED: fix the MISSING inputs / env above first"; fi
+echo "== end of block 0"
+```
+
+Good: no `MISSING` line, `checked 123 inputs`, the size lines (cutout ~9 x the 1960 files, v3_all ~4 x v3_n60; the
+scratch `df` / `curc-quota` line must show far more free space than their sum), `env ok | sklearn ...`, the
+`version` / `years` / `compare_with` lines (`Dasy_CONUS_RF_v3_all`, `{start: 1900, stop: 2010, step: 10}` in both
+files, `Dasy_CONUS_RF_v3_n60`), then one line `census_conus N | grid_cutout N | bui_fix N | water_frac N | features N
+| train N | predict N | validate N | summary N` (9 ids, also in `logs/conus_all_jobs.txt`) and `== end of block 0`.
+If `== end of block 0` is missing, the paste was cut: run `cat logs/conus_all_jobs.txt; squeue -u $USER` before
+pasting again (never submit twice).
+
+If a `counties_{YEAR}.gpkg` of `processed/census` is MISSING (NHGIS nominal counties, made for 1810-2020 on
+2026-09-29, job 33163853): `conus_counties.py` needs it in every year, because 4 of the 2010 polygons have no CSV row
+(Broomfield CO, Miami-Dade FL, Shannon SD, Bedford city VA; 1960: 0.94 M people, 0.5 %; 1920: 45 k) and are filled
+from it; without the file the job stops. Do not go on without the fill: rebuild the file (about 5 min,
+`sbatch sbatch/census_prepare.sh --years <YEAR>`, `docs/runbooks/Preparing_Census.md`), then rerun block 0.
+
+Block 1, monitor:
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+for j in $(grep -oE '[0-9]{6,}' logs/conus_all_jobs.txt); do f=$(ls logs/*.$j.out 2>/dev/null); [[ -n $f ]] && { echo "== $f"; tail -n 3 "$f"; }; done
+echo "== end of block 1"
+```
+
+Good: the last lines of the started jobs (`== done ...` when finished) and `== end of block 1`. Check in the logs:
+- `census_conus`: 12 years, `filled from NHGIS` lines for the 4 polygons, `DONE`
+- `grid_cutout`: `DEM kept (static, already in the cutout ...)`, 9 years of BUI / BUPL / BUPR / BUA, Land_Use for
+  1940, 1950, 1970-2000, `zones` for the 9 years, `DONE`
+- `bui_fix`: the 9 new years, `years with cells above the cap: [...]`, `DONE`
+- `water_frac`: `yearly layers [1900, ..., 2010]`, the 6 QA points `ok`, `wrote 12 yearly layers`, `DONE`
+- `dasymetric_features`: 12 eras, `DONE`
+- `dasymetric_train`: per era `search 60 of continuous candidates`, `best params`, `CV RMSE`, `TEST`; Y1920 / Y1960
+  / Y2010 also `Dasy_CONUS_RF_v3_n60 (its saved out-of-fold predictions, same folds ...)`, the others `compare_with
+  Dasy_CONUS_RF_v3_n60 has no era ...`; `DONE`
+- `dasymetric_predict`: `mass check by year` (12 rows, `fail` 0), `mass check: ... 0 fail | bad cells 0`, `DONE`
+- `validate_tract`: 11 years (1910-2010), `BUI gap counties ...` per year, `DONE`
+- `compare_models` (summary): `repro 1920 / 1960 / 2010 vs Dasy_CONUS_RF_v3_n60: ... -> SAME`, one table per year,
+  `mass check ...: 0 county-years fail`, `wrote .../mdape_by_year.png`, `DONE`
+
+Block 2, close the loop (after the last job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_all_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_all_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_all_seff.txt
+cat logs/conus_all_sacct.txt
+du -sh results/census_conus results/cutout/conus results/dasymetric/conus/Dasy_CONUS_RF_v3_all results/validation/conus/Dasy_CONUS_RF_v3_all
+git add logs/ results/census_conus results/cutout/conus results/dasymetric/conus/Dasy_CONUS_RF_v3_all results/validation/conus/Dasy_CONUS_RF_v3_all
+git commit -m "run: CONUS RF v3 all census years 1900-2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2"
+```
+
+Good: `sacct` shows `COMPLETED` for all 9 jobs, `git push` ends with `main -> main`, the last commit is the `run: CONUS
+RF v3 all census years ...` one, then `== end of block 2`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -448,6 +562,11 @@ Good: `sacct` shows `COMPLETED` for all 16 jobs, `git push` ends with `main -> m
 | models: `ModuleNotFoundError: xgboost` / `catboost` | the env was not updated (block 0) |
 | models: train `CANCELLED ... DUE TO TIME LIMIT` | boosting slower than estimated: resubmit only that model's train / predict / validate with `TRAIN_TIME=04:00:00` (send Claude the log first) |
 | models: `compare_with Dasy_CONUS_RF_v3_bui: its folds differ` | the split table changed: never regenerate it; send Claude the log |
+| all: `MISSING .../processed/census/counties_{YEAR}.gpkg` | see block 0 of section 5: rebuild it with `census_prepare.sh --years <YEAR>` (do not go on without the NHGIS fill) |
+| all: `grid_cutout` or `bui_fix` failed | the later jobs never start: `scancel` them, send the log. Both reruns are safe: `--years` touches only the new years; `bui_fix` reads `layers/BUI_raw/` |
+| all: `water_frac` `OUT_OF_MEMORY` | 12 yearly layers in memory (~11 GB) + the workers: resubmit the chain from water_frac with more cores (send Claude `seff` first) |
+| all: train `CANCELLED ... DUE TO TIME LIMIT` | `TRAIN_TIME=08:00:00`; or train only the eras not done yet with `--years` (send Claude the log first: `cv_summary.csv` is written at the end of the job) |
+| all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

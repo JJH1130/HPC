@@ -11,7 +11,8 @@ Config (study area yaml):  bui_cap: {max: 3.0e7, replace: neighbour_median}.  Wi
 (only --check works).
 
 In place on <cutout-root>/<name>/: the first run moves layers/BUI/{YEAR}_BUI.tif to layers/BUI_raw/{YEAR}_BUI.tif;
-every run reads BUI_raw and writes layers/BUI/{YEAR}_BUI.tif again (a rerun gives the same file). Re-cutting BUI with
+every run reads BUI_raw and writes layers/BUI/{YEAR}_BUI.tif again (a rerun gives the same file); with --years only
+those years are touched and bui_fix_summary.csv keeps the other years' rows. Re-cutting BUI with
 make_cutout.py --layers BUI overwrites layers/BUI/: run this again afterwards.
 
 QA (--qa-dir): bui_fix_summary.csv (one row per year: cells above the cap, replaced by 0, max before / after, BUI sum
@@ -227,6 +228,9 @@ def main(argv=None):
             df.sort_values("BUI_before", ascending=False).to_csv(args.qa_dir / f"{prefix}_{year}.csv", index=False)
     summary = pd.DataFrame(rows)
     path = args.qa_dir / ("bui_check_summary.csv" if args.check else "bui_fix_summary.csv")
+    if args.years is not None and path.exists():  # --years: the other years' rows of an earlier run are kept
+        old = pd.read_csv(path)
+        summary = pd.concat([old[~old["year"].isin(years)], summary], ignore_index=True).sort_values("year")
     summary.to_csv(path, index=False)
     log.info("summary:\n%s", summary.drop(columns=["source"]).to_string(index=False))
     log.info("years with cells above the cap: %s", summary.loc[summary["n_over_cap"] > 0, "year"].tolist())

@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-27 (CONUS model family comparison written as code)
+Last updated: 2026-10-27 (CONUS all census years 1900-2010 written as code)
 
 ## Open items
 
@@ -64,6 +64,10 @@ Last updated: 2026-10-27 (CONUS model family comparison written as code)
   **Result: RF** (tie on county CV / TEST R2; RF best or tied on tracts in every year, boosting worst in 2010 and
   sparse tracts; table in `docs/conus_plan.md` "Model family result"). If overfitting shows later, revisit that
   model's search space.
+- **CONUS all census years (Order 7)**: `Dasy_CONUS_RF_v3_all` = RF v3 n60 for 1900-2010 (12 eras). Request:
+  `docs/handoff/conus_all_years_request.md`. Code written 2026-10-27, not run yet (`bash sbatch/submit_conus.sh all`,
+  `docs/runbooks/Running_CONUS.md` section 5; `docs/conus_plan.md`, "All census years"). 1920 / 1960 / 2010 must
+  reproduce v3_n60 (checked in the summary log). 2020 next: needs a county input beyond Stefan's CSV.
 - **Why RF wins on tracts (later, recheck with HISDAC v3)**: likely the scale gap - trained on county means (median
   county ~25,800 cells of 250 m, 10-90 %: 12 k-74 k; median 2010 tract 80 cells) and applied to single cells, whose
   feature values and combinations never occur among county means; county scores are at their ceiling and cannot
@@ -360,3 +364,4 @@ Last updated: 2026-10-27 (CONUS model family comparison written as code)
 | 2026-10-27 | BUI fix implemented as a separate step after the cutout (`src/grid/bui_fix.py`, in place on `layers/BUI/`, original kept in `layers/BUI_raw/`, reruns identical), switched on by `bui_cap` in the study area config (Massachusetts: none, check only). Neighbours above the cap, with nodata or outside the window are left out of the median (none left -> 0); strips use one halo row. New versions `Dasy_CONUS_RF_v1_bui` / `Dasy_CONUS_RF_v3_bui` (1920/1960/2010, compare_with v1 / v3) so the old v1 / v3 outputs stay. |
 | 2026-10-27 | BUI fix (cap 3e7 sq ft -> 3 x 3 neighbour median) applied; alone it changes tract error by about 0.1 point. v3_bui (v1 + terrain on fixed BUI) is the CONUS base: tract MdAPE 53.7 / 38.2 / 25.2 % (1920 / 1960 / 2010); the 2010 gain over v3 comes with `max_features` 1.0 picked on a CV tie. Distances spread population onto empty cells (county maps); terrain keeps it in valleys. |
 | 2026-10-27 | Model family comparison implemented: `models.py` registry (rf, lgbm, xgb, catboost; single-threaded models, parallel search, no early stopping), search spaces may use distributions (`{dist: loguniform|uniform|randint, low, high}`; lists unchanged), 60 candidates each, v3_bui features copied (not recomputed), split table folds checked against v3_bui. Tract metrics get BUI gap-county parts `no_gap` / `gap` (`--gap-share 0.05`, CONUS only). `catboost>=1.2.8` pinned: 1.2.7 fails with scikit-learn >= 1.6. |
+| 2026-10-27 | All census years: study area years 1900-2010; `Dasy_CONUS_RF_v3_all` one era per year (1900-1930 without res_share / rent_share). Inputs only where missing: cutout and BUI fix for the 9 new years (`--years`; QA files keep the old rows, DEM kept), census input and water for all 12 (cheap / QA points stay; deterministic, so the old years come out the same). Features, train, predict for all 12, so 1920 / 1960 / 2010 check reproducibility against v3_n60 (`compare_models.py --repro-with`). v1 / v1_bui configs pinned to 1920 / 1960 / 2010. |

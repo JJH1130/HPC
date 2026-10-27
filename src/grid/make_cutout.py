@@ -20,7 +20,9 @@ Steps:
      Counties not picked, and cells outside all counties, are 0.
 
 With --layers, only those layers are cut into an existing cutout: the window must equal the one
-in its window.json, and zones, window.json and cutout_qa.csv are left as they are.
+in its window.json, and zones, window.json and cutout_qa.csv are left as they are. With --years (adding years to a
+cutout, e.g. CONUS 1900-2010 after the pilot years), static layers already in the cutout are kept and cutout_qa.csv
+keeps the other years' rows.
 
 Paths come from CLI flags (the sbatch script fills them from sbatch/cluster_env.sh).
 """
@@ -319,12 +321,15 @@ def write_tif(path: Path, arr, transform, crs, nodata):
     os.replace(part, path)  # the final name only ever holds a complete file
 
 
+def layer_path(layer, year, path, out_dir) -> Path:
+    return out_dir / "layers" / fill(layer["out"], layer, year).replace("{FILENAME}", path.name)
+
+
 def cut_layer(layer, year, path, win_transform, shape, out_dir, ref):
     label = f"{layer['label']} {year}" if year else layer["label"]
     arr, nd, src_nodata, how = read_layer(layer, year, path, win_transform, shape, ref, label)
     out, out_nd, valid = convert(arr, nd, src_nodata, layer, not layer["aligned"][year], label)
-    rel = fill(layer["out"], layer, year).replace("{FILENAME}", path.name)
-    out_path = out_dir / "layers" / rel
+    out_path = layer_path(layer, year, path, out_dir)
     write_tif(out_path, out, win_transform, ref["crs"], out_nd)
     log.info("  %-18s %s, %s -> %s nodata=%s | min %s max %s | zeros %d | nodata cells %d | %.1f MB",
              label, arr.dtype, how, layer["dtype"], out_nd,
@@ -450,6 +455,11 @@ def main(argv=None):
         "crs_wkt": ref["crs"].to_wkt(), "reference_raster": str(ref["path"]),
     }, indent=2))
 
+    if args.years is not None:  # adding years: a static layer (years: none) already in the cutout is kept
+        kept = [(lay, y, p) for lay, y, p in inputs if y is None and layer_path(lay, y, p, out_dir).exists()]
+        for lay, y, p in kept:
+            log.info("  %-18s kept (static, already in the cutout: %s)", lay["label"], layer_path(lay, y, p, out_dir))
+        inputs = [i for i in inputs if i not in kept]
     log.info("cutting %d rasters", len(inputs))
     shape = (int(window.height), int(window.width))
     for layer, year, path in inputs:
@@ -457,7 +467,11 @@ def main(argv=None):
 
     log.info("zone grids")
     qa = pd.concat([make_zones(y, cfg, args, window, ref, out_dir) for y in years], ignore_index=True)
-    qa.to_csv(out_dir / "cutout_qa.csv", index=False)
+    qpath = out_dir / "cutout_qa.csv"
+    if args.years is not None and qpath.exists():  # --years: the other years' rows of an earlier run are kept
+        old = pd.read_csv(qpath)
+        qa = pd.concat([old[~old["year"].isin(years)], qa], ignore_index=True).sort_values(["year", "zone_id"])
+    qa.to_csv(qpath, index=False)
     n_zero = int((qa["n_cells"] == 0).sum())
     summary = qa.groupby("year").agg(counties=("zone_id", "size"), zero_cell=("n_cells", lambda s: int((s == 0).sum())),
                                      ratio_min=("area_ratio", "min"), ratio_median=("area_ratio", "median"),

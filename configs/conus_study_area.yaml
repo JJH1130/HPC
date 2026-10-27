@@ -10,8 +10,9 @@ states: all
 # The window is the whole HISDAC-US raster (18459 x 11615 cells of 250 m, ESRI:102039): no resampling of HISDAC.
 window: full
 
-# Trial years (one per former era). Full run later: {start: 1900, stop: 2010, step: 10}.
-years: [1920, 1960, 2010]
+# All census years of Stefan's CSV (2026-10-27, Dasy_CONUS_RF_v3_all; the pilot / model family ran on 1920, 1960,
+# 2010, and their model configs keep those years with their own `years:`). 2020 needs another county input.
+years: {start: 1900, stop: 2010, step: 10}
 
 grid_reference: BUI
 
@@ -62,7 +63,7 @@ water:
   yearly_out: "water_frac/{YEAR}_water_frac.tif"
   block: 256
   only_zone_blocks: true
-  # Reservoirs filled between the trial years (warnings only if not met).
+  # Reservoirs filled between the pilot years (warnings only if not met; kept as they are for the all-years run).
   qa_points:
     - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: dry, year: 1920}
     - {name: Quabbin Reservoir, lon: -72.30, lat: 42.40, box_km: 5, expect: full_water, year: 1960}

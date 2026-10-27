@@ -300,6 +300,22 @@ County maps (2010; `results/validation/conus/county_maps/`), share of the county
   records (ZTRAX coverage) for that county. Counted 2026-10-27: 416 counties (4.7 % of the population) in
   2010 have BUI per person below 5 % of the median (`docs/open_items.md`).
 
+## All census years (request 2026-10-27; run steps `docs/runbooks/Running_CONUS.md`, section 5)
+
+The model chosen by the family comparison (RF, v3 features, 60 candidates; "Model family result") for every census
+year of Stefan's CSV. Request: `docs/handoff/conus_all_years_request.md`.
+
+| Topic | Decision |
+|---|---|
+| Version | `Dasy_CONUS_RF_v3_all` (`configs/conus_rf_v3_all.yaml`): `conus_rf_v3_n60.yaml` with years 1900-2010 (12), one era per year (own search + fit). 1900-1930 without res_share / rent_share (Land_Use from 1940), as Y1920. 2020 later: the CSV ends in 2010, so 2020 needs another county input |
+| Study area | `configs/conus_study_area.yaml` years `{start: 1900, stop: 2010, step: 10}`. Configs with their own `years:` keep theirs; `conus_rf_v1.yaml` / `conus_rf_v1_bui.yaml` got `years: [1920, 1960, 2010]` (they had none). The `pilot` mode of `submit_conus.sh` would now cut / water all 12 years (history only) |
+| Inputs | census input for all 12 years (cheap; 1920 / 1960 / 2010 rewritten the same). Cutout and BUI fix only for the 9 new years (`--years`; the fixed 1920 / 1960 / 2010 BUI is never re-cut; `cutout_qa.csv` / `bui_fix_summary.csv` keep the other years' rows; a static layer already in the cutout, DEM, is kept). Water for all 12 years: the QA points are for 1920 / 1960 / 2010 and stay as they are, and the GDW layers are deterministic, so the 3 old ones come out the same. No place_dist (v3 has no distances) |
+| Features / train / predict | recomputed for all 12 years in the new version (the 3 old years too: they are the reproducibility check). One job per stage (simplest), longer wall times: features 1 h, train 5 h, predict 3 h, validate 2 h |
+| Reproducibility | `compare_with: Dasy_CONUS_RF_v3_n60`: train.py compares 1920 / 1960 / 2010 on the same folds (eras that v3_n60 lacks are skipped with a log line). `compare_models.py --repro-with Dasy_CONUS_RF_v3_n60` logs one line per shared year: hyperparameters, CV RMSE, tract MdAPE the same or not (column `repro_Dasy_CONUS_RF_v3_n60`). Same seed, features and folds -> they must be the same; a difference is investigated, not ignored |
+| Validation | tracts 1910-2010 (none in 1900): split parts, density classes, `--gap-share 0.05`, areal weighting |
+| Summary | `results/validation/conus/Dasy_CONUS_RF_v3_all/summary_by_year.csv` (`compare_models.py`, one version x 12 years: CV RMSE / R2, TEST R2, chosen hyperparameters, tract count and counties with tracts (`tract_counties`), MdAPE all / test / no_gap / density classes, baseline MdAPE, gap counties, mass check per year `mass_fail`) and `mdape_by_year.png` (tract MdAPE by year: model, model without gap counties, areal weighting; below: counties with tracts). Population maps per year from predict (`maps.years` = all 12) |
+| Mass check | predict logs `mass check by year`; the summary repeats it per year from `reallocation_qa.csv` |
+
 ## Model family result (jobs 34932548-34932563, code 7abfaf6, run 2026-10-27)
 
 All 16 jobs COMPLETED. v3_bui features, same split and folds, RandomizedSearchCV with 60 candidates per model and
@@ -427,4 +443,5 @@ Made while implementing; each is the simplest option consistent with the decisio
 6. Model family: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, chosen by tract
    validation + county TEST R2 (`docs/handoff/conus_models_request.md`). Code 2026-10-27 ("Model family";
    `bash sbatch/submit_conus.sh models`).
-7. Then the remaining years (1900-2010) with the chosen model and v3 features, then 2020.
+7. Then the remaining years (1900-2010) with the chosen model and v3 features, then 2020. Code 2026-10-27 ("All
+   census years"; `bash sbatch/submit_conus.sh all`).

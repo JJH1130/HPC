@@ -14,6 +14,9 @@ in a temporary folder, a split table with make_split.py, and checks:
   - model family (models.py): LightGBM, XGBoost, CatBoost with distribution spaces on the copied features of
     another version: search -> fit -> save -> load -> predict, mass preserved, era params fixed, same folds as
     compare_with; compare_models.py table
+  - all census years (v3_all): a pre-1940 year without Land_Use (1900, its own feature list) next to 1960 / 2010;
+    the shared years come out the same as the compared version (features, hyperparameters, CV, tracts); no
+    comparison for 1900; no tracts in 1900; summary_by_year with --repro-with and the figure
   - terrain (elev, slope; v3 / v4): strips (one halo row) == whole window, cell by cell and as county features
   - bui_qa.py: quantiles, cap counts and the top cells with their county and bldg_size
   - conus_counties.py: status ok / no_value / zero_pop and the same row order every year
@@ -441,6 +444,41 @@ def test_pipeline():
         assert len(dens) == 4 and cmp[dens].notna().any().any() and cmp["best_params"].notna().all()
         print("ok compare_models: one row per version and year, CV / TEST / tract columns from the result files")
 
+        # 8. all census years (Dasy_CONUS_RF_v3_all): 1900 (no Land_Use: no res_share / rent_share) added to the
+        # cutout; 1960 / 2010 must reproduce `blocks` (same seed, features, folds), 1900 has no compare_with era
+        add_year(cut, 1900)
+        cfg_all = write_all_config(tmp, cfgs["blocks"], [1900] + YEARS)
+        county_features.main(["--config", str(cfg_all), "--cutout-root", str(tmp / "cutouts")] + common)
+        train.main(["--config", str(cfg_all), "--n-jobs", "2"] + common)
+        predict.main(["--config", str(cfg_all), "--cutout-root", str(tmp / "cutouts"), "--n-jobs", "2"] + common)
+        va = out_root / "conus" / "all"
+        assert "res_share" not in pd.read_csv(va / "Y1900" / "features" / "county_features.csv").columns
+        for y in YEARS:
+            pd.testing.assert_frame_equal(
+                pd.read_csv(va / f"Y{y}" / "features" / "county_features.csv"),
+                pd.read_csv(out_root / "conus" / "blocks" / f"Y{y}" / "features" / "county_features.csv"))
+            assert (va / f"Y{y}" / "model" / "compare_blocks.json").exists()
+        assert not list((va / "Y1900" / "model").glob("compare_*"))
+        q = pd.read_csv(va / "qa" / "reallocation_qa.csv")
+        assert set(q["year"]) == {1900, *YEARS} and (q["rel_diff"] < predict.MASS_TOL).all()
+        dst = res / "dasymetric" / "conus" / "all"
+        for y in [1900] + YEARS:
+            shutil.copytree(va / f"Y{y}" / "model", dst / f"Y{y}")
+        shutil.copy(va / "cv_summary.csv", dst)
+        shutil.copy(va / "qa" / "reallocation_qa.csv", dst)
+        tract_validate.main(["--version", "all", "--results-root", str(res / "validation"), "--gap-share", "0.8"]
+                            + tv_args)  # tv_args: --years 1960 2010 (no tracts in 1900)
+        r = res / "validation" / "conus" / "all"
+        compare_models.main(["--versions", "all", "--results-root", str(res), "--repro-with", "blocks",
+                             "--out", str(r / "summary_by_year.csv"), "--plot", str(r / "mdape_by_year.png")])
+        sy = pd.read_csv(r / "summary_by_year.csv").set_index("year")
+        assert sy.index.tolist() == [1900] + YEARS and (sy["mass_fail"] == 0).all()
+        assert (sy.loc[YEARS, "repro_blocks"] == "same").all() and pd.isna(sy.loc[1900, "repro_blocks"])
+        assert pd.isna(sy.loc[1900, "tract_all_mdape"]) and sy.loc[YEARS, "tract_counties"].gt(0).all()
+        assert (r / "mdape_by_year.png").stat().st_size > 0
+        print("ok all years: 1900 without Land_Use features, 1960 / 2010 reproduce the compared version, "
+              "summary_by_year + figure")
+
         # 5. bui_qa: quantiles over BUI > 0 cells, cap counts, top cells with county and bldg_size
         bui_qa.main(["--cutout", str(cut), "--years", *map(str, YEARS), "--out-dir", str(tmp / "bq"),
                      "--caps", "5", "50", "--top", "5", "--block-rows", "7", "--metro-rank", "3"])
@@ -461,6 +499,35 @@ def test_pipeline():
         print("ok bui_qa: quantiles, caps, top cells with zone and bldg_size")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def add_year(cut: Path, year: int, src: int = 1960):
+    """A pre-1940 year in the synthetic cutout: the src year's building layers halved, its water and zones (pop
+    0.4 x), and no Land_Use (HISDAC has it from 1940)."""
+    for name in ("BUI", "BUPL", "BUPR", "BUA"):
+        a = read(cut / "layers" / name / f"{src}_{name}.tif")
+        write_tif(cut / "layers" / name / f"{year}_{name}.tif", a if name == "BUA" else (a // 2).astype(a.dtype))
+    write_tif(cut / "layers" / "water_frac" / f"{year}_water_frac.tif",
+              read(cut / "layers" / "water_frac" / f"{src}_water_frac.tif"), float("nan"))
+    write_tif(cut / "zones" / f"zones_{year}.tif", read(cut / "zones" / f"zones_{src}.tif"), 0)
+    t = pd.read_csv(cut / "zones" / f"zones_{src}.csv")
+    t["pop"] = np.round(t["pop"] * 0.4)
+    t.to_csv(cut / "zones" / f"zones_{year}.csv", index=False)
+
+
+def write_all_config(tmp: Path, ref_cfg: Path, years: list[int]) -> Path:
+    """Like configs/conus_rf_v3_all.yaml: the reference version's config over more years, one era per year
+    (before 1940 without res_share / rent_share), compare_with the reference."""
+    study = tmp / "configs" / "study_all.yaml"
+    study.write_text(yaml.safe_dump({"name": "conus", "years": years}))
+    ref = yaml.safe_load(ref_cfg.read_text())
+    feats = ref["eras"][f"Y{YEARS[0]}"]["features"]
+    eras = {f"Y{y}": {"years": [y], "features": feats if y >= 1940 else
+                      [f for f in feats if f not in ("res_share", "rent_share")]} for y in years}
+    p = tmp / "configs" / "all.yaml"
+    p.write_text(yaml.safe_dump({**ref, "version": "all", "study_area": str(study), "eras": eras,
+                                 "compare_with": ref["version"]}))
+    return p
 
 
 def boost_space(cfg_path: Path):

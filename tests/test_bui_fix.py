@@ -146,7 +146,12 @@ def test_fix():
         assert same(read(cut / "layers" / "BUI" / "2010_BUI.tif"), before)
         c = pd.read_csv(tmp / "qa_check" / "bui_check_summary.csv")
         assert (~c["applied"]).all() and (c["n_over_cap"].to_numpy() == s["n_over_cap"].to_numpy()).all()
-    print("ok fix: isolated, neighbours above the cap, edges, strips 1/7/512 = whole window = brute force, rerun")
+        # --years (adding years to a cutout): only that year is run, the summary keeps the other years' rows
+        run(cfg, tmp, "qa512", "--years", str(YEARS[-1]))
+        s2 = pd.read_csv(tmp / "qa512" / "bui_fix_summary.csv")
+        assert s2["year"].tolist() == YEARS and s2.drop(columns="source").equals(s.drop(columns="source"))
+    print("ok fix: isolated, neighbours above the cap, edges, strips 1/7/512 = whole window = brute force, rerun, "
+          "--years keeps the other years' summary rows")
 
 
 def test_no_cap_block():

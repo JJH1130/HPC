@@ -270,6 +270,9 @@ def main(argv=None):
     log.info("wrote %s", qpath)
 
     fail = qa[~(qa["rel_diff"] < MASS_TOL)]
+    by_year = qa.assign(fail=~(qa["rel_diff"] < MASS_TOL)).groupby("year").agg(
+        county_years=("GISJOIN", "size"), max_rel_diff=("rel_diff", "max"), fail=("fail", "sum"))
+    log.info("mass check by year (tolerance %.0e):\n%s", MASS_TOL, by_year.to_string())
     log.info("mass check: %d county-years, max rel diff %.2e (tolerance %.0e), %d fail | bad cells %d",
              len(qa), qa["rel_diff"].max(), MASS_TOL, len(fail), bad_cells)
     if len(fail) or bad_cells:

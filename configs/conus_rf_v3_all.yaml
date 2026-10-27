@@ -1,0 +1,92 @@
+# Dasy_CONUS_RF_v3_all (docs/conus_plan.md "All census years"; request 2026-10-27): the CONUS base model (RF, v3
+# features = v1 + elev, slope; 60 candidates from continuous ranges, as Dasy_CONUS_RF_v3_n60, chosen by the model
+# family comparison) for every census year of Stefan's CSV, 1900-2010, one era (own search + fit) per year. Same
+# split, folds, statuses, water mask and strips as v3_n60. compare_with v3_n60: 1920 / 1960 / 2010 must come out
+# the same (same seed, features and folds); compare_models.py --repro-with checks it. 2020 later (needs another
+# county input: the CSV ends in 2010).
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_all/
+version: Dasy_CONUS_RF_v3_all
+
+study_area: configs/conus_study_area.yaml
+years: {start: 1900, stop: 2010, step: 10}
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3_n60
+
+split: configs/conus_split.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+eras:
+  # res_share / rent_share need Land_Use (1940+).
+  Y1900:
+    years: [1900]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1910:
+    years: [1910]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1920:
+    years: [1920]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1930:
+    years: [1930]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1940:
+    years: [1940]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y1950:
+    years: [1950]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y1970:
+    years: [1970]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y1980:
+    years: [1980]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y1990:
+    years: [1990]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2000:
+    years: [2000]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+
+# elev and slope are separate groups, not one Terrain group (decided 2026-10-20).
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+
+maps:
+  years: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010]
+  compare_years: [2010]   # side by side with v3_n60
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 60   # as v3_n60
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:        # sklearn.ensemble.RandomForestRegressor
+    fixed: {random_state: 42}
+    space:
+      n_estimators: {dist: randint, low: 200, high: 1000}
+      max_depth: [null, 5, 10, 15, 20, 30]
+      min_samples_leaf: {dist: randint, low: 1, high: 10}
+      max_features: [sqrt, 0.33, 0.5, 0.75, 1.0]

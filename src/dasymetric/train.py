@@ -195,6 +195,9 @@ def compare_previous(cfg: dict, out_root: Path, folds: pd.DataFrame, rows: pd.Da
     pdir = out_root / cfg["name"] / prev
     if era and (pdir / era).is_dir():
         return compare_era(cfg, prev, pdir / era, rows, mdir)
+    if era and (pdir / "cv_summary.csv").exists():  # a per-era version without this era (v3_all 1900 vs v3_n60)
+        log.info("compare_with %s has no era %s; no comparison for it", prev, era)
+        return None, None
     need = [pdir / "features" / "county_features.csv", pdir / "model" / "best_params.json",
             pdir / "model" / "metrics.json"]
     missing = [str(f) for f in need if not f.exists()]
@@ -234,6 +237,8 @@ def compare_test(cfg: dict, out_root: Path, era: str, test_pred: pd.DataFrame, m
     if not prev:
         return None
     path = out_root / cfg["name"] / prev / era / "model" / "test_predictions.csv"
+    if era and not path.parent.parent.is_dir() and (out_root / cfg["name"] / prev / "cv_summary.csv").exists():
+        return None  # compare_with has no such era (logged by compare_previous)
     if not path.exists():
         log.warning("compare_with %s: no %s; test comparison skipped", prev, path)
         return None
