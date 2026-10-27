@@ -86,6 +86,14 @@ Last updated: 2026-10-28 (external comparison written as code; VIIRS-like NTL te
    counts (records with a built year only); per cell / county, share of records without a built year (e.g. 15 of 40).
    Leave counties above a threshold out of training and testing; choose the threshold by sensitivity analysis
    (how many counties remain vs accuracy).
+- Settled with the user (2026-10-28): 2020 county input from NHGIS 2020 counties (small boundary changes). County
+  MdAPE = TEST counties, model prediction before mass-preserving allocation vs census (as TEST R2). Fixed set = tracts
+  inside the counties tracted in every year (big cities only, known to be unrepresentative), each year's own tracts;
+  reported next to the all-tracts validation. PLURAL grid: test only in its three years (1940, 1980, 2010) first;
+  continuous and classed (number of classes and breaks as a sensitivity analysis); `index3` presumably the 0-1 PLURAL
+  index (check the value range). HISDAC uncertainty: excluded counties get their population allocated by the model
+  trained on the reliable counties (imputation). Open: whether BUPR already includes the records without a built year
+  (check the HISDAC README); ratio per year (NobuiltYear / (BUPR_year + NobuiltYear)) or one static ratio from 2020.
 
 ### CONUS: hyperparameter sensitivity and source gaps (open, 2026-10-27)
 
