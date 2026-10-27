@@ -1,0 +1,26 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+34956826                grid_cutout  COMPLETED   00:02:01                   4  00:32.115 
+34956826.ba+                  batch  COMPLETED   00:02:01  10813460K        4  00:32.114 
+34956826.ex+                 extern  COMPLETED   00:02:01          0        4  00:00.001 
+34956827                     ntl_qa     FAILED   00:01:36                   8  01:01.488 
+34956827.ba+                  batch     FAILED   00:01:36  10134772K        8  01:01.487 
+34956827.ex+                 extern  COMPLETED   00:01:36       256K        8  00:00.001 
+34956828        dasymetric_features  COMPLETED   00:05:45                   6  01:51.804 
+34956828.ba+                  batch  COMPLETED   00:05:45  10252352K        6  01:51.802 
+34956828.ex+                 extern  COMPLETED   00:05:45       256K        6  00:00.001 
+34956829           dasymetric_train  COMPLETED   00:19:27                  16  38:54.713 
+34956829.ba+                  batch  COMPLETED   00:19:27   7837516K       16  38:54.712 
+34956829.ex+                 extern  COMPLETED   00:19:27          0       16  00:00.001 
+34956830         dasymetric_predict  COMPLETED   00:10:49                  32   01:13:54 
+34956830.ba+                  batch  COMPLETED   00:10:49  14613736K       32   01:13:54 
+34956830.ex+                 extern  COMPLETED   00:10:49          0       32  00:00.001 
+34956831             validate_tract  COMPLETED   00:07:06                   8  05:57.065 
+34956831.ba+                  batch  COMPLETED   00:07:06  17104176K        8  05:57.063 
+34956831.ex+                 extern  COMPLETED   00:07:06       256K        8  00:00.001 
+34956832             compare_models  COMPLETED   00:00:12                   1  00:01.948 
+34956832.ba+                  batch  COMPLETED   00:00:12    148724K        1  00:01.946 
+34956832.ex+                 extern  COMPLETED   00:00:13       496K        1  00:00.001 
+34956833                county_maps  COMPLETED   00:02:01                   4  00:53.495 
+34956833.ba+                  batch  COMPLETED   00:02:01   5811604K        4  00:53.494 
+34956833.ex+                 extern  COMPLETED   00:02:02          0        4  00:00.001 

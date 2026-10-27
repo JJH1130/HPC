@@ -1,0 +1,36 @@
+== job 34956832 (compare_models) on c3cpu-e2-u2 at 2026-10-27T10:40:51-06:00
+== cores=1 gpus=none restart=0
+== git ec40458
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: --versions Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_ntl --years 2000 2010 --rank-features ntl --out results/validation/conus/ntl_comparison.csv
+10:40:55 INFO arg versions = ['Dasy_CONUS_RF_v3_all', 'Dasy_CONUS_RF_v3_ntl']
+10:40:55 INFO arg name = conus
+10:40:55 INFO arg results_root = results
+10:40:55 INFO arg out = results/validation/conus/ntl_comparison.csv
+10:40:55 INFO arg plot = None
+10:40:55 INFO arg repro_with = None
+10:40:55 INFO arg years = [2000, 2010]
+10:40:55 INFO arg rank_features = ['ntl']
+10:40:57 INFO 2000 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+             version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+Dasy_CONUS_RF_v3_all    rf        0.6172      0.8631   0.8753        62380            3007          27.1501           27.3888             26.0611                29.3959             75.8582           416          0          705.3
+Dasy_CONUS_RF_v3_ntl    rf        0.3210      0.9629   0.9550        62380            3007          32.7530           32.4210             32.4786                27.3521             75.8582           416          0          568.8
+10:40:57 INFO 2010 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+             version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+Dasy_CONUS_RF_v3_all    rf        0.6265      0.8663   0.8775        72243            3109          26.5973           27.4040             25.5654                30.7103             74.5158           416          0          721.5
+Dasy_CONUS_RF_v3_ntl    rf        0.3493      0.9583   0.9518        72243            3109          31.0137           31.0945             30.8034                27.6719             74.5158           416          0          569.1
+10:40:57 INFO chosen hyperparameters:
+ year              version                                                                           best_params
+ 2000 Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2000 Dasy_CONUS_RF_v3_ntl {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2010 Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2010 Dasy_CONUS_RF_v3_ntl {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+10:40:57 INFO rank of ntl (1 = most important; permutation = RMSE increase when shuffled, shap = mean |SHAP|):
+ year              version  ntl_perm_rank  ntl_perm  ntl_shap_rank  ntl_shap  n_features
+ 2000 Dasy_CONUS_RF_v3_all            NaN       NaN            NaN       NaN           8
+ 2000 Dasy_CONUS_RF_v3_ntl            1.0  1.670827            1.0  0.876464           9
+ 2010 Dasy_CONUS_RF_v3_all            NaN       NaN            NaN       NaN           8
+ 2010 Dasy_CONUS_RF_v3_ntl            1.0  1.676625            1.0  0.887243           9
+10:40:57 INFO mass check (reallocation_qa.csv, tolerance 1e-06): 0 county-years fail; years with a failure: none
+10:40:57 INFO wrote results/validation/conus/ntl_comparison.csv (4 rows)
+10:40:57 INFO DONE
+== done 2026-10-27T10:40:57-06:00

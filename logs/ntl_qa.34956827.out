@@ -1,0 +1,58 @@
+== job 34956827 (ntl_qa) on c3cpu-c15-u1-1 at 2026-10-27T09:56:40-06:00
+== cores=8 gpus=none restart=0
+== git ec40458
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: 
+09:56:59 INFO arg config = configs/conus_study_area.yaml
+09:56:59 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:56:59 INFO arg layer = NTL
+09:56:59 INFO arg lon = -71.06
+09:56:59 INFO arg lat = 42.36
+09:56:59 INFO arg box_km = 20.0
+09:56:59 INFO arg bright = 60
+09:56:59 INFO arg edge_km = 5.0
+09:56:59 INFO arg glow_dn = 30
+09:56:59 INFO arg top = 15
+09:56:59 INFO cutout /scratch/alpine/jaju1407/hisdac/cutouts/conus | NTL years [2000, 2010] | box 20 km around (-71.06, 42.36) | DN >= 60
+09:57:37 INFO   2000: DN 0..62 | nodata 0 | zero share 0.716 | box: 5053 bright of 6400 cells, centroid (-71.0839, 42.3615), shift - km | Spearman ntl~bui 0.389 over 124576956 zone cells
+09:57:37 INFO   2000 edges: outside every zone 9217528 lit / 211544 bright (DN >= 60) cells | zone cells with nodata 0 | glow (BUI 0, DN >= 30): edge (<= 5 km) 310752 of 2782557 cells (0.1117), interior 4185990 of 121794399 (0.0344) | mean DN on BUI 0 cells: edge 11.73, interior 4.84
+09:57:37 INFO   2000: counties with the most edge glow cells:
+ zone_id  edge_glow_cells  glow_cells  zone_cells  GISJOIN         state                name
+    1846             7702       12063       38145 G3601030      New York      Suffolk County
+     326             7522       15265       34007 G1200710       Florida          Lee County
+     194             4863       15156      175587 G0600730    California    San Diego County
+     296             4155        6475       43698 G1200090       Florida      Brevard County
+     337             3423        4867       38922 G1200910       Florida     Okaloosa County
+    1745             3309        3642       10752 G3400090    New Jersey     Cape May County
+     610             3146       19361       19500 G1700970      Illinois         Lake County
+     319             3122       10231       44318 G1200570       Florida Hillsborough County
+    1184             2908        3593       17303 G2500010 Massachusetts   Barnstable County
+     164             2780        7254       30640 G0600130    California Contra Costa County
+    2590             2726       28318       73019 G4802010         Texas       Harris County
+    1161             2630        5439       17287 G2400030      Maryland Anne Arundel County
+    2597             2566        8597       65591 G4802150         Texas      Hidalgo County
+    1279             2525       12473       25606 G2601630      Michigan        Wayne County
+    1755             2521        7051       26500 G3400290    New Jersey        Ocean County
+09:58:09 INFO   2010: DN 0..59 | nodata 0 | zero share 0.708 | box: 0 bright of 6400 cells, centroid (nan, nan), shift - km | Spearman ntl~bui 0.404 over 124576956 zone cells
+09:58:09 INFO   2010 edges: outside every zone 9525845 lit / 0 bright (DN >= 60) cells | zone cells with nodata 0 | glow (BUI 0, DN >= 30): edge (<= 5 km) 276403 of 2782557 cells (0.0993), interior 3386416 of 121794399 (0.0278) | mean DN on BUI 0 cells: edge 10.33, interior 4.08
+09:58:09 INFO   2010: counties with the most edge glow cells:
+ zone_id  edge_glow_cells  glow_cells  zone_cells  GISJOIN          state                name
+     326             7409       15269       34007 G1200710        Florida          Lee County
+    1846             6270       10421       38145 G3601030       New York      Suffolk County
+     194             4422       13230      175587 G0600730     California    San Diego County
+     296             3148        5289       43698 G1200090        Florida      Brevard County
+     610             3117       19263       19500 G1700970       Illinois         Lake County
+     319             2920        9215       44318 G1200570        Florida Hillsborough County
+     337             2778        4178       38922 G1200910        Florida     Okaloosa County
+    1184             2747        3416       17303 G2500010  Massachusetts   Barnstable County
+    2597             2701        8368       65591 G4802150          Texas      Hidalgo County
+    1745             2689        2788       10752 G3400090     New Jersey     Cape May County
+    2590             2627       25025       73019 G4802010          Texas       Harris County
+    1923             2624        3201       31678 G3701330 North Carolina       Onslow County
+     164             2592        6696       30640 G0600130     California Contra Costa County
+    1195             2547        7205       28682 G2500230  Massachusetts     Plymouth County
+    1279             2459       12039       25606 G2601630       Michigan        Wayne County
+09:58:09 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/ntl_qa.csv
+09:58:09 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/ntl_glow_counties.csv
+ERROR: NTL QA failed:
+  2010: no cell with DN >= 60 in the box

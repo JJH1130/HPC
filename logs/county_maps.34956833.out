@@ -1,0 +1,45 @@
+== job 34956833 (county_maps) on c3cpu-c15-u1-2 at 2026-10-27T10:40:52-06:00
+== cores=4 gpus=none restart=0
+== git ec40458
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  census: /projects/jaju1407/data/processed/census_conus  args: --counties G5300070 G2001550 G0800430 G1701170 --versions Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_ntl --out-dir results/validation/conus/county_maps_ntl
+10:41:36 INFO arg study_config = configs/conus_study_area.yaml
+10:41:36 INFO arg counties = ['G5300070', 'G2001550', 'G0800430', 'G1701170']
+10:41:36 INFO arg versions = ['Dasy_CONUS_RF_v3_all', 'Dasy_CONUS_RF_v3_ntl']
+10:41:36 INFO arg year = 2010
+10:41:36 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+10:41:36 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+10:41:36 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+10:41:36 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+10:41:36 INFO arg validation_root = results/validation
+10:41:36 INFO arg out_dir = results/validation/conus/county_maps_ntl
+10:41:36 INFO arg margin_km = 5.0
+10:41:36 INFO arg metro_pop = 250000
+10:41:51 INFO CSV /projects/jaju1407/data/raw/plural/plural_2023/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv: 31768 places, PLURAL years [2010]
+10:41:52 INFO shapefile CRS USA_Contiguous_Albers_Equal_Area_Conic -> cutout CRS ESRI:102039
+10:41:52 INFO   2010: plural_indices_scaled_across_years_2010.shp: 28724 points (28724 placeids not seen in earlier years)
+10:41:52 INFO metros: 72 PLURAL places with >= 250000 people in 2010
+10:41:54 INFO   G5300070 Dasy_CONUS_RF_v3_all pop 72453 | on BUI = 0 cells 14.6 % | people-weighted km to Seattle city 149.9
+10:41:54 INFO   G5300070 Dasy_CONUS_RF_v3_ntl pop 72453 | on BUI = 0 cells 41.3 % | people-weighted km to Seattle city 151.9
+10:42:09 INFO   plot results/validation/conus/county_maps_ntl/county_G5300070_2010.png
+10:42:11 INFO   G2001550 Dasy_CONUS_RF_v3_all pop 64511 | on BUI = 0 cells 6.8 % | people-weighted km to Wichita city 66.8
+10:42:11 INFO   G2001550 Dasy_CONUS_RF_v3_ntl pop 64511 | on BUI = 0 cells 21.1 % | people-weighted km to Wichita city 65.9
+10:42:21 INFO   plot results/validation/conus/county_maps_ntl/county_G2001550_2010.png
+10:42:23 INFO   G0800430 Dasy_CONUS_RF_v3_all pop 46824 | on BUI = 0 cells 4.5 % | people-weighted km to Colorado Springs city 59.2
+10:42:23 INFO   G0800430 Dasy_CONUS_RF_v3_ntl pop 46824 | on BUI = 0 cells 36.0 % | people-weighted km to Colorado Springs city 56.0
+10:42:34 INFO   plot results/validation/conus/county_maps_ntl/county_G0800430_2010.png
+10:42:37 INFO   G1701170 Dasy_CONUS_RF_v3_all pop 47765 | on BUI = 0 cells 96.0 % | people-weighted km to St. Louis city 74.6
+10:42:37 INFO   G1701170 Dasy_CONUS_RF_v3_ntl pop 47765 | on BUI = 0 cells 99.2 % | people-weighted km to St. Louis city 71.1
+10:42:47 INFO   plot results/validation/conus/county_maps_ntl/county_G1701170_2010.png
+10:42:47 INFO summary:
+ GISJOIN                    county              version  cells     pop  share_on_bui0                 metro  metro_km_from_county  pop_weighted_metro_km
+G5300070 Chelan County, Washington Dasy_CONUS_RF_v3_all 124063 72453.0          0.146          Seattle city               135.324                149.938
+G5300070 Chelan County, Washington Dasy_CONUS_RF_v3_ntl 124063 72453.0          0.413          Seattle city               135.324                151.888
+G2001550       Reno County, Kansas Dasy_CONUS_RF_v3_all  52706 64511.0          0.068          Wichita city                71.650                 66.832
+G2001550       Reno County, Kansas Dasy_CONUS_RF_v3_ntl  52706 64511.0          0.211          Wichita city                71.650                 65.907
+G0800430  Fremont County, Colorado Dasy_CONUS_RF_v3_all  63566 46824.0          0.045 Colorado Springs city                69.197                 59.165
+G0800430  Fremont County, Colorado Dasy_CONUS_RF_v3_ntl  63566 46824.0          0.360 Colorado Springs city                69.197                 56.041
+G1701170 Macoupin County, Illinois Dasy_CONUS_RF_v3_all  35957 47765.0          0.960        St. Louis city                74.875                 74.649
+G1701170 Macoupin County, Illinois Dasy_CONUS_RF_v3_ntl  35957 47765.0          0.992        St. Louis city                74.875                 71.099
+10:42:47 INFO DONE
+== done 2026-10-27T10:42:47-06:00
