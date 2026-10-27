@@ -92,8 +92,9 @@ Last updated: 2026-10-28 (external comparison written as code; VIIRS-like NTL te
   reported next to the all-tracts validation. PLURAL grid: test only in its three years (1940, 1980, 2010) first;
   continuous and classed (number of classes and breaks as a sensitivity analysis); `index3` presumably the 0-1 PLURAL
   index (check the value range). HISDAC uncertainty: excluded counties get their population allocated by the model
-  trained on the reliable counties (imputation). Open: whether BUPR already includes the records without a built year
-  (check the HISDAC README); ratio per year (NobuiltYear / (BUPR_year + NobuiltYear)) or one static ratio from 2020.
+  trained on the reliable counties (imputation). Checked 2026-10-28 (`logs/hisdac_inventory.txt`): the yearly BUPR
+  counts records with a built year; the 'complete' layer is `BUPR_contemp.tif` (all records, ~2016), in the Dataverse
+  archive but not in `$HISDAC_DIR` -> download needed; `NobuiltYear.tif` count or flag to check; ratio per year (NobuiltYear / (BUPR_year + NobuiltYear)) or one static ratio from 2020.
 
 ### CONUS: hyperparameter sensitivity and source gaps (open, 2026-10-27)
 

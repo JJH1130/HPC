@@ -47,6 +47,13 @@ Last updated: 2026-10-28 (external gridded population products: GHS-POP, WorldPo
   containing indoor building gross area sum per pixel area in square feet"; job 34921582). A 250 m cell is 672,700 sq ft.
   The CONUS maxima (5.4e9 sq ft in one cell in 2010) are record errors (`docs/conus_plan.md`, "BUI outliers").
 - Source data: ZTRAX (Zillow), Parcel Atlas, BuildZero Open City Model.
+- **BUPR_contemp.tif** (from `BUPR_README.txt`, checked 2026-10-28, `logs/hisdac_inventory.txt`): all built-up property
+  records of the underlying ZTRAX data regardless of the value or availability of the built year, i.e. the record
+  distribution around 2016. Part of the Dataverse BUPR archive (doi:10.7910/DVN/45B8IU) but **not in `$HISDAC_DIR`**
+  (only `BUPR/{1810..2020}_BUPR.tif`). It is the "complete" layer for the record-uncertainty idea (meeting 2026-10-28).
+  README says ZTRAX only, while the time series also use Parcel Atlas and Open City Model: check before comparing.
+- `FBUY/NobuiltYear.tif` (`FBUY_README.txt`): "values indicate the presence of built structures without built year";
+  whether it is a count or a 0/1 flag is to be checked from its values.
 - Notes: built from contemporary records filtered by year built, so demolished
   structures are missing and early periods are under-represented. No nodata value;
   0 means no building or outside the U.S.
