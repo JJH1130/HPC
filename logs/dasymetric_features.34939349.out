@@ -1,0 +1,259 @@
+== job 34939349 (dasymetric_features) on c3cpu-c15-u7-1 at 2026-10-26T20:30:34-06:00
+== cores=6 gpus=none restart=0
+== git 9e07914 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_rf_v3_all.yaml (name=conus version=Dasy_CONUS_RF_v3_all)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  out: /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all  extra args: 
+20:30:44 INFO arg config = configs/conus_rf_v3_all.yaml
+20:30:44 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+20:30:44 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+20:30:44 INFO arg years = None
+20:30:44 INFO study 'conus' Dasy_CONUS_RF_v3_all | 12 years 1900-2010 | use_status ['ok', 'filled_nhgis', 'filled_nhgis_alloc'] -> /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all
+20:30:44 INFO eras: ['Y1900', 'Y1910', 'Y1920', 'Y1930', 'Y1940', 'Y1950', 'Y1960', 'Y1970', 'Y1980', 'Y1990', 'Y2000', 'Y2010'] | block_rows 512 | unusable counties: skip
+20:30:44 INFO era Y1900 | 1 years 1900-1900 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'elev', 'slope']
+20:31:17 INFO     1900: strip 5/23 (rows 2048-2560)
+20:31:27 INFO     1900: strip 10/23 (rows 4608-5120)
+20:31:35 INFO     1900: strip 15/23 (rows 7168-7680)
+20:31:42 INFO     1900: strip 20/23 (rows 9728-10240)
+20:31:44 INFO     1900: strip 23/23 (rows 11264-11615)
+20:31:44 INFO   1900: water mask 373870 of 107743214 cells (0.0035) | all-water cells with BUI > 0 kept: 24
+20:31:44 INFO   1900: 3109 counties in the table, 2815 used, 107743214 cells
+20:31:44 INFO era Y1900: 2815 training rows | 2815 counties (GISJOIN) | 1 years
+20:31:44 INFO feature summary:
+             count     mean        std    min      25%      50%      75%         max
+bui         2815.0  614.138  11565.611  0.000    1.815   22.362  115.422  555684.490
+bldg_size   2815.0  144.748   3326.383  0.000    1.054   10.716   44.548  166661.856
+mu_ratio    2815.0    0.034      0.099  0.000    0.001    0.007    0.033       3.218
+dist_built  2815.0    7.522     11.500  0.151    1.229    2.982    8.647     127.533
+elev        2815.0  417.778    483.125  1.331  148.156  274.017  458.003    3476.483
+slope       2815.0    2.134      2.475  0.140    0.650    1.122    2.517      17.682
+y           2815.0    2.152      1.490 -6.284    1.678    2.503    2.936      10.453
+20:31:44 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1900/features/county_features.csv
+20:31:44 INFO era Y1910 | 1 years 1910-1910 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'elev', 'slope']
+20:32:09 INFO     1910: strip 5/23 (rows 2048-2560)
+20:32:16 INFO     1910: strip 10/23 (rows 4608-5120)
+20:32:24 INFO     1910: strip 15/23 (rows 7168-7680)
+20:32:30 INFO     1910: strip 20/23 (rows 9728-10240)
+20:32:32 INFO     1910: strip 23/23 (rows 11264-11615)
+20:32:32 INFO   1910: water mask 407837 of 114777533 cells (0.0036) | all-water cells with BUI > 0 kept: 33
+20:32:32 INFO   1910: 3109 counties in the table, 2940 used, 114777533 cells
+20:32:32 INFO era Y1910: 2940 training rows | 2940 counties (GISJOIN) | 1 years
+20:32:32 INFO feature summary:
+             count      mean        std    min      25%      50%      75%          max
+bui         2940.0  1072.180  25786.879  0.000    3.326   32.316  158.330  1348454.329
+bldg_size   2940.0   163.994   3469.490  0.000    1.764   13.905   55.099   169722.381
+mu_ratio    2940.0     0.041      0.116  0.000    0.001    0.009    0.041        3.733
+dist_built  2940.0     6.711     10.447  0.097    1.113    2.728    7.561      127.429
+elev        2940.0   423.331    485.790  1.331  149.490  275.510  464.189     3476.483
+slope       2940.0     2.116      2.468  0.140    0.657    1.117    2.452       17.682
+y           2940.0     2.310      1.316 -3.469    1.794    2.511    2.965       10.751
+20:32:32 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1910/features/county_features.csv
+20:32:32 INFO era Y1920 | 1 years 1920-1920 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'elev', 'slope']
+20:33:04 INFO     1920: strip 5/23 (rows 2048-2560)
+20:33:13 INFO     1920: strip 10/23 (rows 4608-5120)
+20:33:21 INFO     1920: strip 15/23 (rows 7168-7680)
+20:33:27 INFO     1920: strip 20/23 (rows 9728-10240)
+20:33:30 INFO     1920: strip 23/23 (rows 11264-11615)
+20:33:30 INFO   1920: water mask 431312 of 122478201 cells (0.0035) | all-water cells with BUI > 0 kept: 47
+20:33:30 INFO   1920: 3109 counties in the table, 3056 used, 122478201 cells
+20:33:30 INFO era Y1920: 3056 training rows | 3056 counties (GISJOIN) | 1 years
+20:33:30 INFO feature summary:
+             count      mean        std    min      25%      50%      75%          max
+bui         3056.0  1564.390  37834.252  0.000    6.107   47.955  216.705  2025310.933
+bldg_size   3056.0   188.371   3606.028  0.000    2.708   18.673   70.118   173765.773
+mu_ratio    3056.0     0.050      0.136  0.000    0.002    0.013    0.052        4.154
+dist_built  3056.0     6.034      9.704  0.072    0.977    2.337    6.580      126.526
+elev        3056.0   441.478    502.877  1.331  148.903  280.939  486.885     3476.483
+slope       3056.0     2.143      2.498  0.136    0.658    1.129    2.488       17.682
+y           3056.0     2.309      1.378 -4.007    1.741    2.520    2.993       10.561
+20:33:30 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1920/features/county_features.csv
+20:33:30 INFO era Y1930 | 1 years 1930-1930 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'elev', 'slope']
+20:34:12 INFO     1930: strip 5/23 (rows 2048-2560)
+20:34:21 INFO     1930: strip 10/23 (rows 4608-5120)
+20:34:30 INFO     1930: strip 15/23 (rows 7168-7680)
+20:34:36 INFO     1930: strip 20/23 (rows 9728-10240)
+20:34:39 INFO     1930: strip 23/23 (rows 11264-11615)
+20:34:39 INFO   1930: water mask 489530 of 124150580 cells (0.0039) | all-water cells with BUI > 0 kept: 78
+20:34:39 INFO   1930: 3109 counties in the table, 3087 used, 124150580 cells
+20:34:39 INFO era Y1930: 3087 training rows | 3087 counties (GISJOIN) | 1 years
+20:34:39 INFO feature summary:
+             count      mean        std    min      25%      50%      75%          max
+bui         3087.0  2360.128  55822.561  0.000    9.989   69.058  287.274  2969649.862
+bldg_size   3087.0   221.291   3852.155  0.000    3.822   25.064   84.714   176129.629
+mu_ratio    3087.0     0.061      0.161  0.000    0.003    0.018    0.064        5.105
+dist_built  3087.0     5.481      9.203  0.062    0.877    1.970    5.853      126.526
+elev        3087.0   442.181    506.403  1.331  147.421  279.134  487.269     3476.483
+slope       3087.0     2.138      2.497  0.136    0.651    1.126    2.481       17.908
+y           3087.0     2.366      1.372 -2.469    1.773    2.511    3.012       10.359
+20:34:39 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1930/features/county_features.csv
+20:34:39 INFO era Y1940 | 1 years 1940-1940 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:35:41 INFO     1940: strip 5/23 (rows 2048-2560)
+20:35:54 INFO     1940: strip 10/23 (rows 4608-5120)
+20:36:08 INFO     1940: strip 15/23 (rows 7168-7680)
+20:36:19 INFO     1940: strip 20/23 (rows 9728-10240)
+20:36:23 INFO     1940: strip 23/23 (rows 11264-11615)
+20:36:23 INFO   1940: water mask 545183 of 124150580 cells (0.0044) | all-water cells with BUI > 0 kept: 111
+20:36:23 INFO   1940: 3109 counties in the table, 3087 used, 124150580 cells
+20:36:23 INFO era Y1940: 3087 training rows | 3087 counties (GISJOIN) | 1 years
+20:36:23 INFO feature summary:
+             count      mean        std    min      25%      50%      75%          max
+bui         3087.0  2726.756  60462.005  0.000   15.588   97.114  360.530  3194203.824
+bldg_size   3087.0   250.261   4084.406  0.000    5.421   34.464  104.449   178643.840
+mu_ratio    3087.0     0.074      0.181  0.000    0.004    0.025    0.080        5.386
+dist_built  3087.0     5.068      8.951  0.059    0.790    1.640    5.199      126.526
+res_share   3087.0     0.038      0.064  0.000    0.002    0.014    0.048        0.623
+rent_share  3087.0     0.002      0.017  0.000    0.000    0.000    0.000        0.514
+elev        3087.0   442.218    506.431  1.331  147.421  279.134  487.269     3476.483
+slope       3087.0     2.139      2.498  0.136    0.651    1.126    2.482       17.910
+y           3087.0     2.418      1.384 -2.570    1.793    2.551    3.071       10.371
+20:36:23 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1940/features/county_features.csv
+20:36:23 INFO era Y1950 | 1 years 1950-1950 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:37:00 INFO     1950: strip 5/23 (rows 2048-2560)
+20:37:13 INFO     1950: strip 10/23 (rows 4608-5120)
+20:37:26 INFO     1950: strip 15/23 (rows 7168-7680)
+20:37:36 INFO     1950: strip 20/23 (rows 9728-10240)
+20:37:40 INFO     1950: strip 23/23 (rows 11264-11615)
+20:37:40 INFO   1950: water mask 582955 of 124156149 cells (0.0047) | all-water cells with BUI > 0 kept: 143
+20:37:40 INFO   1950: 3109 counties in the table, 3091 used, 124156149 cells
+20:37:40 INFO era Y1950: 3091 training rows | 3091 counties (GISJOIN) | 1 years
+20:37:40 INFO feature summary:
+             count      mean        std    min      25%      50%      75%          max
+bui         3091.0  3221.556  64566.500  0.000   22.711  150.580  513.324  3378742.902
+bldg_size   3091.0   289.772   4216.962  0.000    7.531   48.834  135.824   180655.426
+mu_ratio    3091.0     0.092      0.203  0.000    0.006    0.036    0.104        5.455
+dist_built  3091.0     4.708      8.715  0.012    0.713    1.422    4.688      126.526
+res_share   3091.0     0.049      0.078  0.000    0.003    0.022    0.065        0.697
+rent_share  3091.0     0.002      0.018  0.000    0.000    0.000    0.000        0.529
+elev        3091.0   442.589    507.303  1.331  147.379  279.134  487.269     3476.483
+slope       3091.0     2.140      2.499  0.136    0.652    1.126    2.482       17.910
+y           3091.0     2.449      1.447 -2.721    1.765    2.511    3.162       10.408
+20:37:40 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1950/features/county_features.csv
+20:37:40 INFO era Y1960 | 1 years 1960-1960 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:38:10 INFO     1960: strip 5/23 (rows 2048-2560)
+20:38:23 INFO     1960: strip 10/23 (rows 4608-5120)
+20:38:35 INFO     1960: strip 15/23 (rows 7168-7680)
+20:38:46 INFO     1960: strip 20/23 (rows 9728-10240)
+20:38:50 INFO     1960: strip 23/23 (rows 11264-11615)
+20:38:50 INFO   1960: water mask 648728 of 124167622 cells (0.0052) | all-water cells with BUI > 0 kept: 217
+20:38:50 INFO   1960: 3109 counties in the table, 3095 used, 124167622 cells
+20:38:50 INFO era Y1960: 3095 training rows | 3095 counties (GISJOIN) | 1 years
+20:38:50 INFO feature summary:
+             count      mean        std    min      25%      50%      75%          max
+bui         3095.0  4049.596  73972.410  0.000   32.108  213.381  707.789  3844531.388
+bldg_size   3095.0   354.577   4504.886  0.000   10.676   66.601  184.106   185794.149
+mu_ratio    3095.0     0.115      0.243  0.000    0.008    0.048    0.132        6.575
+dist_built  3095.0     4.378      8.347  0.003    0.643    1.265    4.203      125.522
+res_share   3095.0     0.061      0.091  0.000    0.005    0.029    0.082        0.735
+rent_share  3095.0     0.003      0.018  0.000    0.000    0.000    0.001        0.552
+elev        3095.0   442.695    507.134  1.331  147.379  279.719  487.761     3476.483
+slope       3095.0     2.144      2.501  0.136    0.652    1.129    2.493       17.910
+y           3095.0     2.490      1.520 -2.709    1.716    2.495    3.256       10.264
+20:38:50 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1960/features/county_features.csv
+20:38:50 INFO era Y1970 | 1 years 1970-1970 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:39:20 INFO     1970: strip 5/23 (rows 2048-2560)
+20:39:33 INFO     1970: strip 10/23 (rows 4608-5120)
+20:39:45 INFO     1970: strip 15/23 (rows 7168-7680)
+20:39:55 INFO     1970: strip 20/23 (rows 9728-10240)
+20:40:00 INFO     1970: strip 23/23 (rows 11264-11615)
+20:40:00 INFO   1970: water mask 732079 of 124199157 cells (0.0059) | all-water cells with BUI > 0 kept: 314
+20:40:00 INFO   1970: 3109 counties in the table, 3103 used, 124199157 cells
+20:40:00 INFO era Y1970: 3103 training rows | 3103 counties (GISJOIN) | 1 years
+20:40:00 INFO feature summary:
+             count      mean        std    min      25%      50%       75%          max
+bui         3103.0  4929.907  81947.417  0.000   46.902  310.023  1042.067  4261677.438
+bldg_size   3103.0   462.365   4810.543  0.000   15.074   91.292   259.235   193899.018
+mu_ratio    3103.0     0.148      0.314  0.000    0.011    0.065     0.177        6.948
+dist_built  3103.0     4.043      7.999  0.003    0.570    1.107     3.661      125.522
+res_share   3103.0     0.077      0.104  0.000    0.007    0.039     0.106        0.751
+rent_share  3103.0     0.003      0.019  0.000    0.000    0.000     0.001        0.561
+elev        3103.0   442.075    506.715  1.331  146.557  279.719   486.975     3476.483
+slope       3103.0     2.142      2.499  0.136    0.653    1.129     2.483       17.910
+y           3103.0     2.537      1.590 -2.693    1.717    2.514     3.344       10.166
+20:40:00 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1970/features/county_features.csv
+20:40:00 INFO era Y1980 | 1 years 1980-1980 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:40:30 INFO     1980: strip 5/23 (rows 2048-2560)
+20:40:43 INFO     1980: strip 10/23 (rows 4608-5120)
+20:40:56 INFO     1980: strip 15/23 (rows 7168-7680)
+20:41:06 INFO     1980: strip 20/23 (rows 9728-10240)
+20:41:11 INFO     1980: strip 23/23 (rows 11264-11615)
+20:41:11 INFO   1980: water mask 755167 of 124200314 cells (0.0061) | all-water cells with BUI > 0 kept: 404
+20:41:11 INFO   1980: 3109 counties in the table, 3106 used, 124200314 cells
+20:41:11 INFO era Y1980: 3106 training rows | 3106 counties (GISJOIN) | 1 years
+20:41:11 INFO feature summary:
+             count      mean        std    min      25%      50%       75%          max
+bui         3106.0  5727.114  86741.606  0.000   72.331  434.443  1472.977  4511121.012
+bldg_size   3106.0   574.925   5115.975  0.000   22.043  128.758   363.416   208129.918
+mu_ratio    3106.0     0.184      0.378  0.000    0.016    0.088     0.231       10.746
+dist_built  3106.0     3.756      7.657  0.000    0.509    0.970     3.273      118.816
+res_share   3106.0     0.093      0.117  0.000    0.009    0.050     0.134        0.766
+rent_share  3106.0     0.003      0.019  0.000    0.000    0.000     0.001        0.562
+elev        3106.0   441.716    506.633  1.331  145.376  279.336   486.854     3476.483
+slope       3106.0     2.141      2.499  0.136    0.652    1.129     2.480       17.910
+y           3106.0     2.677      1.599 -2.956    1.856    2.661     3.525       10.091
+20:41:11 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1980/features/county_features.csv
+20:41:11 INFO era Y1990 | 1 years 1990-1990 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:41:59 INFO     1990: strip 5/23 (rows 2048-2560)
+20:42:20 INFO     1990: strip 10/23 (rows 4608-5120)
+20:42:33 INFO     1990: strip 15/23 (rows 7168-7680)
+20:42:50 INFO     1990: strip 20/23 (rows 9728-10240)
+20:42:54 INFO     1990: strip 23/23 (rows 11264-11615)
+20:42:54 INFO   1990: water mask 770812 of 124575566 cells (0.0062) | all-water cells with BUI > 0 kept: 474
+20:42:54 INFO   1990: 3109 counties in the table, 3108 used, 124575566 cells
+20:42:54 INFO era Y1990: 3108 training rows | 3108 counties (GISJOIN) | 1 years
+20:42:54 INFO feature summary:
+             count      mean        std    min      25%      50%       75%          max
+bui         3108.0  6611.976  92312.345  0.000   89.529  534.268  1905.755  4798653.488
+bldg_size   3108.0   690.578   5493.592  0.000   27.283  157.921   461.305   222247.548
+mu_ratio    3108.0     0.217      0.415  0.000    0.019    0.104     0.283       11.014
+dist_built  3108.0     3.608      7.544  0.000    0.470    0.888     3.103      118.816
+res_share   3108.0     0.109      0.131  0.000    0.010    0.060     0.160        0.777
+rent_share  3108.0     0.004      0.019  0.000    0.000    0.000     0.001        0.549
+elev        3108.0   442.273    507.442  1.331  145.568  279.629   486.920     3476.483
+slope       3108.0     2.142      2.499  0.136    0.652    1.130     2.485       17.910
+y           3108.0     2.706      1.642 -2.794    1.834    2.691     3.581       10.132
+20:42:54 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1990/features/county_features.csv
+20:42:54 INFO era Y2000 | 1 years 2000-2000 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:44:12 INFO     2000: strip 5/23 (rows 2048-2560)
+20:44:25 INFO     2000: strip 10/23 (rows 4608-5120)
+20:44:39 INFO     2000: strip 15/23 (rows 7168-7680)
+20:44:51 INFO     2000: strip 20/23 (rows 9728-10240)
+20:44:55 INFO     2000: strip 23/23 (rows 11264-11615)
+20:44:55 INFO   2000: water mask 772030 of 124575566 cells (0.0062) | all-water cells with BUI > 0 kept: 530
+20:44:55 INFO   2000: 3109 counties in the table, 3108 used, 124575566 cells
+20:44:55 INFO era Y2000: 3108 training rows | 3108 counties (GISJOIN) | 1 years
+20:44:55 INFO feature summary:
+             count      mean        std    min      25%      50%       75%          max
+bui         3108.0  7593.705  94842.717  0.000  115.691  681.044  2532.942  4899018.533
+bldg_size   3108.0   839.650   5948.147  0.000   35.461  205.094   600.658   236339.150
+mu_ratio    3108.0     0.252      0.432  0.000    0.024    0.126     0.339       10.483
+dist_built  3108.0     3.409      7.160  0.000    0.427    0.814     2.914      105.553
+res_share   3108.0     0.126      0.145  0.000    0.013    0.072     0.192        0.780
+rent_share  3108.0     0.004      0.019  0.000    0.000    0.000     0.002        0.540
+elev        3108.0   442.274    507.443  1.331  145.568  279.629   486.920     3476.483
+slope       3108.0     2.142      2.499  0.136    0.652    1.130     2.485       17.910
+y           3108.0     2.802      1.672 -3.262    1.905    2.802     3.693       10.165
+20:44:55 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2000/features/county_features.csv
+20:44:55 INFO era Y2010 | 1 years 2010-2010 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+20:45:51 INFO     2010: strip 5/23 (rows 2048-2560)
+20:46:04 INFO     2010: strip 10/23 (rows 4608-5120)
+20:46:26 INFO     2010: strip 15/23 (rows 7168-7680)
+20:46:43 INFO     2010: strip 20/23 (rows 9728-10240)
+20:46:47 INFO     2010: strip 23/23 (rows 11264-11615)
+20:46:47 INFO   2010: water mask 771990 of 124576956 cells (0.0062) | all-water cells with BUI > 0 kept: 593
+20:46:47 INFO   2010: 3109 counties in the table, 3109 used, 124576956 cells
+20:46:47 INFO era Y2010: 3109 training rows | 3109 counties (GISJOIN) | 1 years
+20:46:47 INFO feature summary:
+             count      mean         std    min      25%      50%       75%          max
+bui         3109.0  8611.011  103915.959  0.000  135.248  795.930  3022.287  5373768.805
+bldg_size   3109.0   954.156    6312.722  0.000   42.805  243.338   706.168   244687.832
+mu_ratio    3109.0     0.277       0.462  0.000    0.028    0.142     0.376       10.886
+dist_built  3109.0     3.281       6.967  0.000    0.400    0.770     2.797       98.456
+res_share   3109.0     0.134       0.152  0.000    0.014    0.078     0.207        0.786
+rent_share  3109.0     0.004       0.019  0.000    0.000    0.000     0.002        0.519
+elev        3109.0   442.656     507.808  1.331  145.664  279.719   487.085     3476.483
+slope       3109.0     2.142       2.498  0.136    0.652    1.130     2.485       17.910
+y           3109.0     2.847       1.717 -3.060    1.908    2.853     3.783       10.196
+20:46:47 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2010/features/county_features.csv
+20:46:47 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/qa/water_mask_by_year.csv
+20:46:47 INFO county-years: 37308 before status filtering (expected 314 for massachusetts), 36705 training rows over 12 era(s)
+20:46:47 INFO DONE
+== done 2026-10-26T20:46:48-06:00

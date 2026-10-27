@@ -13,14 +13,32 @@ jrc_pixels,18087830173
 jrc_nodata_pixels,368227698
 water_pixels,1443414231
 reservoir_pixels_removed,3848079
+reservoir_pixels_water_1900,4322900
+reservoir_pixels_water_1910,6104318
 reservoir_pixels_water_1920,9791577
+reservoir_pixels_water_1930,15315803
+reservoir_pixels_water_1940,25126379
+reservoir_pixels_water_1950,32721390
 reservoir_pixels_water_1960,46020100
+reservoir_pixels_water_1970,60748039
+reservoir_pixels_water_1980,66061557
+reservoir_pixels_water_1990,69119190
+reservoir_pixels_water_2000,69383852
 reservoir_pixels_water_2010,69390178
 study_jrc_nodata_mean,0.0
 study_cells_jrc_nodata_gt50,0
 jrc_nodata_share,0.020357759580784847
+study_share_eq1_1900,0.0035774513546470025
+study_share_eq1_1910,0.0036382571428378776
 study_share_eq1_1920,0.003758142878366686
+study_share_eq1_1930,0.003931698250838622
+study_share_eq1_1940,0.004378771303418266
+study_share_eq1_1950,0.004682230315532834
 study_share_eq1_1960,0.00521067475753702
+study_share_eq1_1970,0.005879153123632271
+study_share_eq1_1980,0.006065206794746213
+study_share_eq1_1990,0.006191249367178309
+study_share_eq1_2000,0.006201475977627837
 study_share_eq1_2010,0.00620165257529651
 Quabbin Reservoir 1920: cells,441
 Quabbin Reservoir 1920: mean,0.0027598501183092594
