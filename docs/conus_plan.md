@@ -429,7 +429,12 @@ Fremont 5 -> 36 %, Macoupin 96 -> 99 %.
   allocation inside counties gets worse except in the sparsest tracts: the same pattern as the PLURAL distances (v2).
 - Likely reason: the lights are ~1 km and bloom over unbuilt land around towns, so within a county the weight spreads
   onto empty cells; between counties total brightness tracks total population, hence the county gain.
-- Proposed: leave ntl out (2000, 2010 and 2020); to confirm with the user.
+- **Split by BUI gap counties it reverses** (tract MdAPE): gap counties 75.7 -> 39.0 % (2000) and 72.0 -> 35.1 % (2010),
+  other counties 26.1 -> 32.5 % and 25.6 -> 30.8 %. Where HISDAC records are missing, the lights show the settlements
+  (the user's reading: lit cells without BUI point to missing / not surviving records, not to empty land); where the
+  records are complete, the DMSP glow spreads people onto empty land.
+- Decision (2026-10-28, with the user): ntl not dropped. Test a less-blooming NTL product: VIIRS-like NTL (Chen et al.
+  2021, 2000-2018, 15 arc-sec) for 2000 / 2010 (`docs/handoff/conus_ntl_viirs_request.md`); EOG VIIRS for 2020 later.
 
 ## BUI outliers (bui_qa, job 34921582)
 
