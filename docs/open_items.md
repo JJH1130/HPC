@@ -79,6 +79,11 @@ Last updated: 2026-10-28 (CONUS NTL test, Dasy_CONUS_RF_v3_ntl, written as code)
   feature values and combinations never occur among county means; county scores are at their ceiling and cannot
   separate models that behave differently there. Hypothesis, not tested: count cells outside the county feature
   range and compare model weights there. Rerun the model comparison when HISDAC v3 is in.
+- **BUPR-proportional baseline (later, after the NTL test)**: besides areal weighting, score a plain building-based
+  allocation on tracts (county population split over cells in proportion to BUPR, no model), with the same tract set
+  and metrics, plus MAPE with tracts < 10 people left out. Reason: Noi, Leyk & Uhl (draft 2026-10-14) preallocate by
+  BUPR and fit XGBoost on those cell values, applied back to the same cells (a smoother); their county-only variant is
+  the comparable one. Shows whether the RF adds anything over buildings alone.
 - **Counties with (almost) no BUI**: counted 2026-10-27 from `county_features.csv` of v3_bui as BUI floor area per
   person (county mean BUI x unmasked cells / pop) below 5 % of the national median (median 96 / 368 / 935 sq ft per
   person in 1920 / 1960 / 2010):
