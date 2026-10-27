@@ -59,9 +59,16 @@ Last updated: 2026-10-27 (CONUS model family comparison written as code)
   the v3_bui features for 1920 / 1960 / 2010 (each tuned by the same county CV with the same budget: RandomizedSearchCV, 60 candidates, continuous ranges
   (log-uniform for learning rate and regularisation); same split and folds; RF rerun with 60 too) and choose the
   family from the validation results: tract validation first (all tracts, density classes, gap counties left out),
-  county TEST R2 second. Request: `docs/handoff/conus_models_request.md`. Code written 2026-10-27, not run yet
-  (`bash sbatch/submit_conus.sh models`, `docs/runbooks/Running_CONUS.md` section 4; `docs/conus_plan.md`,
-  "Model family"): `Dasy_CONUS_{RF,LGBM,XGB,CAT}_v3_n60`, `compare_models.py` -> `model_comparison.csv`.
+  county TEST R2 second. Request: `docs/handoff/conus_models_request.md`; run 2026-10-27 (`bash sbatch/submit_conus.sh
+  models`, jobs 34932548-34932563): `Dasy_CONUS_{RF,LGBM,XGB,CAT}_v3_n60`, `compare_models.py` -> `model_comparison.csv`.
+  **Result: RF** (tie on county CV / TEST R2; RF best or tied on tracts in every year, boosting worst in 2010 and
+  sparse tracts; table in `docs/conus_plan.md` "Model family result"). If overfitting shows later, revisit that
+  model's search space.
+- **Why RF wins on tracts (later, recheck with HISDAC v3)**: likely the scale gap - trained on county means (median
+  county ~25,800 cells of 250 m, 10-90 %: 12 k-74 k; median 2010 tract 80 cells) and applied to single cells, whose
+  feature values and combinations never occur among county means; county scores are at their ceiling and cannot
+  separate models that behave differently there. Hypothesis, not tested: count cells outside the county feature
+  range and compare model weights there. Rerun the model comparison when HISDAC v3 is in.
 - **Counties with (almost) no BUI**: counted 2026-10-27 from `county_features.csv` of v3_bui as BUI floor area per
   person (county mean BUI x unmasked cells / pop) below 5 % of the national median (median 96 / 368 / 935 sq ft per
   person in 1920 / 1960 / 2010):
