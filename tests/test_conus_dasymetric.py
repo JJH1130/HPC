@@ -24,6 +24,10 @@ in a temporary folder, a split table with make_split.py, and checks:
     with ntl (2010) next to one without (1960), county ntl = mean DN, strips == whole window; NTL nodata outside the
     used counties ignored, inside one the features stop; ntl_qa.py box / edge counts against brute force;
     compare_models --years --rank-features
+  - VIIRS-like NTL (Dasy_CONUS_RF_v3_ntlv, test_ntlv): the real configs (NTLV layer; v3_ntlv = v3_ntl with ntlv);
+    make_cutout `nodata_to` (sea mask -> 0, the rest = the nearest warp); ntlv_check.py on a lon/lat raster (coverage,
+    counts; a raster missing the window and a negative value fail); county ntlv = mean radiance; ntl_qa.py with NTL
+    and NTLV side by side (radiance: percentile box, lit share and mean ratio on BUI 0 cells; negative fails)
 """
 from __future__ import annotations
 
@@ -728,8 +732,186 @@ def test_ntl():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def write_lonlat(path: Path, west, south, east, north, sea_east=None, shift=0.0, negative=False):
+    """A 15 arc-second EPSG:4326 raster over the box (as the VIIRS-like files): radiance falling off from the box
+    centre, NaN 'sea' west of sea_east (no nodata tag, as a float file may have)."""
+    from rasterio.transform import from_origin
+    cell = 1 / 240
+    w, h = int(np.ceil((east - west) / cell)), int(np.ceil((north - south) / cell))
+    lon = west + shift + (np.arange(w) + 0.5) * cell
+    lat = north - (np.arange(h) + 0.5) * cell
+    d = np.hypot(*np.meshgrid(lon - (west + east) / 2, lat - (south + north) / 2))
+    val = (80 * np.exp(-d / 0.03)).astype("float32")
+    val[val < 1] = 0  # the producers' rule: < 1 nW -> 0
+    if sea_east is not None:
+        val[:, lon < sea_east] = np.nan
+    if negative:
+        val[h // 2, w // 2] = -1
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with rasterio.open(path, "w", driver="GTiff", width=w, height=h, count=1, dtype="float32", crs="EPSG:4326",
+                       transform=from_origin(west + shift, north, cell, cell)) as dst:
+        dst.write(val, 1)
+
+
+def test_ntlv():
+    """Dasy_CONUS_RF_v3_ntlv (docs/conus_plan.md "VIIRS-like NTL test"): the real configs; make_cutout `nodata_to`
+    (sea mask -> 0, nothing else changes); a float ntlv era (county mean); ntl_qa.py with NTL and NTLV side by side
+    (radiance: percentile box, lit share of BUI 0 cells, negative values fail); ntlv_check.py on a lon/lat raster."""
+    import make_cutout as cutout_mod
+    import ntl_qa
+    import ntlv_check
+    from pyproj import Transformer
+    from rasterio.warp import transform_bounds
+
+    st = cutout_mod.load_config(REPO / "configs" / "conus_study_area.yaml")
+    lay = {lay["name"]: lay for lay in st["layers"]}
+    assert lay["NTLV"]["years"] == [2000, 2010] and lay["NTLV"]["dtype"] == "float32"
+    assert lay["NTLV"]["resampling"] == "nearest" and lay["NTLV"]["nodata_to"] == 0 and lay["NTL"]["nodata_to"] is None
+    real = dcommon.load_config(REPO / "configs" / "conus_rf_v3_ntlv.yaml")
+    dmsp = dcommon.load_config(REPO / "configs" / "conus_rf_v3_ntl.yaml")
+    assert real["version"] == "Dasy_CONUS_RF_v3_ntlv" and real["compare_with"] == "Dasy_CONUS_RF_v3_all"
+    assert real["years"] == [2000, 2010] and real["feature_groups"]["Night lights"] == ["ntlv"]
+    for e in ("Y2000", "Y2010"):
+        assert real["eras"][e]["features"] == ["ntlv" if f == "ntl" else f for f in dmsp["eras"][e]["features"]]
+    for k in ("split", "use_status", "train_status", "water_mask", "block_rows", "unusable", "model", "search",
+              "models", "permutation", "maps", "correlation_threshold"):
+        assert real[k] == dmsp[k], k
+    print("ok configs: NTLV layer 2000 / 2010 float32 nearest nodata_to 0; v3_ntlv = v3_ntl with ntlv for ntl")
+
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        counties = county_table()
+        cut, zones = make_cutout(tmp, counties)
+        left, top = TRANSFORM.c, TRANSFORM.f
+        bounds = (left, top - H * 250, left + W * 250, top)
+        west, south, east, north = transform_bounds(CRS, "EPSG:4326", *bounds, densify_pts=21)
+        m = 0.02
+        west, south, east, north = west - m, south - m, east + m, north + m
+
+        # make_cutout nodata_to: the sea mask (NaN) becomes 0, every other cell is the plain nearest warp
+        src = tmp / "raw" / "2010" / "viirs_like_2010.tif"
+        write_lonlat(src, west, south, east, north, sea_east=west + 0.3 * (east - west))
+        ref = {"crs": CRS, "transform": TRANSFORM}
+        layer = {"label": "NTLV", "name": "NTLV", "class": None, "path": str(src), "years": [2010],
+                 "resampling": "nearest", "dtype": "float32", "out": "{name}_cut/{YEAR}_{name}.tif", "nodata_to": 0,
+                 "aligned": {2010: False}}
+        cutout_mod.cut_layer(layer, 2010, src, TRANSFORM, (H, W), cut, ref)
+        cutout_mod.cut_layer({**layer, "nodata_to": None, "out": "{name}_raw/{YEAR}_{name}.tif"}, 2010, src,
+                             TRANSFORM, (H, W), cut, ref)
+        filled = read(cut / "layers" / "NTLV_cut" / "2010_NTLV.tif")
+        raw = read(cut / "layers" / "NTLV_raw" / "2010_NTLV.tif")
+        sea = np.isnan(raw)
+        assert sea.any() and (sea & (zones > 0)).any() and (~sea & (raw > 0)).any()
+        assert np.isfinite(filled).all() and (filled[sea] == 0).all() and np.array_equal(filled[~sea], raw[~sea])
+        print("ok make_cutout nodata_to: %d sea cells (%d inside counties) -> 0, the rest = nearest warp"
+              % (sea.sum(), (sea & (zones > 0)).sum()))
+
+        # ntlv_check.py: header, coverage, values over the window box; a raster that misses the window fails
+        crs_wkt = rasterio.crs.CRS.from_string(CRS).to_wkt()
+        (cut / "window.json").write_text(json.dumps({"bounds": list(bounds), "crs_wkt": crs_wkt}))
+        chk_cfg = tmp / "chk_study.yaml"
+        chk_cfg.write_text(yaml.safe_dump({"name": "conus", "years": YEARS, "states": "all", "layers": [
+            {"name": "NTLV", "path": str(tmp / "raw" / "{YEAR}" / "*.tif"), "years": [2010], "resampling": "nearest",
+             "dtype": "float32", "nodata_to": 0}]}))
+        ntlv_check.main(["--config", str(chk_cfg), "--cutout-root", str(tmp / "cutouts"), "--out", str(tmp / "chk.csv")])
+        c = pd.read_csv(tmp / "chk.csv").iloc[0]
+        assert c["crs"] == "EPSG:4326" and c["covers_window"] and np.isclose(c["cell_arcsec"], 15)
+        assert c["box_nodata"] > 0 and c["box_lit"] > 0 and c["box_negative"] == 0 and c["min"] >= 1
+        assert c["box_nodata"] + c["box_zero"] + c["box_lit"] == c["box_cells"]
+        write_lonlat(src, west, south, east, north, shift=0.5)  # moved east: misses the window's west part
+        try:
+            ntlv_check.main(["--config", str(chk_cfg), "--cutout-root", str(tmp / "cutouts"), "--out",
+                             str(tmp / "chk.csv")])
+            raise AssertionError("a raster missing the window passed")
+        except SystemExit as e:
+            assert "do not cover the cutout window" in str(e), e
+        write_lonlat(src, west, south, east, north, negative=True)
+        try:
+            ntlv_check.main(["--config", str(chk_cfg), "--cutout-root", str(tmp / "cutouts"), "--out",
+                             str(tmp / "chk.csv")])
+            raise AssertionError("a negative value passed")
+        except SystemExit as e:
+            assert "negative cells" in str(e), e
+        print("ok ntlv_check: CRS, 15 arc-sec, coverage, nodata / zero / lit counts; missing window and negative fail")
+
+        # features with a float ntlv layer (radiance falling off from the 'city'): county ntlv = mean
+        centre = np.hypot(*np.meshgrid(np.arange(W) - 30, np.arange(H) - 20))
+        ntlv = (80 * np.exp(-centre / 5)).astype("float32")
+        ntlv[ntlv < 1] = 0
+        write_tif(cut / "layers" / "NTLV" / "2010_NTLV.tif", ntlv, float("nan"))
+        ntl = write_ntl(cut, centre, [(0, 0)])
+        split = make_split.make_split(counties[["GISJOIN", "fips", "state", "name"]], 0.2, 5, 42)
+        split_path = tmp / "split.csv"
+        split.to_csv(split_path, index=False)
+        cfgs = write_configs(tmp, split_path)
+        base = yaml.safe_load(cfgs["blocks"].read_text())
+        feats = base["eras"]["Y2010"]["features"]
+        (tmp / "configs" / "ntlv.yaml").write_text(yaml.safe_dump(
+            {**base, "block_rows": 7, "version": "ntlv", "eras": {"Y2010": {"years": [2010], "features": feats + ["ntlv"]},
+                                                                  "Y1960": base["eras"]["Y1960"]},
+             "feature_groups": {**base["feature_groups"], "Night lights": ["ntlv"]}}))
+        out_root = tmp / "dasym"
+        county_features.main(["--config", str(tmp / "configs" / "ntlv.yaml"), "--cutout-root", str(tmp / "cutouts"),
+                              "--out-root", str(out_root)])
+        f = pd.read_csv(out_root / "conus" / "ntlv" / "Y2010" / "features" / "county_features.csv")
+        bui = read(cut / "layers" / "BUI" / "2010_BUI.tif")
+        wf = read(cut / "layers" / "water_frac" / "2010_water_frac.tif")
+        keep = ~((wf >= 1) & (bui == 0))
+        for r in f.itertuples():
+            assert np.isclose(r.ntlv, ntlv[(zones == r.zone_id) & keep].mean()), r.zone_id
+        assert f["ntlv"].std() > 0
+        print("ok features: ntlv = county mean radiance over unmasked cells (strips)")
+
+        # ntl_qa.py with NTL and NTLV: per-layer CSVs, side by side, radiance rules against brute force
+        qa_cfg = tmp / "configs" / "qa_study.yaml"
+        qa_cfg.write_text(yaml.safe_dump({"name": "conus", "years": YEARS, "states": "all", "layers": [
+            {"name": "NTL", "path": "x_{YEAR}.tif", "years": [2010], "resampling": "nearest", "dtype": "int16"},
+            {"name": "NTLV", "path": "y_{YEAR}.tif", "years": [2010], "resampling": "nearest", "dtype": "float32"}]}))
+        cx, cy = TRANSFORM.c + 30.5 * 250, TRANSFORM.f - 20.5 * 250
+        lon, lat = Transformer.from_crs(CRS, "EPSG:4326", always_xy=True).transform(cx, cy)
+        qa_args = ["--config", str(qa_cfg), "--cutout-root", str(tmp / "cutouts"), "--layer", "NTL", "NTLV",
+                   "--lon", str(lon), "--lat", str(lat), "--box-km", "2.9", "--bright", "40", "--bright-pct", "90",
+                   "--edge-km", "0.5", "--glow-dn", "5", "--glow-rad", "2", "--top", "3"]
+        ntl_qa.main(qa_args)
+        q = pd.read_csv(cut / "qa" / "ntlv_qa.csv").iloc[0]
+        zone = zones > 0
+        lit = ntlv[zone & (ntlv > 0)]
+        thr = np.percentile(lit, 90)
+        rr, cc = np.mgrid[0:H, 0:W]
+        x, y = TRANSFORM.c + (cc + 0.5) * 250, TRANSFORM.f - (rr + 0.5) * 250
+        inbox = (np.abs(x - cx) <= 1450) & (np.abs(y - cy) <= 1450)
+        assert q["layer"] == "NTLV" and q["scale"] == "radiance" and np.isclose(q["bright_threshold"], thr)
+        assert q["bright_cells"] == (inbox & (ntlv >= thr)).sum() > 0 and q["negative"] == 0
+        out_pts = np.argwhere(~zone)
+        dmin = np.array([np.hypot(*(out_pts - p).T).min() * 0.25 for p in np.argwhere(zone)])
+        edge = np.zeros_like(zone)
+        edge[zone] = dmin <= 0.5
+        for name, part in (("edge", edge), ("interior", zone & ~edge)):
+            b0, b1 = part & (bui == 0), part & (bui > 0)
+            assert np.isclose(q[f"{name}_lit_bui0_share"], (ntlv[b0] > 0).mean()), name
+            assert np.isclose(q[f"{name}_bui0_to_built"], ntlv[b0].mean() / ntlv[b1].mean()), name
+            assert q[f"{name}_glow_cells"] == (b0 & (ntlv >= 2)).sum(), name
+        n = pd.read_csv(cut / "qa" / "ntl_qa.csv").iloc[0]
+        assert n["layer"] == "NTL" and n["bright_threshold"] == 40 and n["bright_cells"] == (inbox & (ntl >= 40)).sum()
+        side = pd.read_csv(cut / "qa" / "ntl_edges_compare.csv")
+        assert side["layer"].tolist() == ["NTL", "NTLV"] and (side["year"] == 2010).all()
+        assert (cut / "qa" / "ntlv_glow_counties.csv").exists()
+        ntlv[25, 25] = -0.5
+        write_tif(cut / "layers" / "NTLV" / "2010_NTLV.tif", ntlv, float("nan"))
+        try:
+            ntl_qa.main(qa_args)
+            raise AssertionError("a negative NTLV value passed")
+        except SystemExit as e:
+            assert "NTLV 2010: 1 negative cells" in str(e) and "DN >=" not in str(e), e
+        print("ok ntl_qa NTL + NTLV: percentile box, lit share / ratio on BUI 0 cells, glow, side-by-side CSV, "
+              "negative fails")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
     test_conus_counties()
     test_ntl()
+    test_ntlv()
     test_pipeline()
     print("ALL OK")

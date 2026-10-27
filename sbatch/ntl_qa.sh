@@ -1,9 +1,11 @@
 #!/bin/bash
-# QA of the NTL layer in the study-area cutout (src/grid/ntl_qa.py; design docs/dasymetric_v3.md).
-# Input: $HISDAC_SCRATCH/cutouts/<name>/ with layers/NTL (grid_cutout.sh --layers NTL).
-# Output: $HISDAC_SCRATCH/cutouts/<name>/qa/ntl_qa.csv + ntl_glow_counties.csv, copied to results/cutout/<name>/
-# (also on failure). CONFIG= picks the study-area config (default Massachusetts), e.g. for CONUS:
+# QA of the night-light layers in the study-area cutout (src/grid/ntl_qa.py; design docs/dasymetric_v3.md).
+# Input: $HISDAC_SCRATCH/cutouts/<name>/ with layers/NTL (grid_cutout.sh --layers NTL) and / or layers/NTLV.
+# Output: $HISDAC_SCRATCH/cutouts/<name>/qa/<layer>_qa.csv + <layer>_glow_counties.csv (ntl_qa.csv, ... for NTL;
+# with several layers also ntl_edges_compare.csv), copied to results/cutout/<name>/ (also on failure). CONFIG= picks
+# the study-area config (default Massachusetts); --layer (default NTL) the layers, e.g. for CONUS:
 #   sbatch --ntasks=8 --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/ntl_qa.sh
+#   sbatch --ntasks=8 --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/ntl_qa.sh --layer NTL NTLV
 #
 # Submit from the repo root (logs/ must exist):
 #   mkdir -p logs && sbatch sbatch/ntl_qa.sh
@@ -31,7 +33,7 @@ echo "== config: $CONFIG (name=$NAME)  cutout: $CUT_ROOT/$NAME  extra args: $*"
 
 copy_back() {
     mkdir -p "results/cutout/$NAME"
-    for f in ntl_qa.csv ntl_glow_counties.csv; do
+    for f in ntl_qa.csv ntl_glow_counties.csv ntlv_qa.csv ntlv_glow_counties.csv ntl_edges_compare.csv; do
         [[ -f $CUT_ROOT/$NAME/qa/$f ]] && cp "$CUT_ROOT/$NAME/qa/$f" "results/cutout/$NAME/"
     done
     return 0

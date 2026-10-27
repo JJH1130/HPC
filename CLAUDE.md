@@ -27,15 +27,19 @@ and an areal-weighting baseline (+ totals QA; metrics for all / small / non-smal
 `src/validation/county_maps.py` (`sbatch/county_maps.sh`) draws zoomed county maps of several CONUS versions side by side;
 `src/validation/compare_models.py` (`sbatch/compare_models.sh`) tabulates CV / TEST / tract metrics of several versions
 (`model_comparison.csv`; for one version over years `--out summary_by_year.csv --plot ... --repro-with <version>`;
-`--years` filters, `--rank-features ntl` adds a feature's permutation / SHAP rank);
+`--years` filters, `--rank-features ntl ntlv` adds a feature's permutation / SHAP rank; logs tract MdAPE by part side by side);
 `--gap-share 0.05` (CONUS) adds tract parts without / within BUI gap counties. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
 (study area + the only layer list in `configs/study_area.yaml` → HISDAC/Land_Use/NTL layers clipped to one shared 250 m window + per-year
 county zone grids; `--layers NAME` adds one layer to an existing cutout), run by `sbatch/grid_cutout.sh` per `docs/runbooks/Making_Cutout.md`, rules in
-`docs/cutout.md`; `src/grid/ntl_qa.py` (`sbatch/ntl_qa.sh`, `CONFIG=` for CONUS) checks the NTL layer (DN >= 60 box rule unchanged, on
-hold; logged-only edge lines: lights outside the counties, glow at the coast / border), `src/grid/bui_qa.py` (`sbatch/bui_qa.sh`) lists BUI quantiles and the
+`docs/cutout.md`; `src/grid/ntl_qa.py` (`sbatch/ntl_qa.sh`, `CONFIG=` for CONUS, `--layer NTL NTLV` for several layers side by side)
+checks the night-light layers (DMSP NTL: DN >= 60 box rule unchanged, on hold; VIIRS-like NTLV: radiance rules, fails
+only on negative values; logged-only edge lines: lights outside the counties, glow / lit share of BUI = 0 cells at the
+coast / border); `sbatch/ntlv_download.sh` (login node, not a job) downloads the VIIRS-like NTL (Chen et al. 2021,
+Version1, Dataverse API + md5) and `src/grid/ntlv_check.py` (`sbatch/ntlv_check.sh`) checks it before the cutout; a
+config layer with `nodata_to: <value>` gets its nodata cells written as that value (NTLV sea mask -> 0, counted); `src/grid/bui_qa.py` (`sbatch/bui_qa.sh`) lists BUI quantiles and the
 largest cells of a cutout (CONUS outlier check, look only), `src/grid/bui_fix.py` (`sbatch/bui_fix.sh`; `bui_cap:` block of
 `configs/conus_study_area.yaml`, none for Massachusetts) replaces BUI cells above the cap by their 3 x 3 neighbour median
 in place on the cutout (original kept in `layers/BUI_raw/`; `--check` counts only, also from the raw HISDAC files), and `src/grid/water_frac.py`
@@ -54,12 +58,13 @@ HISDAC raster, 1920/1960/2010, water `only_zone_blocks`), `configs/conus_rf_v1.y
 `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml` = the model family comparison on v3_bui's features (60 candidates each);
 `conus_rf_v3_all.yaml` = the chosen RF v3 n60 for all census years 1900-2010 (study area years 1900-2010; configs with
 their own `years:` keep theirs); `conus_rf_v3_ntl.yaml` = v3_all + `ntl` for 2000 / 2010 (NTL layer of the CONUS study
-area, years [2000, 2010]), compared with v3_all; one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
+area, years [2000, 2010]), compared with v3_all; `conus_rf_v3_ntlv.yaml` = v3_ntl with `ntlv` (VIIRS-like NTL,
+layer NTLV) instead of `ntl`; one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
 `src/dasymetric/make_split.py`, never regenerated; `block_rows` = strip-wise features/prediction (terrain slope per strip with one halo row = whole window); `unusable: skip`;
 `years`), county input `src/census/conus_counties.py` (`sbatch/census_conus.sh`: Stefan's CSV on 2010 polygons, status
 ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0.95-1.05: trained, appended to the split as
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
-zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl` (stage scripts take `CONFIG=`,
+zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv` (stage scripts take `CONFIG=`,
 `CENSUS_DIR=`, `COVERAGE=` env overrides; CONUS resources live there). Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
 years live in `configs/model.yaml` (model registry `MODELS` in `src/dasymetric/models.py`: rf, lgbm, xgb, catboost, single-threaded models with a parallel
@@ -77,7 +82,8 @@ in train, NoData for unused counties, tract validation train/test parts + densit
 window, `bui_qa.py`, gap-county parts, LightGBM / XGBoost / CatBoost search -> predict with mass preserved,
 `compare_models.py`, all census years (a pre-1940 year without Land_Use; shared years reproduce the compared version;
 `--repro-with`, summary figure), `conus_counties.py` statuses, NTL (`test_ntl`: real configs, ntl era next to one
-without, NTL nodata, `ntl_qa.py` against brute force, `compare_models --years --rank-features`); stubs `shap` and `plots`;
+without, NTL nodata, `ntl_qa.py` against brute force, `compare_models --years --rank-features`), VIIRS-like NTL (`test_ntlv`: real configs, `nodata_to`, `ntlv_check.py`,
+county ntlv, `ntl_qa.py` NTL + NTLV); stubs `shap` and `plots`;
 one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_conus_dasymetric as t; t.test_ntl()"`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 

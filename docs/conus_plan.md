@@ -3,12 +3,12 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-28 (NTL test code: Dasy_CONUS_RF_v3_ntl, 2000 / 2010)
+Last updated: 2026-10-28 (VIIRS-like NTL test code: Dasy_CONUS_RF_v3_ntlv, 2000 / 2010)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
 `configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
 `configs/conus_rf_v3_bui.yaml`, `configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `configs/conus_rf_v3_all.yaml`,
-`configs/conus_rf_v3_ntl.yaml`, split `configs/conus_split.csv`.
+`configs/conus_rf_v3_ntl.yaml`, `configs/conus_rf_v3_ntlv.yaml`, split `configs/conus_split.csv`.
 
 ## Decisions (2026-10-23)
 
@@ -30,7 +30,8 @@ Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.
 | `Dasy_CONUS_RF_v2` | v1 + d_10k, d_20k, d_50k, d_100k, d_250k (from 1940) | v4.1 | run 1960/2010; **dropped** (worse on tracts) |
 | `Dasy_CONUS_RF_v3` | v1 + elev, slope | v4 terrain | run 1960/2010; **CONUS base** (best on tracts) |
 | `Dasy_CONUS_RF_v4` | v1 + d_10k ... d_250k + elev, slope | v4 + v4.1 | run 1960/2010; dropped (~ v2) |
-| `Dasy_CONUS_RF_v3_ntl` | v3 + ntl (2000 / 2010 only) | v3 (E3), dropped in v3.2 on 14 counties | code 2026-10-28 ("NTL test") |
+| `Dasy_CONUS_RF_v3_ntl` | v3 + ntl (2000 / 2010 only) | v3 (E3), dropped in v3.2 on 14 counties | run 2026-10-28 ("NTL test result") |
+| `Dasy_CONUS_RF_v3_ntlv` | v3 + ntlv (VIIRS-like NTL, 2000 / 2010 only) | - | code 2026-10-28 ("VIIRS-like NTL test") |
 
 `year` is constant within a per-year model and is dropped. In 1920 v1 and v2 are identical (distances start in 1940,
 `place_dist.first_year`), so 1920 runs v1 only.
@@ -436,6 +437,25 @@ Fremont 5 -> 36 %, Macoupin 96 -> 99 %.
 - Decision (2026-10-28, with the user): ntl not dropped. Test a less-blooming NTL product: VIIRS-like NTL (Chen et al.
   2021, 2000-2018, 15 arc-sec) for 2000 / 2010 (`docs/handoff/conus_ntl_viirs_request.md`); EOG VIIRS for 2020 later.
 
+## VIIRS-like NTL test (request 2026-10-28; run steps `docs/runbooks/Running_CONUS.md`, section 7)
+
+Does a less blooming night-light product keep the gain in BUI gap counties (DMSP `ntl`, 2010: 72.0 -> 35.1 %) and
+lose less elsewhere (25.6 -> 30.8 %)? Request: `docs/handoff/conus_ntl_viirs_request.md`. Data: Chen et al. (2021),
+NPP-VIIRS-like NTL (`docs/data_sources.md`).
+
+| Topic | Decision |
+|---|---|
+| Product version | **Version1** (the 2021 paper, as requested). The Dataverse record now also has a Version2 (Chen et al. 2026, 1992-2025, super-resolution, updated 12/2025); not used here, can be tested the same way (`VERSION=2 bash sbatch/ntlv_download.sh` -> `viirs_like/v2/`) |
+| Download | `sbatch/ntlv_download.sh` (login node): file ids + md5 from the Dataverse API (fallback: the values recorded 2026-10-28), md5 checked, unpacked flat into `$DATA_ROOT/raw/ntl/viirs_like/v1/{2000,2010}/` (exactly one `.tif` each). Laptop + OnDemand / `scp` to `dtn.rc.colorado.edu` if the cluster cannot reach Dataverse |
+| Check before the cutout | `src/grid/ntlv_check.py` (`sbatch/ntlv_check.sh`): CRS, cell size, dtype, nodata tag, bounds, coverage of the CONUS window (as a lon/lat box from `window.json`), over that box nodata / negative / zero / lit counts and lit quantiles, values at fixed sea / lake / dark / city points (how the sea mask is stored) -> `results/cutout/conus/ntlv_check.csv`. Fails on a non-geographic CRS, missing coverage, negative values or no light |
+| Layer | `NTLV` in `configs/conus_study_area.yaml`: `viirs_like/v1/{YEAR}/*.tif`, years [2000, 2010], float32 (radiance), **nearest** as NTL: the 250 m cells are smaller than the ~460 x 350 m source pixels, so each takes the pixel it lies in; `average` would give nearly the same, `bilinear` would smear light onto neighbouring cells, against the point of the test |
+| Sea mask | `nodata_to: 0` (new `make_cutout.py` key): the producers removed the sea with a land mask; if it is stored as nodata, a coastal county cell whose centre falls on a masked pixel would stop the features (NTL rule: nodata in a used county stops the job). Masked sea = no light, so it is written as 0, counted in the cutout log (cells inside the counties). NTL (DMSP) keeps the stop rule |
+| Version | `Dasy_CONUS_RF_v3_ntlv` (`configs/conus_rf_v3_ntlv.yaml`) = `conus_rf_v3_ntl.yaml` with `ntlv` (layer NTLV) instead of `ntl`; same split / folds / search space / 60 candidates; `compare_with: Dasy_CONUS_RF_v3_all`. The test checks that only the feature differs |
+| QA | `ntl_qa.py --layer NTL NTLV` (one job): per layer `ntl_qa.csv` / `ntlv_qa.csv` + glow counties, and `ntl_edges_compare.csv` side by side. DMSP keeps its rules (DN 0-63, DN >= 60 box, on hold). VIIRS-like (radiance, no 0-63 scale): fails only on negative values; box "bright" = p99 of the lit zone cells (warning if none); glow = BUI 0 and >= 10 nW (logged only, not calibrated to DN 30). Scale-free edge lines for both: lit share of BUI = 0 cells (edge 5 km vs interior) and mean value on BUI = 0 cells / mean on built cells |
+| Comparison | `compare_models.py --versions Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_ntl Dasy_CONUS_RF_v3_ntlv --years 2000 2010 --rank-features ntl ntlv` -> `results/validation/conus/ntl_viirs_comparison.csv`; the log adds a table of tract MdAPE all / test / no_gap / gap / density classes side by side |
+| County maps | 2010, Chelan WA, Reno KS, Fremont CO, Macoupin IL (BUI gap), DuPage IL (BUI gap, G1700430); v3_all / v3_ntl / v3_ntlv -> `results/validation/conus/county_maps_ntlv/` (own folder) with the share of people on BUI = 0 cells |
+| Decision rule | not fixed in advance: gap vs no_gap tract MdAPE first (does ntlv keep the gap gain and lose less elsewhere?), density classes, county TEST R2 second |
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
@@ -505,7 +525,7 @@ Made while implementing; each is the simplest option consistent with the decisio
 | Test score | `test_rmse`, `test_r2` in `metrics.json`, `test_predictions.csv`; v2 also scores v1's saved test predictions on the same rows |
 | Jobs | the Massachusetts stage scripts with `CONFIG=` (and `CENSUS_DIR=`, `COVERAGE=`) passed by `sbatch/submit_conus.sh`, which also holds the CONUS resources |
 | Tract validation | all states; metrics for `all`, `train`, `test` (part of the 2010 county the tract lies in); the totals QA by nominal county (`coverage_by_county`) is skipped, because the zones are 2010 counties |
-| Layers not cut | FBUY, NobuiltYear (`age` dropped), NTL. DEM added 2026-10-27 for v3 / v4 |
+| Layers not cut | FBUY, NobuiltYear (`age` dropped). DEM added 2026-10-27 for v3 / v4, NTL (2000 / 2010) and NTLV (VIIRS-like, 2000 / 2010) 2026-10-28 for v3_ntl / v3_ntlv |
 | JRC no data | counted as water as in Massachusetts; checked only there (open sea). From the pilot on, `water_frac.py` logs the share inside study cells (`study_jrc_nodata_mean`, `study_cells_jrc_nodata_gt50` in `water_qa.csv`) and per county (`qa/water_jrc_nodata_by_county.csv`, top 20 in the log); decide from it before the full run |
 
 ## Order
@@ -524,4 +544,6 @@ Made while implementing; each is the simplest option consistent with the decisio
 7. Then the remaining years (1900-2010) with the chosen model and v3 features, then 2020. Code 2026-10-27 ("All
    census years"; `bash sbatch/submit_conus.sh all`). Done 2026-10-27 ("All census years result"). Next: 2020.
 8. NTL test for 2000 / 2010 (`Dasy_CONUS_RF_v3_ntl` vs v3_all). Code 2026-10-28 ("NTL test";
-   `bash sbatch/submit_conus.sh ntl`). If NTL helps, 2020 gets it too.
+   `bash sbatch/submit_conus.sh ntl`). If NTL helps, 2020 gets it too. Ran 2026-10-28 ("NTL test result").
+9. VIIRS-like NTL test for 2000 / 2010 (`Dasy_CONUS_RF_v3_ntlv` vs v3_all and v3_ntl). Code 2026-10-28 ("VIIRS-like
+   NTL test"; `bash sbatch/ntlv_download.sh`, `sbatch --wait sbatch/ntlv_check.sh`, `bash sbatch/submit_conus.sh ntlv`).

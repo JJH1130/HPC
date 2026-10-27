@@ -16,6 +16,8 @@ Steps:
   3. Layers are listed only in the config. Rasters on the HISDAC grid: windowed read (never
      the whole CONUS array); 0 means "no building", so 0 is never nodata. Rasters on other
      grids (DEM, NTL, ...): GDAL warp onto the window with the layer's `resampling`.
+     `nodata_to: <value>` (VIIRS-like NTL, whose sea is masked): source nodata cells are written as that value
+     instead of nodata; how many, and how many of them lie inside that year's zones, is logged.
   4. zone_id = the county's GPKG feature id (1-based row number in counties_{YEAR}.gpkg).
      Counties not picked, and cells outside all counties, are 0.
 
@@ -117,7 +119,8 @@ def expand_layers(cfg: dict) -> list[dict]:
         for cls in entry.get("classes", [None]):
             out.append({"label": f"{name}_{cls}" if cls else name, "name": name, "class": cls,
                         "path": entry["path"], "years": years, "resampling": res, "dtype": dtype,
-                        "out": entry.get("out", default_out), "aligned": {}})
+                        "out": entry.get("out", default_out), "nodata_to": entry.get("nodata_to"),
+                        "aligned": {}})
     labels = [layer["label"] for layer in out]
     dup = sorted({x for x in labels if labels.count(x) > 1})
     if dup:
@@ -321,6 +324,20 @@ def write_tif(path: Path, arr, transform, crs, nodata):
     os.replace(part, path)  # the final name only ever holds a complete file
 
 
+def fill_nodata(arr, nd, value, out_dir: Path, year, label):
+    """`nodata_to`: nodata cells get `value` (logged with the count inside that year's zones, when there)."""
+    zpath = out_dir / "zones" / f"zones_{year}.tif"
+    inside = "-"
+    if year and zpath.exists():
+        with rasterio.open(zpath) as z:
+            zones = z.read(1)
+        inside = int((nd & (zones > 0)).sum()) if zones.shape == nd.shape else "- (zones on another grid)"
+    log.info("  %s: nodata_to %s: %d nodata cells set to %s (%s of them inside the %s zones)", label, value,
+             int(nd.sum()), value, inside, year)
+    arr = np.where(nd, value, arr)
+    return arr, np.zeros(arr.shape, bool), None
+
+
 def layer_path(layer, year, path, out_dir) -> Path:
     return out_dir / "layers" / fill(layer["out"], layer, year).replace("{FILENAME}", path.name)
 
@@ -328,6 +345,8 @@ def layer_path(layer, year, path, out_dir) -> Path:
 def cut_layer(layer, year, path, win_transform, shape, out_dir, ref):
     label = f"{layer['label']} {year}" if year else layer["label"]
     arr, nd, src_nodata, how = read_layer(layer, year, path, win_transform, shape, ref, label)
+    if layer["nodata_to"] is not None and nd.any():
+        arr, nd, src_nodata = fill_nodata(arr, nd, layer["nodata_to"], out_dir, year, label)
     out, out_nd, valid = convert(arr, nd, src_nodata, layer, not layer["aligned"][year], label)
     out_path = layer_path(layer, year, path, out_dir)
     write_tif(out_path, out, win_transform, ref["crs"], out_nd)

@@ -24,6 +24,9 @@ Feature test (Dasy_CONUS_RF_v3_ntl vs v3_all, docs/conus_plan.md "NTL test"):
 --years keeps those years only; --rank-features adds, per feature, its rank among the era's features by
 permutation importance (feature_importance.csv) and by mean |SHAP| (shap_importance.csv), 1 = first, with the
 values and the number of features (empty where the version has no such feature), and logs them.
+VIIRS-like NTL test (docs/conus_plan.md "VIIRS-like NTL test"): --versions Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_ntl
+Dasy_CONUS_RF_v3_ntlv --years 2000 2010 --rank-features ntl ntlv --out .../ntl_viirs_comparison.csv. Every run also
+logs the tract MdAPE by part side by side (all, test, no_gap, gap, the four density classes).
 """
 from __future__ import annotations
 
@@ -41,7 +44,8 @@ log = logging.getLogger("compare_models")
 PARTS = ["all", "train", "test", "no_gap", "gap"]
 DENS = ["dens_0_50", "dens_50_500", "dens_500_2000", "dens_2000_plus"]
 SUMMARY = ["version", "model", "cv_rmse_mean", "cv_r2_mean", "test_r2", "tract_all_n", "tract_counties",
-           "tract_all_mdape", "tract_test_mdape", "tract_no_gap_mdape", "tract_dens_0_50_mdape", "baseline_all_mdape",
+           "tract_all_mdape", "tract_test_mdape", "tract_no_gap_mdape", "tract_gap_mdape", "tract_dens_0_50_mdape",
+           "baseline_all_mdape",
            "gap_counties", "mass_fail", "train_seconds"]
 MASS_TOL = 1e-6  # as src/dasymetric/predict.py
 
@@ -251,6 +255,12 @@ def main(argv=None):
             log.info("%d (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):\n%s", year,
                      g[[c for c in SUMMARY if c in g]].round(4).to_string(index=False))
         log.info("chosen hyperparameters:\n%s", df[["year", "version", "best_params"]].to_string(index=False))
+        parts = [c for c in [f"tract_{p}_mdape" for p in ("all", "test", "no_gap", "gap")] +
+                 [f"tract_{d}_mdape" for d in DENS] if c in df]
+        if parts:
+            log.info("tract MdAPE (%%) by part (gap = BUI gap counties, dens_* = observed people / km2):\n%s",
+                     df[["year", "version"] + parts].rename(columns={c: c[6:-6] for c in parts}).round(2)
+                     .to_string(index=False))
         for f in args.rank_features:
             cols = [c for c in (f"{f}_perm_rank", f"{f}_perm", f"{f}_shap_rank", f"{f}_shap", "n_features") if c in df]
             log.info("rank of %s (1 = most important; permutation = RMSE increase when shuffled, shap = mean |SHAP|):"

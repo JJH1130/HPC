@@ -16,6 +16,7 @@ Code: `src/grid/make_cutout.py` · Config: `configs/study_area.yaml` · Job:
 | Single-file HISDAC layers | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/**/*FBUY*.tif`, `**/*NobuiltYear*.tif` | No year; cut once. Each glob must match exactly one file |
 | Land use counts | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/{CLASS}/Count_{YEAR}_{CLASS}.tif` | 8 classes: A, C, GV, I, RC, RI, RO, VL. 1940–2020 only. `Count_{YEAR}_Theme*.tif` in the same folders duplicate the class files (RO = Theme6) and are **not used** |
 | Night lights (NTL) | `/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif` | Li et al. (2020) harmonized DMSP/VIIRS, extended release. 2000, 2010 (`calDMSP`), 2020 (`simVIIRS`). EPSG:4326, 30 arc-seconds, uint8 DN 0–63, no nodata. Warped with `nearest` to int16 (`docs/dasymetric_v3.md`) |
+| VIIRS-like night lights (NTLV, CONUS only) | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/{YEAR}/*.tif` | Chen et al. (2021), Version1, 2000 / 2010 (`docs/data_sources.md`). EPSG:4326, 15 arc-seconds, radiance (float). Warped with `nearest` to float32; `nodata_to: 0` (the producers' sea mask = no light) |
 | Surface water (JRC occurrence) | `/projects/jaju1407/data/raw/water/jrc_occurrence/occurrence_*.tif` | JRC GSW v1.4 (1984–2021), 30 m, EPSG:4326, 10° tiles; the tiles overlapping the window are found automatically. Not a `layers` entry: built by `src/grid/water_frac.py` (settings: `water:` block) |
 | Reservoirs (HydroLAKES) | `/projects/jaju1407/data/raw/water/HydroLAKES_polys_v10_shp/HydroLAKES_polys_v10.shp` | v1.0; polygons with `Lake_type = 2` are removed from the water mask (`docs/dasymetric_v3_1.md`) |
 | External rasters (later) | any path | e.g. DEM, land cover; one config line each |
@@ -104,7 +105,8 @@ the one in `window.json`, and it does not rewrite zones, `window.json` or `cutou
 5. **Layers on other grids (external rasters): GDAL warp** onto the window with the layer's
    `resampling` method. The source's declared nodata is honored, and cells the source doesn't
    cover become nodata. For int32 layers the warped values are rounded (e.g., `sum` gives
-   fractional counts at partial coverage).
+   fractional counts at partial coverage). A layer with `nodata_to: <value>` (CONUS NTLV, 2026-10-28) writes its
+   nodata cells as that value instead; the log counts them and how many lie inside that year's zones.
 6. **Store with deflate compression**, as int16, int32 or float32 per layer. Integer layers stop the
    job if a value doesn't fit the type.
 7. **Zone grids.** Each selected county is rasterized by cell center (`all_touched=False`).

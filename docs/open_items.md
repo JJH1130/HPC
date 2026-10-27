@@ -4,11 +4,18 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-28 (CONUS NTL test, Dasy_CONUS_RF_v3_ntl, written as code)
+Last updated: 2026-10-28 (VIIRS-like NTL test, Dasy_CONUS_RF_v3_ntlv, written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
+
+- **Status (2026-10-28, later):** VIIRS-like NTL test written as code, not run yet (`docs/runbooks/Running_CONUS.md`
+  section 7, `docs/conus_plan.md` "VIIRS-like NTL test"): download (`sbatch/ntlv_download.sh`) + check
+  (`sbatch/ntlv_check.sh`), layer NTLV, NTL QA of NTL and NTLV side by side, `Dasy_CONUS_RF_v3_ntlv`, comparison
+  `ntl_viirs_comparison.csv`, county maps of 5 counties (DuPage IL added). Open: Version2 of the product (Chen et al.
+  2026, 1992-2025) is on the same Dataverse record and not tested; ntl / ntlv for 2000 / 2010 decided with the user
+  from the gap / no_gap tract metrics.
 
 - **Status (2026-10-28):** NTL test ran (jobs 34956826-34956833; `ntl_qa` FAILED only on the known DN >= 60 box rule,
   everything else COMPLETED). ntl ranks first (permutation and SHAP) and lifts county CV R2 from 0.86 to 0.96, but tract
@@ -373,6 +380,7 @@ Last updated: 2026-10-28 (CONUS NTL test, Dasy_CONUS_RF_v3_ntl, written as code)
 | 2026-10-27 | CONUS v3 (+ elev, slope) best on tracts (2010 MdAPE 29.2 vs 29.8 %, every density class) and becomes the CONUS base; v4 (+ distances + terrain) ~ v2: distances dropped. BUI unit = sq ft (README); cells > 3e7 sq ft are record errors (10 / 119 / 298 cells in 1920 / 1960 / 2010), treatment to decide. |
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
 | 2026-10-27 | Hyperparameters: county CV only (tracts never in the search). Model family chosen before the all-years run: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, picked by tract validation + county TEST R2. Gap counties (BUI per person < 5 % of the median): 533 / 479 / 416 in 1920 / 1960 / 2010; kept, flagged, validation reported with and without. |
+| 2026-10-28 | VIIRS-like NTL test implementation: Chen et al. 2021 **Version1** (the cited paper; Version2 on the same record left for later), CC0 1.0; files from the Dataverse API with md5 check; layer `NTLV` float32 `nearest` (cells smaller than the source pixels; bilinear would spread light); `nodata_to: 0` for its sea mask (no light; counted in the cutout log; DMSP NTL keeps the stop rule); `ntl_qa.py` takes several layers: DMSP rules unchanged, VIIRS-like fails only on negative values, box = p99 of lit zone cells (warning only), glow >= 10 nW (logged only), scale-free lit share / mean ratio of BUI = 0 cells side by side (`ntl_edges_compare.csv`); `Dasy_CONUS_RF_v3_ntlv` = v3_ntl with ntlv; comparison with v3_all and v3_ntl (`ntl_viirs_comparison.csv`); county maps + DuPage IL in `county_maps_ntlv/`. |
 | 2026-10-28 | NTL test result: county CV R2 0.86 -> 0.96 with ntl (rank 1), tract MdAPE worse in 2000 (27.2 -> 32.8 %) and 2010 (26.6 -> 31.0 %); better only in tracts < 50 / km2 (29.4 -> 27.4, 30.7 -> 27.7 %). Glow puts people on empty cells (Fremont 5 -> 36 % on BUI = 0). But in BUI gap counties 72.0 -> 35.1 % (2010): lights fill missing HISDAC records. ntl kept under test; next: VIIRS-like NTL 2000 / 2010. |
 | 2026-10-28 | NTL test in CONUS: MA dropped `ntl` on 14 counties only (v3.2: tract error unchanged). Features stay era-specific (pre-1940 no Land_Use; 2000+ may add NTL, available from 1992), so `Dasy_CONUS_RF_v3_ntl` = v3_all features + ntl for 2000 / 2010, compared with v3_all on tracts (`docs/handoff/conus_ntl_request.md`). |
 | 2026-10-28 | NTL test implementation: the MA NTL layer definition in `conus_study_area.yaml` (2000 / 2010), cut with `--layers NTL`; NTL nodata inside a used county stops the features (no silent 0); NTL QA runs on CONUS but nothing waits for it (the DN >= 60 rule may fail as in MA); comparison `compare_models.py --years 2000 2010 --rank-features ntl` -> `results/validation/conus/ntl_comparison.csv`; county maps in their own folder `county_maps_ntl/`. |

@@ -1,7 +1,7 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all, v3_ntl)
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all, v3_ntl, v3_ntlv)
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
-layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml` (models), split table
+layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), split table
 `configs/conus_split.csv` (made once, 2026-10-23; never regenerate it). The Massachusetts configs
 (`configs/study_area.yaml`, `configs/model.yaml`) and runbooks are unchanged.
 
@@ -16,7 +16,7 @@ no-data QA, pilot resources from the trial. Pilot passed 2026-10-26 (jobs 349182
 failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 / 1960 / 2010, county maps). Section 3 ran 2026-10-26 (jobs 34926193-34926203). Next: section 4
 (model family). Section 4 ran 2026-10-27 (jobs 34932548-34932563; RF chosen). Next: section 5
 (all census years 1900-2010). Section 5 ran 2026-10-27 (jobs 34939345-34939353). Next: section 6 (night lights
-test, 2000 / 2010).
+test, 2000 / 2010). Section 6 ran 2026-10-28 (jobs 34956826-34956833). Next: section 7 (VIIRS-like night lights).
 
 ## Inputs / outputs
 
@@ -33,8 +33,9 @@ test, 2000 / 2010).
 | BUI fix (scratch) | cutout `layers/BUI/` = fixed (from section 3 on), `layers/BUI_raw/` = original |
 | DEM (v3, v4) | `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd` -> cutout `layers/DEM/DEM.tif` |
 | NTL (v3_ntl) | `/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif` -> cutout `layers/NTL/{YEAR}_NTL.tif` (2000, 2010) |
+| NTLV (v3_ntlv) | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/{YEAR}/*.tif` (`sbatch/ntlv_download.sh`) -> cutout `layers/NTLV/{YEAR}_NTLV.tif` (2000, 2010) |
 | results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/` |
-| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt`, `logs/conus_all_jobs.txt`, `logs/conus_ntl_jobs.txt` |
+| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt`, `logs/conus_all_jobs.txt`, `logs/conus_ntl_jobs.txt`, `logs/conus_ntlv_jobs.txt` |
 
 ## 0. Trial: measure time and memory (1960, v1)
 
@@ -634,6 +635,126 @@ Good: `sacct` shows `COMPLETED` for 7 jobs (`ntl_qa` may be `FAILED` on the DN >
 copied anyway), `git push` ends with `main -> main`, the last commit is the `run: CONUS RF v3 + night lights ...`
 one, then `== end of block 2`.
 
+## 7. VIIRS-like night lights: Dasy_CONUS_RF_v3_ntlv, 2000 / 2010 (2026-10-28)
+
+The DMSP `ntl` of section 6 halved the tract error in BUI gap counties but raised it elsewhere (glow on empty land;
+`docs/conus_plan.md`, "NTL test result"). Same test with the VIIRS-like NTL of Chen et al. (2021, Version1, 15
+arc-seconds, radiance; `docs/data_sources.md`): `Dasy_CONUS_RF_v3_ntlv` = v3_ntl with `ntlv` instead of `ntl`,
+compared with v3_all and v3_ntl (`docs/conus_plan.md`, "VIIRS-like NTL test"). No env change.
+
+| Job | What | Estimate (from section 6) |
+|---|---|---|
+| `ntlv_download.sh` (login node, not a job) | Dataverse API -> file ids + md5 -> `2000_Version1.zip`, `2010_Version1.zip` (59 + 79 MB) -> `viirs_like/v1/{2000,2010}/` | a few min |
+| `ntlv_check` (`sbatch --wait`) | CRS, cell size, value range, nodata, sea mask (sample points), coverage of the CONUS window -> `results/cutout/conus/ntlv_check.csv` | ~2 min |
+| `grid_cutout --layers NTLV` | `layers/NTLV/{2000,2010}_NTLV.tif` (float32, nearest; sea mask -> 0, counted inside the counties); nothing else re-cut | ~5 min |
+| `ntl_qa --layer NTL NTLV` | both layers side by side: range, box (DMSP: DN >= 60 rule, may fail again; VIIRS-like: p99 of lit cells, warning only), Spearman, edge / interior lit share and glow of BUI = 0 cells (`ntl_edges_compare.csv`); **nothing waits for it** | ~5 min |
+| features, train, predict | 2 eras (Y2000, Y2010), 9 features, 2 x 60 candidates | ~6, ~20, ~11 min |
+| `validate_tract` | 2000 / 2010, split parts, density classes, `--gap-share 0.05` | ~7 min |
+| `compare_models` | `results/validation/conus/ntl_viirs_comparison.csv`: v3_all / v3_ntl / v3_ntlv, 2000 / 2010, tract MdAPE gap / no_gap / density classes, rank of ntl and ntlv | < 1 min |
+| `county_maps` | 2010, Chelan WA, Reno KS, Fremont CO, Macoupin IL (BUI gap), DuPage IL (BUI gap); v3_all / v3_ntl / v3_ntlv -> `results/validation/conus/county_maps_ntlv/` (+ `county_maps.csv`: share of people on BUI = 0 cells) | ~3 min |
+
+Block 0, download + check (login node; the check is a small job, `--wait` returns when it ends):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/ntlv_download.sh
+ls -l /projects/jaju1407/data/raw/ntl/viirs_like/v1/2000 /projects/jaju1407/data/raw/ntl/viirs_like/v1/2010
+sbatch --wait sbatch/ntlv_check.sh; echo "ntlv_check exit code $?"
+f=$(ls -t logs/ntlv_check.*.out | head -1); echo "== $f"; tail -n 32 "$f"
+echo "== end of block 0"
+```
+
+Good: `Dataverse API reached: dataset version ... | license CC0 1.0`, `2000_Version1.zip: md5 ok` and the same for
+2010, one `.tif` per year folder (no `WARNING`), `ntlv_check exit code 0`, and in the check log per year `EPSG:4326 |
+cell 0.004167 deg = 15.00 arc-sec`, `covers the window: True`, the window box counts, the sample points (sea / lake:
+`nodata` or `0`, cities: large values), `DONE`, then `== end of block 0`. A nonzero exit code or an `ERROR` line:
+send the output to Claude and do not go on to block 1.
+
+If the download fails (`curl: (6)`, `(7)`, `(28)`, or `ERROR: ... md5`), get the two files on the laptop instead:
+open https://doi.org/10.7910/DVN/YGIVCD, folder `Version1`, download `2000_Version1.zip` and `2010_Version1.zip`.
+Upload them to `/projects/jaju1407/data/raw/ntl/viirs_like/v1/` with the OnDemand Files app
+(https://ondemand.rc.colorado.edu -> Files -> Upload), or from the laptop's PowerShell through the data-transfer node:
+
+```powershell
+scp $HOME\Downloads\2000_Version1.zip $HOME\Downloads\2010_Version1.zip jaju1407@dtn.rc.colorado.edu:/projects/jaju1407/data/raw/ntl/viirs_like/v1/
+```
+
+Good: both files listed at 100 %. Then run block 0 again: the script finds the zips, checks their md5 and only unpacks.
+
+Block 1, preflight + submit (login node; `submit_conus.sh ntlv` checks every input again and submits nothing if one
+is missing):
+
+```bash
+cd /projects/jaju1407/HPC
+source sbatch/cluster_env.sh
+C=$HISDAC_SCRATCH/cutouts/conus
+D=$HISDAC_SCRATCH/dasymetric/conus
+ls $C/layers/NTLV 2>/dev/null && echo "NOTE: layers/NTLV exists already (it will be rewritten the same)"
+ls -d $C/layers/NTL/2000_NTL.tif $C/layers/NTL/2010_NTL.tif $D/Dasy_CONUS_RF_v3_all/predictions/pop_2010.tif $D/Dasy_CONUS_RF_v3_ntl/predictions/pop_2010.tif
+cut -d, -f1,3,6,7,9,14 results/cutout/conus/ntlv_check.csv
+df -h $HISDAC_SCRATCH | tail -1
+grep -E '^(version|compare_with|years):' configs/conus_rf_v3_ntlv.yaml
+grep -n 'name: NTLV' configs/conus_study_area.yaml
+bash sbatch/submit_conus.sh ntlv
+echo "== end of block 1"
+```
+
+Good: the four paths listed, the check table (`year,crs,dtype,nodata,cell_arcsec,covers_window` with `EPSG:4326`,
+`15.0`, `True` for 2000 and 2010), `version: Dasy_CONUS_RF_v3_ntlv`, `years: [2000, 2010]`, `compare_with:
+Dasy_CONUS_RF_v3_all`, the `name: NTLV` line, then one line `ntlv_cutout N | ntl_qa N | features N | train N |
+predict N | validate N | compare N | county_maps N` (8 ids, also in `logs/conus_ntlv_jobs.txt`) and `== end of block
+1`. A `MISSING ...` list + `ERROR: nothing submitted` means an input is gone (scratch purge?) or block 0 did not
+finish: send it to Claude. If `== end of block 1` is missing, the paste was cut: run `cat logs/conus_ntlv_jobs.txt;
+squeue -u $USER` before pasting again (never submit twice).
+
+Block 2, monitor:
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+for j in $(grep -oE '[0-9]{6,}' logs/conus_ntlv_jobs.txt); do f=$(ls logs/*.$j.out 2>/dev/null); [[ -n $f ]] && { echo "== $f"; tail -n 3 "$f"; }; done
+echo "== end of block 2"
+```
+
+Good: the last lines of the started jobs (`== done ...` when finished) and `== end of block 2`. Check in the logs:
+- `grid_cutout`: `--layers ['NTLV']: window matches ...`, per year `nodata_to 0: N nodata cells set to 0 (M of them
+  inside the ... zones)` (only when the sea is stored as nodata) and an `NTLV` line (`warped (nearest)`, min >= 0), `DONE`
+- `ntl_qa`: per layer and year the range, box and `edges` lines, the `edges side by side` table, `wrote
+  .../ntl_edges_compare.csv`. It may end with `ERROR: NTL QA failed: NTL 2010: no cell with DN >= 60 in the box` (the
+  known DMSP rule artifact): expected; any `NTLV ...` line in that error is not
+- `dasymetric_features`: eras Y2000, Y2010 with `ntlv` in the feature list, `DONE`
+- `dasymetric_train`: per era `search 60 of continuous candidates`, the permutation / SHAP tables (ntlv's place),
+  `Dasy_CONUS_RF_v3_all (its saved out-of-fold predictions, same folds ...)`, `TEST`, `DONE`
+- `dasymetric_predict`: `mass check ... 0 fail`, `DONE`
+- `validate_tract`: 2000 / 2010, `BUI gap counties ...`, `DONE`
+- `compare_models`: one table per year (v3_all, v3_ntl, v3_ntlv), `tract MdAPE (%) by part`, `rank of ntl ...`,
+  `rank of ntlv ...`, `wrote .../ntl_viirs_comparison.csv`, `DONE`
+- `county_maps`: 5 PNGs + `county_maps.csv` in `county_maps_ntlv/`, `DONE`
+
+Block 3, close the loop (after the last job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_ntlv_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_ntlv_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_ntlv_seff.txt
+cat logs/conus_ntlv_sacct.txt
+du -sh results/cutout/conus results/dasymetric/conus/Dasy_CONUS_RF_v3_ntlv results/validation/conus/Dasy_CONUS_RF_v3_ntlv results/validation/conus/county_maps_ntlv
+git add logs/ results/cutout/conus results/dasymetric/conus/Dasy_CONUS_RF_v3_ntlv results/validation/conus/Dasy_CONUS_RF_v3_ntlv results/validation/conus/ntl_viirs_comparison.csv results/validation/conus/county_maps_ntlv
+git commit -m "run: CONUS RF v3 + VIIRS-like night lights 2000/2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: `sacct` shows `COMPLETED` for 7 jobs (`ntl_qa` may be `FAILED` on the DMSP DN >= 60 rule only: fine, its CSVs
+are copied anyway), `git push` ends with `main -> main`, the last commit is the `run: CONUS RF v3 + VIIRS-like ...`
+one, then `== end of block 3`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -660,6 +781,13 @@ one, then `== end of block 2`.
 | ntl: `ntl_qa` `OUT_OF_MEMORY` | nothing waits for it; rerun alone with more cores: `sbatch --ntasks=16 --time=00:45:00 --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/ntl_qa.sh` |
 | ntl: features `nodata cells inside the used counties` (`.../NTL/..._NTL.tif`) | the NTL raster does not cover a used county cell: the job stops on purpose (no silent 0); send Claude the log and the `ntl_qa` log (`zone cells with nodata`) |
 | ntl: `compare_with Dasy_CONUS_RF_v3_all skipped: missing ...` | v3_all's scratch outputs were purged: send the log (the comparison table still reads the result files in git) |
+| ntlv: `ntlv_download.sh` `curl: (6)` / `(7)` / `(28)` | no route to Dataverse from the login node: the laptop route in section 7, block 0 |
+| ntlv: `ERROR: <label> md5 ..., expected ...` | a broken download: run block 0 again (the `.part` file is replaced); twice in a row: send the log |
+| ntlv: `WARNING: <label> md5 changed since 2026-10-28` | the file was replaced on Dataverse: the new md5 is used; send the log before going on (record it in `docs/data_sources.md`) |
+| ntlv: `WARNING: <year> has N .tif files` | the zip holds more than one raster: send the listing to Claude (the config expects one per year folder) |
+| ntlv: `ntlv_check` `ERROR: VIIRS-like check failed` | CRS, coverage or negative values: do not submit block 1; send the check log |
+| ntlv: features `nodata cells inside the used counties` (`.../NTLV/..._NTLV.tif`) | nodata left after `nodata_to` (should not happen): send the features and cutout logs |
+| ntlv: `ntl_qa` `FAILED` with `NTL 2010: no cell with DN >= 60` only | the known DMSP rule; nothing waits for it. Any `NTLV ...` line in the error (negative values): send the log |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

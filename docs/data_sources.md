@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -18,6 +18,7 @@ Last updated: 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL
 | NHGIS tract population + boundaries | Extract nhgis0002: 1910–1960 source tables, 1970–2020 time series AV0 (nominal); boundaries 1910–2020 | `/projects/jaju1407/data/raw/nhgis/` (`nhgis0002_csv/`, `nhgis0002_shape/`) | Ch1 fine-scale validation of dasymetric outputs | Downloaded 2026-10-12; `src/census/prepare_tracts.py` written, not yet run |
 | Census Bureau historical totals (Forstall 1996) | 1996 publication | (reference only) | Manual fills, QA | In use |
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
+| NPP-VIIRS-like global NTL | Chen et al. (2021), Harvard Dataverse doi:10.7910/DVN/YGIVCD, **Version1**, 2000 and 2010 | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/` | CONUS feature test `ntlv` (`Dasy_CONUS_RF_v3_ntlv`, cutout layer `NTLV`) | Registered 2026-10-28; download by `sbatch/ntlv_download.sh`, not run yet |
 | JRC Global Surface Water (occurrence) | v1.4 (1984–2021), 30 m, 21 CONUS tiles | `/projects/jaju1407/data/raw/water/jrc_occurrence/` | Water fraction → v3.1 water mask | Downloaded 2026-10-05 |
 | HydroLAKES polygons | v1.0 | `/projects/jaju1407/data/raw/water/` | Reservoir areas removed from water fraction (v3.1) | Superseded by GDW for reservoir removal |
 | Global Dam Watch (GDW) reservoirs + barriers | v1.0 | `/projects/jaju1407/data/raw/water/gdw/` | Reservoir polygons with dam years → year-dependent water fraction | Downloaded 2026-10-12; in code for v4 (`water_frac.py`, `reservoir_source: gdw`), not run yet |
@@ -129,6 +130,32 @@ Common to all extracts:
   nighttime light dataset 1992–2018. *Scientific Data*, 7, 168.
   https://doi.org/10.1038/s41597-020-0510-y
 - Download: figshare (extended release). [record download date and version]
+
+### NPP-VIIRS-like global nighttime lights (Chen et al. 2021)
+
+- What: annual global "NPP-VIIRS-like" night lights, 2000-2018. **2000-2012 are DMSP-OLS data converted to
+  VIIRS-like values by an auto-encoder** (input: calibrated DMSP-OLS + MODIS EVI, "EANTLI"); **2013-2018 are annual
+  composites of real NPP-VIIRS** (median of the 12 monthly VIIRS composites). Used here for 2000 and 2010, so both
+  are converted DMSP values (less blooming than the DMSP DN of Li et al. 2020, which is why it is tested:
+  `docs/conus_plan.md`, "VIIRS-like NTL test").
+- Format (paper, Data availability / Sect. 2.2): GeoTIFF, WGS84, 15 arc-seconds (~500 m), radiance in
+  nW cm-2 sr-1. Dark background = 0, simulated values < 1 nW set to 0, sea removed with a land mask, abnormal
+  pixels above a city-derived maximum replaced by their 8-neighbour maximum. The paper gives no nodata value or data
+  type: `src/grid/ntlv_check.py` logs them (and how the sea is stored) before the cutout.
+- Dataverse record (checked through the API 2026-10-28, dataset version 10.1): **license CC0 1.0**
+  (http://creativecommons.org/publicdomain/zero/1.0). The record now also holds a **Version2** (1992-2025, Chen et
+  al. 2026, deep-learning super-resolution; top-level `{YEAR}_Version2.zip`, updated December 2025 and July 2026)
+  and `HasMask` files (Version1, 2013-2024). This project uses **Version1** (the 2021 paper):
+  `Version1/2000_Version1.zip` (file id 3986638, 59,122,309 bytes, md5 2a206d41905af713248ca37959110613) and
+  `Version1/2010_Version1.zip` (file id 3987119, 78,849,392 bytes, md5 cb98449db9d4e2e38235e145394f2113).
+- Download: `bash sbatch/ntlv_download.sh` on a login node (API listing -> ids + md5 -> `/api/access/datafile/<id>`,
+  md5 checked, unpacked flat into `viirs_like/v1/<year>/`); `VERSION=2` would put Version2 into `viirs_like/v2/`.
+  Without internet on the cluster: download on the laptop and copy (`docs/runbooks/Running_CONUS.md`, section 7).
+  Record the download date here after the first run.
+- Citation: Chen, Z., Yu, B., Yang, C., Zhou, Y., Yao, S., Qian, X., Wang, C., Wu, B., & Wu, J. (2021). An extended
+  time series (2000-2018) of global NPP-VIIRS-like nighttime light data from a cross-sensor calibration. *Earth
+  System Science Data*, 13, 889-906. https://doi.org/10.5194/essd-13-889-2021
+- Data: Chen, Z., Yu, B., et al. (2020). Harvard Dataverse. https://doi.org/10.7910/DVN/YGIVCD
 
 ### JRC Global Surface Water
 

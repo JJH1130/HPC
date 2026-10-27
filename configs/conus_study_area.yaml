@@ -17,7 +17,7 @@ years: {start: 1900, stop: 2010, step: 10}
 grid_reference: BUI
 
 # Only the HISDAC layers the CONUS features use (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share), DEM
-# (elev, slope) and NTL (ntl, Dasy_CONUS_RF_v3_ntl). FBUY / NobuiltYear (age is dropped) are not cut. Field rules:
+# (elev, slope), NTL (ntl, Dasy_CONUS_RF_v3_ntl) and NTLV (ntlv, Dasy_CONUS_RF_v3_ntlv). FBUY / NobuiltYear (age is dropped) are not cut. Field rules:
 # configs/study_area.yaml.
 layers:
   # BUI as float32: the 2010 CONUS maximum is 5,447,140,510 (pilot job 34820551), beyond int32. float32 keeps
@@ -41,6 +41,14 @@ layers:
   # only for now (2020 with the 2020 step). Added to the cutout with `grid_cutout.sh --layers NTL`
   # (sbatch/submit_conus.sh ntl); QA: sbatch/ntl_qa.sh with CONFIG=configs/conus_study_area.yaml.
   - {name: NTL, path: "/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif", years: [2000, 2010], resampling: nearest, dtype: int16}
+  # VIIRS-like night lights for Dasy_CONUS_RF_v3_ntlv (request 2026-10-28, docs/conus_plan.md "VIIRS-like NTL test"):
+  # Chen et al. 2021, Version1 (2000-2012 = DMSP converted by an autoencoder, less blooming), 15 arc-seconds, radiance
+  # nW/cm2/sr (float, < 1 set to 0 by the producers). Downloaded by sbatch/ntlv_download.sh (one .tif per year folder).
+  # nearest, as NTL: the 250 m cells are smaller than the ~460 x 350 m source pixels, so each cell takes the pixel it
+  # lies in (average gives nearly the same; bilinear would smear the light further, against the point of the test).
+  # nodata_to: 0 = the producers' sea mask (no light) is written as 0 instead of nodata, so coastal county cells whose
+  # centre falls on a masked pixel do not stop the features; the cutout log counts those cells inside the counties.
+  - {name: NTLV, path: "/projects/jaju1407/data/raw/ntl/viirs_like/v1/{YEAR}/*.tif", years: [2000, 2010], resampling: nearest, dtype: float32, nodata_to: 0}
 
 # BUI record errors (docs/conus_plan.md "BUI outliers", decided 2026-10-27): a cell with BUI > max (sq ft; 3e7 = about
 # 45 x the land area of a 250 m cell) gets the median BUI of its 3 x 3 neighbours (neighbours above max left out,
