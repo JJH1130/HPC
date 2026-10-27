@@ -1,0 +1,9 @@
+feature,mean_abs_shap
+bui,0.56897724
+elev,0.35831666
+bldg_size,0.15471406
+rent_share,0.111706585
+res_share,0.09173267
+slope,0.08919453
+dist_built,0.05892688
+mu_ratio,0.05529447

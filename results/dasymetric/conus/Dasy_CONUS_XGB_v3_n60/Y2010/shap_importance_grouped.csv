@@ -1,0 +1,6 @@
+group,mean_abs_shap
+Building,0.90847075
+Elevation,0.37517095
+Land use,0.19891757
+Slope,0.08634597
+Settlement context,0.07967354

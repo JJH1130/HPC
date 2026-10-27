@@ -1,0 +1,5 @@
+group,mean_abs_shap
+Building,0.48753503
+Elevation,0.4646787
+Settlement context,0.16931891
+Slope,0.08188707

@@ -1,0 +1,107 @@
+{
+  "model": "xgb",
+  "version": "Dasy_CONUS_XGB_v3_n60",
+  "era": "Y1960",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "dist_built",
+    "res_share",
+    "rent_share",
+    "elev",
+    "slope"
+  ],
+  "n_rows": 2477,
+  "n_counties": 2477,
+  "n_years": 1,
+  "cv": "5 folds, split table conus_split.csv by GISJOIN",
+  "scoring": "neg_root_mean_squared_error",
+  "n_candidates": 60,
+  "search_space": {
+    "n_estimators": {
+      "dist": "randint",
+      "low": 200,
+      "high": 2000
+    },
+    "learning_rate": {
+      "dist": "loguniform",
+      "low": 0.01,
+      "high": 0.2
+    },
+    "max_depth": {
+      "dist": "randint",
+      "low": 3,
+      "high": 8
+    },
+    "min_child_weight": {
+      "dist": "randint",
+      "low": 1,
+      "high": 10
+    },
+    "subsample": {
+      "dist": "uniform",
+      "low": 0.5,
+      "high": 1.0
+    },
+    "colsample_bytree": {
+      "dist": "uniform",
+      "low": 0.5,
+      "high": 1.0
+    },
+    "reg_lambda": {
+      "dist": "loguniform",
+      "low": 0.001,
+      "high": 10.0
+    },
+    "reg_alpha": {
+      "dist": "loguniform",
+      "low": 0.001,
+      "high": 10.0
+    }
+  },
+  "fixed_params": {
+    "random_state": 42,
+    "tree_method": "hist"
+  },
+  "best_params": {
+    "colsample_bytree": 0.813947207474318,
+    "learning_rate": 0.017896011117950184,
+    "max_depth": 8,
+    "min_child_weight": 3,
+    "n_estimators": 670,
+    "reg_alpha": 0.00128963582063575,
+    "reg_lambda": 0.20675669531624277,
+    "subsample": 0.7192370615090435
+  },
+  "search_seconds": 16.6,
+  "cv_rmse_mean": 0.6002308185785,
+  "cv_rmse_sd": 0.028203763781886597,
+  "cv_rmse_folds": [
+    0.6237617364147373,
+    0.5546836438867383,
+    0.6122646058969974,
+    0.5811973228131552,
+    0.629246783880872
+  ],
+  "cv_r2_mean": 0.8425082578946215,
+  "cv_r2_sd": 0.01734970459051003,
+  "cv_r2_folds": [
+    0.8335321111858511,
+    0.8534252708109983,
+    0.8378872384756919,
+    0.8691501470346443,
+    0.818546521965922
+  ],
+  "train_rmse": 0.1510711663138027,
+  "train_r2": 0.9900942432980097,
+  "y_sd": 1.5178811009587925,
+  "target": "log(pop / (0.0625 x unmasked cells))",
+  "n_test_rows": 618,
+  "n_test_counties": 618,
+  "test_rmse": 0.5785765607728969,
+  "test_r2": 0.8553756812137976,
+  "oof_pooled_rmse": 0.6009664527261463,
+  "oof_pooled_r2": 0.8432437189497128,
+  "train_seconds": 29.7
+}

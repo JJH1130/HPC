@@ -1,0 +1,93 @@
+{
+  "model": "catboost",
+  "version": "Dasy_CONUS_CAT_v3_n60",
+  "era": "Y1920",
+  "features": [
+    "bui",
+    "bldg_size",
+    "mu_ratio",
+    "dist_built",
+    "elev",
+    "slope"
+  ],
+  "n_rows": 2443,
+  "n_counties": 2443,
+  "n_years": 1,
+  "cv": "5 folds, split table conus_split.csv by GISJOIN",
+  "scoring": "neg_root_mean_squared_error",
+  "n_candidates": 60,
+  "search_space": {
+    "iterations": {
+      "dist": "randint",
+      "low": 300,
+      "high": 2000
+    },
+    "learning_rate": {
+      "dist": "loguniform",
+      "low": 0.01,
+      "high": 0.2
+    },
+    "depth": {
+      "dist": "randint",
+      "low": 4,
+      "high": 8
+    },
+    "l2_leaf_reg": {
+      "dist": "loguniform",
+      "low": 0.1,
+      "high": 10.0
+    },
+    "rsm": {
+      "dist": "uniform",
+      "low": 0.5,
+      "high": 1.0
+    },
+    "subsample": {
+      "dist": "uniform",
+      "low": 0.5,
+      "high": 1.0
+    }
+  },
+  "fixed_params": {
+    "random_seed": 42,
+    "bootstrap_type": "Bernoulli"
+  },
+  "best_params": {
+    "depth": 6,
+    "iterations": 1669,
+    "l2_leaf_reg": 1.0572705046816888,
+    "learning_rate": 0.019709599406471233,
+    "rsm": 0.822586395204725,
+    "subsample": 0.5871832145024958
+  },
+  "search_seconds": 50.2,
+  "cv_rmse_mean": 0.5781929844705566,
+  "cv_rmse_sd": 0.04563500339814885,
+  "cv_rmse_folds": [
+    0.6601460409015465,
+    0.5259321393912831,
+    0.5712683761541376,
+    0.5486689484637648,
+    0.5849494174420504
+  ],
+  "cv_r2_mean": 0.8217624468000896,
+  "cv_r2_sd": 0.02844267749626775,
+  "cv_r2_folds": [
+    0.7749456099015408,
+    0.8364045353771155,
+    0.8316425217210853,
+    0.8583320220842989,
+    0.8074875449164076
+  ],
+  "train_rmse": 0.371858603642899,
+  "train_r2": 0.9270058246576091,
+  "y_sd": 1.3763653506451212,
+  "target": "log(pop / (0.0625 x unmasked cells))",
+  "n_test_rows": 612,
+  "n_test_counties": 612,
+  "test_rmse": 0.5570083206558502,
+  "test_r2": 0.8359610557228698,
+  "oof_pooled_rmse": 0.5800972325302653,
+  "oof_pooled_r2": 0.82236271561326,
+  "train_seconds": 54.5
+}
