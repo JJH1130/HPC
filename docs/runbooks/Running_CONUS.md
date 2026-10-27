@@ -1,7 +1,7 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all)
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all, v3_ntl)
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
-layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml` (models), split table
+layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml` (models), split table
 `configs/conus_split.csv` (made once, 2026-10-23; never regenerate it). The Massachusetts configs
 (`configs/study_area.yaml`, `configs/model.yaml`) and runbooks are unchanged.
 
@@ -15,7 +15,8 @@ no-data QA, pilot resources from the trial. Pilot passed 2026-10-26 (jobs 349182
 "Pilot result"). Section 2 (v3 + v4, BUI check, density classes) ran 2026-10-26 (jobs 34921582-34921594; county maps
 failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 / 1960 / 2010, county maps). Section 3 ran 2026-10-26 (jobs 34926193-34926203). Next: section 4
 (model family). Section 4 ran 2026-10-27 (jobs 34932548-34932563; RF chosen). Next: section 5
-(all census years 1900-2010).
+(all census years 1900-2010). Section 5 ran 2026-10-27 (jobs 34939345-34939353). Next: section 6 (night lights
+test, 2000 / 2010).
 
 ## Inputs / outputs
 
@@ -31,8 +32,9 @@ failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 
 | models, predictions (scratch) | `/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v{1,2,3,4}/`, `..._v{1,3}_bui/` |
 | BUI fix (scratch) | cutout `layers/BUI/` = fixed (from section 3 on), `layers/BUI_raw/` = original |
 | DEM (v3, v4) | `/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd` -> cutout `layers/DEM/DEM.tif` |
+| NTL (v3_ntl) | `/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif` -> cutout `layers/NTL/{YEAR}_NTL.tif` (2000, 2010) |
 | results (git) | `results/census_conus/`, `results/cutout/conus/`, `results/dasymetric/conus/<version>/`, `results/validation/conus/<version>/` |
-| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt`, `logs/conus_all_jobs.txt` |
+| job ids | `logs/conus_trial_jobs.txt`, `logs/conus_pilot_jobs.txt`, `logs/conus_v3v4_jobs.txt`, `logs/conus_bui_jobs.txt`, `logs/conus_models_jobs.txt`, `logs/conus_all_jobs.txt`, `logs/conus_ntl_jobs.txt` |
 
 ## 0. Trial: measure time and memory (1960, v1)
 
@@ -545,6 +547,93 @@ echo "== end of block 2"
 Good: `sacct` shows `COMPLETED` for all 9 jobs, `git push` ends with `main -> main`, the last commit is the `run: CONUS
 RF v3 all census years ...` one, then `== end of block 2`.
 
+## 6. Night lights test: Dasy_CONUS_RF_v3_ntl, 2000 / 2010 (2026-10-28)
+
+`Dasy_CONUS_RF_v3_all` + `ntl` for 2000 and 2010 (`docs/conus_plan.md`, "NTL test"): does night light improve the
+tract allocation on ~2,500 counties (Massachusetts dropped it on 14)? Same model, 60 candidates, split, folds,
+statuses, water mask and strips as v3_all; compared with it on the same CV / TEST rows and tracts. No env change, no
+compute node. One submission of 8 jobs:
+
+| Job | What | Estimate (from v3_all, 12 years) |
+|---|---|---|
+| `grid_cutout --layers NTL` | `layers/NTL/{2000,2010}_NTL.tif` in the existing cutout (Harmonized DN, nearest, int16); nothing else re-cut | ~10 min |
+| `ntl_qa` | DN range, Boston box (the old DN >= 60 rule: a 2010 failure is a known rule artifact), NTL-BUI Spearman, lights outside the counties, glow at the coast / border, top counties; **nothing waits for it** | ~10 min |
+| features, train, predict | 2 eras (Y2000, Y2010) with 9 features; train = 2 searches of 60 candidates | ~5 min, ~20-30 min, ~10 min |
+| `validate_tract` | 2000 / 2010, split parts, density classes, `--gap-share 0.05` | ~5 min |
+| `compare_models` | `results/validation/conus/ntl_comparison.csv`: v3_all vs v3_ntl, 2000 / 2010, + ntl rank (permutation, SHAP) | < 1 min |
+| `county_maps` | 2010, Chelan WA / Reno KS / Fremont CO / Macoupin IL, v3_all vs v3_ntl -> `results/validation/conus/county_maps_ntl/` (+ `county_maps.csv`: share of people on BUI = 0 cells) | ~5 min |
+
+Block 0, preflight + submit (login node; `submit_conus.sh ntl` checks every input again and submits nothing if one
+is missing):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+source sbatch/cluster_env.sh
+ls -l /projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{2000,2010}_*.tif
+C=$HISDAC_SCRATCH/cutouts/conus
+A=$HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_all
+ls $C/layers/NTL 2>/dev/null && echo "NOTE: layers/NTL exists already (it will be rewritten the same)"
+ls -d $A/Y2000/model $A/Y2010/model $A/predictions/pop_2010.tif
+df -h $HISDAC_SCRATCH | tail -1
+$ENVS/hisdac/bin/python -c "import sklearn, rasterio, shap; print('env ok | sklearn', sklearn.__version__)"
+grep -E '^(version|compare_with|years):' configs/conus_rf_v3_ntl.yaml
+grep -n 'name: NTL' configs/conus_study_area.yaml
+bash sbatch/submit_conus.sh ntl
+echo "== end of block 0"
+```
+
+Good: one `Harmonized_DN_NTL_2000_*.tif` and one `..._2010_*.tif`, the three v3_all paths listed, `env ok | sklearn
+...`, `version: Dasy_CONUS_RF_v3_ntl`, `years: [2000, 2010]`, `compare_with: Dasy_CONUS_RF_v3_all`, the `name: NTL`
+line, then one line `ntl_cutout N | ntl_qa N | features N | train N | predict N | validate N | compare N |
+county_maps N` (8 ids, also in `logs/conus_ntl_jobs.txt`) and `== end of block 0`. A `MISSING ...` list + `ERROR:
+nothing submitted` means an input is gone (scratch purge?): send it to Claude. If `== end of block 0` is missing, the
+paste was cut: run `cat logs/conus_ntl_jobs.txt; squeue -u $USER` before pasting again (never submit twice).
+
+Block 1, monitor:
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+for j in $(grep -oE '[0-9]{6,}' logs/conus_ntl_jobs.txt); do f=$(ls logs/*.$j.out 2>/dev/null); [[ -n $f ]] && { echo "== $f"; tail -n 3 "$f"; }; done
+echo "== end of block 1"
+```
+
+Good: the last lines of the started jobs (`== done ...` when finished) and `== end of block 1`. Check in the logs:
+- `grid_cutout`: `--layers ['NTL']: window matches ...`, two `NTL` lines (`warped (nearest)`, min 0, max <= 63), `DONE`
+- `ntl_qa`: per year `DN 0..63`, `Spearman ntl~bui`, an `edges:` line and the top counties; `wrote .../ntl_glow_counties.csv`.
+  It may end with `ERROR: NTL QA failed: 2010: no cell with DN >= 60 in the box` (the Massachusetts rule artifact):
+  expected, nothing waits for it
+- `dasymetric_features`: eras Y2000, Y2010 with `ntl` in the feature list, `DONE`
+- `dasymetric_train`: per era `search 60 of continuous candidates`, the permutation / SHAP tables (ntl's place),
+  `Dasy_CONUS_RF_v3_all (its saved out-of-fold predictions, same folds ...)`, `TEST`, `DONE`
+- `dasymetric_predict`: `mass check ... 0 fail`, `DONE`
+- `validate_tract`: 2000 / 2010, `BUI gap counties ...`, `DONE`
+- `compare_models`: one table per year (v3_all and v3_ntl), `rank of ntl ...`, `wrote .../ntl_comparison.csv`, `DONE`
+- `county_maps`: 4 PNGs + `county_maps.csv` in `county_maps_ntl/`, `DONE`
+
+Block 2, close the loop (after the last job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_ntl_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_ntl_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_ntl_seff.txt
+cat logs/conus_ntl_sacct.txt
+du -sh results/cutout/conus results/dasymetric/conus/Dasy_CONUS_RF_v3_ntl results/validation/conus/Dasy_CONUS_RF_v3_ntl results/validation/conus/county_maps_ntl
+git add logs/ results/cutout/conus results/dasymetric/conus/Dasy_CONUS_RF_v3_ntl results/validation/conus/Dasy_CONUS_RF_v3_ntl results/validation/conus/ntl_comparison.csv results/validation/conus/county_maps_ntl
+git commit -m "run: CONUS RF v3 + night lights 2000/2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2"
+```
+
+Good: `sacct` shows `COMPLETED` for 7 jobs (`ntl_qa` may be `FAILED` on the DN >= 60 rule: fine, its CSVs are
+copied anyway), `git push` ends with `main -> main`, the last commit is the `run: CONUS RF v3 + night lights ...`
+one, then `== end of block 2`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -567,6 +656,10 @@ RF v3 all census years ...` one, then `== end of block 2`.
 | all: `water_frac` `OUT_OF_MEMORY` | 12 yearly layers in memory (~11 GB) + the workers: resubmit the chain from water_frac with more cores (send Claude `seff` first) |
 | all: train `CANCELLED ... DUE TO TIME LIMIT` | `TRAIN_TIME=08:00:00`; or train only the eras not done yet with `--years` (send Claude the log first: `cv_summary.csv` is written at the end of the job) |
 | all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |
+| ntl: `ntl_qa` `FAILED` with `no cell with DN >= 60 in the box` | the fixed DN rule (known since Massachusetts 2026-10-06, change on hold); nothing waits for it: send the log with the others |
+| ntl: `ntl_qa` `OUT_OF_MEMORY` | nothing waits for it; rerun alone with more cores: `sbatch --ntasks=16 --time=00:45:00 --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/ntl_qa.sh` |
+| ntl: features `nodata cells inside the used counties` (`.../NTL/..._NTL.tif`) | the NTL raster does not cover a used county cell: the job stops on purpose (no silent 0); send Claude the log and the `ntl_qa` log (`zone cells with nodata`) |
+| ntl: `compare_with Dasy_CONUS_RF_v3_all skipped: missing ...` | v3_all's scratch outputs were purged: send the log (the comparison table still reads the result files in git) |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

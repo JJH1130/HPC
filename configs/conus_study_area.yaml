@@ -16,8 +16,9 @@ years: {start: 1900, stop: 2010, step: 10}
 
 grid_reference: BUI
 
-# Only the HISDAC layers the CONUS features use (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share).
-# FBUY / NobuiltYear (age is dropped) and NTL are not cut. Field rules: configs/study_area.yaml.
+# Only the HISDAC layers the CONUS features use (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share), DEM
+# (elev, slope) and NTL (ntl, Dasy_CONUS_RF_v3_ntl). FBUY / NobuiltYear (age is dropped) are not cut. Field rules:
+# configs/study_area.yaml.
 layers:
   # BUI as float32: the 2010 CONUS maximum is 5,447,140,510 (pilot job 34820551), beyond int32. float32 keeps
   # integers exactly up to 2^24 and larger ones to 1e-7 relative, enough for a feature.
@@ -35,6 +36,11 @@ layers:
   # grid, float32 metres, sea = nodata (set to 0 m in src/dasymetric/common.py). Static (one file). Added to the
   # pilot cutout with `grid_cutout.sh --layers DEM` (sbatch/submit_conus.sh v3v4).
   - {name: DEM, path: "/projects/jaju1407/data/raw/dem/gmted2010/mn75_grd", years: none, resampling: average, dtype: float32, out: "DEM/DEM.tif"}
+  # Harmonized DMSP/VIIRS night lights for Dasy_CONUS_RF_v3_ntl (request 2026-10-28, docs/conus_plan.md "NTL test"):
+  # the Massachusetts definition (configs/study_area.yaml; 30 arc-seconds, uint8 DN 0-63, nearest, int16). 2000 / 2010
+  # only for now (2020 with the 2020 step). Added to the cutout with `grid_cutout.sh --layers NTL`
+  # (sbatch/submit_conus.sh ntl); QA: sbatch/ntl_qa.sh with CONFIG=configs/conus_study_area.yaml.
+  - {name: NTL, path: "/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_{YEAR}_*.tif", years: [2000, 2010], resampling: nearest, dtype: int16}
 
 # BUI record errors (docs/conus_plan.md "BUI outliers", decided 2026-10-27): a cell with BUI > max (sq ft; 3e7 = about
 # 45 x the land area of a 250 m cell) gets the median BUI of its 3 x 3 neighbours (neighbours above max left out,

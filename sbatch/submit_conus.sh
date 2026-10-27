@@ -19,6 +19,10 @@
 #   bash sbatch/submit_conus.sh all     # Dasy_CONUS_RF_v3_all, 1900-2010: census input (all 12 years) -> cutout of
 #                                       # the 9 new years -> BUI fix (new years) + water (all 12) -> features / train /
 #                                       # predict (12 eras) -> tract validation 1910-2010 -> summary_by_year + figure
+#   bash sbatch/submit_conus.sh ntl     # Dasy_CONUS_RF_v3_ntl (v3_all + ntl, 2000 / 2010): NTL layer into the cutout
+#                                       # (--layers NTL) -> NTL QA (nothing waits for it: a failed DN rule does not
+#                                       # stop the chain) and features / train / predict / validate -> comparison
+#                                       # with v3_all (ntl_comparison.csv) + county maps v3_all / v3_ntl (2010)
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -33,10 +37,13 @@
 # models: train 2 h (3 x the candidates of v3_bui, whose train took ~9 min; boosting time unknown), the rest as bui.
 # all: from the 3-year runs (pilot / bui / models): cutout 3 min, water 12 min, bui_fix 1 min, features 3 min, RF 60
 # train 23 min, predict 13 min, validate 4 min; x 3-4 for 9-12 years, then ~2-3 x for the wall time.
+# ntl: from v3_all (jobs 34939345-34939353; 12 years): features 16 min / 9.6 GB (6 cores), train 1:37, predict 47 min
+# / 16 GB, validate 12 min / 17.5 GB, cutout 10 min / 10 GB; for 2 years ~1/6 of that, wall times ~3-5 x. NTL QA holds
+# NTL, zones, BUI and a distance transform of the whole window (~8-10 GB, estimate): 8 cores.
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui || $mode == models || $mode == all ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all"; exit 1; }
+[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui || $mode == models || $mode == all || $mode == ntl ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -170,6 +177,49 @@ elif [[ $mode == all ]]; then
          --out $R/summary_by_year.csv --plot $R/mdape_by_year.png)
     echo "census_conus $jc | grid_cutout $jg | bui_fix $jb | water_frac $jw | features $jf | train $jt | predict $jp | validate $jv | summary $js" \
         | tee logs/conus_all_jobs.txt
+elif [[ $mode == ntl ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    C=configs/conus_rf_v3_ntl.yaml
+    V=Dasy_CONUS_RF_v3_ntl
+    REF=Dasy_CONUS_RF_v3_all
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    miss=()  # everything is checked before anything is submitted
+    for y in 1900 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010; do  # --layers checks the window on all years
+        [[ -f $CEN/counties_$y.gpkg ]] || miss+=("$CEN/counties_$y.gpkg")
+    done
+    for y in 2000 2010; do
+        n=$(compgen -G "/projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_${y}_*.tif" | wc -l || true)
+        [[ $n == 1 ]] || miss+=("exactly one /projects/jaju1407/data/raw/ntl/Harmonized_DN_NTL_${y}_*.tif (found $n)")
+        for f in $CUT/zones/zones_$y.tif $CUT/layers/BUI/${y}_BUI.tif $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $D/$REF/Y$y/features/county_features.csv $D/$REF/Y$y/model/oof_predictions.csv \
+                 $D/$REF/Y$y/model/test_predictions.csv results/dasymetric/conus/$REF/Y$y/metrics.json \
+                 results/validation/conus/$REF/tract_errors_$y.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    for f in $CUT/window.json $CUT/layers/DEM/DEM.tif $D/$REF/predictions/pop_2010.tif \
+             results/validation/conus/$REF/metrics_by_year.csv results/dasymetric/conus/$REF/cv_summary.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    jn=$(sub "" --ntasks=4 --time=${CUTOUT_TIME:-01:00:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh \
+         --layers NTL)
+    jq=$(sub "$jn" --ntasks=8 --time=${QA_TIME:-00:45:00} --export=ALL,CONFIG=$S sbatch/ntl_qa.sh)  # nothing waits for it
+    jf=$(sub "$jn" --ntasks=6 --time=${FEATURES_TIME:-00:45:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+    jt=$(sub "$jf" --ntasks=16 --time=${TRAIN_TIME:-01:30:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+    jp=$(sub "$jt" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+    jv=$(sub "$jp" --ntasks=8 --time=${VALIDATE_TIME:-01:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+         --version $V --years 2000 2010 $VAL)
+    jc=$(sub "$jv" sbatch/compare_models.sh --versions $REF $V --years 2000 2010 --rank-features ntl \
+         --out results/validation/conus/ntl_comparison.csv)
+    # same 4 rural counties as before (Chelan WA, Reno KS, Fremont CO, Macoupin IL); own folder: the model family
+    # maps in county_maps/ are kept
+    jm=$(sub "$jp $jv" --ntasks=4 --time=${MAPS_TIME:-00:30:00} --export=ALL,CONFIG=$S sbatch/county_maps.sh \
+         --counties G5300070 G2001550 G0800430 G1701170 --versions $REF $V \
+         --out-dir results/validation/conus/county_maps_ntl)
+    echo "ntl_cutout $jn | ntl_qa $jq | features $jf | train $jt | predict $jp | validate $jv | compare $jc | county_maps $jm" \
+        | tee logs/conus_ntl_jobs.txt
 else
     jc=$(sub "" sbatch/census_conus.sh --years 1920 1960 2010)
     jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-00:30:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh)

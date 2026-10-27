@@ -17,6 +17,13 @@ One version over all years (Dasy_CONUS_RF_v3_all, docs/conus_plan.md "All census
 --plot draws tract MdAPE by year (model, model without gap counties, areal weighting) above the number of counties
 with tracts; --repro-with logs one line per year shared with that version: chosen hyperparameters, CV RMSE and tract
 MdAPE the same or not (column repro_<version>: same / differs: ...).
+
+Feature test (Dasy_CONUS_RF_v3_ntl vs v3_all, docs/conus_plan.md "NTL test"):
+  --versions Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_ntl --years 2000 2010 --rank-features ntl
+    --out .../ntl_comparison.csv
+--years keeps those years only; --rank-features adds, per feature, its rank among the era's features by
+permutation importance (feature_importance.csv) and by mean |SHAP| (shap_importance.csv), 1 = first, with the
+values and the number of features (empty where the version has no such feature), and logs them.
 """
 from __future__ import annotations
 
@@ -34,8 +41,8 @@ log = logging.getLogger("compare_models")
 PARTS = ["all", "train", "test", "no_gap", "gap"]
 DENS = ["dens_0_50", "dens_50_500", "dens_500_2000", "dens_2000_plus"]
 SUMMARY = ["version", "model", "cv_rmse_mean", "cv_r2_mean", "test_r2", "tract_all_n", "tract_counties",
-           "tract_all_mdape", "tract_no_gap_mdape", "tract_dens_0_50_mdape", "baseline_all_mdape", "gap_counties",
-           "mass_fail", "train_seconds"]
+           "tract_all_mdape", "tract_test_mdape", "tract_no_gap_mdape", "tract_dens_0_50_mdape", "baseline_all_mdape",
+           "gap_counties", "mass_fail", "train_seconds"]
 MASS_TOL = 1e-6  # as src/dasymetric/predict.py
 
 
@@ -48,6 +55,9 @@ def parse_args(argv=None):
     p.add_argument("--plot", type=Path, help="PNG: tract MdAPE and counties with tracts by year (first version)")
     p.add_argument("--repro-with", metavar="VERSION",
                    help="compare the shared years with this version (same seed, features, folds -> same results)")
+    p.add_argument("--years", nargs="+", type=int, help="only these years (default: every era of each version)")
+    p.add_argument("--rank-features", nargs="+", default=[], metavar="FEATURE",
+                   help="add the permutation / SHAP rank of these features (e.g. ntl)")
     return p.parse_args(argv)
 
 
@@ -81,6 +91,24 @@ def model_row(vdir: Path, era: str) -> dict:
             "test_rmse": m.get("test_rmse"), "test_r2": m.get("test_r2"),
             "best_params": json.dumps(best, sort_keys=True) if best is not None else None,
             "search_seconds": m.get("search_seconds"), "train_seconds": m.get("train_seconds")}
+
+
+def rank_row(edir: Path, features) -> dict:
+    """Rank (1 = first) and value of each feature by permutation importance and by mean |SHAP| in the era."""
+    out = {}
+    for kind, fname, col in (("perm", "feature_importance.csv", "permutation_mean"),
+                             ("shap", "shap_importance.csv", "mean_abs_shap")):
+        path = edir / fname
+        if not path.exists():
+            log.warning("%s not found; %s ranks empty", path, kind)
+            continue
+        imp = pd.read_csv(path).sort_values(col, ascending=False, kind="stable").reset_index(drop=True)
+        out["n_features"] = len(imp)
+        for f in features:
+            hit = imp.index[imp["feature"] == f]
+            out[f"{f}_{kind}_rank"] = int(hit[0]) + 1 if len(hit) else None
+            out[f"{f}_{kind}"] = float(imp.loc[hit[0], col]) if len(hit) else None
+    return out
 
 
 def tract_row(met: pd.DataFrame, year: int) -> dict:
@@ -132,7 +160,11 @@ def version_rows(args, v: str) -> list[dict]:
     mass = pd.read_csv(mpath, usecols=["year", "rel_diff"]) if mpath.exists() else None
     rows = []
     for era, year in era_years(vdir).items():
+        if args.years and year not in args.years:
+            continue
         row = {"version": v, "year": year, "era": era, **model_row(vdir, era)}
+        if args.rank_features:
+            row.update(rank_row(vdir / era, args.rank_features))
         if met is not None:
             row.update(tract_row(met, year))
         row.update(extra_rows(valdir, year, mass))
@@ -219,6 +251,10 @@ def main(argv=None):
             log.info("%d (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):\n%s", year,
                      g[[c for c in SUMMARY if c in g]].round(4).to_string(index=False))
         log.info("chosen hyperparameters:\n%s", df[["year", "version", "best_params"]].to_string(index=False))
+        for f in args.rank_features:
+            cols = [c for c in (f"{f}_perm_rank", f"{f}_perm", f"{f}_shap_rank", f"{f}_shap", "n_features") if c in df]
+            log.info("rank of %s (1 = most important; permutation = RMSE increase when shuffled, shap = mean |SHAP|):"
+                     "\n%s", f, df[["year", "version"] + cols].to_string(index=False))
     if "mass_fail" in df:
         bad = df.loc[df["mass_fail"] > 0, "year"].tolist()
         log.info("mass check (reallocation_qa.csv, tolerance %.0e): %d county-years fail; years with a failure: %s",

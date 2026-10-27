@@ -1,0 +1,61 @@
+# Dasy_CONUS_RF_v3_ntl (docs/conus_plan.md "NTL test"; request 2026-10-28, docs/handoff/conus_ntl_request.md): does
+# night light help on CONUS? Massachusetts dropped `ntl` (v3.2) on 14 counties only; here ~2,500 counties per year.
+# Features stay era-specific (pre-1940 no Land_Use; NTL exists from 1992), so ntl enters 2000 / 2010 only (2020 later).
+# = Dasy_CONUS_RF_v3_all (same model, search space, 60 candidates, split, folds, statuses, water mask, strips) + ntl
+# for 2000 and 2010; compare_with v3_all (same split -> same folds; CV and TEST on the same rows).
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_ntl/
+version: Dasy_CONUS_RF_v3_ntl
+
+study_area: configs/conus_study_area.yaml
+years: [2000, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3_all
+
+split: configs/conus_split.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+eras:
+  # ntl = Harmonized DMSP/VIIRS DN (0-63) of the cell (cutout layers/NTL, nearest from 1 km; county = mean).
+  Y2000:
+    years: [2000]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, ntl]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, ntl]
+
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+  Night lights: [ntl]
+
+maps:
+  years: [2000, 2010]
+  compare_years: [2010]   # side by side with v3_all
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 60   # as v3_all
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:        # sklearn.ensemble.RandomForestRegressor
+    fixed: {random_state: 42}
+    space:
+      n_estimators: {dist: randint, low: 200, high: 1000}
+      max_depth: [null, 5, 10, 15, 20, 30]
+      min_samples_leaf: {dist: randint, low: 1, high: 10}
+      max_features: [sqrt, 0.33, 0.5, 0.75, 1.0]

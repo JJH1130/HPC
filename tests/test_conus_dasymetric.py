@@ -20,6 +20,10 @@ in a temporary folder, a split table with make_split.py, and checks:
   - terrain (elev, slope; v3 / v4): strips (one halo row) == whole window, cell by cell and as county features
   - bui_qa.py: quantiles, cap counts and the top cells with their county and bldg_size
   - conus_counties.py: status ok / no_value / zero_pop and the same row order every year
+  - NTL (Dasy_CONUS_RF_v3_ntl, test_ntl): the real configs (NTL layer 2000 / 2010; v3_ntl = v3_all + ntl); an era
+    with ntl (2010) next to one without (1960), county ntl = mean DN, strips == whole window; NTL nodata outside the
+    used counties ignored, inside one the features stop; ntl_qa.py box / edge counts against brute force;
+    compare_models --years --rank-features
 """
 from __future__ import annotations
 
@@ -568,7 +572,164 @@ def test_conus_counties():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+NTL_NODATA = -1  # what make_cutout writes for int16 cells outside the source (docs/cutout.md)
+
+
+def write_ntl(cut: Path, centre, nodata_cells):
+    """layers/NTL/2010_NTL.tif: DN 0-63 brightest at the 'city', -1 (nodata) at nodata_cells (list of (row, col))."""
+    rng = np.random.default_rng(3)
+    ntl = np.clip(np.round(63 * np.exp(-centre / 9) + rng.integers(0, 4, centre.shape)), 0, 63).astype("int16")
+    for rc in nodata_cells:
+        ntl[rc] = NTL_NODATA
+    write_tif(cut / "layers" / "NTL" / "2010_NTL.tif", ntl, NTL_NODATA)
+    return ntl
+
+
+def test_ntl():
+    """Dasy_CONUS_RF_v3_ntl (docs/conus_plan.md "NTL test"): an era with ntl (2010) next to one without (1960), NTL
+    nodata, ntl_qa.py (box, edges) and compare_models --years --rank-features."""
+    import make_cutout as cutout_mod
+    import ntl_qa
+    from pyproj import Transformer
+
+    # the real configs load: NTL 2000 / 2010 in the CONUS study area, v3_ntl = v3_all + ntl for 2000 / 2010
+    st = cutout_mod.load_config(REPO / "configs" / "conus_study_area.yaml")
+    ntl_layer = [lay for lay in st["layers"] if lay["name"] == "NTL"]
+    assert len(ntl_layer) == 1 and ntl_layer[0]["years"] == [2000, 2010] and ntl_layer[0]["dtype"] == "int16"
+    real = dcommon.load_config(REPO / "configs" / "conus_rf_v3_ntl.yaml")
+    ref = dcommon.load_config(REPO / "configs" / "conus_rf_v3_all.yaml")
+    assert real["years"] == [2000, 2010] and real["compare_with"] == ref["version"]
+    for e in ("Y2000", "Y2010"):
+        assert real["eras"][e]["features"] == ref["eras"][e]["features"] + ["ntl"]
+    for k in ("split", "use_status", "train_status", "water_mask", "block_rows", "unusable", "model", "search",
+              "models", "permutation"):
+        assert real[k] == ref[k], k
+    print("ok configs: NTL layer 2000 / 2010; v3_ntl = v3_all + ntl, same model / search / split / statuses")
+
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        counties = county_table()
+        cut, zones = make_cutout(tmp, counties)
+        centre = np.hypot(*np.meshgrid(np.arange(W) - 30, np.arange(H) - 20))
+        unused = ZERO_POP[2010]  # zone 7: zero_pop in 2010, not allocated
+        r7, c7 = (int(v[0]) for v in np.nonzero(zones == unused))
+        ntl = write_ntl(cut, centre, [(0, 0), (H - 1, 10), (r7, c7)])  # border (outside zones) + an unused county
+        split = make_split.make_split(counties[["GISJOIN", "fips", "state", "name"]], 0.2, 5, 42)
+        split_path = tmp / "split.csv"
+        split.to_csv(split_path, index=False)
+        cfgs = write_configs(tmp, split_path)
+        base = yaml.safe_load(cfgs["blocks"].read_text())
+        feats = base["eras"]["Y1960"]["features"]
+        groups = {**base["feature_groups"], "Night lights": ["ntl"]}
+        eras = {"Y1960": {"years": [1960], "features": feats}, "Y2010": {"years": [2010], "features": feats + ["ntl"]}}
+        for v, extra in (("ntl", {"block_rows": 7}), ("ntlw", {"block_rows": None})):
+            (tmp / "configs" / f"{v}.yaml").write_text(yaml.safe_dump(
+                {**base, **extra, "version": v, "eras": eras, "feature_groups": groups, "compare_with": "blocks"}))
+            cfgs[v] = tmp / "configs" / f"{v}.yaml"
+        out_root = tmp / "dasym"
+        common = ["--out-root", str(out_root)]
+        cut_args = ["--cutout-root", str(tmp / "cutouts")]
+        for v in ("blocks", "ntl", "ntlw"):
+            county_features.main(["--config", str(cfgs[v])] + cut_args + common)
+        d = out_root / "conus"
+        a1960 = pd.read_csv(d / "ntl" / "Y1960" / "features" / "county_features.csv")
+        assert "ntl" not in a1960.columns  # the era without ntl reads no NTL layer (there is none for 1960)
+        pd.testing.assert_frame_equal(a1960, pd.read_csv(d / "blocks" / "Y1960" / "features" / "county_features.csv"))
+        f = pd.read_csv(d / "ntl" / "Y2010" / "features" / "county_features.csv")
+        pd.testing.assert_frame_equal(f, pd.read_csv(d / "ntlw" / "Y2010" / "features" / "county_features.csv"),
+                                      rtol=1e-12)
+        b = pd.read_csv(d / "blocks" / "Y2010" / "features" / "county_features.csv")
+        pd.testing.assert_frame_equal(f.drop(columns="ntl"), b)
+        bui = read(cut / "layers" / "BUI" / "2010_BUI.tif")
+        wf = read(cut / "layers" / "water_frac" / "2010_water_frac.tif")
+        keep = ~((wf >= 1) & (bui == 0))
+        for r in f.itertuples():  # county ntl = mean DN over its unmasked cells
+            m = (zones == r.zone_id) & keep
+            assert np.isclose(r.ntl, ntl[m].mean()), r.zone_id
+        assert unused not in f["zone_id"].tolist() and f["ntl"].std() > 0
+        print("ok features: ntl only in the 2010 era, county mean DN, strips == whole window, nodata outside the "
+              "used counties ignored")
+
+        train.main(["--config", str(cfgs["blocks"]), "--n-jobs", "1"] + common)
+        train.main(["--config", str(cfgs["ntl"]), "--n-jobs", "1"] + common)
+        predict.main(["--config", str(cfgs["ntl"])] + cut_args + ["--n-jobs", "2"] + common)
+        imp = pd.read_csv(d / "ntl" / "Y2010" / "model" / "feature_importance.csv")
+        assert "ntl" in set(imp["feature"]) and "ntl" not in set(
+            pd.read_csv(d / "ntl" / "Y1960" / "model" / "feature_importance.csv")["feature"])
+        assert json.loads((d / "ntl" / "Y2010" / "model" / "compare_blocks.json").read_text())["folds"] == \
+            "same as this model (checked)"
+        p = read(d / "ntl" / "predictions" / "pop_2010.tif")
+        zt = pd.read_csv(cut / "zones" / "zones_2010.csv")
+        used = zt[zt["status"].isin(["ok", "filled_nhgis", "filled_nhgis_alloc"])]
+        sums = np.bincount(zones[p >= 0], weights=p[p >= 0].astype("float64"), minlength=49)
+        assert np.allclose(sums[used["zone_id"]], used["pop"], rtol=1e-6) and (p[zones == unused] == predict.NODATA_OUT).all()
+        print("ok train / predict with ntl: same folds as the compared version, mass preserved, unused county NoData")
+
+        # NTL nodata inside a used county stops the features (no silent 0)
+        r1, c1 = (int(v[0]) for v in np.nonzero(zones == 1))
+        write_ntl(cut, centre, [(r1, c1)])
+        try:
+            county_features.main(["--config", str(cfgs["ntl"]), "--years", "2010"] + cut_args + common)
+            raise AssertionError("NTL nodata in a used county was not caught")
+        except SystemExit as e:
+            assert "nodata cells inside the used counties" in str(e) and "NTL" in str(e), e
+        ntl = write_ntl(cut, centre, [(0, 0), (H - 1, 10), (r7, c7)])
+        print("ok NTL nodata in a used county: the job stops with the cell count")
+
+        # ntl_qa: the box centroid as the old whole-window version; edges against brute force
+        (tmp / "configs" / "qa_study.yaml").write_text(yaml.safe_dump(
+            {"name": "conus", "years": YEARS, "states": "all", "layers": [
+                {"name": "NTL", "path": "x_{YEAR}.tif", "years": [2010], "resampling": "nearest", "dtype": "int16"}]}))
+        cx, cy = TRANSFORM.c + 30.5 * 250, TRANSFORM.f - 20.5 * 250
+        lon, lat = Transformer.from_crs(CRS, "EPSG:4326", always_xy=True).transform(cx, cy)
+        ntl_qa.main(["--config", str(tmp / "configs" / "qa_study.yaml"), "--cutout-root", str(tmp / "cutouts"),
+                     "--lon", str(lon), "--lat", str(lat), "--box-km", "2.9", "--bright", "40", "--edge-km", "0.5",
+                     "--glow-dn", "5", "--top", "3"])
+        q = pd.read_csv(cut / "qa" / "ntl_qa.csv").iloc[0]
+        nd = ntl == NTL_NODATA
+        rr, cc = np.mgrid[0:H, 0:W]
+        x, y = TRANSFORM.c + (cc + 0.5) * 250, TRANSFORM.f - (rr + 0.5) * 250
+        inbox = (np.abs(x - cx) <= 1450) & (np.abs(y - cy) <= 1450)  # 2.9 km box: no cell centre on its edge
+        br = inbox & ~nd & (ntl >= 40)
+        assert q["box_cells"] == inbox.sum() and q["bright_cells"] == br.sum() > 0
+        assert np.isclose(q["centroid_x"], x[br].mean()) and np.isclose(q["centroid_y"], y[br].mean())
+        zone = zones > 0
+        out_pts = np.argwhere(~zone)
+        dmin = np.array([np.hypot(*(out_pts - p).T).min() * 0.25 for p in np.argwhere(zone)])
+        edge = np.zeros_like(zone)
+        edge[zone] = dmin <= 0.5
+        glow = ~nd & (bui == 0) & (ntl >= 5)
+        assert q["zone_nodata_cells"] == 1 and q["outside_lit_cells"] == (~zone & ~nd & (ntl > 0)).sum()
+        assert q["edge_cells"] == edge.sum() and q["interior_cells"] == (zone & ~edge).sum()
+        assert q["edge_glow_cells"] == (glow & edge).sum() and q["interior_glow_cells"] == (glow & zone & ~edge).sum()
+        top = pd.read_csv(cut / "qa" / "ntl_glow_counties.csv")
+        want = pd.Series(np.bincount(zones[glow & edge], minlength=49)).iloc[1:]
+        want = want[want > 0].sort_values(ascending=False, kind="stable")
+        assert len(top) == 3 and top["edge_glow_cells"].tolist() == want.head(3).tolist() and top["GISJOIN"].notna().all()
+        print("ok ntl_qa: box centroid as before, edge / interior glow and outside-lit counts, top counties")
+
+        # compare_models: --years and --rank-features
+        res = tmp / "results"
+        for v in ("blocks", "ntl"):
+            for e in ("Y1960", "Y2010"):
+                shutil.copytree(d / v / e / "model", res / "dasymetric" / "conus" / v / e)
+            shutil.copy(d / v / "cv_summary.csv", res / "dasymetric" / "conus" / v)
+        out = res / "validation" / "conus" / "ntl_comparison.csv"
+        compare_models.main(["--versions", "blocks", "ntl", "--results-root", str(res), "--years", "2010",
+                             "--rank-features", "ntl", "--out", str(out)])
+        cmp = pd.read_csv(out).set_index("version")
+        assert (cmp["year"] == 2010).all() and len(cmp) == 2
+        assert pd.isna(cmp.loc["blocks", "ntl_perm_rank"]) and cmp.loc["blocks", "n_features"] == len(feats)
+        order = imp.sort_values("permutation_mean", ascending=False, kind="stable")["feature"].tolist()
+        assert cmp.loc["ntl", "ntl_perm_rank"] == order.index("ntl") + 1 and cmp.loc["ntl", "n_features"] == len(feats) + 1
+        assert 1 <= cmp.loc["ntl", "ntl_shap_rank"] <= len(feats) + 1
+        print("ok compare_models --years --rank-features: 2010 only, ntl rank from feature_importance / shap")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
     test_conus_counties()
+    test_ntl()
     test_pipeline()
     print("ALL OK")

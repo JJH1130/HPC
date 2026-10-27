@@ -4,11 +4,17 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-27 (CONUS all census years 1900-2010 written as code)
+Last updated: 2026-10-28 (CONUS NTL test, Dasy_CONUS_RF_v3_ntl, written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
+
+- **Status (2026-10-28):** NTL test written as code, not run yet (`bash sbatch/submit_conus.sh ntl`,
+  `docs/runbooks/Running_CONUS.md` section 6, `docs/conus_plan.md` "NTL test"): NTL 2000 / 2010 into the CONUS
+  cutout, NTL QA, `Dasy_CONUS_RF_v3_ntl` (v3_all + ntl) features / train / predict / validate, `ntl_comparison.csv`,
+  county maps v3_all vs v3_ntl. Open: whether ntl stays in 2000 / 2010 (and goes into 2020), decided with the user
+  from the tract metrics.
 
 - **Status (2026-10-27, later):** v3 / v4 ran (jobs 34921582-34921594): v3 = CONUS base, distances dropped, BUI
   treatment decided (`docs/conus_plan.md`, "Version comparison v1-v4", "BUI outliers"). County maps failed on a CRS
@@ -251,7 +257,9 @@ Last updated: 2026-10-27 (CONUS all census years 1900-2010 written as code)
   Waiting on the user's review.
 - NTL QA failed only because 2010 peaks at DN 59 (fixed rule DN >= 60). The user
   judged the layer correct (NTL-BUI Spearman 0.528 / 0.540 / 0.516). **The QA
-  rule change is on hold** (do not edit `src/grid/ntl_qa.py` until decided).
+  rule change is on hold** (do not edit `src/grid/ntl_qa.py` until decided). 2026-10-28: for the CONUS NTL test
+  `ntl_qa.py` got logged-only edge lines (lights outside the counties, glow at the coast / border, top counties) and
+  a box computed from row / column ranges (same cells); the DN >= 60 rule itself is unchanged.
 - CV vs v2 on the same rows: E1 about equal (0.781 vs 0.774), E2 better
   (0.557 vs 0.668), E3 better (0.498 vs 0.679). Land use and Lights take a
   visible SHAP share in E2/E3.
@@ -361,6 +369,7 @@ Last updated: 2026-10-27 (CONUS all census years 1900-2010 written as code)
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
 | 2026-10-27 | Hyperparameters: county CV only (tracts never in the search). Model family chosen before the all-years run: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, picked by tract validation + county TEST R2. Gap counties (BUI per person < 5 % of the median): 533 / 479 / 416 in 1920 / 1960 / 2010; kept, flagged, validation reported with and without. |
 | 2026-10-28 | NTL test in CONUS: MA dropped `ntl` on 14 counties only (v3.2: tract error unchanged). Features stay era-specific (pre-1940 no Land_Use; 2000+ may add NTL, available from 1992), so `Dasy_CONUS_RF_v3_ntl` = v3_all features + ntl for 2000 / 2010, compared with v3_all on tracts (`docs/handoff/conus_ntl_request.md`). |
+| 2026-10-28 | NTL test implementation: the MA NTL layer definition in `conus_study_area.yaml` (2000 / 2010), cut with `--layers NTL`; NTL nodata inside a used county stops the features (no silent 0); NTL QA runs on CONUS but nothing waits for it (the DN >= 60 rule may fail as in MA); comparison `compare_models.py --years 2000 2010 --rank-features ntl` -> `results/validation/conus/ntl_comparison.csv`; county maps in their own folder `county_maps_ntl/`. |
 | 2026-10-28 | CONUS RF v3 all census years 1900-2010 ran (jobs 34939345-34939353): 12 models, 1920/1960/2010 identical to RF_v3_n60, mass check passes. Tract MdAPE 53 % (1910) -> 27 % (2010) vs 74-87 % areal weighting; early years cover a few big cities only. Next: 2020 county input. |
 | 2026-10-27 | Model family: RF. Four models tie on county CV / TEST R2; on tracts RF n60 53.3 / 37.9 / 26.6 % (1920 / 1960 / 2010) vs XGB 55.1 / 38.1 / 27.2, LGBM 56.9 / 39.0 / 28.1, CatBoost 54.3 / 38.7 / 35.6. Lower county CV RMSE went with higher 2010 tract error. Hyperparameters = county-CV choice with 60 candidates (not the 20-candidate run, though better on 2010 tracts). Next: all years 1900-2010 with RF, then 2020. |
 | 2026-10-27 | BUI fix implemented as a separate step after the cutout (`src/grid/bui_fix.py`, in place on `layers/BUI/`, original kept in `layers/BUI_raw/`, reruns identical), switched on by `bui_cap` in the study area config (Massachusetts: none, check only). Neighbours above the cap, with nodata or outside the window are left out of the median (none left -> 0); strips use one halo row. New versions `Dasy_CONUS_RF_v1_bui` / `Dasy_CONUS_RF_v3_bui` (1920/1960/2010, compare_with v1 / v3) so the old v1 / v3 outputs stay. |

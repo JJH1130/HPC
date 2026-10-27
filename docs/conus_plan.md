@@ -3,11 +3,12 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-27 (pilot result; v3 / v4 = terrain; BUI fix; v1_bui / v3_bui; model family comparison code)
+Last updated: 2026-10-28 (NTL test code: Dasy_CONUS_RF_v3_ntl, 2000 / 2010)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
 `configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
-`configs/conus_rf_v3_bui.yaml`, `configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, split `configs/conus_split.csv`.
+`configs/conus_rf_v3_bui.yaml`, `configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `configs/conus_rf_v3_all.yaml`,
+`configs/conus_rf_v3_ntl.yaml`, split `configs/conus_split.csv`.
 
 ## Decisions (2026-10-23)
 
@@ -29,6 +30,7 @@ Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.
 | `Dasy_CONUS_RF_v2` | v1 + d_10k, d_20k, d_50k, d_100k, d_250k (from 1940) | v4.1 | run 1960/2010; **dropped** (worse on tracts) |
 | `Dasy_CONUS_RF_v3` | v1 + elev, slope | v4 terrain | run 1960/2010; **CONUS base** (best on tracts) |
 | `Dasy_CONUS_RF_v4` | v1 + d_10k ... d_250k + elev, slope | v4 + v4.1 | run 1960/2010; dropped (~ v2) |
+| `Dasy_CONUS_RF_v3_ntl` | v3 + ntl (2000 / 2010 only) | v3 (E3), dropped in v3.2 on 14 counties | code 2026-10-28 ("NTL test") |
 
 `year` is constant within a per-year model and is dropped. In 1920 v1 and v2 are identical (distances start in 1940,
 `place_dist.first_year`), so 1920 runs v1 only.
@@ -389,6 +391,24 @@ county-years fail. Table `results/validation/conus/Dasy_CONUS_RF_v3_all/summary_
 - Hyperparameters repeat across years (same 60 candidates every year, random_state 42): `max_features` 0.5 / 0.75,
   `min_samples_leaf` 1-2, depth 20 / 30 / none.
 
+## NTL test (request 2026-10-28; run steps `docs/runbooks/Running_CONUS.md`, section 6)
+
+Massachusetts dropped `ntl` in v3.2 with 14 counties per year: too few to see an effect (tract error unchanged, county
+CV slightly worse; `docs/dasymetric_v3_2.md`). CONUS has ~2,500 counties per year. Features stay era-specific (the
+original plan: before 1940 no Land_Use, from 2000 NTL; harmonized DMSP/VIIRS exists from 1992), so NTL can only
+enter 2000 / 2010 (2020 with the 2020 step). Request: `docs/handoff/conus_ntl_request.md`.
+
+| Topic | Decision |
+|---|---|
+| Layer | `NTL` in `configs/conus_study_area.yaml` = the Massachusetts definition (`Harmonized_DN_NTL_{YEAR}_*.tif`, 30 arc-seconds, DN 0-63, nearest, int16), years [2000, 2010]. Cut into the existing cutout with `grid_cutout.sh --layers NTL` (nothing else re-cut; the window must match `window.json`) |
+| Version | `Dasy_CONUS_RF_v3_ntl` (`configs/conus_rf_v3_ntl.yaml`): v3_all's model, search space, 60 candidates, split, statuses, water mask, `block_rows`; eras Y2000 / Y2010 = v3_all's features + `ntl`; feature group `Night lights: [ntl]`; `compare_with: Dasy_CONUS_RF_v3_all` (same split -> same folds, CV and TEST on the same rows). `tests/test_conus_dasymetric.py` checks that the config differs from v3_all only by `ntl` and the years |
+| Feature | `ntl` = mean DN over the county's unmasked cells (as Massachusetts v3). NTL nodata inside a used county stops the job (`read_layer`, no silent 0); outside the used counties it is ignored. The CONUS window lies inside the global NTL raster, so none is expected; `ntl_qa` counts zone cells with nodata |
+| QA | `src/grid/ntl_qa.py` on the CONUS cutout (`CONFIG=` override of `sbatch/ntl_qa.sh`): DN range, Boston box (the fixed DN >= 60 rule, unchanged; its 2010 failure is a known rule artifact, change on hold), NTL-BUI Spearman, plus new edge lines (logged only): lit / bright cells outside every county (sea, Canada, Mexico), "glow" cells (BUI = 0, DN >= 30) within 5 km of the county edge (coast, border, Great Lakes) vs the interior, mean DN on BUI = 0 cells, top 15 counties by edge glow (`ntl_glow_counties.csv`). The box now uses row / column ranges (no whole-window coordinate grids; same cells). Nothing waits for the QA job |
+| Validation | tracts 2000 / 2010: split parts, density classes, `--gap-share 0.05` (as v3_all) |
+| Comparison | `compare_models.py --versions Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_ntl --years 2000 2010 --rank-features ntl` -> `results/validation/conus/ntl_comparison.csv`: CV RMSE, TEST R2, tract MdAPE all / test / no_gap / density classes, chosen hyperparameters, and ntl's rank (1 = first) by permutation importance and mean abs SHAP with the values (`ntl_perm_rank`, `ntl_shap_rank`, `n_features`) |
+| County maps | 2010, Chelan WA / Reno KS / Fremont CO / Macoupin IL, v3_all vs v3_ntl -> `results/validation/conus/county_maps_ntl/` (own folder: the model family maps stay); `county_maps.csv` has the share of people on BUI = 0 cells |
+| Decision rule | not fixed in advance; read with the user: tract MdAPE (all, test, no_gap, density classes) first, county TEST R2 second, as for the model family |
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
@@ -476,3 +496,5 @@ Made while implementing; each is the simplest option consistent with the decisio
    `bash sbatch/submit_conus.sh models`).
 7. Then the remaining years (1900-2010) with the chosen model and v3 features, then 2020. Code 2026-10-27 ("All
    census years"; `bash sbatch/submit_conus.sh all`). Done 2026-10-27 ("All census years result"). Next: 2020.
+8. NTL test for 2000 / 2010 (`Dasy_CONUS_RF_v3_ntl` vs v3_all). Code 2026-10-28 ("NTL test";
+   `bash sbatch/submit_conus.sh ntl`). If NTL helps, 2020 gets it too.
