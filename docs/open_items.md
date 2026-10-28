@@ -86,6 +86,12 @@ Last updated: 2026-10-28 (external comparison written as code; VIIRS-like NTL te
    counts (records with a built year only); per cell / county, share of records without a built year (e.g. 15 of 40).
    Leave counties above a threshold out of training and testing; choose the threshold by sensitivity analysis
    (how many counties remain vs accuracy).
+5. (Later, not now) County aggregation of the features: county features are the mean over all unmasked cells and
+   the target is county density. Stefan: check whether the mean really represents both the county and the cell
+   level; alternatives to test: the median, an index of clustering / concentration of the built-up cells, or, where
+   population is concentrated in one part of a county, features (and density) of that part only. Related
+   observation: the means include all unbuilt cells (zeros), so bui, bldg_size and mu_ratio mostly measure the built
+   share of the county (Spearman 0.97-0.99 at county level), which also makes their separate SHAP values unstable.
 - Settled with the user (2026-10-28): 2020 county input from NHGIS 2020 counties (small boundary changes). County
   MdAPE = TEST counties, model prediction before mass-preserving allocation vs census (as TEST R2). Fixed set = tracts
   inside the counties tracted in every year (big cities only, known to be unrepresentative), each year's own tracts;
