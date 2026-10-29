@@ -3,7 +3,7 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-28 (external comparison code: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz vs v5.4 on tracts); 2026-10-28 (VIIRS-like NTL test code)
+Last updated: 2026-10-30 (metrics over time: county MdAPE + fixed tract sets, result 1900-2010; 2020 code; HISDAC record uncertainty code; map label fix); 2026-10-28 (external comparison code: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz vs v5.4 on tracts); 2026-10-28 (VIIRS-like NTL test code)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
 `configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
@@ -537,6 +537,110 @@ Tract MdAPE (%), product vs v5.4 on the same tracts:
   (2010: 26.3 vs 38.2 %; 1910: 53 vs 81-85 %), on the same tracts. F&J M3 and M5 hardly differ.
 - In BUI gap counties F&J is better (2010: 31-32 % vs 73 %): it does not depend on HISDAC records.
 - Coverage: WorldPop leaves out 32 % of the population (tracts with nodata pixels, coast); F&J 6-13 %.
+
+## Metrics over time (request 2026-10-30, part A; run steps `docs/runbooks/Running_CONUS.md`, section 9)
+
+Stefan (meeting 2026-10-28): report R2 and MdAPE together, county MdAPE for the TEST counties, and tract error on a
+fixed set next to all tracts. Request: `docs/handoff/validation_2020_uncertainty_request.md`, part A. No retraining:
+`src/validation/metrics_over_time.py` reads the tracked result files of v5.4 (= `Dasy_CONUS_RF_v3_all`) only.
+
+| Topic | Decision |
+|---|---|
+| County MdAPE (A1) | per year, TEST counties (`test_predictions.csv`: the model's log density before the mass-preserving allocation) and CV (`oof_predictions.csv`, train counties): predicted pop = exp(y_hat) x `area_km2` of `county_features.csv` (the target's own area: 0.0625 km2 x unmasked cells, water mask), observed = census pop. The script stops if exp(y) x area_km2 does not give the census pop back. Metrics: counties, MdAPE, MAPE (every county has >= 10 people), R2 of log density, checked against the reported TEST R2 / pooled OOF R2 |
+| Fixed tract set (A2) | the 2010 county of each evaluated tract (`zone_gisjoin` of `tract_errors_{YEAR}.csv`, flag ok); set = the counties with evaluated tracts in every tract year from the start year on, each year scored on its own tracts in those counties (decided 2026-10-28). Start years 1910, 1920, 1940, 1960 (1910+ has very few counties). Metrics: MdAPE (observed > 0), MAPE (tracts >= 10 people), areal weighting on the same tracts; the all-tracts set next to them (its MdAPE is checked against `metrics_by_year.csv`) |
+| Outputs | `results/validation/conus/Dasy_CONUS_RF_v3_all/`: `county_metrics_by_year.csv`, `fixed_tract_metrics.csv`, `fixed_tract_counties.csv` (the members of each set), `mdape_over_time.png` (MdAPE by year: all tracts, fixed sets, county TEST; dashed = areal weighting). Rerun in the 2020 chain (`metrics_over_time.sh`) so 2020 is added |
+
+### Result, 1900-2010 (computed locally from the tracked files, 2026-10-30)
+
+County level (model before allocation vs census). The recomputed R2 equals the reported TEST R2 / pooled OOF R2 in all
+24 rows, so the area definition is the target's.
+
+| Year | TEST counties | TEST MdAPE | TEST MAPE | TEST R2 | CV counties | CV MdAPE | CV MAPE |
+|---|---|---|---|---|---|---|---|
+| 1900 | 576 | 32.3 | 61.3 | 0.845 | 2,238 | 29.3 | 57.6 |
+| 1910 | 595 | 30.4 | 51.2 | 0.822 | 2,344 | 29.3 | 48.2 |
+| 1920 | 612 | 31.5 | 47.6 | 0.834 | 2,443 | 29.5 | 49.9 |
+| 1930 | 615 | 32.8 | 48.3 | 0.839 | 2,471 | 29.4 | 49.9 |
+| 1940 | 615 | 31.1 | 44.2 | 0.858 | 2,471 | 29.2 | 47.6 |
+| 1950 | 617 | 30.1 | 46.3 | 0.856 | 2,474 | 29.5 | 49.6 |
+| 1960 | 618 | 30.5 | 48.5 | 0.861 | 2,477 | 29.5 | 50.1 |
+| 1970 | 620 | 30.4 | 49.8 | 0.863 | 2,483 | 29.9 | 52.1 |
+| 1980 | 622 | 29.6 | 51.0 | 0.861 | 2,484 | 29.3 | 52.5 |
+| 1990 | 622 | 27.2 | 47.7 | 0.876 | 2,486 | 28.7 | 54.4 |
+| 2000 | 622 | 27.2 | 50.7 | 0.875 | 2,486 | 28.5 | 56.9 |
+| 2010 | 622 | 28.4 | 51.3 | 0.878 | 2,487 | 29.4 | 57.8 |
+
+- County MdAPE is flat at 27-33 % over 110 years, while R2 rises from 0.82-0.85 to 0.88: R2 grows with the spread of
+  county densities, the typical county error does not. MAPE (44-61 %) is pulled up by a few counties with large
+  over-predictions.
+
+Fixed tract sets (MdAPE %, model / areal weighting; tracts in the set that year):
+
+| Year | all tracts | 1910+ (6 counties) | 1920+ (8) | 1940+ (73) | 1960+ (295) |
+|---|---|---|---|---|---|
+| 1910 | 53.2 / 82.9 | 48.6 / 82.3 (1,199) | | | |
+| 1920 | 53.3 / 79.2 | 52.3 / 77.9 (1,838) | 53.3 / 79.2 (2,197) | | |
+| 1930 | 49.7 / 81.5 | 51.0 / 77.1 (4,027) | 52.0 / 78.8 (4,680) | | |
+| 1940 | 42.6 / 86.9 | 40.9 / 81.5 (1,521) | 40.6 / 81.4 (1,739) | 42.6 / 86.9 (7,349) | |
+| 1950 | 41.8 / 83.1 | 42.0 / 65.7 (3,385) | 43.6 / 68.4 (4,051) | 41.9 / 81.4 (10,628) | |
+| 1960 | 37.9 / 82.7 | 34.5 / 58.3 (3,240) | 35.5 / 59.9 (3,860) | 35.6 / 75.9 (13,011) | 37.9 / 82.7 (22,042) |
+| 1970 | 34.0 / 81.3 | 31.3 / 55.6 | 32.2 / 56.4 | 31.7 / 72.2 | 33.8 / 79.5 |
+| 1980 | 32.3 / 79.9 | 30.9 / 54.1 | 31.7 / 54.4 | 29.8 / 69.1 | 31.2 / 76.3 |
+| 1990 | 28.5 / 76.9 | 33.0 / 52.9 | 33.3 / 53.3 | 29.1 / 66.4 | 28.8 / 74.0 |
+| 2000 | 27.2 / 75.9 | 31.4 / 52.5 | 31.6 / 53.0 | 28.5 / 64.8 | 28.2 / 73.1 |
+| 2010 | 26.6 / 74.5 | 29.5 / 49.5 | 29.6 / 50.2 | 27.9 / 62.9 | 27.7 / 71.6 |
+
+- 1910+: Cook IL, Cuyahoga OH and the four NYC boroughs Kings, New York, Queens, Richmond (Bronx has no evaluated 1910
+  tract); 1920+ adds Bronx and Milwaukee. 1940+ = 73 counties, 1960+ = 295 (lists in `fixed_tract_counties.csv`).
+- On the fixed sets the model error still falls over time (1910+: 49-52 % before 1940, 31-34 % from 1960 on), so the
+  fall in the all-tracts curve is not only the changing tract set. In the same big-city counties areal weighting also
+  improves (82 -> 49 %): tracts there get more uniform in density, so part of the gain is the easier target, not only
+  better input data. On the 1910+ set the model beats areal weighting by 26-41 points in 1910-1940 and by 20-24 points
+  from 1950 on.
+- From 1990 the 1910+ / 1920+ sets (dense NYC tracts) are 3-5 points worse than all tracts: big cities are harder than
+  the national mix in recent years, so the early all-tracts numbers (big cities only) are not pessimistic by
+  construction.
+- 1940 has fewer evaluated tracts in the 1910+ counties (1,521) than 1930 (4,028): not the flags (38 tracts flagged),
+  the 1940 tract input itself has few NYC tracts (Kings 118, Queens 60, New York 93 vs 929 / 1,367 / 275 in 1930;
+  Cook and Cuyahoga unchanged). The 1940 point of the fixed sets is mostly Cook + Cuyahoga; check the NHGIS 1940 NYC
+  tracts (`results/tract/`) if this year matters.
+- MAPE (tracts >= 10 people) is 54-326 % for the model and dominated by small tracts with large relative errors; MdAPE
+  is the stable one.
+
+## 2020 (request 2026-10-30, part B; run steps `docs/runbooks/Running_CONUS.md`, section 10)
+
+| Topic | Decision |
+|---|---|
+| Version | 2020 is added to `Dasy_CONUS_RF_v3_all` (= v5.4) as era `Y2020` (same features, split, folds, search space, 60 candidates, seed), not a new version. Run with `--years 2020` only: the 1900-2010 eras are not recomputed. `train.py` / `predict.py` / `county_features.py` keep the other years' rows of `cv_summary.csv` / `reallocation_qa.csv` / `water_mask_by_year.csv` with `--years` (read back with round-trip floats, so the kept rows are unchanged byte for byte; tested) |
+| Study area | `configs/conus_study_area.yaml` years 1900-2020. Every CONUS model config has its own `years:`, so only v3_all gains a year |
+| County input | `conus_counties.py --years 2020`: NHGIS 2020 nominal counties (`$DATA_ROOT/processed/census/counties_2020.gpkg` from `prepare_census.py`, extract nhgis0001: 3,108 CONUS counties, pop 329,260,619 per `results/census/qa_report.csv`) on the 3,109 2010 polygons by GISJOIN. Changes 2010-2020: Shannon SD -> Oglala Lakota (G4601130 -> G4601020, 2015, same unit: remapped); Bedford city VA merged into Bedford County (2013): Bedford city `no_value` (its cells NoData, its people in Bedford County), Bedford County `filled_nhgis_alloc` (allocation only: its 2020 pop includes the former city); Connecticut: planning regions only from 2022, the 2020 census has the 8 counties (the log lists the CT units; 3,108 = 3,109 - Bedford city fits); Alaska / Hawaii / Puerto Rico are in neither file. Status rules as for the filled polygons: `ok` = same unit with NHGIS / 2010 area ratio 0.95-1.05, else `filled_nhgis_alloc`; `zero_pop`; `no_value`. Every decision: `results/census_conus/counties_2020_nhgis_match.csv` (one row per polygon + NHGIS units no polygon takes) |
+| Cutout | `grid_cutout --years 2020`: BUI, BUPL, BUPR, BUA (HISDAC has 2020 files, inventory 2026-10-28) and Land_Use 2020 (`Count_2020_{CLASS}.tif`: in the config since Massachusetts, whose v3.4 used it; the LU README says 1940-2015, so `y2020_precheck.sh` compares each class file with 2015 by md5); BUI fix `--years 2020`; DEM static, kept. Water: all 13 years again (one QA file with the 1920 / 1960 / 2010 QA points; GDW yearly layers are deterministic) |
+| Land_Use 2020 | to decide from the pre-check: if the 2020 files exist and differ from 2015, use them (as Massachusetts did). If they are missing, or identical to 2015, the options are (a) 2015 for 2020 (counts are cumulative to mid-decade: 2015 = records up to 2019, the closest state; written in the config as a `year_map`, recorded) or (b) Y2020 without res_share / rent_share (as the pre-1940 eras); the user decides |
+| Validation | tract validation rerun for 1910-2020 (`metrics_by_year.csv` holds all years; the old `tract_errors_{YEAR}.csv` must come out byte-identical: checked with `git diff` after the run), `summary_by_year.csv` / `mdape_by_year.png` 1900-2020 (`compare_models.py`, repro with v3_n60 as before), `metrics_over_time.py` with 2020 |
+| Maps | the 2020 map is drawn with the fixed colour-bar label (below) |
+
+### Map label fix (A4, 2026-10-30)
+
+`predict.py` draws CONUS maps as sums over 4 x 4 cells (the 250 m array is too big for matplotlib): the title said
+"Population per 1 km cell" (right: the drawn value is people per 1 km block), the colour bar said "people per 250 m
+cell" (wrong). `plots.pop_maps` now takes the cell label from `predict.py` and uses it for both. Old PNGs are **not
+redrawn**: the values and the colour scale are right, only the colour-bar text is wrong, and redrawing needs the
+prediction step of every year again (~47 min for v3_all). New maps (2020 and later versions) carry the right label.
+
+## HISDAC record uncertainty (request 2026-10-30, part C; run steps `docs/runbooks/Running_CONUS.md`, section 11)
+
+Meeting item 4 (2026-10-28): the share of records without a built year per county, as a basis for leaving unreliable
+counties out of training and testing (imputation by the model trained on the others). This step only measures it;
+thresholds and the selection rule are decided by the user from the tables, then requested separately.
+
+| Topic | Decision |
+|---|---|
+| Data | `BUPR_contemp.tif` (all ZTRAX records with or without a built year, ~2016) from Dataverse doi:10.7910/DVN/45B8IU (`docs/data_sources.md`), `sbatch/hisdac_extra_download.sh` (login node, tmux): only that file if Dataverse has it on its own, else the BUPR archive to scratch and only that member unpacked, into `$DATA_ROOT/raw/hisdac_extra/` |
+| C2 checks | CRS / grid of contemp, BUPR_2015 and NobuiltYear vs the zone grid (= the HISDAC grid): read directly when equal, else through a WarpedVRT with nearest onto the zones (exact for a whole-cell shift; logged). NobuiltYear count or 0/1 flag from its values (`nobuilt_values.csv`). Per cell with any record: d = contemp - BUPR_2015 vs NobuiltYear (equal / larger / smaller, d < 0): the README says contemp is ZTRAX only, the yearly layers ZTRAX + Parcel Atlas + Open City Model, so they may differ |
+| C3 ratios | per 2010 county (sums over its cells on the 2010 zones): A = (contemp - BUPR_2015) / contemp (fixed; negative -> 0, counted; contemp = 0 -> undefined); B_year = NobuiltYear / (BUPR_year + NobuiltYear) per census year (upper bound, as the records without a year may be old or new; only if NobuiltYear is a count). `results/hisdac_uncertainty/county_record_uncertainty.csv` |
+| C4 gap counties | BUI gap counties (floor area per person < 5 % of the year's median, as `tract_validate.py`; 416 in 2010) vs A: overlap per threshold, A quantiles gap vs other, Spearman A vs floor area per person, by state |
+| C5 thresholds | 0.1 ... 0.9: counties kept (ratio <= t; undefined kept and counted), their share of the year's pop (used counties of v3_all's `county_features.csv`), train / test kept (`configs/conus_split.csv`), gap counties kept, by state; A with the pop of every census year, B_year for its own year. Figure `threshold_counties.png` (counties / pop kept vs threshold: A 2010, B 1920 / 1960 / 2010 / 2020) |
+| Chain | `bash sbatch/submit_conus.sh uncertainty` (one job, `record_uncertainty.sh`), independent of `y2020`; uses Y2020 pop only if that run finished first |
 
 ## BUI outliers (bui_qa, job 34921582)
 

@@ -5,15 +5,16 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
 | Dataset | Version / extract | Local path | Used for | Status |
 |---|---|---|---|---|
 | HISDAC-US (BUI, BUPL, BUPR, BUA, FBUY, NobuiltYear) | v2, 250 m | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/` | Ch1 features, Ch2 patches | In use |
+| HISDAC-US BUPR_contemp (all property records, with or without a built year) | v2 BUPR record, Harvard Dataverse doi:10.7910/DVN/45B8IU, `BUPR_contemp.tif` (~2016), 250 m | `/projects/jaju1407/data/raw/hisdac_extra/` | Record-uncertainty diagnosis per county (share of records without a built year; `src/grid/record_uncertainty.py`) | Registered 2026-10-30; download by `sbatch/hisdac_extra_download.sh`, not run yet |
 | HISDAC-US Land Use (class counts) | v2 (Version II), 250 m, 1940–2020 | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/` | Ch1 features (E2, E3) | In use |
-| NHGIS county population | Time series A00, nominal, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/` | Ch1 target | In use |
+| NHGIS county population | Time series A00, nominal, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/` | Ch1 target; CONUS 2020 county input on the 2010 polygons (2026-10-30, `conus_counties.py`) | In use |
 | NHGIS county boundaries | 1810–2020, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/nhgis0001_shape/` | Ch1 zones | In use |
 | NHGIS tract population + boundaries | Extract nhgis0002: 1910–1960 source tables, 1970–2020 time series AV0 (nominal); boundaries 1910–2020 | `/projects/jaju1407/data/raw/nhgis/` (`nhgis0002_csv/`, `nhgis0002_shape/`) | Ch1 fine-scale validation of dasymetric outputs | Downloaded 2026-10-12; `src/census/prepare_tracts.py` written, not yet run |
 | Census Bureau historical totals (Forstall 1996) | 1996 publication | (reference only) | Manual fills, QA | In use |
@@ -53,7 +54,15 @@ Last updated: 2026-10-28 (external gridded population products: GHS-POP, WorldPo
   (only `BUPR/{1810..2020}_BUPR.tif`). It is the "complete" layer for the record-uncertainty idea (meeting 2026-10-28).
   README says ZTRAX only, while the time series also use Parcel Atlas and Open City Model: check before comparing.
 - `FBUY/NobuiltYear.tif` (`FBUY_README.txt`): "values indicate the presence of built structures without built year";
-  whether it is a count or a 0/1 flag is to be checked from its values.
+  whether it is a count or a 0/1 flag is to be checked from its values (`record_uncertainty.py` writes its value
+  distribution, `results/hisdac_uncertainty/nobuilt_values.csv`).
+- **BUPR_contemp download (registered 2026-10-30, not run yet):** `bash sbatch/hisdac_extra_download.sh` on a login node
+  (tmux). It lists the files of doi:10.7910/DVN/45B8IU through the Dataverse API
+  (`https://dataverse.harvard.edu/api/datasets/:persistentId/?persistentId=doi:10.7910/DVN/45B8IU`; the listing is
+  saved as `results/hisdac_uncertainty/dataverse_45B8IU_files.tsv`), downloads `BUPR_contemp.tif` alone if it is a file
+  of its own, otherwise the BUPR archive to scratch (`$SCRATCH/hisdac_extra/`, md5 from the API checked) and unpacks only
+  that file into `$DATA_ROOT/raw/hisdac_extra/` (+ `.md5`). Same citation and terms as the other HISDAC layers (Ahn
+  et al. 2024, below; the dataset's license / terms are printed by the script).
 - Notes: built from contemporary records filtered by year built, so demolished
   structures are missing and early periods are under-represented. No nodata value;
   0 means no building or outside the U.S.

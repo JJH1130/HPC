@@ -10,7 +10,8 @@ For each year and each used county c (status in `use_status`):
 
 Writes to <out-root>/<name>/<version>/:
   predictions/pop_{YEAR}.tif   cell population, float32, NoData = -9999 (unused counties + outside)
-  qa/reallocation_qa.csv       per county-year: era, census pop, sum of cell pop, difference
+  qa/reallocation_qa.csv       per county-year: era, census pop, sum of cell pop, difference (--years: the other
+                               years' rows of an earlier run are kept)
   maps/pop_{YEAR}.png          quick-look maps for maps.years (state boundaries from --counties-gpkg)
   maps/pop_{YEAR}_<prev>_vs_<version>.png   side by side with the `compare_with` version for maps.compare_years
 Map years come from `maps:` in configs/model.yaml (default 1810, 1900, 2020 and 1810); the flags override it.
@@ -189,9 +190,11 @@ def draw_maps(year: int, arr, mask, grid, cfg: dict, out: Path, args, prev_dir: 
     grid = {**grid, "shape": arr.shape, "transform": Affine(t.a * f, 0, t.c, 0, t.e * f, t.f)}
     bounds = plots.map_bounds(mask, grid)
     states = plots.read_states(args.counties_gpkg, bounds, grid["crs"]) if args.counties_gpkg else None
-    title = f"Population per {250 * f / 1000:g} km cell, {year}" if f > 1 else f"Population per 250 m cell, {year}"
+    cell = f"{250 * f / 1000:g} km" if f > 1 else "250 m"  # one label for title and colour bar (fixed 2026-10-30)
+    title = f"Population per {cell} cell, {year}"
     if year in args.map_years:
-        plots.pop_maps(out / "maps" / f"pop_{year}.png", [(cfg["version"], arr, mask)], grid, states, bounds, title)
+        plots.pop_maps(out / "maps" / f"pop_{year}.png", [(cfg["version"], arr, mask)], grid, states, bounds, title,
+                       cell)
     if year in args.compare_years and prev_dir is not None:
         ppath = prev_dir / "predictions" / f"pop_{year}.tif"
         if not ppath.exists():
@@ -206,7 +209,7 @@ def draw_maps(year: int, arr, mask, grid, cfg: dict, out: Path, args, prev_dir: 
         parr, pmask = coarsen(parr, pmask, f)
         prev = cfg["compare_with"]
         plots.pop_maps(out / "maps" / f"pop_{year}_{prev}_vs_{cfg['version']}.png",
-                       [(prev, parr, pmask), (cfg["version"], arr, mask)], grid, states, bounds, title)
+                       [(prev, parr, pmask), (cfg["version"], arr, mask)], grid, states, bounds, title, cell)
 
 
 def main(argv=None):
@@ -266,6 +269,11 @@ def main(argv=None):
     qa = pd.concat(parts, ignore_index=True)
     qpath = out / "qa" / "reallocation_qa.csv"
     qpath.parent.mkdir(parents=True, exist_ok=True)
+    if args.years is not None and qpath.exists():  # --years (2020 added to v3_all): the other years' rows are kept
+        old = pd.read_csv(qpath, float_precision="round_trip")  # kept rows written back unchanged
+        old = old[~old["year"].isin(years)]
+        log.info("--years: reallocation_qa.csv keeps %d rows of years %s", len(old), sorted(old["year"].unique()))
+        qa = pd.concat([old, qa], ignore_index=True).sort_values(["year", "zone_id"], kind="stable")
     qa.to_csv(qpath, index=False)
     log.info("wrote %s", qpath)
 

@@ -1,4 +1,4 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all, v3_ntl, v3_ntlv) and the external comparison
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time and the HISDAC record uncertainty
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
 layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), `configs/external_grids.yaml`
@@ -19,7 +19,9 @@ failed on a CRS bug, fixed). Next: section 3 (BUI fix, v1_bui + v3_bui for 1920 
 (all census years 1900-2010). Section 5 ran 2026-10-27 (jobs 34939345-34939353). Next: section 6 (night lights
 test, 2000 / 2010). Section 6 ran 2026-10-28 (jobs 34956826-34956833). Next: section 7 (VIIRS-like night lights).
 Section 7 ran 2026-10-28 (jobs 34961482-34961489). Next: section 8 (external products on the same tracts; written
-2026-10-28, not run yet).
+2026-10-28, not run yet). Written 2026-10-30, not run yet: section 9 (county MdAPE + fixed tract sets: 1900-2010 computed on
+the laptop, no job needed), section 10 (2020 added to v3_all: pre-check, then `submit_conus.sh y2020`), section 11
+(HISDAC record uncertainty: download, then `submit_conus.sh uncertainty`). Sections 8, 10 and 11 are independent.
 
 ## Inputs / outputs
 
@@ -888,6 +890,180 @@ What to look for in the logs (Claude reads them after the pull):
   over the sea), the MdAPE table (product, v5.4 and areal weighting on the same tracts), the MAPE / p90 / gap / density
   table, `missing (skipped): ...` for products without sums, `DONE`
 
+## 9. County MdAPE and fixed tract sets for v5.4 (2026-10-30)
+
+County MdAPE (TEST and CV counties, model before allocation) and tract MdAPE on fixed county sets (counties tracted in
+every year from 1910 / 1920 / 1940 / 1960 on) next to all tracts, by year (`docs/conus_plan.md`, "Metrics over
+time"; request `docs/handoff/validation_2020_uncertainty_request.md`, part A). No job is needed for 1900-2010:
+`src/validation/metrics_over_time.py` reads only tracked result files and was run on the laptop (results committed in
+`results/validation/conus/Dasy_CONUS_RF_v3_all/`). The 2020 chain (section 10) runs it again as a job
+(`sbatch/metrics_over_time.sh`) so 2020 is included. To rerun it alone (login node, then a light job):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+sbatch sbatch/metrics_over_time.sh --version Dasy_CONUS_RF_v3_all
+echo "== end of block 9"
+```
+
+Good: `Submitted batch job N`, then `== end of block 9`. In its log: `recomputed R2 = reported TEST R2 / pooled OOF R2
+in all N rows`, `all-tracts MdAPE vs metrics_by_year.csv: max |difference| ...e-15`, `DONE`.
+
+## 10. 2020 added to v5.4 (Dasy_CONUS_RF_v3_all, era Y2020) (2026-10-30)
+
+2020 from the NHGIS 2020 counties on the 2010 polygons, the same model settings as the other years
+(`docs/conus_plan.md`, "2020"). Only 2020 is computed (`--years 2020`); 1900-2010 stay as they are and are checked in
+block 3. Tract validation, `summary_by_year.csv` / `mdape_by_year.png` and section 9's metrics are redone for
+1900-2020.
+
+| Step | Job | What | Estimate (from v3_all, jobs 34939345-34939353) |
+|---|---|---|---|
+| pre-check | login node, not a job | inputs for 2020 + the v3_all outputs on scratch; Land_Use 2020 vs 2015 | 2-5 min |
+| census_conus | `census_conus.sh --years 2020` | NHGIS 2020 on the 2010 polygons -> `counties_2020.gpkg`, `results/census_conus/counties_2020_nhgis_match.csv` | 2 min |
+| grid_cutout | `--years 2020` | BUI / BUPL / BUPR / BUA / Land_Use 2020 + zones 2020 | 3 min |
+| bui_fix, water_frac | `--years 2020`; water all 13 years | BUI cap; GDW yearly water (old layers deterministic) | 1 min; 15 min |
+| features / train / predict | `--years 2020` | Y2020 era (60 candidates) + 2020 map | 2 / 10 / 5 min |
+| validate | 1910-2020 | `metrics_by_year.csv`, `tract_errors_2020.csv` (old years must come out the same) | 15 min |
+| summary, metrics_over_time | after validate | `summary_by_year.csv`, `mdape_by_year.png`, section 9's files with 2020 | 1 min each |
+
+Block 1, pre-check (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/y2020_precheck.sh 2>&1 | tee logs/y2020_precheck.txt | tail -n 45
+echo "== end of block 1"
+```
+
+Good: every line `ok`, NHGIS 2020 `3108 counties`, Connecticut `8 units` (G0900010 ... G0900150, the old
+counties, not planning regions), `G4601020` present and `G4601130` / `G5105150` `not in 2020`, the eight Land_Use lines `differs from 2015`,
+then `PRECHECK OK` and `== end of block 1`. **Stop and send the output to Claude** (do not run block 2) if any line says
+`MISSING`, `PRECHECK FAILED`, Connecticut has 9 units, or a Land_Use class is `IDENTICAL to 2015` or missing: then the
+Land_Use rule for 2020 has to be decided first (`docs/conus_plan.md`, "2020", Land_Use 2020).
+
+Block 2, submit (login node; nothing is submitted if an input is missing):
+
+```bash
+cd /projects/jaju1407/HPC
+bash sbatch/submit_conus.sh y2020
+squeue -u $USER
+echo "== end of block 2"
+```
+
+Good: one line `census_conus N | grid_cutout N | bui_fix N | water_frac N | features N | train N | predict N |
+validate N | summary N | metrics_over_time N` (also in `logs/conus_y2020_jobs.txt`), 10 jobs in `squeue`, then `==
+end of block 2`. `MISSING ...` + `ERROR: nothing submitted`: send it to Claude. If `== end of block 2` is missing, the
+paste was cut: run `cat logs/conus_y2020_jobs.txt; squeue -u $USER` before pasting again (never submit twice).
+
+Block 3, close the loop (after the last job left `squeue`; ~1 h): sacct / seff, the reproducibility check of
+1900-2010, commit.
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_y2020_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_y2020_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_y2020_seff.txt
+cat logs/conus_y2020_sacct.txt
+R=results/dasymetric/conus/Dasy_CONUS_RF_v3_all; Q=results/validation/conus/Dasy_CONUS_RF_v3_all
+if git diff --quiet -- $R/Y19?0 $R/Y2000 $R/Y2010 $Q/tract_errors_19?0.csv $Q/tract_errors_2000.csv $Q/tract_errors_2010.csv; then echo "REPRO OK: 1900-2010 model files and tract errors unchanged"; else echo "REPRO DIFFERS:"; git diff --stat -- $R/Y19?0 $R/Y2000 $R/Y2010 $Q/tract_errors_19?0.csv $Q/tract_errors_2000.csv $Q/tract_errors_2010.csv; fi
+for f in $R/cv_summary.csv $R/reallocation_qa.csv $R/water_mask_by_year.csv $Q/metrics_by_year.csv $Q/summary_by_year.csv results/census_conus/counties_conus_summary.csv; do echo "$f: $(git diff -U0 -- $f | grep -c '^-[^-]') old lines changed (must be 0)"; done
+git add logs/ results/
+git commit -m "run: 2020 added to Dasy_CONUS_RF_v3_all (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: no `census_conus` ... `metrics_over_time` job left in `squeue`; every job `COMPLETED` in `sacct`; `REPRO OK:
+1900-2010 model files and tract errors unchanged`; six lines ending `0 old lines changed (must be 0)`; `git push`
+ends with `main -> main`; then `== end of block 3`. `REPRO DIFFERS` or a count above 0: still commit and push (the
+diff is the evidence), and tell Claude. If jobs are still in `squeue`, wait and paste the block again later.
+
+What to look for in the logs (Claude reads them after the pull):
+- `census_conus`: `Connecticut units 8`, the match rules (`same_code` 3,106-3,107, `remapped` 1, `merged_into` 1),
+  statuses, the polygons not matched 1:1, no `not allocated` warning, the area-ratio range
+- `train`: `era Y2020`, 60 candidates, `compare_with ... has no era Y2020`, TEST R2; `--years: cv_summary.csv keeps
+  the rows of eras [...]` (12 eras)
+- `predict`: `--years: reallocation_qa.csv keeps ... rows of years [1900 ... 2010]`, mass check 0 fail
+- `compare_models`: the 2020 row; `metrics_over_time`: the fixed sets now need 2020 tracts too
+
+## 11. HISDAC record uncertainty: BUPR_contemp vs the yearly records (2026-10-30)
+
+Share of property records without a built year per county, two ways (A fixed from `BUPR_contemp - BUPR_2015`, B per
+year from `NobuiltYear`), compared with the BUI gap counties, and tables of how many counties / people remain at each
+threshold (`docs/conus_plan.md`, "HISDAC record uncertainty"). Diagnosis only; independent of section 10.
+
+| Step | Where | What | Estimate |
+|---|---|---|---|
+| download | login node in tmux, not a job | Dataverse file listing; `BUPR_contemp.tif` alone, or the BUPR archive to scratch and only that file unpacked -> `$DATA_ROOT/raw/hisdac_extra/` | minutes if the tif is a file of its own; the whole archive (size unknown, likely several GB): 10-60 min |
+| record_uncertainty | job, 2 cores, 2 h wall | grid / cell checks, county ratios, gap comparison, threshold tables + figure -> `results/hisdac_uncertainty/` | 20-40 min (16 CONUS rasters read in strips; estimate) |
+
+Block 1, download (login node, inside tmux so a dropped connection does not stop it):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+tmux new -s hisdac_dl
+```
+
+Then, inside tmux:
+
+```bash
+cd /projects/jaju1407/HPC
+mkdir -p logs
+bash sbatch/hisdac_extra_download.sh 2>&1 | tee logs/hisdac_extra_download.txt | tail -n 40
+echo "== end of block 1"
+```
+
+Good: the file table of the dataset, then either `BUPR_contemp.tif is a file of its own` or `archive BUPR... ` +
+`md5 ok` + `unpacking only .../BUPR_contemp.tif`, then `== raster: 18459 x 11615 ...` (or another size: that is
+checked in block 2), `DOWNLOAD OK` and `== end of block 1`. Leave tmux with `exit` when it is done (if the connection
+drops: log in again and `tmux attach -t hisdac_dl`). `ERROR:` (no such file, md5 mismatch, a 403 for a restricted
+file): send `logs/hisdac_extra_download.txt` to Claude.
+
+Block 2, submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+bash sbatch/submit_conus.sh uncertainty
+squeue -u $USER
+echo "== end of block 2"
+```
+
+Good: `record_uncertainty N` (also in `logs/conus_uncertainty_jobs.txt`), the job in `squeue`, `== end of block 2`.
+`MISSING ...`: send it to Claude.
+
+Block 3, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_uncertainty_jobs.txt)
+sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_uncertainty_sacct.txt
+seff "$j" > logs/conus_uncertainty_seff.txt; cat logs/conus_uncertainty_seff.txt
+ls -l results/hisdac_uncertainty/
+git add logs/ results/hisdac_uncertainty
+git commit -m "run: HISDAC record uncertainty (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: `record_uncertainty` `COMPLETED`; the folder lists `county_record_uncertainty.csv`, `threshold_table.csv`,
+`threshold_counties.png`, `grid_check.csv`, `cell_check.csv` and the gap files; `git push` ends with `main -> main`;
+`== end of block 3`.
+
+What to look for in the log: the grid line of each raster (`direct` or `WarpedVRT nearest onto the zones`), `NobuiltYear:
+max ... -> a COUNT ...` or `a 0/1 FLAG`, the cell check (d == NobuiltYear share, d < 0 cells), counties with
+contemp < BUPR_2015, the C4 overlap and the C5 tables, `DONE`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -909,6 +1085,10 @@ What to look for in the logs (Claude reads them after the pull):
 | all: `grid_cutout` or `bui_fix` failed | the later jobs never start: `scancel` them, send the log. Both reruns are safe: `--years` touches only the new years; `bui_fix` reads `layers/BUI_raw/` |
 | all: `water_frac` `OUT_OF_MEMORY` | 12 yearly layers in memory (~11 GB) + the workers: resubmit the chain from water_frac with more cores (send Claude `seff` first) |
 | all: train `CANCELLED ... DUE TO TIME LIMIT` | `TRAIN_TIME=08:00:00`; or train only the eras not done yet with `--years` (send Claude the log first: `cv_summary.csv` is written at the end of the job) |
+| y2020: `PRECHECK FAILED` / a Land_Use class `IDENTICAL to 2015` | do not submit; send `logs/y2020_precheck.txt` to Claude (the Land_Use rule for 2020 is the user's decision, `docs/conus_plan.md` "2020") |
+| y2020: a job failed | the later ones never start (`DependencyNeverSatisfied`): `scancel` them, send the log. Reruns are safe: `--years 2020` touches only 2020 (the other years' rows of the QA / summary CSVs are kept), water and validation are deterministic |
+| y2020: `REPRO DIFFERS` | commit anyway and tell Claude: something changed an old year's file (the run itself only adds 2020) |
+| uncertainty: download `ERROR` (403, md5) | send `logs/hisdac_extra_download.txt`; a rerun resumes the archive download (`curl -C -`) and skips a checked tif |
 | all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |
 | ntl: `ntl_qa` `FAILED` with `no cell with DN >= 60 in the box` | the fixed DN rule (known since Massachusetts 2026-10-06, change on hold); nothing waits for it: send the log with the others |
 | ntl: `ntl_qa` `OUT_OF_MEMORY` | nothing waits for it; rerun alone with more cores: `sbatch --ntasks=16 --time=00:45:00 --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/ntl_qa.sh` |

@@ -4,11 +4,21 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-28 (external comparison written as code; VIIRS-like NTL test)
+Last updated: 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
+
+- **Status (2026-10-30, request `docs/handoff/validation_2020_uncertainty_request.md`):** (A) county MdAPE and fixed
+  tract sets computed on the laptop from the tracked v5.4 files (`docs/conus_plan.md` "Metrics over time"): county
+  TEST MdAPE 27-33 % in every year while R2 rises 0.82 -> 0.88; on the fixed big-city sets the tract error still falls
+  over time (1910+: ~50 % before 1940, ~31 % from 1960), with areal weighting falling too on those counties. Map
+  colour-bar label fixed (old PNGs not redrawn: values right, only the label; reason in the plan). (B) 2020 added to
+  v3_all as era Y2020 (code, not run: `Running_CONUS.md` section 10). **Open (user):** Land_Use 2020 rule if the
+  pre-check finds `Count_2020_*` missing or identical to 2015 (options in the plan, "2020"). (C) HISDAC record
+  uncertainty diagnosis written (download + one job, section 11); thresholds and the selection rule are decided by the
+  user from its tables, then training / imputation is requested separately.
 
 - **Status (2026-10-28, external comparison):** written as code, not run yet (`docs/runbooks/Running_CONUS.md`
   section 8, `docs/conus_plan.md` "External comparison"): GHS-POP R2023A, WorldPop, GPW v4.11, GRUMP v1, Fang &
@@ -433,6 +443,7 @@ Last updated: 2026-10-28 (external comparison written as code; VIIRS-like NTL te
 | 2026-10-28 | NTL test implementation: the MA NTL layer definition in `conus_study_area.yaml` (2000 / 2010), cut with `--layers NTL`; NTL nodata inside a used county stops the features (no silent 0); NTL QA runs on CONUS but nothing waits for it (the DN >= 60 rule may fail as in MA); comparison `compare_models.py --years 2000 2010 --rank-features ntl` -> `results/validation/conus/ntl_comparison.csv`; county maps in their own folder `county_maps_ntl/`. |
 | 2026-10-28 | CONUS RF v3 all census years 1900-2010 ran (jobs 34939345-34939353): 12 models, 1920/1960/2010 identical to RF_v3_n60, mass check passes. Tract MdAPE 53 % (1910) -> 27 % (2010) vs 74-87 % areal weighting; early years cover a few big cities only. Next: 2020 county input. |
 | 2026-10-27 | Model family: RF. Four models tie on county CV / TEST R2; on tracts RF n60 53.3 / 37.9 / 26.6 % (1920 / 1960 / 2010) vs XGB 55.1 / 38.1 / 27.2, LGBM 56.9 / 39.0 / 28.1, CatBoost 54.3 / 38.7 / 35.6. Lower county CV RMSE went with higher 2010 tract error. Hyperparameters = county-CV choice with 60 candidates (not the 20-candidate run, though better on 2010 tracts). Next: all years 1900-2010 with RF, then 2020. |
+| 2026-10-30 | Request A/B/C (`docs/handoff/validation_2020_uncertainty_request.md`): county MdAPE = TEST counties, exp(y_hat) x the target's area (0.0625 km2 x unmasked cells) vs census, before allocation (+ CV counties); fixed tract set = counties (2010 zone of the evaluated tracts) tracted in every year from 1910 / 1920 / 1940 / 1960, each year's own tracts, MAPE over tracts >= 10 people. 2020 = era Y2020 of `Dasy_CONUS_RF_v3_all` (not a new version), run with `--years 2020`; `--years` keeps the other years' rows of the per-version QA / summary CSVs. 2020 county input: NHGIS 2020 on the 2010 polygons; Shannon -> Oglala Lakota remapped; Bedford city `no_value` and Bedford County `filled_nhgis_alloc` (its 2020 pop holds the former city); CT has its 8 counties in 2020. Map colour bar label fixed; old PNGs not redrawn. HISDAC record uncertainty: A = (contemp - BUPR_2015) / contemp per 2010 county, B_year = NobuiltYear / (BUPR_year + NobuiltYear) if NobuiltYear is a count; diagnosis only. |
 | 2026-10-27 | BUI fix implemented as a separate step after the cutout (`src/grid/bui_fix.py`, in place on `layers/BUI/`, original kept in `layers/BUI_raw/`, reruns identical), switched on by `bui_cap` in the study area config (Massachusetts: none, check only). Neighbours above the cap, with nodata or outside the window are left out of the median (none left -> 0); strips use one halo row. New versions `Dasy_CONUS_RF_v1_bui` / `Dasy_CONUS_RF_v3_bui` (1920/1960/2010, compare_with v1 / v3) so the old v1 / v3 outputs stay. |
 | 2026-10-27 | BUI fix (cap 3e7 sq ft -> 3 x 3 neighbour median) applied; alone it changes tract error by about 0.1 point. v3_bui (v1 + terrain on fixed BUI) is the CONUS base: tract MdAPE 53.7 / 38.2 / 25.2 % (1920 / 1960 / 2010); the 2010 gain over v3 comes with `max_features` 1.0 picked on a CV tie. Distances spread population onto empty cells (county maps); terrain keeps it in valleys. |
 | 2026-10-27 | Model family comparison implemented: `models.py` registry (rf, lgbm, xgb, catboost; single-threaded models, parallel search, no early stopping), search spaces may use distributions (`{dist: loguniform|uniform|randint, low, high}`; lists unchanged), 60 candidates each, v3_bui features copied (not recomputed), split table folds checked against v3_bui. Tract metrics get BUI gap-county parts `no_gap` / `gap` (`--gap-share 0.05`, CONUS only). `catboost>=1.2.8` pinned: 1.2.7 fails with scikit-learn >= 1.6. |

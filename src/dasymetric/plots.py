@@ -113,9 +113,10 @@ def _scale_bar(ax, bounds):
     ax.text(bx + km * 5e2, by + 0.012 * (y1 - y0), f"{km} km", ha="center", va="bottom", fontsize=8, color=INK)
 
 
-def pop_maps(path: Path, panels, grid: dict, states, bounds, title: str):
+def pop_maps(path: Path, panels, grid: dict, states, bounds, title: str, cell: str = "250 m"):
     """One or more population maps on a shared log colour scale. panels: [(label, arr, mask)].
-    The value is people per 250 m cell; log scale is for display only."""
+    The value is people per `cell` (250 m, or the coarsened block predict.py draws, e.g. 1 km = 4 x 4 cells for
+    CONUS); title and colour bar both name it. Log scale is for display only."""
     vals = np.concatenate([a[m] for _, a, m in panels])
     pos = vals[vals > 0]
     vmin = max(float(np.percentile(pos, 1)) if pos.size else 1e-3, 1e-3)
@@ -142,6 +143,6 @@ def pop_maps(path: Path, panels, grid: dict, states, bounds, title: str):
         ax.set_title(f"{title}, {label}\ntotal {arr[mask].sum():,.0f} people", fontsize=10, color=INK)
         _scale_bar(ax, bounds)
     cb = fig.colorbar(im, ax=axes[0].tolist(), shrink=0.7)
-    cb.set_label("people per 250 m cell (log scale)", fontsize=9, color=INK2)
+    cb.set_label(f"people per {cell} cell (log scale)", fontsize=9, color=INK2)
     cb.ax.tick_params(which="both", labelsize=8, colors=INK2)
     _save(fig, path)

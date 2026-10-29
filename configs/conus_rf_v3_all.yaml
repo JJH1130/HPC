@@ -2,13 +2,15 @@
 # features = v1 + elev, slope; 60 candidates from continuous ranges, as Dasy_CONUS_RF_v3_n60, chosen by the model
 # family comparison) for every census year of Stefan's CSV, 1900-2010, one era (own search + fit) per year. Same
 # split, folds, statuses, water mask and strips as v3_n60. compare_with v3_n60: 1920 / 1960 / 2010 must come out
-# the same (same seed, features and folds); compare_models.py --repro-with checks it. 2020 later (needs another
-# county input: the CSV ends in 2010).
+# the same (same seed, features and folds); compare_models.py --repro-with checks it. 2020 added 2026-10-30 (request
+# docs/handoff/validation_2020_uncertainty_request.md, docs/conus_plan.md "2020"): era Y2020 with the same features,
+# split, folds, search space and 60 candidates; county input = NHGIS 2020 on the 2010 polygons. Run with --years 2020
+# only (sbatch/submit_conus.sh y2020), so the 1900-2010 eras are not recomputed and their files stay as they are.
 # Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_all/
 version: Dasy_CONUS_RF_v3_all
 
 study_area: configs/conus_study_area.yaml
-years: {start: 1900, stop: 2010, step: 10}
+years: {start: 1900, stop: 2020, step: 10}
 
 water_mask: yearly
 compare_with: Dasy_CONUS_RF_v3_n60
@@ -57,6 +59,9 @@ eras:
   Y2010:
     years: [2010]
     features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2020:
+    years: [2020]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
 
 # elev and slope are separate groups, not one Terrain group (decided 2026-10-20).
 feature_groups:
@@ -67,7 +72,7 @@ feature_groups:
   Slope: [slope]
 
 maps:
-  years: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010]
+  years: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
   compare_years: [2010]   # side by side with v3_n60
 
 correlation_threshold: 0.8

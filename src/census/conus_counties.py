@@ -19,6 +19,21 @@ All years share the same polygons in the same row order (sorted by GISJOIN), so 
             train_status), since the NHGIS count belongs to a differently drawn unit
 Also writes <results-dir>/counties_conus_summary.csv (counties, pop and area per year and status) and
 <results-dir>/counties_conus_filled.csv (filled county-years: source GISJOIN, pop, NHGIS area / 2010 polygon area).
+With --years, both keep the rows of the other years from an earlier run.
+
+2020 (request 2026-10-30, docs/conus_plan.md "2020"): the CSV ends in 2010, so every 2010 polygon takes the pop of the
+NHGIS 2020 county (--census-dir counties_2020.gpkg) with the same GISJOIN, after the 2010 -> 2020 changes in
+NHGIS_REMAP (new code of the same county: Shannon SD -> Oglala Lakota, 2015) and NHGIS_MERGED (a 2010 county merged into
+another one before 2020: Bedford city -> Bedford County VA, 2013). Statuses as for the filled polygons above:
+  ok                  same unit: NHGIS status ok / manual_fill, pop > 0, NHGIS 2020 area / 2010 polygon area within
+                      --area-tol (trained + allocated)
+  filled_nhgis_alloc  area ratio outside --area-tol, or the 2020 unit also holds a merged 2010 county (Bedford County:
+                      its 2020 pop includes the former city, whose polygon is separate): allocation only
+  no_value            no 2020 unit (the merged Bedford city: its cells are NoData; its people are in Bedford County)
+  zero_pop            NHGIS pop 0
+Connecticut's planning regions replaced its counties in 2022, after the 2020 census: NHGIS 2020 has the 8 counties
+(checked in the log). Alaska, Hawaii and Puerto Rico are not in either file. Every decision is written to
+<results-dir>/counties_{YEAR}_nhgis_match.csv (one row per 2010 polygon + one per NHGIS unit no polygon takes).
 
 Paths come from CLI flags (sbatch/census_conus.sh).
 """
@@ -36,7 +51,12 @@ import pyogrio
 
 from prepare_census import gpkg_leftovers, local_tmp_dir, write_gpkg
 
-YEARS = list(range(1900, 2011, 10))
+CSV_YEARS = list(range(1900, 2011, 10))  # Stefan's CSV
+NHGIS_YEARS = [2020]  # after the CSV: NHGIS nominal counties matched to the 2010 polygons
+YEARS = CSV_YEARS + NHGIS_YEARS
+# 2010 -> 2020 changes of CONUS counties (Census Bureau, "Substantial Changes to Counties", 2010-2020):
+NHGIS_REMAP = {2020: {"G4601130": "G4601020"}}  # Shannon County SD renamed Oglala Lakota (FIPS 46113 -> 46102), 2015
+NHGIS_MERGED = {2020: {"G5105150": "G5100190"}}  # Bedford city VA merged into Bedford County (51515 -> 51019), 2013
 COLS = ["GISJOIN", "fips", "state", "name", "pop", "status", "area_km2", "geometry"]
 # 2010 GISJOIN -> older NHGIS codes of the same county, tried after the 2010 code (Dade County before 1997)
 ALIASES = {"G1200860": ["G1200250"]}
@@ -55,7 +75,8 @@ def parse_args(argv=None):
     p.add_argument("--area-tol", type=float, nargs=2, default=AREA_TOL, metavar=("MIN", "MAX"),
                    help="NHGIS / 2010 area ratio range for status filled_nhgis (trainable); outside: filled_nhgis_alloc")
     p.add_argument("--results-dir", type=Path, required=True, help="summary CSV (tracked in git)")
-    p.add_argument("--years", type=int, nargs="+", default=YEARS, help="census years (1900-2010)")
+    p.add_argument("--years", type=int, nargs="+", default=YEARS,
+                   help="census years (1900-2010 from the CSV, 2020 from NHGIS)")
     return p.parse_args(argv)
 
 
@@ -67,6 +88,84 @@ def year_table(std: gpd.GeoDataFrame, year: int) -> gpd.GeoDataFrame:
     out["pop"] = pd.to_numeric(std[col], errors="coerce")
     out["status"] = np.where(out["pop"].isna(), "no_value", np.where(out["pop"] > 0, "ok", "zero_pop"))
     return out[COLS]
+
+
+def nhgis_year_table(std: gpd.GeoDataFrame, year: int, census_dir: Path, area_tol=AREA_TOL):
+    """A year after the CSV (2020): each 2010 polygon takes the NHGIS county of that year with the same GISJOIN
+    (NHGIS_REMAP / NHGIS_MERGED for the known changes). Returns the year table + one record per polygon and per
+    NHGIS unit left over (the match CSV)."""
+    path = census_dir / f"counties_{year}.gpkg"
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (NHGIS nominal counties, sbatch/census_prepare.sh)")
+    nom = pyogrio.read_dataframe(path, columns=["GISJOIN", "state", "name", "pop", "status", "area_km2"],
+                                 read_geometry=False)
+    if nom["GISJOIN"].duplicated().any():
+        sys.exit(f"ERROR: duplicate GISJOIN in {path}")
+    nom = nom.set_index("GISJOIN")
+    remap, merged = NHGIS_REMAP.get(year, {}), NHGIS_MERGED.get(year, {})
+    receivers = {}
+    for gone, into in merged.items():
+        receivers.setdefault(into, []).append(gone)
+    ct = sorted(g for g in nom.index if g.startswith("G090"))
+    log.info("%d: %s: %d NHGIS counties, pop %s | Connecticut units %d: %s", year, path, len(nom),
+             f"{nom['pop'].sum():,.0f}", len(ct), ct)
+    t = std[["GISJOIN", "fips", "state", "name", "area_km2", "geometry"]].copy()
+    t["pop"] = np.nan
+    t["status"] = "no_value"
+    recs, used = [], set()
+    for i in t.index:
+        gj = t.at[i, "GISJOIN"]
+        rec = {"year": year, "GISJOIN": gj, "state": t.at[i, "state"], "name": t.at[i, "name"], "rule": None,
+               "source": None, "source_name": None, "nhgis_status": None, "pop": np.nan,
+               "area_2010_km2": t.at[i, "area_km2"], "area_nhgis_km2": np.nan, "area_ratio": np.nan,
+               "status": "no_value", "note": ""}
+        if gj in merged:
+            rec.update(rule="merged_into", source=merged[gj],
+                       note=f"merged into {merged[gj]}: its people are counted there, its cells are NoData")
+            recs.append(rec)
+            continue
+        code = remap.get(gj, gj)
+        rec["rule"] = "remapped" if gj in remap else "same_code"
+        if code not in nom.index:
+            rec.update(rule="no_unit", note=f"no NHGIS {year} county {code}")
+            recs.append(rec)
+            continue
+        r = nom.loc[code]
+        used.add(code)
+        rec.update(source=code, source_name=r["name"], nhgis_status=r["status"], pop=r["pop"],
+                   area_nhgis_km2=r["area_km2"], area_ratio=r["area_km2"] / t.at[i, "area_km2"])
+        if r["status"] in NHGIS_OK and r["pop"] > 0:
+            same = area_tol[0] <= rec["area_ratio"] <= area_tol[1]
+            rec["status"] = "ok" if same and gj not in receivers else "filled_nhgis_alloc"
+            if gj in receivers:
+                rec["note"] = f"also holds {receivers[gj]} (merged): allocation only"
+            elif not same:
+                rec["note"] = f"area ratio outside {area_tol[0]}-{area_tol[1]}: allocation only"
+        elif r["status"] in NHGIS_OK and r["pop"] == 0:
+            rec["status"] = "zero_pop"
+        else:
+            rec["note"] = f"NHGIS status {r['status']}, pop {r['pop']}"
+        if rec["status"] != "no_value":
+            t.at[i, "pop"] = float(r["pop"])
+        t.at[i, "status"] = rec["status"]
+        recs.append(rec)
+    for code in sorted(set(nom.index) - used):  # NHGIS units no 2010 polygon takes (their people are not allocated)
+        r = nom.loc[code]
+        recs.append({"year": year, "GISJOIN": None, "state": r["state"], "name": None, "rule": "nhgis_unmatched",
+                     "source": code, "source_name": r["name"], "nhgis_status": r["status"], "pop": r["pop"],
+                     "status": None, "note": "no 2010 polygon"})
+    m = pd.DataFrame(recs)
+    log.info("%d: match rules %s | statuses %s", year, m["rule"].value_counts().to_dict(),
+             m["status"].value_counts().to_dict())
+    special = m[(m["rule"] != "same_code") | (m["status"] != "ok")]
+    log.info("%d: polygons not matched 1:1 as ok, and NHGIS units left over:\n%s", year,
+             special.to_string(index=False) if len(special) else "(none)")
+    lost = m.loc[m["rule"] == "nhgis_unmatched", "pop"].sum()
+    if lost > 0:
+        log.warning("%d: %s people in NHGIS counties without a 2010 polygon are not allocated", year, f"{lost:,.0f}")
+    log.info("%d: area ratio NHGIS / 2010 polygon of the matched counties: min %.4f, median %.4f, max %.4f", year,
+             m["area_ratio"].min(), m["area_ratio"].median(), m["area_ratio"].max())
+    return t[COLS], m
 
 
 def fill_from_nhgis(t: gpd.GeoDataFrame, year: int, census_dir: Path, area_tol=AREA_TOL) -> list[dict]:
@@ -108,6 +207,14 @@ def fill_from_nhgis(t: gpd.GeoDataFrame, year: int, census_dir: Path, area_tol=A
     return recs
 
 
+def keep_other_years(new: pd.DataFrame, path: Path, years):
+    """Write new + the rows of the other years already in `path` (a --years run replaces only its own years)."""
+    if path.exists():
+        old = pd.read_csv(path, float_precision="round_trip")  # kept rows written back unchanged
+        new = pd.concat([old[~old["year"].isin(years)], new], ignore_index=True).sort_values("year", kind="stable")
+    new.to_csv(path, index=False)
+
+
 def main(argv=None):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
                         datefmt="%H:%M:%S", stream=sys.stdout)
@@ -116,7 +223,7 @@ def main(argv=None):
         log.info("arg %s = %s", flag, value)
     bad = sorted(set(args.years) - set(YEARS))
     if bad:
-        sys.exit(f"ERROR: --years {bad}: the CSV has census years 1900-2010 only")
+        sys.exit(f"ERROR: --years {bad}: census years are 1900-2010 (CSV) and {NHGIS_YEARS} (NHGIS)")
     if not args.std_gpkg.exists():
         sys.exit(f"ERROR: {args.std_gpkg} not found (run sbatch/std_county_check.sh first)")
     std = gpd.read_file(args.std_gpkg, engine="pyogrio").sort_values("GISJOIN").reset_index(drop=True)
@@ -130,8 +237,12 @@ def main(argv=None):
     tmp.mkdir(parents=True, exist_ok=True)
     rows, filled = [], []
     for year in sorted(args.years):
-        t = year_table(std, year)
-        filled += fill_from_nhgis(t, year, args.census_dir, tuple(args.area_tol))
+        if year in NHGIS_YEARS:
+            t, match = nhgis_year_table(std, year, args.census_dir, tuple(args.area_tol))
+            match.to_csv(args.results_dir / f"counties_{year}_nhgis_match.csv", index=False)
+        else:
+            t = year_table(std, year)
+            filled += fill_from_nhgis(t, year, args.census_dir, tuple(args.area_tol))
         path = args.out_dir / f"counties_{year}.gpkg"
         for f in gpkg_leftovers(path)[1:]:  # side files from a failed earlier run
             f.unlink(missing_ok=True)
@@ -146,12 +257,12 @@ def main(argv=None):
         if len(nv):
             log.info("  not ok (first 30): %s", list(zip(nv["GISJOIN"], nv["state"], nv["name"], nv["status"]))[:30])
     summary = pd.DataFrame(rows)
-    summary.to_csv(args.results_dir / "counties_conus_summary.csv", index=False)
     log.info("summary:\n%s", summary.to_string(index=False))
+    keep_other_years(summary, args.results_dir / "counties_conus_summary.csv", args.years)
     if filled:
         f = pd.DataFrame(filled)
-        f.to_csv(args.results_dir / "counties_conus_filled.csv", index=False)
         log.info("polygons without a CSV row (filled from NHGIS where possible):\n%s", f.to_string(index=False))
+        keep_other_years(f, args.results_dir / "counties_conus_filled.csv", args.years)
     log.info("DONE")
 
 

@@ -342,6 +342,19 @@ def test_pipeline():
                                   read(out_root / "conus" / "twhole" / "predictions" / f"pop_{y}.tif"))
         print("ok predict (+ terrain): strips == whole window, mass preserved, NoData for unused counties, test counties allocated")
 
+        # 3b. --years adds one year to a version (2020 into v3_all): the other years' rows stay byte for byte
+        v = out_root / "conus" / "blocks"
+        files = [v / "qa" / "water_mask_by_year.csv", v / "cv_summary.csv", v / "qa" / "reallocation_qa.csv"]
+        before = {f: f.read_text() for f in files}
+        county_features.main(["--config", str(cfgs["blocks"]), "--cutout-root", str(tmp / "cutouts"), "--years",
+                              str(YEARS[-1])] + common)
+        train.main(["--config", str(cfgs["blocks"]), "--n-jobs", "1", "--years", str(YEARS[-1])] + common)
+        predict.main(["--config", str(cfgs["blocks"]), "--cutout-root", str(tmp / "cutouts"), "--years",
+                      str(YEARS[-1])] + common)
+        for f in files:  # deterministic reruns: the whole file is the same again (old rows kept, new rows equal)
+            assert f.read_text() == before[f], f
+        print("ok --years: water_mask_by_year / cv_summary / reallocation_qa keep the other years' rows unchanged")
+
         # 4. tract validation with the split
         tracts_dir = tmp / "tracts"
         tracts_dir.mkdir()
@@ -572,6 +585,40 @@ def test_conus_counties():
         assert len(f) == 4 and f["filled"].sum() == 2
         assert f.loc[f["filled"] & (f["year"] == 1960), "source"].tolist() == ["G1200250"]
         print("ok conus_counties: statuses, NHGIS fill (incl. the Dade alias), area-ratio rule and row order")
+
+        # 2020 from NHGIS on the 2010 polygons: same code, Shannon -> Oglala Lakota, Bedford city merged into Bedford
+        # County, a changed area, a zero pop, an NHGIS unit without a polygon; summary keeps 1920 / 1960
+        g = gpd.GeoDataFrame({"GISJOIN": ["G0100010", "G0100030", "G4601130", "G5100190", "G5105150", "G0100050"],
+                              "fips": ["01001", "01003", "46113", "51019", "51515", "01005"], "state": "S",
+                              "name": ["A", "B", "Shannon", "Bedford Co", "Bedford city", "C"],
+                              "area_km2": [2.0, 1.0, 5.0, 10.0, 0.1, 3.0], "pop_1920": 1.0, "pop_1960": 1.0},
+                             geometry=[box(i, 0, i + 1, 1) for i in range(6)], crs=CRS)
+        g.to_file(tmp / "std.gpkg", driver="GPKG")
+        rows = [("G0100010", 50.0, 2.02), ("G0100030", 60.0, 1.2), ("G4601020", 14000.0, 5.0),
+                ("G5100190", 79000.0, 10.1), ("G0100050", 0.0, 3.0), ("G0100070", 99.0, 1.0)]
+        gpd.GeoDataFrame({"GISJOIN": [r[0] for r in rows], "state": "S", "name": "n", "pop": [r[1] for r in rows],
+                          "status": "ok", "area_km2": [r[2] for r in rows]},
+                         geometry=[box(0, 0, 1, 1)] * len(rows), crs=CRS).to_file(nom / "counties_2020.gpkg",
+                                                                                  driver="GPKG")
+        conus_counties.main(["--std-gpkg", str(tmp / "std.gpkg"), "--census-dir", str(nom), "--out-dir",
+                             str(tmp / "out"), "--results-dir", str(tmp / "res"), "--years", "2020"])
+        c = gpd.read_file(tmp / "out" / "counties_2020.gpkg").set_index("GISJOIN")
+        want = {"G0100010": ("ok", 50.0), "G0100030": ("filled_nhgis_alloc", 60.0), "G4601130": ("ok", 14000.0),
+                "G5100190": ("filled_nhgis_alloc", 79000.0), "G5105150": ("no_value", None),
+                "G0100050": ("zero_pop", 0.0)}
+        for gj, (st, pop) in want.items():
+            assert c.at[gj, "status"] == st, (gj, c.at[gj, "status"])
+            assert (pd.isna(c.at[gj, "pop"]) if pop is None else c.at[gj, "pop"] == pop), gj
+        assert sorted(c.index) == list(c.index)  # same polygons, same order as the CSV years
+        m = pd.read_csv(tmp / "res" / "counties_2020_nhgis_match.csv")
+        assert m.set_index("source").at["G0100070", "rule"] == "nhgis_unmatched"
+        assert m.set_index("GISJOIN").at["G5105150", "rule"] == "merged_into"
+        assert m.set_index("GISJOIN").at["G4601130", "rule"] == "remapped"
+        s = pd.read_csv(tmp / "res" / "counties_conus_summary.csv")
+        assert sorted(s["year"].unique()) == [1920, 1960, 2020]
+        assert sorted(pd.read_csv(tmp / "res" / "counties_conus_filled.csv")["year"].unique()) == [1920, 1960]
+        print("ok conus_counties 2020: NHGIS match (remap, merge, area rule, zero pop, unmatched unit), "
+              "--years keeps the other years in the summary")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

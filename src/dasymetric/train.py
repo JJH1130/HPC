@@ -17,7 +17,8 @@ For each era (one unnamed era without `eras:`), reads <version>/[<era>/]features
   shap_summary.png, shap_by_year.png
   oof_predictions.csv             out-of-fold prediction per training row (+ the compare_with version's)
   compare_<version>.json          the `compare_with` version's CV on the same folds and rows
-With eras, <version>/cv_summary.csv has one row per era (CV of the era model and of compare_with).
+With eras, <version>/cv_summary.csv has one row per era (CV of the era model and of compare_with); with --years it
+keeps the rows of the other eras (CONUS v3_all: Y2020 added to the 1900-2010 eras).
 
 Folds: `folds_from: <version>` reuses that version's model/folds.csv (filtered to the era's counties);
 otherwise GroupKFold(cv_folds) by GISJOIN, so all years of a county stay in one fold and CV measures
@@ -484,6 +485,12 @@ def main(argv=None):
     if len(rows) > 1 or rows[0]["era"]:
         summary = pd.DataFrame(rows)
         path = out_dir(cfg, args.out_root) / "cv_summary.csv"
+        if args.years and path.exists():  # --years (2020 added to v3_all): the other eras' rows are kept
+            old = pd.read_csv(path, float_precision="round_trip")  # kept rows written back unchanged
+            summary = pd.concat([old[~old["era"].isin(summary["era"])], summary], ignore_index=True)
+            order = {e: i for i, e in enumerate(cfg["eras"])}
+            summary = summary.sort_values("era", key=lambda s: s.map(order)).reset_index(drop=True)
+            log.info("--years: cv_summary.csv keeps the rows of eras %s", sorted(set(old["era"]) - set(eras)))
         summary.to_csv(path, index=False)
         log.info("CV by era:\n%s", summary.drop(columns="features").round(3).to_string(index=False))
         log.info("wrote %s", path)

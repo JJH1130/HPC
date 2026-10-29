@@ -32,6 +32,13 @@
 #                                       # sbatch/external_download.sh: one extract job per product with all its files
 #                                       # (tract sums, exactextract) -> evaluate after all of them (afterany: a failed
 #                                       # product is skipped) -> results/validation/conus/external/
+#   bash sbatch/submit_conus.sh y2020   # 2020 added to Dasy_CONUS_RF_v3_all (= v5.4), after sbatch/y2020_precheck.sh:
+#                                       # census input 2020 (NHGIS on the 2010 polygons) -> cutout 2020 -> BUI fix 2020 +
+#                                       # water (all 13 years, deterministic) -> features / train / predict --years 2020
+#                                       # (the 1900-2010 eras are not recomputed) -> tract validation 1910-2020 ->
+#                                       # summary_by_year + figure, and metrics_over_time (county MdAPE, fixed sets)
+#   bash sbatch/submit_conus.sh uncertainty  # HISDAC record uncertainty (record_uncertainty.sh), after
+#                                       # sbatch/hisdac_extra_download.sh; independent of the other modes
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -53,10 +60,12 @@
 # DMSP: 8 cores), QA 1.6 min / 9.7 GB with one layer (two layers share the zones / BUI / edge masks: 8 cores), features
 # 6 min, train 19 min, predict 11 min / 14 GB, validate 7 min / 16 GB, county maps 2 min / 5.5 GB (5 counties x 3
 # versions); wall times as ntl.
+# y2020: from v3_all (12 years: features 16 min, train 1:37, predict 47 min, validate 12 min, water 14 min) for one
+# year ~1/12 of features / train / predict; water and validate run all years again (validate: 12 years, 2 h wall).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode == trial || $mode == pilot || $mode == v3v4 || $mode == bui || $mode == models || $mode == all || $mode == ntl || $mode == ntlv || $mode == external ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -313,6 +322,64 @@ elif [[ $mode == external ]]; then
          --job-name=external_evaluate sbatch/external_compare.sh evaluate)
     echo "${line}evaluate $je" | tee logs/conus_external_jobs.txt
     echo "== not downloaded (skipped): $(for p in ghs_pop worldpop gpw4 grump1 fj_m3 fj_m5; do [[ " $avail " == *" $p "* ]] || printf '%s ' $p; done)"
+elif [[ $mode == y2020 ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    C=configs/conus_rf_v3_all.yaml
+    V=Dasy_CONUS_RF_v3_all
+    REF=Dasy_CONUS_RF_v3_n60
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    OLD="1900 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010"
+    miss=()  # everything is checked before anything is submitted (details: bash sbatch/y2020_precheck.sh)
+    for f in $DATA_ROOT/processed/census/counties_2020.gpkg $DATA_ROOT/processed/census/counties_std_2010.gpkg \
+             $DATA_ROOT/processed/tract/tracts_2020.gpkg $CUT/window.json $CUT/layers/DEM/DEM.tif \
+             $D/$V/qa/reallocation_qa.csv $D/$V/qa/water_mask_by_year.csv $D/$V/cv_summary.csv \
+             $D/$REF/Y2010/model/oof_predictions.csv results/validation/conus/$REF/metrics_by_year.csv \
+             $HISDAC_DIR/Land_Use/RO/Count_2020_RO.tif; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    for l in BUI BUPL BUPR BUA; do
+        [[ -f $HISDAC_DIR/$l/2020_$l.tif ]] || miss+=("$HISDAC_DIR/$l/2020_$l.tif")
+    done
+    for y in $OLD; do
+        for f in $CEN/counties_$y.gpkg $CUT/zones/zones_$y.tif $D/$V/Y$y/model/rf.joblib $D/$V/predictions/pop_$y.tif; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    jc=$(sub "" --time=${CENSUS_TIME:-00:30:00} sbatch/census_conus.sh --years 2020)
+    jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-01:00:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh \
+         --years 2020)
+    jb=$(sub "$jg" --ntasks=2 --time=${FIX_TIME:-00:30:00} --export=ALL,CONFIG=$S sbatch/bui_fix.sh --years 2020)
+    # all 13 years: one QA file with the QA points (1920 / 1960 / 2010); the 12 old layers come out the same
+    jw=$(sub "$jg" --ntasks=16 --time=${WATER_TIME:-02:00:00} --export=ALL,CONFIG=$S sbatch/water_frac.sh)
+    jf=$(sub "$jb $jw" --ntasks=6 --time=${FEATURES_TIME:-00:45:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh \
+         --years 2020)
+    jt=$(sub "$jf" --ntasks=16 --time=${TRAIN_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh --years 2020)
+    jp=$(sub "$jt" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh \
+         --years 2020)
+    # all tract years again (metrics_by_year.csv holds every year; the old tract_errors_{YEAR}.csv must come out the same)
+    jv=$(sub "$jp" --ntasks=8 --time=${VALIDATE_TIME:-02:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+         --version $V --years 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010 2020 $VAL)
+    R=results/validation/conus/$V
+    js=$(sub "$jv" --time=${SUMMARY_TIME:-00:20:00} sbatch/compare_models.sh --versions $V --repro-with $REF \
+         --out $R/summary_by_year.csv --plot $R/mdape_by_year.png)
+    jm=$(sub "$jv" sbatch/metrics_over_time.sh --version $V)
+    echo "census_conus $jc | grid_cutout $jg | bui_fix $jb | water_frac $jw | features $jf | train $jt | predict $jp | validate $jv | summary $js | metrics_over_time $jm" \
+        | tee logs/conus_y2020_jobs.txt
+elif [[ $mode == uncertainty ]]; then
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    miss=()
+    for f in $DATA_ROOT/raw/hisdac_extra/BUPR_contemp.tif $HISDAC_DIR/FBUY/NobuiltYear.tif $HISDAC_DIR/BUPR/2015_BUPR.tif \
+             $CUT/zones/zones_2010.tif $CUT/zones/zones_2010.csv \
+             results/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2010/county_features.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    if (( ${#miss[@]} )); then
+        printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted (download: sbatch/hisdac_extra_download.sh)"; exit 1
+    fi
+    ju=$(sub "" --ntasks=${UNC_TASKS:-2} --time=${UNC_TIME:-02:00:00} sbatch/record_uncertainty.sh)
+    echo "record_uncertainty $ju" | tee logs/conus_uncertainty_jobs.txt
 else
     jc=$(sub "" sbatch/census_conus.sh --years 1920 1960 2010)
     jg=$(sub "$jc" --ntasks=4 --time=${CUTOUT_TIME:-00:30:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh)

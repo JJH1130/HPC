@@ -11,8 +11,9 @@ states: all
 window: full
 
 # All census years of Stefan's CSV (2026-10-27, Dasy_CONUS_RF_v3_all; the pilot / model family ran on 1920, 1960,
-# 2010, and their model configs keep those years with their own `years:`). 2020 needs another county input.
-years: {start: 1900, stop: 2010, step: 10}
+# 2010, and their model configs keep those years with their own `years:`) + 2020 (2026-10-30: NHGIS 2020 counties on
+# the 2010 polygons, src/census/conus_counties.py). Every CONUS model config has its own `years:`.
+years: {start: 1900, stop: 2020, step: 10}
 
 grid_reference: BUI
 

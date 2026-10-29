@@ -34,7 +34,15 @@ nodata; v5.4 rows from its `tract_errors_{YEAR}.csv`) -> `results/validation/con
 `src/validation/compare_models.py` (`sbatch/compare_models.sh`) tabulates CV / TEST / tract metrics of several versions
 (`model_comparison.csv`; for one version over years `--out summary_by_year.csv --plot ... --repro-with <version>`;
 `--years` filters, `--rank-features ntl ntlv` adds a feature's permutation / SHAP rank; logs tract MdAPE by part side by side);
-`--gap-share 0.05` (CONUS) adds tract parts without / within BUI gap counties. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+`--gap-share 0.05` (CONUS) adds tract parts without / within BUI gap counties;
+`src/validation/metrics_over_time.py` (`sbatch/metrics_over_time.sh`; also runs locally, tracked files only) adds county
+MdAPE / MAPE / R2 for TEST and CV counties (exp(y_hat) x the target's area_km2 vs census, before allocation) and tract
+MdAPE on fixed county sets (counties tracted in every year from 1910 / 1920 / 1940 / 1960) next to all tracts ->
+`county_metrics_by_year.csv`, `fixed_tract_metrics.csv`, `mdape_over_time.png` in `results/validation/conus/<version>/`;
+`src/grid/record_uncertainty.py` (`sbatch/record_uncertainty.sh`; `BUPR_contemp.tif` from `sbatch/hisdac_extra_download.sh`,
+login node) measures the HISDAC records without a built year per 2010 county (A = (contemp - BUPR_2015) / contemp,
+B_year = NobuiltYear / (BUPR_year + NobuiltYear)), vs the BUI gap counties, and threshold tables ->
+`results/hisdac_uncertainty/` (diagnosis only). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -62,15 +70,20 @@ HISDAC raster, 1920/1960/2010, water `only_zone_blocks`), `configs/conus_rf_v1.y
 (`Dasy_CONUS_RF_v1/v2`; `conus_rf_v3.yaml` / `conus_rf_v4.yaml` = v1 + terrain / v1 + distances + terrain, 1960 + 2010; `conus_rf_v1_bui.yaml` /
 `conus_rf_v3_bui.yaml` = v1 / v3 on the BUI-fixed cutout, 1920 + 1960 + 2010, compared with v1 / v3 (v3_bui = CONUS base);
 `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml` = the model family comparison on v3_bui's features (60 candidates each);
-`conus_rf_v3_all.yaml` = the chosen RF v3 n60 for all census years 1900-2010 (study area years 1900-2010; configs with
-their own `years:` keep theirs); `conus_rf_v3_ntl.yaml` = v3_all + `ntl` for 2000 / 2010 (NTL layer of the CONUS study
+`conus_rf_v3_all.yaml` = the chosen RF v3 n60 for all census years 1900-2010 + 2020 (era Y2020, 2026-10-30; study area
+years 1900-2020; every other CONUS config has its own `years:`); `conus_rf_v3_ntl.yaml` = v3_all + `ntl` for 2000 / 2010 (NTL layer of the CONUS study
 area, years [2000, 2010]), compared with v3_all; `conus_rf_v3_ntlv.yaml` = v3_ntl with `ntlv` (VIIRS-like NTL,
 layer NTLV) instead of `ntl`; one era per year, `split: configs/conus_split.csv` = tracked train/test + fold table from
 `src/dasymetric/make_split.py`, never regenerated; `block_rows` = strip-wise features/prediction (terrain slope per strip with one halo row = whole window); `unusable: skip`;
 `years`), county input `src/census/conus_counties.py` (`sbatch/census_conus.sh`: Stefan's CSV on 2010 polygons, status
 ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0.95-1.05: trained, appended to the split as
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
-zero_pop), all submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external` (stage scripts take `CONFIG=`,
+zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
+decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty` (`y2020` =
+2020 added to `Dasy_CONUS_RF_v3_all` as era Y2020 with `--years 2020`, after `sbatch/y2020_precheck.sh`; with `--years`,
+`county_features` / `train` / `predict` keep the other years' rows of `water_mask_by_year.csv` / `cv_summary.csv` /
+`reallocation_qa.csv`; stage scripts take `CONFIG=`,
 `CENSUS_DIR=`, `COVERAGE=` env overrides; CONUS resources live there). Model choice, search space, eras (years + features per era; or one `features` list = one
 pooled model), SHAP groups, used statuses, `water_mask`, `compare_with` / `folds_from` (earlier version read for comparison / fold reuse) and map
 years live in `configs/model.yaml` (model registry `MODELS` in `src/dasymetric/models.py`: rf, lgbm, xgb, catboost, single-threaded models with a parallel
@@ -87,12 +100,13 @@ strips = whole window = brute force, rerun, `--check`),
 in train, NoData for unused counties, tract validation train/test parts + density classes, terrain strips = whole
 window, `bui_qa.py`, gap-county parts, LightGBM / XGBoost / CatBoost search -> predict with mass preserved,
 `compare_models.py`, all census years (a pre-1940 year without Land_Use; shared years reproduce the compared version;
-`--repro-with`, summary figure), `conus_counties.py` statuses, NTL (`test_ntl`: real configs, ntl era next to one
+`--repro-with`, summary figure), `conus_counties.py` statuses + 2020 NHGIS match, `--years` keeps the other years' rows, NTL (`test_ntl`: real configs, ntl era next to one
 without, NTL nodata, `ntl_qa.py` against brute force, `compare_models --years --rank-features`), VIIRS-like NTL (`test_ntlv`: real configs, `nodata_to`, `ntlv_check.py`,
 county ntlv, `ntl_qa.py` NTL + NTLV); stubs `shap` and `plots`;
 one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_conus_dasymetric as t; t.test_ntl()"`), `python tests/test_external_compare.py` (tract sums of a projected and a lon / lat raster = brute-force polygon x
 pixel intersection, nodata / outside tracts left out, extract -> evaluate: product, v5.4 and areal weighting metrics on
-the kept subset = by hand, a missing product = `missing` row, path resolution), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+the kept subset = by hand, a missing product = `missing` row, path resolution), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county A / B_year, cell checks,
+thresholds, gap overlap, strips = one strip, 0/1 NobuiltYear), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:

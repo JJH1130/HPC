@@ -5,7 +5,8 @@ Writes <out-root>/<name>/<version>/[<era>/]features/county_features.csv, one row
 the era (all years without eras):
   year, zone_id, GISJOIN, state, name, status, n_cells, [n_masked, area_km2_polygon,] <era features>, pop,
   area_km2, y
-and, with `water_mask: true`, <version>/qa/water_mask_by_year.csv (masked cells per year).
+and, with `water_mask: true`, <version>/qa/water_mask_by_year.csv (masked cells per year; --years keeps the other
+years' rows).
 
 Only counties whose status is in `use_status` (configs/model.yaml) are kept. County feature =
 mean of the cell feature over all cells of the county (zone == county, including 0 cells).
@@ -143,7 +144,11 @@ def main(argv=None):
     if mask_qa:
         path = out_dir(cfg, args.out_root) / "qa" / "water_mask_by_year.csv"
         path.parent.mkdir(parents=True, exist_ok=True)
-        pd.DataFrame(mask_qa).to_csv(path, index=False)
+        qa = pd.DataFrame(mask_qa)
+        if args.years and path.exists():  # --years (2020 added to v3_all): the other years' rows are kept
+            old = pd.read_csv(path, float_precision="round_trip")  # kept rows written back unchanged
+            qa = pd.concat([old[~old["year"].isin(qa["year"])], qa], ignore_index=True).sort_values("year")
+        qa.to_csv(path, index=False)
         log.info("wrote %s", path)
     log.info("county-years: %d before status filtering (expected 314 for massachusetts), %d training rows "
              "over %d era(s)", n_all, n_rows, len(eras))
