@@ -1,0 +1,14 @@
+== 2026-10-29T10:56:33-06:00 host login-ci4 | doi:10.7910/DVN/45B8IU -> /projects/jaju1407/data/raw/hisdac_extra/BUPR_contemp.tif
+== dataset version 2 0 | license CC0 1.0 | terms 
+== files in the dataset (results/hisdac_uncertainty/dataverse_45B8IU_files.tsv):
+label     folder  id       size       md5                               restricted
+BUPR.tar          8963994  691716096  4b82a1824aaf20d350c2d36e2dda911f  False
+== BUPR_contemp.tif is not a file of its own: archive BUPR.tar (id 8963994, 691716096 bytes, 660M)
+== scratch free: 651T
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0  659M    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  6  659M    6 43.5M    0     0  28.0M      0  0:00:23  0:00:01  0:00:22 46.9M 15  659M   15 99.8M    0     0  38.9M      0  0:00:16  0:00:02  0:00:14 51.5M 23  659M   23  156M    0     0  43.9M      0  0:00:15  0:00:03  0:00:12 53.3M 32  659M   32  216M    0     0  47.5M      0  0:00:13  0:00:04  0:00:09 55.1M 42  659M   42  279M    0     0  50.2M      0  0:00:13  0:00:05  0:00:08 56.5M 51  659M   51  336M    0     0  50.7M      0  0:00:12  0:00:06  0:00:06 57.7M 59  659M   59  391M    0     0  51.8M      0  0:00:12  0:00:07  0:00:05 58.4M 66  659M   66  441M    0     0  51.4M      0  0:00:12  0:00:08  0:00:04 56.8M 75  659M   75  495M    0     0  51.8M      0  0:00:12  0:00:09  0:00:03 55.7M 84  659M   84  555M    0     0  52.6M      0  0:00:12  0:00:10  0:00:02 55.4M 92  659M   92  613M    0     0  53.0M      0  0:00:12  0:00:11  0:00:01 56.0M100  659M  100  659M    0     0  53.6M      0  0:00:12  0:00:12 --:--:-- 56.4M
+== BUPR.tar: md5 ok (664M)
+== 45 members listed in results/hisdac_uncertainty/BUPR.tar_members.txt
+ERROR: BUPR_contemp.tif not in BUPR.tar (see the member list)
