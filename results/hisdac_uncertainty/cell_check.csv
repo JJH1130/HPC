@@ -1,0 +1,17 @@
+item,value
+contemp_available,False
+nobuilt_max,24246.0
+nobuilt_is_count,True
+nobuilt_values_gt1_cells,13904884
+nobuilt_fractional_cells,0
+window_cells,214401285
+study_cells,124576956
+record_cells,26289499
+ref_gt0,12108269
+nobuilt_gt0,22242444
+nobuilt_only_cells,14181230
+nobuilt_sum,109368367.0
+ref_sum,168517512.0
+study_record_cells,26229990
+nobuilt_only_cells_share_of_record_cells,0.5394256467192471
+outcome,"ratios: A_nby, B"
