@@ -53,6 +53,8 @@ Last updated: 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertaint
   distribution around 2016. Part of the Dataverse BUPR archive (doi:10.7910/DVN/45B8IU) but **not in `$HISDAC_DIR`**
   (only `BUPR/{1810..2020}_BUPR.tif`). It is the "complete" layer for the record-uncertainty idea (meeting 2026-10-28).
   README says ZTRAX only, while the time series also use Parcel Atlas and Open City Model: check before comparing.
+  **Checked 2026-10-30: not in the Dataverse BUPR.tar either** (v2, 45 members: `BUPR/1810..2020_BUPR.tif` + README;
+  `results/hisdac_uncertainty/BUPR.tar_members.txt`). The README sentence seems carried over; where the file is: ask Stefan.
 - `FBUY/NobuiltYear.tif` (`FBUY_README.txt`): "values indicate the presence of built structures without built year";
   whether it is a count or a 0/1 flag is to be checked from its values (`record_uncertainty.py` writes its value
   distribution, `results/hisdac_uncertainty/nobuilt_values.csv`).
