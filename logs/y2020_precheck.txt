@@ -1,0 +1,118 @@
+== 2026-10-29T09:49:35-06:00 host login-ci4 git 177600b
+== census and tracts
+  ok   /projects/jaju1407/data/processed/census/counties_2020.gpkg
+  ok   /projects/jaju1407/data/processed/census/counties_std_2010.gpkg
+  ok   /projects/jaju1407/data/processed/tract/tracts_2020.gpkg
+ERROR 1: PROJ: proj_create_from_database: Open of /projects/jaju1407/software/envs/hisdac/share/proj failed
+  NHGIS 2020: 3108 counties, pop 329,260,619, statuses {'ok': 3108}
+  Connecticut: 8 units: [('G0900010', 'Fairfield County'), ('G0900030', 'Hartford County'), ('G0900050', 'Litchfield County'), ('G0900070', 'Middlesex County'), ('G0900090', 'New Haven County'), ('G0900110', 'New London County'), ('G0900130', 'Tolland County'), ('G0900150', 'Windham County')]
+  G4601020: ('Oglala Lakota County', 13672.0, 'ok')
+  G4601130: not in 2020
+  G5100190: ('Bedford County', 79462.0, 'ok')
+  G5105150: not in 2020
+  G1200860: ('Miami-Dade County', 2701767.0, 'ok')
+  G0800140: ('Broomfield County', 74112.0, 'ok')
+== HISDAC 2020 layers (/pl/active/Leyk_Lab/data/HISDAC_US_V2, read only)
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2020_BUI.tif
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPL/2020_BUPL.tif
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2020_BUPR.tif
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUA/2020_BUA.tif
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/A/Count_2020_A.tif
+       A: 2020 4891565 bytes, 2015 4888058 bytes -> differs from 2015
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/C/Count_2020_C.tif
+       C: 2020 9343850 bytes, 2015 9237235 bytes -> differs from 2015
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/GV/Count_2020_GV.tif
+       GV: 2020 4214724 bytes, 2015 4120024 bytes -> differs from 2015
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/I/Count_2020_I.tif
+       I: 2020 3824167 bytes, 2015 3823634 bytes -> differs from 2015
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/RC/Count_2020_RC.tif
+       RC: 2020 3888484 bytes, 2015 3887373 bytes -> differs from 2015
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/RI/Count_2020_RI.tif
+       RI: 2020 5260964 bytes, 2015 5256868 bytes -> differs from 2015
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/RO/Count_2020_RO.tif
+       RO: 2020 20338126 bytes, 2015 20219867 bytes -> differs from 2015
+  ok   /pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/VL/Count_2020_VL.tif
+       VL: 2020 4819426 bytes, 2015 4701965 bytes -> differs from 2015
+       RO folder: Count_2010_RO.tif
+       RO folder: Count_2010_Theme6.tif
+       RO folder: Count_2015_RO.tif
+       RO folder: Count_2015_Theme6.tif
+       RO folder: Count_2020_RO.tif
+       RO folder: Count_2020_Theme6.tif
+== water, DEM
+  JRC occurrence tiles: 21 (CONUS needs 21)
+  ok   /projects/jaju1407/data/raw/water/gdw/GDW_v1_0_shp/GDW_reservoirs_v1_0.shp
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/DEM/DEM.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/window.json
+== v3_all outputs on scratch that 2020 is added to
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1900/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1900.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1900.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1900.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1910/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1910.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1910.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1910.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1920/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1920.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1920.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1920.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1930/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1930.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1930.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1930.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1940/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1940.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1940.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1940.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1950/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1950.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1950.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1950.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1960/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1960.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1960.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1960.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1970/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1970.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1970.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1970.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1980/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1980.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1980.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1990/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1990.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1990.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_1990.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2000/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_2000.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2000.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_2000.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2010/model/rf.joblib
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_2010.tif
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2010.tif
+  ok   /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/qa/reallocation_qa.csv
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/qa/water_mask_by_year.csv
+  ok   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/cv_summary.csv
+  ok   /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI_raw
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/cv_summary.csv
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/maps
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/qa
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1900
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1910
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1920
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1930
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1940
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1950
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1960
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1970
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1980
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y1990
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2000
+  2026-10-26 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2010
+== scratch use: 22G
+PRECHECK OK

@@ -1,0 +1,32 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+35053415               census_conus  COMPLETED   00:00:16                   2  00:03.315 
+35053415.ba+                  batch  COMPLETED   00:00:16   1393608K        2  00:03.313 
+35053415.ex+                 extern  COMPLETED   00:00:16          0        2  00:00.001 
+35053416                grid_cutout  COMPLETED   00:02:36                   4  01:08.466 
+35053416.ba+                  batch  COMPLETED   00:02:36  10189308K        4  01:08.465 
+35053416.ex+                 extern  COMPLETED   00:02:36          0        4  00:00.001 
+35053417                    bui_fix  COMPLETED   00:00:28                   2  00:09.429 
+35053417.ba+                  batch  COMPLETED   00:00:28   1053504K        2  00:09.428 
+35053417.ex+                 extern  COMPLETED   00:00:28          0        2   00:00:00 
+35053418                 water_frac  COMPLETED   00:16:06                  16   03:08:06 
+35053418.ba+                  batch  COMPLETED   00:16:06  30526804K       16   03:08:06 
+35053418.ex+                 extern  COMPLETED   00:16:06       256K       16  00:00.001 
+35053419        dasymetric_features  COMPLETED   00:03:01                   6  01:03.022 
+35053419.ba+                  batch  COMPLETED   00:03:01  10038048K        6  01:03.020 
+35053419.ex+                 extern  COMPLETED   00:03:01       260K        6  00:00.001 
+35053420           dasymetric_train  COMPLETED   00:07:08                  16  16:04.670 
+35053420.ba+                  batch  COMPLETED   00:07:08   3985596K       16  16:04.669 
+35053420.ex+                 extern  COMPLETED   00:07:08       256K       16  00:00.001 
+35053421         dasymetric_predict  COMPLETED   00:06:47                  32  25:52.468 
+35053421.ba+                  batch  COMPLETED   00:06:47  10212784K       32  25:52.467 
+35053421.ex+                 extern  COMPLETED   00:06:47          0       32  00:00.001 
+35053422             validate_tract  COMPLETED   00:16:00                   8  11:37.105 
+35053422.ba+                  batch  COMPLETED   00:16:00  20018808K        8  11:37.104 
+35053422.ex+                 extern  COMPLETED   00:16:00          0        8  00:00.001 
+35053423             compare_models  COMPLETED   00:00:11                   1  00:02.109 
+35053423.ba+                  batch  COMPLETED   00:00:11    201440K        1  00:02.108 
+35053423.ex+                 extern  COMPLETED   00:00:11       288K        1  00:00.001 
+35053424          metrics_over_time  COMPLETED   00:00:11                   1  00:02.999 
+35053424.ba+                  batch  COMPLETED   00:00:11    253288K        1  00:02.998 
+35053424.ex+                 extern  COMPLETED   00:00:11          0        1  00:00.001 

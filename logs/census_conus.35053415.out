@@ -1,0 +1,47 @@
+== job 35053415 (census_conus) on c3cpu-e2-u1 at 2026-10-29T09:52:33-06:00
+== cores=2 gpus=none restart=0
+== git 177600b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== in: /projects/jaju1407/data/processed/census/counties_std_2010.gpkg  out: /projects/jaju1407/data/processed/census_conus  extra args: --years 2020
+09:52:37 INFO arg std_gpkg = /projects/jaju1407/data/processed/census/counties_std_2010.gpkg
+09:52:37 INFO arg census_dir = /projects/jaju1407/data/processed/census
+09:52:37 INFO arg out_dir = /projects/jaju1407/data/processed/census_conus
+09:52:37 INFO arg area_tol = (0.95, 1.05)
+09:52:37 INFO arg results_dir = results/census_conus
+09:52:37 INFO arg years = [2020]
+09:52:39 INFO /projects/jaju1407/data/processed/census/counties_std_2010.gpkg: 3109 polygons, 4 without a CSV row, CRS EPSG:5070
+09:52:40 INFO 2020: /projects/jaju1407/data/processed/census/counties_2020.gpkg: 3108 NHGIS counties, pop 329,260,619 | Connecticut units 8: ['G0900010', 'G0900030', 'G0900050', 'G0900070', 'G0900090', 'G0900110', 'G0900130', 'G0900150']
+09:52:41 INFO 2020: match rules {'same_code': 3107, 'remapped': 1, 'merged_into': 1} | statuses {'ok': 3106, 'filled_nhgis_alloc': 2, 'no_value': 1}
+09:52:41 INFO 2020: polygons not matched 1:1 as ok, and NHGIS units left over:
+ year  GISJOIN        state               name        rule   source          source_name nhgis_status     pop  area_2010_km2  area_nhgis_km2  area_ratio             status                                                                     note
+ 2020 G4601130 South Dakota     Shannon County    remapped G4601020 Oglala Lakota County           ok 13672.0    5429.974134     5429.529222    0.999918                 ok                                                                         
+ 2020 G5100190     Virginia     Bedford County   same_code G5100190       Bedford County           ok 79462.0    1992.358934     2010.723732    1.009218 filled_nhgis_alloc                        also holds ['G5105150'] (merged): allocation only
+ 2020 G5105150     Virginia       Bedford city merged_into G5100190                  NaN          NaN     NaN      17.875499             NaN         NaN           no_value merged into G5100190: its people are counted there, its cells are NoData
+ 2020 G5106850     Virginia Manassas Park city   same_code G5106850   Manassas Park city           ok 17219.0       6.565020        7.859157    1.197126 filled_nhgis_alloc                            area ratio outside 0.95-1.05: allocation only
+09:52:41 INFO 2020: area ratio NHGIS / 2010 polygon of the matched counties: min 0.9607, median 1.0000, max 1.1971
+09:52:42 INFO Created 3,109 records
+09:52:44 INFO 2020: {'filled_nhgis_alloc': 2, 'no_value': 1, 'ok': 3106} | pop (ok) 329,163,938 | wrote /projects/jaju1407/data/processed/census_conus/counties_2020.gpkg
+09:52:44 INFO   not ok (first 30): [('G5100190', 'Virginia', 'Bedford County', 'filled_nhgis_alloc'), ('G5105150', 'Virginia', 'Bedford city', 'no_value'), ('G5106850', 'Virginia', 'Manassas Park city', 'filled_nhgis_alloc')]
+09:52:44 INFO summary:
+ year             status  counties         pop     area_km2  area_share
+ 2020 filled_nhgis_alloc         2     96681.0 1.998924e+03    0.000257
+ 2020           no_value         1         0.0 1.787550e+01    0.000002
+ 2020                 ok      3106 329163938.0 7.784040e+06    0.999741
+09:52:44 INFO DONE
+total 3332784
+drwxr-sr-x 2 jaju1407 jaju1407grp       468 Oct 29 09:52 .
+drwxr-sr-x 5 jaju1407 jaju1407grp        77 Oct 23 09:04 ..
+-rw-r--r-- 1 jaju1407 jaju1407grp 196292608 Oct 26 20:04 counties_1900.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196292608 Oct 26 20:04 counties_1910.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:04 counties_1920.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:04 counties_1930.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:04 counties_1940.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:04 counties_1950.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:05 counties_1960.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:05 counties_1970.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:05 counties_1980.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:05 counties_1990.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:05 counties_2000.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 26 20:05 counties_2010.gpkg
+-rw-r--r-- 1 jaju1407 jaju1407grp 196288512 Oct 29 09:52 counties_2020.gpkg
+== done 2026-10-29T09:52:44-06:00

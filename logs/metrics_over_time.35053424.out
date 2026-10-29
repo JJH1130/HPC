@@ -1,0 +1,124 @@
+== job 35053424 (metrics_over_time) on c3cpu-e2-u3 at 2026-10-29T10:46:35-06:00
+== cores=1 gpus=none restart=0
+== git 177600b (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: --version Dasy_CONUS_RF_v3_all
+10:46:37 INFO arg version = Dasy_CONUS_RF_v3_all
+10:46:37 INFO arg name = conus
+10:46:37 INFO arg results_root = results
+10:46:37 INFO arg starts = [1910, 1920, 1940, 1960]
+10:46:37 INFO arg mape_min = 10
+10:46:37 INFO == A1 county metrics (model before allocation vs census)
+10:46:37 INFO   1900 test  576 counties | MdAPE  32.27 % | MAPE   61.26 % | R2 log density 0.8449 (reported test_r2: 0.8449)
+10:46:37 INFO   1900 cv   2238 counties | MdAPE  29.31 % | MAPE   57.64 % | R2 log density 0.8150 (reported oof_pooled_r2: 0.8150)
+10:46:38 INFO   1910 test  595 counties | MdAPE  30.40 % | MAPE   51.16 % | R2 log density 0.8221 (reported test_r2: 0.8221)
+10:46:38 INFO   1910 cv   2344 counties | MdAPE  29.31 % | MAPE   48.18 % | R2 log density 0.8125 (reported oof_pooled_r2: 0.8125)
+10:46:38 INFO   1920 test  612 counties | MdAPE  31.54 % | MAPE   47.63 % | R2 log density 0.8344 (reported test_r2: 0.8344)
+10:46:38 INFO   1920 cv   2443 counties | MdAPE  29.52 % | MAPE   49.91 % | R2 log density 0.8234 (reported oof_pooled_r2: 0.8234)
+10:46:38 INFO   1930 test  615 counties | MdAPE  32.76 % | MAPE   48.26 % | R2 log density 0.8392 (reported test_r2: 0.8392)
+10:46:38 INFO   1930 cv   2471 counties | MdAPE  29.39 % | MAPE   49.93 % | R2 log density 0.8164 (reported oof_pooled_r2: 0.8164)
+10:46:38 INFO   1940 test  615 counties | MdAPE  31.13 % | MAPE   44.16 % | R2 log density 0.8577 (reported test_r2: 0.8577)
+10:46:38 INFO   1940 cv   2471 counties | MdAPE  29.17 % | MAPE   47.59 % | R2 log density 0.8279 (reported oof_pooled_r2: 0.8279)
+10:46:39 INFO   1950 test  617 counties | MdAPE  30.13 % | MAPE   46.27 % | R2 log density 0.8558 (reported test_r2: 0.8558)
+10:46:39 INFO   1950 cv   2474 counties | MdAPE  29.46 % | MAPE   49.58 % | R2 log density 0.8333 (reported oof_pooled_r2: 0.8333)
+10:46:39 INFO   1960 test  618 counties | MdAPE  30.45 % | MAPE   48.45 % | R2 log density 0.8612 (reported test_r2: 0.8612)
+10:46:39 INFO   1960 cv   2477 counties | MdAPE  29.47 % | MAPE   50.09 % | R2 log density 0.8435 (reported oof_pooled_r2: 0.8435)
+10:46:39 INFO   1970 test  620 counties | MdAPE  30.39 % | MAPE   49.75 % | R2 log density 0.8628 (reported test_r2: 0.8628)
+10:46:39 INFO   1970 cv   2483 counties | MdAPE  29.89 % | MAPE   52.12 % | R2 log density 0.8533 (reported oof_pooled_r2: 0.8533)
+10:46:39 INFO   1980 test  622 counties | MdAPE  29.59 % | MAPE   50.97 % | R2 log density 0.8615 (reported test_r2: 0.8615)
+10:46:39 INFO   1980 cv   2484 counties | MdAPE  29.31 % | MAPE   52.47 % | R2 log density 0.8572 (reported oof_pooled_r2: 0.8572)
+10:46:39 INFO   1990 test  622 counties | MdAPE  27.19 % | MAPE   47.71 % | R2 log density 0.8758 (reported test_r2: 0.8758)
+10:46:39 INFO   1990 cv   2486 counties | MdAPE  28.70 % | MAPE   54.36 % | R2 log density 0.8604 (reported oof_pooled_r2: 0.8604)
+10:46:39 INFO   2000 test  622 counties | MdAPE  27.25 % | MAPE   50.73 % | R2 log density 0.8753 (reported test_r2: 0.8753)
+10:46:39 INFO   2000 cv   2486 counties | MdAPE  28.54 % | MAPE   56.86 % | R2 log density 0.8633 (reported oof_pooled_r2: 0.8633)
+10:46:40 INFO   2010 test  622 counties | MdAPE  28.39 % | MAPE   51.25 % | R2 log density 0.8775 (reported test_r2: 0.8775)
+10:46:40 INFO   2010 cv   2487 counties | MdAPE  29.38 % | MAPE   57.84 % | R2 log density 0.8666 (reported oof_pooled_r2: 0.8666)
+10:46:40 INFO   2020 test  621 counties | MdAPE  27.53 % | MAPE   59.61 % | R2 log density 0.8675 (reported test_r2: 0.8675)
+10:46:40 INFO   2020 cv   2485 counties | MdAPE  30.42 % | MAPE   62.95 % | R2 log density 0.8635 (reported oof_pooled_r2: 0.8635)
+10:46:40 INFO recomputed R2 = reported TEST R2 / pooled OOF R2 in all 26 rows
+10:46:40 INFO county metrics:
+     counties          mdape            mape         r2_logdens       
+set        cv   test      cv    test      cv    test         cv   test
+year                                                                  
+1900   2238.0  576.0  29.309  32.267  57.638  61.262      0.815  0.845
+1910   2344.0  595.0  29.313  30.397  48.181  51.157      0.813  0.822
+1920   2443.0  612.0  29.524  31.542  49.906  47.627      0.823  0.834
+1930   2471.0  615.0  29.392  32.756  49.930  48.256      0.816  0.839
+1940   2471.0  615.0  29.174  31.125  47.587  44.164      0.828  0.858
+1950   2474.0  617.0  29.460  30.132  49.580  46.267      0.833  0.856
+1960   2477.0  618.0  29.472  30.455  50.091  48.454      0.843  0.861
+1970   2483.0  620.0  29.894  30.387  52.120  49.752      0.853  0.863
+1980   2484.0  622.0  29.313  29.594  52.474  50.972      0.857  0.861
+1990   2486.0  622.0  28.696  27.188  54.362  47.707      0.860  0.876
+2000   2486.0  622.0  28.541  27.246  56.865  50.733      0.863  0.875
+2010   2487.0  622.0  29.383  28.391  57.844  51.253      0.867  0.878
+2020   2485.0  621.0  30.419  27.533  62.954  59.606      0.863  0.868
+10:46:40 INFO == A2 tract sets
+10:46:40 INFO tract years [1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+10:46:41 INFO fixed set from_1910 (12 years 1910-2020): 6 counties tracted in every year
+10:46:41 INFO   G1700310 Cook County, Illinois; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio
+10:46:41 INFO fixed set from_1920 (11 years 1920-2020): 8 counties tracted in every year
+10:46:41 INFO   G1700310 Cook County, Illinois; G3600050 Bronx County, New York; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio; G5500790 Milwaukee County, Wisconsin
+10:46:41 INFO fixed set from_1940 (9 years 1940-2020): 73 counties tracted in every year
+10:46:41 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100730 Jefferson County, Alabama; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600370 Los Angeles County, California; G0600750 San Francisco County, California; G0800310 Denver County, Colorado; G0900030 Hartford County, Connecticut; G0900090 New Haven County, Connecticut; G1100010 District of Columbia, District of Columbia; G1300210 Bibb County, Georgia; G1300510 Chatham County, Georgia; G1300630 Clayton County, Georgia; G1300890 DeKalb County, Georgia; G1301210 Fulton County, Georgia; G1302450 Richmond County, Georgia; G1700310 Cook County, Illinois; G1701190 Madison County, Illinois; G1701630 St. Clair County, Illinois; G1800970 Marion County, Indiana; G1901530 Polk County, Iowa
+10:46:41 INFO fixed set from_1960 (7 years 1960-2020): 295 counties tracted in every year
+10:46:41 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100550 Etowah County, Alabama; G0100730 Jefferson County, Alabama; G0100970 Mobile County, Alabama; G0101010 Montgomery County, Alabama; G0101130 Russell County, Alabama; G0400130 Maricopa County, Arizona; G0400190 Pima County, Arizona; G0500910 Miller County, Arkansas; G0501190 Pulaski County, Arkansas; G0501310 Sebastian County, Arkansas; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600190 Fresno County, California; G0600290 Kern County, California; G0600370 Los Angeles County, California; G0600410 Marin County, California; G0600590 Orange County, California; G0600650 Riverside County, California; G0600670 Sacramento County, California; G0600710 San Bernardino County, California
+10:46:41 INFO all-tracts MdAPE vs metrics_by_year.csv: max |difference| 7.11e-15 over 24 rows
+10:46:41 INFO tract MdAPE / MAPE (tracts >= 10 people) by set and year:
+                 tracts          counties           mdape             mape         
+method            model baseline    model baseline  model baseline   model baseline
+set       year                                                                     
+all       1910   1897.0   1897.0     10.0     10.0  53.17    82.93  326.27   935.11
+          1920   2197.0   2197.0      8.0      8.0  53.27    79.23   92.93   147.52
+          1930   6362.0   6362.0     24.0     24.0  49.71    81.51  191.98   483.04
+          1940   7350.0   7350.0     74.0     74.0  42.63    86.92   89.77   334.76
+          1950  12300.0  12300.0    114.0    114.0  41.82    83.10  102.78   327.80
+          1960  22042.0  22042.0    295.0    295.0  37.89    82.67   61.46   166.02
+          1970  33298.0  33298.0    607.0    607.0  34.03    81.28   70.57   218.70
+          1980  44586.0  44586.0   1772.0   1772.0  32.35    79.91   66.10   222.85
+          1990  57338.0  57338.0   3016.0   3016.0  28.53    76.94   60.57   198.52
+          2000  62380.0  62380.0   3007.0   3007.0  27.15    75.86   57.19   188.46
+          2010  72243.0  72243.0   3109.0   3109.0  26.60    74.52   53.97   273.59
+          2020  78200.0  78200.0   2945.0   2945.0  26.06    74.48   51.53   169.06
+from_1910 1910   1199.0   1199.0      6.0      6.0  48.60    82.33  432.12  1364.64
+          1920   1838.0   1838.0      6.0      6.0  52.25    77.93   78.29   112.25
+          1930   4027.0   4027.0      6.0      6.0  50.99    77.05  224.41   501.77
+          1940   1521.0   1521.0      6.0      6.0  40.94    81.51   74.34   314.07
+          1950   3385.0   3385.0      6.0      6.0  41.96    65.69  123.21   371.83
+          1960   3240.0   3240.0      6.0      6.0  34.46    58.32   75.90   137.59
+          1970   3301.0   3301.0      6.0      6.0  31.27    55.61  115.10   304.71
+          1980   3419.0   3419.0      6.0      6.0  30.91    54.07  140.12   434.47
+          1990   3665.0   3665.0      6.0      6.0  32.97    52.85  156.65   489.90
+          2000   3669.0   3669.0      6.0      6.0  31.36    52.48  203.88   594.28
+          2010   3575.0   3575.0      6.0      6.0  29.53    49.47  102.57   369.20
+          2020   3654.0   3654.0      6.0      6.0  29.75    49.16  131.83   437.37
+from_1920 1920   2197.0   2197.0      8.0      8.0  53.27    79.23   92.93   147.52
+          1930   4680.0   4680.0      8.0      8.0  51.95    78.82  240.95   628.53
+          1940   1739.0   1739.0      8.0      8.0  40.59    81.43   71.70   288.06
+          1950   4051.0   4051.0      8.0      8.0  43.58    68.37  143.67   468.69
+          1960   3860.0   3860.0      8.0      8.0  35.46    59.86   76.80   173.62
+          1970   3929.0   3929.0      8.0      8.0  32.24    56.37  125.14   300.12
+          1980   4064.0   4064.0      8.0      8.0  31.67    54.41  145.59   405.95
+          1990   4309.0   4309.0      8.0      8.0  33.26    53.31  163.68   489.22
+          2000   4323.0   4323.0      8.0      8.0  31.62    52.99  207.35   574.16
+          2010   4204.0   4204.0      8.0      8.0  29.60    50.23  106.80   436.93
+          2020   4294.0   4294.0      8.0      8.0  30.01    49.90  138.05   424.10
+from_1940 1940   7349.0   7349.0     73.0     73.0  42.62    86.91   89.78   334.80
+          1950  10628.0  10628.0     73.0     73.0  41.88    81.39  109.59   361.08
+          1960  13011.0  13011.0     73.0     73.0  35.64    75.87   63.84   177.26
+          1970  15122.0  15122.0     73.0     73.0  31.66    72.22   83.96   278.25
+          1980  16348.0  16348.0     73.0     73.0  29.79    69.09   91.40   351.08
+          1990  17084.0  17084.0     73.0     73.0  29.09    66.37   85.74   299.32
+          2000  18179.0  18179.0     73.0     73.0  28.51    64.84   90.52   308.71
+          2010  19120.0  19120.0     73.0     73.0  27.86    62.88   68.41   284.02
+          2020  20755.0  20755.0     73.0     73.0  28.00    62.21   77.09   279.11
+from_1960 1960  22042.0  22042.0    295.0    295.0  37.89    82.67   61.46   166.02
+          1970  27954.0  27954.0    295.0    295.0  33.79    79.47   73.52   232.07
+          1980  31327.0  31327.0    295.0    295.0  31.17    76.26   73.76   267.38
+          1990  34091.0  34091.0    295.0    295.0  28.79    74.03   66.30   223.61
+          2000  37934.0  37934.0    295.0    295.0  28.20    73.08   66.98   238.76
+          2010  42304.0  42304.0    295.0    295.0  27.73    71.56   57.46   230.34
+          2020  46280.0  46280.0    295.0    295.0  27.64    70.91   60.02   205.74
+10:46:42 INFO   plot results/validation/conus/Dasy_CONUS_RF_v3_all/mdape_over_time.png
+10:46:42 INFO wrote results/validation/conus/Dasy_CONUS_RF_v3_all
+10:46:42 INFO DONE
+== done 2026-10-29T10:46:42-06:00

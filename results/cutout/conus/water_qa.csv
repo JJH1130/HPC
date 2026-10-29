@@ -6,12 +6,12 @@ study_cells,124576956
 study_uncovered_cells,0
 min,0.0
 max,1.0
-study_mean,0.01112717017531395
-study_share_gt0,0.02196701611492257
-study_share_eq1,0.00620165257529651
+study_mean,0.011127397418022156
+study_share_gt0,0.021967521826428315
+study_share_eq1,0.00620172481979733
 jrc_pixels,18087830173
 jrc_nodata_pixels,368227698
-water_pixels,1443414231
+water_pixels,1443417250
 reservoir_pixels_removed,3848079
 reservoir_pixels_water_1900,4322900
 reservoir_pixels_water_1910,6104318
@@ -25,6 +25,7 @@ reservoir_pixels_water_1980,66061557
 reservoir_pixels_water_1990,69119190
 reservoir_pixels_water_2000,69383852
 reservoir_pixels_water_2010,69390178
+reservoir_pixels_water_2020,69393197
 study_jrc_nodata_mean,0.0
 study_cells_jrc_nodata_gt50,0
 jrc_nodata_share,0.020357759580784847
@@ -40,6 +41,7 @@ study_share_eq1_1980,0.006065206794746213
 study_share_eq1_1990,0.006191249367178309
 study_share_eq1_2000,0.006201475977627837
 study_share_eq1_2010,0.00620165257529651
+study_share_eq1_2020,0.00620172481979733
 Quabbin Reservoir 1920: cells,441
 Quabbin Reservoir 1920: mean,0.0027598501183092594
 Quabbin Reservoir 1920: max,0.2110099494457245

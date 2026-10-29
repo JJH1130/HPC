@@ -1,0 +1,66 @@
+== job 35053421 (dasymetric_predict) on c3cpu-c9-u22 at 2026-10-29T10:23:01-06:00
+== cores=32 gpus=none restart=0
+== git 177600b (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_rf_v3_all.yaml (name=conus version=Dasy_CONUS_RF_v3_all)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  out: /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all  n_jobs: 32  extra args: --years 2020
+10:23:54 INFO arg config = configs/conus_rf_v3_all.yaml
+10:23:54 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+10:23:54 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+10:23:54 INFO arg years = [2020]
+10:23:54 INFO arg map_years = None
+10:23:54 INFO arg compare_years = None
+10:23:54 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census/counties_2020.gpkg
+10:23:54 INFO arg n_jobs = 32
+10:23:54 INFO arg measure = 0
+10:23:54 INFO maps: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020] | side by side with Dasy_CONUS_RF_v3_n60: [2010]
+10:24:08 INFO model rf era Y2020 (/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2020/model/rf.joblib) | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope'] | use_status ['ok', 'filled_nhgis', 'filled_nhgis_alloc']
+10:24:08 INFO 1 years -> /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all
+10:24:31 INFO     2020: dist_built on the whole window in 17.4 s
+10:24:56 INFO     2020 strip 1/23 rows 0-512: 573151 cells | features 22.3 s, RF 1.0 s | 573151/124576670 cells, ETA 91 min
+10:24:59 INFO     2020 strip 2/23 rows 512-1024: 2218506 cells | features 1.2 s, RF 1.8 s | 2791657/124576670 cells, ETA 21 min
+10:25:04 INFO     2020 strip 3/23 rows 1024-1536: 4999567 cells | features 1.3 s, RF 3.5 s | 7791224/124576670 cells, ETA 8 min
+10:25:13 INFO     2020 strip 4/23 rows 1536-2048: 5983383 cells | features 4.3 s, RF 4.8 s | 13774607/124576670 cells, ETA 6 min
+10:25:21 INFO     2020 strip 5/23 rows 2048-2560: 7187612 cells | features 2.5 s, RF 4.7 s | 20962219/124576670 cells, ETA 4 min
+10:25:31 INFO     2020 strip 6/23 rows 2560-3072: 7420650 cells | features 1.6 s, RF 8.0 s | 28382869/124576670 cells, ETA 3 min
+10:25:40 INFO     2020 strip 7/23 rows 3072-3584: 8091247 cells | features 2.0 s, RF 7.4 s | 36474116/124576670 cells, ETA 3 min
+10:25:53 INFO     2020 strip 8/23 rows 3584-4096: 7972362 cells | features 4.1 s, RF 8.6 s | 44446478/124576670 cells, ETA 2 min
+10:26:11 INFO     2020 strip 9/23 rows 4096-4608: 8445502 cells | features 9.8 s, RF 7.3 s | 52891980/124576670 cells, ETA 2 min
+10:26:29 INFO     2020 strip 10/23 rows 4608-5120: 8285319 cells | features 9.4 s, RF 6.2 s | 61177299/124576670 cells, ETA 2 min
+10:26:44 INFO     2020 strip 11/23 rows 5120-5632: 8173308 cells | features 9.7 s, RF 5.4 s | 69350607/124576670 cells, ETA 2 min
+10:26:55 INFO     2020 strip 12/23 rows 5632-6144: 8156398 cells | features 4.8 s, RF 5.5 s | 77507005/124576670 cells, ETA 1 min
+10:27:05 INFO     2020 strip 13/23 rows 6144-6656: 8094490 cells | features 3.5 s, RF 6.5 s | 85601495/124576670 cells, ETA 1 min
+10:27:24 INFO     2020 strip 14/23 rows 6656-7168: 7681672 cells | features 10.7 s, RF 6.1 s | 93283167/124576670 cells, ETA 1 min
+10:27:33 INFO     2020 strip 15/23 rows 7168-7680: 7237449 cells | features 1.7 s, RF 6.7 s | 100520616/124576670 cells, ETA 1 min
+10:27:40 INFO     2020 strip 16/23 rows 7680-8192: 6486171 cells | features 1.8 s, RF 5.2 s | 107006787/124576670 cells, ETA 1 min
+10:27:51 INFO     2020 strip 17/23 rows 8192-8704: 5746071 cells | features 6.1 s, RF 4.6 s | 112752858/124576670 cells, ETA 0 min
+10:27:59 INFO     2020 strip 18/23 rows 8704-9216: 4714797 cells | features 3.8 s, RF 3.9 s | 117467655/124576670 cells, ETA 0 min
+10:28:03 INFO     2020 strip 19/23 rows 9216-9728: 3605063 cells | features 1.5 s, RF 2.8 s | 121072718/124576670 cells, ETA 0 min
+10:28:07 INFO     2020 strip 20/23 rows 9728-10240: 1767121 cells | features 2.3 s, RF 1.4 s | 122839839/124576670 cells, ETA 0 min
+10:28:09 INFO     2020 strip 21/23 rows 10240-10752: 1064229 cells | features 1.2 s, RF 0.8 s | 123904068/124576670 cells, ETA 0 min
+10:28:12 INFO     2020 strip 22/23 rows 10752-11264: 618690 cells | features 1.9 s, RF 0.5 s | 124522758/124576670 cells, ETA 0 min
+10:28:15 INFO     2020 strip 23/23 rows 11264-11615: 53912 cells | features 2.9 s, RF 0.1 s | 124576670/124576670 cells, ETA 0 min
+10:28:41 INFO   2020 (Y2020): 3108 counties, 124576670 cells (771938 masked) | y_hat -1.159..9.582 | pop 329260619 -> cells 329260619 | cell max 7142.0 | max rel diff 7.14e-09 | bad cells 0
+10:28:41 INFO   2020: 4.2 min
+10:29:32 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/maps/pop_2020.png
+10:29:33 INFO --years: reallocation_qa.csv keeps 36705 rows of years [np.int64(1900), np.int64(1910), np.int64(1920), np.int64(1930), np.int64(1940), np.int64(1950), np.int64(1960), np.int64(1970), np.int64(1980), np.int64(1990), np.int64(2000), np.int64(2010)]
+10:29:33 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/qa/reallocation_qa.csv
+10:29:33 INFO mass check by year (tolerance 1e-06):
+      county_years  max_rel_diff  fail
+year                                  
+1900          2815  8.256208e-09     0
+1910          2940  7.175075e-09     0
+1920          3056  5.761747e-09     0
+1930          3087  8.225249e-09     0
+1940          3087  6.545088e-09     0
+1950          3091  1.008934e-08     0
+1960          3095  5.567933e-09     0
+1970          3103  5.178237e-09     0
+1980          3106  5.531643e-09     0
+1990          3108  5.788253e-09     0
+2000          3108  5.477253e-09     0
+2010          3109  6.513262e-09     0
+2020          3108  7.138124e-09     0
+10:29:33 INFO mass check: 39813 county-years, max rel diff 1.01e-08 (tolerance 1e-06), 0 fail | bad cells 0
+10:29:33 INFO DONE
+== done 2026-10-29T10:29:33-06:00
+4.7G	/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions
