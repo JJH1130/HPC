@@ -1,4 +1,4 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time and the HISDAC record uncertainty
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty and the uncertainty filter
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
 layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), `configs/external_grids.yaml`
@@ -23,7 +23,8 @@ Section 7 ran 2026-10-28 (jobs 34961482-34961489). Next: section 8 (external pro
 the laptop, no job needed), section 10 (2020 added to v3_all: pre-check, then `submit_conus.sh y2020`), section 11
 (HISDAC record uncertainty: download, then `submit_conus.sh uncertainty`). Sections 8, 10 and 11 are independent.
 Section 10 ran 2026-10-29 (jobs 35053415-35053424). Section 11 block 1 ran 2026-10-29: `BUPR_contemp.tif` is not in the
-Dataverse archive; the job now runs without it (NobuiltYear only): blocks 2-3, written 2026-10-30, not run yet.
+Dataverse archive; the job runs without it (NobuiltYear only; job 35056349, 2026-10-29). Written 2026-10-30, not run
+yet: section 12 (uncertainty filter, `submit_conus.sh uncfilter`).
 
 ## Inputs / outputs
 
@@ -1087,6 +1088,80 @@ What to look for in the log: `BUPR_contemp not found` (expected now), the grid l
 With contemp also: the cell check (d == NobuiltYear share, d < 0 cells, `cells_a_*`), counties with contemp <
 BUPR_2015, `ratio_A_contemp vs ratio_A_nby`.
 
+## 12. Uncertainty filter sensitivity: u090 / u070 / u050 vs v5.4 (2026-10-30)
+
+Counties with unreliable HISDAC records left out of training and testing, allocated by the model of the others
+(`docs/conus_plan.md`, "Uncertainty filter"). Three thresholds on `ratio_A_nby` (0.9 / 0.7 / 0.5) plus two fixed rules
+(records / area missing), 1920 / 1960 / 2010 / 2020, compared with v5.4 on the same county sets. Needs the results of
+section 11 (`results/hisdac_uncertainty/county_record_uncertainty.csv`, in git) and v5.4 (section 5 + 10).
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| uncertainty_filter | 1 core, 30 min wall | BUI_2015 county sums, the three rules -> `results/hisdac_uncertainty/excluded_counties_t{090,070,050}.csv` + summaries | a few minutes |
+| features (x3) | 6 cores, 45 min | county features of the 4 years (same as v5.4's) | ~6 min each |
+| train (x3) | 16 cores, 2 h | per year: search (60) + fit without the excluded counties, TEST score, `excluded_predictions.csv` | ~35 min each |
+| predict (x3) | 32 cores, 1 h | allocation of every county (excluded ones included), map 2010 | ~16 min each |
+| validate (x3) | 8 cores, 1 h | tracts 1920 / 1960 / 2010 / 2020 | ~5 min each |
+| filter_compare | 1 core, 15 min | `results/validation/conus/uncertainty_filter/` + the rule line | < 1 min |
+
+The three versions run side by side; the whole chain ~1-1.5 h after the jobs start (estimates). Override a wall time:
+`FILTER_TIME`, `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh uncfilter
+squeue -u $USER
+echo "== end of block 1"
+```
+
+Good: `PRECHECK: 0 missing ...`, then one line `uncertainty_filter N | u090 features ... | ... | filter_compare N` (also in
+`logs/conus_uncfilter_jobs.txt`), 14 jobs in `squeue`, `== end of block 1`. `MISSING ...` + `ERROR: nothing
+submitted`: send the output to Claude (nothing was submitted).
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_uncfilter_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+f=$(ls -t logs/uncertainty_filter.*.out 2>/dev/null | head -1); [[ -n $f ]] && grep -E "records rule|area rule|NOTE|t = 0" "$f"
+echo "== end of block 2"
+```
+
+Good: states `PENDING` / `RUNNING` / `COMPLETED`, and once the first job is done its lines (`records rule: median ...`,
+`area rule: ...`, the even / odd `NOTE`, one `t = 0.x` line per threshold) and `== end of block 2`. A `FAILED` job:
+the later ones stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and send the log to Claude.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_uncfilter_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_uncfilter_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_uncfilter_seff.txt
+cat logs/conus_uncfilter_sacct.txt
+grep -h "RULE RESULT" logs/filter_compare.*.out | tail -1
+git add logs/ results/
+git commit -m "run: uncertainty filter u090 / u070 / u050 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: every job `COMPLETED`, one `RULE RESULT: ...` line (the rule's pick; the decision is yours), `git push` ends with
+`main -> main`, `== end of block 3`.
+
+What to look for in the logs: `uncertainty_filter` (rule medians, counties per rule, pop kept, sets nested: True),
+`train` (`exclude_counties: N rows left out ...`, CV / TEST vs v5.4 on the same rows, `excluded counties ... RMSE`),
+`predict` (mass preserved as before), `filter_compare` (the (a) / (b) set sizes per year, MdAPE table, selection, `DONE`).
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1112,6 +1187,8 @@ BUPR_2015, `ratio_A_contemp vs ratio_A_nby`.
 | y2020: a job failed | the later ones never start (`DependencyNeverSatisfied`): `scancel` them, send the log. Reruns are safe: `--years 2020` touches only 2020 (the other years' rows of the QA / summary CSVs are kept), water and validation are deterministic |
 | y2020: `REPRO DIFFERS` | commit anyway and tell Claude: something changed an old year's file (the run itself only adds 2020) |
 | uncertainty: download `ERROR` (403, md5) | send `logs/hisdac_extra_download.txt`; a rerun resumes the archive download (`curl -C -`) and skips a checked tif |
+| uncfilter: `train` stops with `exclude_counties ... not found` | the `uncertainty_filter` job failed or wrote elsewhere: send its log; rerun the chain after the fix (the features jobs can stay) |
+| uncfilter: `filter_compare` stops with `... counties missing` or `excluded counties in its TEST predictions` | a version's results are incomplete or old (e.g. a train run before the sets changed): send the log; nothing is chosen |
 | uncertainty: log ends `DONE (NobuiltYear value distribution only)` | not a failure: NobuiltYear is a 0/1 flag and contemp is missing, so no ratio exists; commit as block 3 and tell Claude (the next step waits for contemp from Stefan) |
 | all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |
 | ntl: `ntl_qa` `FAILED` with `no cell with DN >= 60 in the box` | the fixed DN rule (known since Massachusetts 2026-10-06, change on hold); nothing waits for it: send the log with the others |

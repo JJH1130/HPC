@@ -33,6 +33,10 @@ test_predictions.csv (+ the compare_with version's test predictions on the same 
 `train_status` (optional): only rows with these statuses enter training and the test score (CONUS: ok +
 filled_nhgis; filled_nhgis_alloc counties, whose NHGIS unit differs in area from the 2010 polygon, are allocated
 only).
+`exclude_counties: <csv>` (optional; CONUS uncertainty filter, docs/conus_plan.md "Uncertainty filter"): the GISJOINs
+of that table are left out of the search, the refit and the test score in every era (the split table and its folds
+stay as they are; only those rows drop out). predict.py still allocates them (imputation by the model of the other
+counties); excluded_predictions.csv holds the model's prediction for them (+ their split part).
 """
 from __future__ import annotations
 
@@ -288,7 +292,20 @@ def shap_explain(model, X: pd.DataFrame, df: pd.DataFrame, pred: np.ndarray, cfg
 
 # ---------------------------------------------------------------- main
 
-def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
+def load_exclusions(cfg: dict):
+    """The GISJOIN set of `exclude_counties` (uncertainty filter), or None."""
+    path = cfg.get("exclude_counties")
+    if not path:
+        return None
+    if not path.exists():
+        sys.exit(f"ERROR: exclude_counties {path} not found (src/grid/uncertainty_filter.py writes it)")
+    ex = pd.read_csv(path, dtype={"GISJOIN": str})
+    reasons = ex["reasons"].value_counts().to_dict() if "reasons" in ex else {}
+    log.info("exclude_counties %s: %d counties %s", path, ex["GISJOIN"].nunique(), reasons)
+    return set(ex["GISJOIN"])
+
+
+def train_era(cfg: dict, era: str, args, all_folds, split=None, ex_set=None) -> dict:
     out = out_dir(cfg, args.out_root, era)
     feats = cfg["eras"][era]["features"]
     tag = f"era {era}: " if era else ""
@@ -312,6 +329,13 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
                      int((~keep).sum()), cfg["train_status"],
                      list(zip(df.loc[~keep, "GISJOIN"], df.loc[~keep, "name"], df.loc[~keep, "status"])))
         df = df[keep].reset_index(drop=True)
+    excluded = None
+    if ex_set is not None:  # uncertainty filter: out of search, fit and test; predicted below
+        drop = df["GISJOIN"].isin(ex_set)
+        excluded = df[drop].reset_index(drop=True)
+        df = df[~drop].reset_index(drop=True)
+        log.info("%sexclude_counties: %d rows left out of the search, the fit and the test score (%d of the %d listed "
+                 "counties have a row here)", tag, len(excluded), excluded["GISJOIN"].nunique(), len(ex_set))
     if split is not None:  # CONUS: tune and fit on the train counties only; test counties scored once at the end
         part = df["GISJOIN"].map(dict(zip(split["GISJOIN"], split["part"])))
         if part.isna().any():
@@ -405,6 +429,17 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
                      metrics["test_rmse"], metrics["test_r2"])
         else:
             log.warning("%sno test rows in this era", tag)
+    if excluded is not None:  # imputation check: the model's prediction for the counties it never saw
+        ex = excluded[["GISJOIN", "state", "name", "year", "y"]].copy()
+        ex["y_hat"] = model.predict(excluded[feats]) if len(excluded) else []
+        ex["part"] = ex["GISJOIN"].map(dict(zip(split["GISJOIN"], split["part"]))) if split is not None else None
+        ex.to_csv(mdir / "excluded_predictions.csv", index=False)
+        metrics["n_excluded_rows"] = len(ex)
+        if len(ex):
+            metrics.update({"excluded_rmse": float(root_mean_squared_error(ex["y"], ex["y_hat"])),
+                            "excluded_r2": float(r2_score(ex["y"], ex["y_hat"])) if len(ex) > 1 else None})
+            log.info("%sexcluded counties (never trained on, %d rows; %s): RMSE %.4f", tag, len(ex),
+                     ex["part"].value_counts().to_dict(), metrics["excluded_rmse"])
 
     p = cfg["permutation"]
     perm = permutation_importance(model, X, y, scoring=s["scoring"], n_repeats=p["n_repeats"],
@@ -451,6 +486,8 @@ def train_era(cfg: dict, era: str, args, all_folds, split=None) -> dict:
     if "test_rmse" in metrics:
         row.update({"n_test_rows": metrics["n_test_rows"], "test_rmse": metrics["test_rmse"],
                     "test_r2": metrics["test_r2"]})
+    if excluded is not None:
+        row.update({"n_excluded_rows": len(excluded), "excluded_rmse": metrics.get("excluded_rmse")})
     if prev_test:
         row.update({f"{prev_test['version']}_test_rmse": prev_test["test_rmse"],
                     f"{prev_test['version']}_test_r2": prev_test["test_r2"]})
@@ -481,7 +518,8 @@ def main(argv=None):
         all_folds = load_folds(cfg, args.out_root)
     eras = year_filter(cfg, args.years)
     log.info("eras: %s", list(eras))
-    rows = [train_era(cfg, era, args, all_folds, split) for era in eras]
+    ex_set = load_exclusions(cfg)
+    rows = [train_era(cfg, era, args, all_folds, split, ex_set) for era in eras]
     if len(rows) > 1 or rows[0]["era"]:
         summary = pd.DataFrame(rows)
         path = out_dir(cfg, args.out_root) / "cv_summary.csv"

@@ -75,6 +75,7 @@ _plots.read_states = lambda *a, **k: None
 sys.modules["plots"] = _plots
 
 import geopandas as gpd  # noqa: E402
+import joblib  # noqa: E402
 import rasterio  # noqa: E402
 import yaml  # noqa: E402
 from affine import Affine  # noqa: E402
@@ -956,7 +957,73 @@ def test_ntlv():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_exclude_counties():
+    """Uncertainty filter (configs/conus_rf_v3_u*.yaml): exclude_counties out of search / fit / TEST in every era,
+    split folds unchanged for the rest, excluded_predictions.csv, predict still allocates them with mass kept."""
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        counties = county_table()
+        cut, zones = make_cutout(tmp, counties)
+        split = make_split.make_split(counties[["GISJOIN", "fips", "state", "name"]], 0.2, 5, 42)
+        split_path = tmp / "split.csv"
+        split.to_csv(split_path, index=False)
+        cfgs = write_configs(tmp, split_path)
+        # 3 train + 2 test counties excluded (one of them the trained filled_nhgis county of 2010)
+        tr_ids = split.loc[split["part"] == "train", "GISJOIN"].tolist()
+        te_ids = split.loc[split["part"] == "test", "GISJOIN"].tolist()
+        fill = counties.loc[counties["zone_id"] == TRAINED_FILL[2010], "GISJOIN"].iloc[0]
+        ex_ids = sorted({tr_ids[0], tr_ids[5], fill, te_ids[0], te_ids[3]})
+        ex_path = tmp / "excluded.csv"
+        pd.DataFrame({"GISJOIN": ex_ids, "reasons": "ratio"}).to_csv(ex_path, index=False)
+        base = yaml.safe_load(cfgs["blocks"].read_text())
+        cfg_ex = tmp / "configs" / "ex.yaml"
+        cfg_ex.write_text(yaml.safe_dump({**base, "version": "ex", "exclude_counties": str(ex_path)}))
+        out_root = tmp / "dasym"
+        common = ["--out-root", str(out_root)]
+        for v, c in (("blocks", cfgs["blocks"]), ("ex", cfg_ex)):
+            county_features.main(["--config", str(c), "--cutout-root", str(tmp / "cutouts")] + common)
+            train.main(["--config", str(c), "--n-jobs", "1"] + common)
+            predict.main(["--config", str(c), "--cutout-root", str(tmp / "cutouts"), "--n-jobs", "2"] + common)
+        want_fold = split.set_index("GISJOIN")["fold"]
+        part = split.set_index("GISJOIN")["part"]
+        for y in YEARS:
+            m = out_root / "conus" / "ex" / f"Y{y}" / "model"
+            mb = out_root / "conus" / "blocks" / f"Y{y}" / "model"
+            oof, tp = pd.read_csv(m / "oof_predictions.csv"), pd.read_csv(m / "test_predictions.csv")
+            folds, ex = pd.read_csv(m / "folds.csv"), pd.read_csv(m / "excluded_predictions.csv")
+            assert not (set(oof["GISJOIN"]) | set(tp["GISJOIN"]) | set(folds["GISJOIN"])) & set(ex_ids)
+            # the others are the same rows as without the filter, with the same folds
+            ob, tb = pd.read_csv(mb / "oof_predictions.csv"), pd.read_csv(mb / "test_predictions.csv")
+            assert set(oof["GISJOIN"]) == set(ob["GISJOIN"]) - set(ex_ids)
+            assert set(tp["GISJOIN"]) == set(tb["GISJOIN"]) - set(ex_ids)
+            assert (folds.set_index("GISJOIN")["fold"] == want_fold.loc[folds["GISJOIN"]]).all()
+            # excluded predictions: every excluded county with a training-status row this year, split part kept
+            cf = pd.read_csv(out_root / "conus" / "ex" / f"Y{y}" / "features" / "county_features.csv")
+            have = set(cf.loc[cf["status"].isin(["ok", "filled_nhgis"]), "GISJOIN"]) & set(ex_ids)
+            assert set(ex["GISJOIN"]) == have and (ex["part"] == part.loc[ex["GISJOIN"]].to_numpy()).all()
+            bundle = joblib.load(m / "rf.joblib")
+            rows = cf.set_index("GISJOIN").loc[ex["GISJOIN"], bundle["features"]]
+            assert np.allclose(ex["y_hat"], bundle["model"].predict(rows))
+            met = json.loads((m / "metrics.json").read_text())
+            assert met["n_excluded_rows"] == len(ex) and met["n_rows"] == len(oof)
+            # predict: excluded counties allocated, mass preserved
+            a = read(out_root / "conus" / "ex" / "predictions" / f"pop_{y}.tif")
+            zt = pd.read_csv(cut / "zones" / f"zones_{y}.csv")
+            sums = np.bincount(zones[a >= 0], weights=a[a >= 0].astype("float64"), minlength=49)
+            ok = zt[zt["status"].isin(["ok", "filled_nhgis", "filled_nhgis_alloc"])]
+            assert np.allclose(sums[ok["zone_id"]], ok["pop"], rtol=1e-6)
+            exz = zt.loc[zt["GISJOIN"].isin(ex_ids) & zt["status"].isin(["ok", "filled_nhgis"]), "zone_id"]
+            assert len(exz) and (sums[exz] > 0).all()
+        summ = pd.read_csv(out_root / "conus" / "ex" / "cv_summary.csv")
+        assert "n_excluded_rows" in summ and (summ["n_excluded_rows"] > 0).all()
+        print("ok exclude_counties: out of search / fit / TEST, folds unchanged, excluded_predictions = model, "
+              "allocated with mass preserved")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
+    test_exclude_counties()
     test_conus_counties()
     test_ntl()
     test_ntlv()

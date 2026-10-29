@@ -3,7 +3,7 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-30 (record uncertainty without BUPR_contemp: ratio_A_nby from NobuiltYear); 2026-10-30 (metrics over time: county MdAPE + fixed tract sets, result 1900-2010; 2020 code; HISDAC record uncertainty code; map label fix); 2026-10-28 (external comparison code: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz vs v5.4 on tracts); 2026-10-28 (VIIRS-like NTL test code)
+Last updated: 2026-10-30 (uncertainty filter code: exclusion sets t = 0.9 / 0.7 / 0.5 + fixed rules, u090 / u070 / u050, comparison + fixed selection rule); 2026-10-30 (record uncertainty without BUPR_contemp: ratio_A_nby from NobuiltYear); 2026-10-30 (metrics over time: county MdAPE + fixed tract sets, result 1900-2010; 2020 code; HISDAC record uncertainty code; map label fix); 2026-10-28 (external comparison code: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz vs v5.4 on tracts); 2026-10-28 (VIIRS-like NTL test code)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
 `configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
@@ -671,6 +671,24 @@ thresholds and the selection rule are decided by the user from the tables, then 
 - Caveat: NobuiltYear values are far more often even than odd (1: 8.3 M cells, 2: 5.3 M, 3: 1.6 M, 4: 1.8 M, 5: 0.7 M, 6:
   0.9 M, ...): possibly records counted twice (e.g. the same building from two sources). If so the ratios are too high.
   To ask Stefan, together with where `BUPR_contemp` is.
+
+## Uncertainty filter (request 2026-10-30, `docs/handoff/uncertainty_filter_request.md`; run steps `docs/runbooks/Running_CONUS.md`, section 12)
+
+Meeting 2026-10-28 item 4 (Stefan): counties with unreliable records are left out of training and testing; the model
+of the clean counties allocates their population (imputation). The threshold is chosen by a sensitivity run on
+county sets, not on tracts.
+
+| Topic | Decision |
+|---|---|
+| County sets | One fixed set per threshold on the 2010 polygons, the same for every year (`src/grid/uncertainty_filter.py`, job `uncertainty_filter.sh`). Excluded if any of: **ratio** `ratio_A_nby >= t` (t = 0.9 / 0.7 / 0.5; `county_record_uncertainty.csv`); **records** (BUPR_2015 + NobuiltYear) / pop_2010 < 5 % of the national median (median over counties with 2010 pop; ~1.37 per person by eye from the 2010 features, ~3 counties, e.g. DuPage IL, Otero); **area** BUI_2015 / BUPR_2015 (county sums) < 5 % of the median (~1,600 sq ft per dated record by eye; ~37 counties, e.g. Tehama CA, Codington SD). The two fixed rules are not tuned and apply at every t. No 2010 pop / no BUPR_2015 -> no value for that rule (counted). BUI_2015 = raw HISDAC layer summed on the 2010 zones (the cutout has census years only); cells above the BUI cap (3e7) are counted, not changed (an outlier raises BUI per record and cannot exclude a county) |
+| Outputs | `results/hisdac_uncertainty/excluded_counties_t{090,070,050}.csv` (GISJOIN, state, name, split part, the three values, `reason_ratio` / `_records` / `_area`, `reasons`, pop_2010, gap_2010), `county_filter_inputs.csv`, `filter_summary.csv` (per t: excluded by reason, fixed rules only, kept, pop share kept 1920 / 1960 / 2010 / 2020, train / test excluded and kept, gap counties excluded), `filter_by_state.csv`. Sets are nested (logged) |
+| NobuiltYear even / odd | Far more even than odd values (possible double counting): logged as one NOTE line, used as it is (not corrected) |
+| Models | `Dasy_CONUS_RF_v3_u090`, `_u070`, `_u050` (`configs/conus_rf_v3_u*.yaml`): v5.4's features, RF, search space, 60 candidates, split table and folds; `exclude_counties: <csv>` (read by `train.py` only) drops those rows from the search, the refit and the TEST score in every era (the other rows keep their split part and fold); hyperparameters searched again per year. `excluded_predictions.csv` per era = the model's y_hat for the excluded rows (+ split part). `predict.py` allocates every county as before (excluded = imputation), mass preserved. Years 1920 / 1960 / 2010 / 2020; the chosen t is run for all years later. `compare_with: Dasy_CONUS_RF_v3_all` (CV / TEST of v5.4 on the same rows) |
+| No filter | v5.4 (`Dasy_CONUS_RF_v3_all`) as it is, not rerun |
+| Evaluation | `src/validation/filter_compare.py` (job `filter_compare.sh`, also runs locally) -> `results/validation/conus/uncertainty_filter/filter_comparison.csv` (version x year x set), `filter_selection.csv`, `filter_comparison.png`. County level before allocation (exp(y_hat) x the target's area_km2 vs census, as `metrics_over_time.py`; MdAPE, MAPE over pop >= 10, R2 of log density, counties): **(a) common TEST** = v5.4's TEST counties not excluded at t = 0.5 (every model scored them as TEST); **(b) imputed TEST** = TEST counties excluded at t = 0.9 (no model trained on them; v5.4 from `test_predictions.csv`, the filtered models from `excluded_predictions.csv`); each filtered model's own excluded set (sets differ; shown, not compared). Tract level (not used for the choice): all, gap / no_gap, kept / excluded tracts of each t (by `zone_gisjoin`), areal weighting |
+| **Selection rule (fixed 2026-10-30, before any result)** | Per model the mean over 1920 / 1960 / 2010 / 2020 of (MdAPE (a) + MdAPE (b)) / 2; the lowest wins; models within 1 percentage point of it count as equal and the one keeping more counties wins (no filter > 0.9 > 0.7 > 0.5). Every year needed. Logged as one `RULE RESULT` line; **the final decision is the user's** |
+| Chain | `bash sbatch/submit_conus.sh uncfilter`: pre-check of the inputs, `uncertainty_filter` + the three features jobs at once, then per version train (after its features and the sets) -> predict -> validate (1920 / 1960 / 2010 / 2020, `--gap-share 0.05`), the three versions side by side; `filter_compare` after the three validations |
+| Tests | `tests/test_uncertainty_filter.py` (sets, rules, summary; common / imputed sets, metrics, rule with the tie, a leak stops the run), `tests/test_conus_dasymetric.py` `test_exclude_counties` (out of search / fit / TEST, folds kept, excluded predictions = the model, allocated with mass preserved) |
 
 ## BUI outliers (bui_qa, job 34921582)
 

@@ -44,7 +44,16 @@ login node) measures the HISDAC records without a built year per 2010 county (`r
 contemp, only with contemp - not in the Dataverse BUPR.tar, asked of Stefan; `ratio_A_nby` = NobuiltYear / (BUPR_2015 +
 NobuiltYear) (+ `_2020`); `ratio_B_<year>` = NobuiltYear / (BUPR_year + NobuiltYear); both A ratios -> `a_compare.csv`;
 no contemp + a 0/1 NobuiltYear = value distribution only, exit 0), vs the BUI gap counties, and threshold tables per
-ratio (column `measure`) -> `results/hisdac_uncertainty/` (diagnosis only). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+ratio (column `measure`) -> `results/hisdac_uncertainty/` (diagnosis only);
+`src/grid/uncertainty_filter.py` (`sbatch/uncertainty_filter.sh`) turns that table + the BUI_2015 county sums into one fixed
+exclusion set per threshold (`ratio_A_nby >= t`, t = 0.9 / 0.7 / 0.5, or the fixed records / area rules at 5 % of the
+median) -> `results/hisdac_uncertainty/excluded_counties_t{090,070,050}.csv` + summaries, used by
+`configs/conus_rf_v3_u{090,070,050}.yaml` (v5.4 settings, 1920 / 1960 / 2010 / 2020, `exclude_counties:` = out of search,
+fit and TEST in `train.py`, which writes `excluded_predictions.csv`; still allocated by `predict.py`);
+`src/validation/filter_compare.py` (`sbatch/filter_compare.sh`; also runs locally) compares v5.4 and the three on the
+common TEST counties (a), the TEST counties excluded at 0.9 (b, imputed) and tract parts, with the selection rule fixed
+before the results (lowest mean of (a) and (b); within 1 pp the one keeping more counties; the user decides) ->
+`results/validation/conus/uncertainty_filter/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -82,7 +91,8 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty` (`y2020` =
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
+`filter_compare`; `y2020` =
 2020 added to `Dasy_CONUS_RF_v3_all` as era Y2020 with `--years 2020`, after `sbatch/y2020_precheck.sh`; with `--years`,
 `county_features` / `train` / `predict` keep the other years' rows of `water_mask_by_year.csv` / `cv_summary.csv` /
 `reallocation_qa.csv`; stage scripts take `CONFIG=`,
@@ -109,7 +119,10 @@ one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_
 pixel intersection, nodata / outside tracts left out, extract -> evaluate: product, v5.4 and areal weighting metrics on
 the kept subset = by hand, a missing product = `missing` row, path resolution), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county ratio_A_contemp /
 ratio_A_nby / ratio_B, A compare, cell checks, thresholds, gap overlap, strips = one strip; contemp + 0/1 NobuiltYear;
-no contemp + NobuiltYear counts = same NobuiltYear ratios; no contemp + 0/1 = value distribution only, exit 0), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+no contemp + NobuiltYear counts = same NobuiltYear ratios; no contemp + 0/1 = value distribution only, exit 0),
+`python tests/test_uncertainty_filter.py` (exclusion sets: BUI sums, fixed rules, nested sets, reasons, summary, strips;
+filter_compare: common / imputed TEST sets, metrics by hand, tract parts, the rule with the 1 pp tie, a leak stops the
+run; `exclude_counties` in train / predict: `test_conus_dasymetric.test_exclude_counties`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:

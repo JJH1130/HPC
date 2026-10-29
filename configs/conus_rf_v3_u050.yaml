@@ -1,0 +1,67 @@
+# Dasy_CONUS_RF_v3_u050 (docs/conus_plan.md "Uncertainty filter"; request docs/handoff/uncertainty_filter_request.md):
+# v5.4 (= Dasy_CONUS_RF_v3_all: RF, v3 features, search space, 60 candidates, split table and folds) with the counties
+# of results/hisdac_uncertainty/excluded_counties_t050.csv left out of the search, the fit and the TEST score (ratio_A_nby
+# >= 0.5, or the fixed records / area rules; src/grid/uncertainty_filter.py). Hyperparameters searched again per year on
+# the remaining counties. Prediction and allocation cover every county as in v5.4 (excluded ones = imputation).
+# Years 1920 / 1960 / 2010 / 2020 (the chosen threshold is run for all years later). No-filter reference = v5.4 as it
+# is (not rerun). Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_u050/
+version: Dasy_CONUS_RF_v3_u050
+
+study_area: configs/conus_study_area.yaml
+years: [1920, 1960, 2010, 2020]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3_all
+
+split: configs/conus_split.csv
+exclude_counties: results/hisdac_uncertainty/excluded_counties_t050.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+eras:
+  Y1920:
+    years: [1920]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y2020:
+    years: [2020]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+
+maps:
+  years: [2010]
+  compare_years: [2010]   # side by side with v5.4
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 60   # as v3_all
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:        # sklearn.ensemble.RandomForestRegressor
+    fixed: {random_state: 42}
+    space:
+      n_estimators: {dist: randint, low: 200, high: 1000}
+      max_depth: [null, 5, 10, 15, 20, 30]
+      min_samples_leaf: {dist: randint, low: 1, high: 10}
+      max_features: [sqrt, 0.33, 0.5, 0.75, 1.0]

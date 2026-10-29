@@ -39,6 +39,9 @@
 #                                       # summary_by_year + figure, and metrics_over_time (county MdAPE, fixed sets)
 #   bash sbatch/submit_conus.sh uncertainty  # HISDAC record uncertainty (record_uncertainty.sh); BUPR_contemp
 #                                       # optional (NobuiltYear only without it); independent of the other modes
+#   bash sbatch/submit_conus.sh uncfilter    # uncertainty filter: exclusion sets (uncertainty_filter.sh), then
+#                                       # Dasy_CONUS_RF_v3_u090 / u070 / u050 side by side (features, train, predict,
+#                                       # validate; 1920 / 1960 / 2010 / 2020), then filter_compare.sh vs v5.4
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -62,10 +65,12 @@
 # versions); wall times as ntl.
 # y2020: from v3_all (12 years: features 16 min, train 1:37, predict 47 min, validate 12 min, water 14 min) for one
 # year ~1/12 of features / train / predict; water and validate run all years again (validate: 12 years, 2 h wall).
+# uncfilter: 4 of v3_all's 12 years per version: features ~6 min, train ~35 min (fewer rows), predict ~16 min,
+# validate ~5 min (estimates); wall times ~3-4 x. Three versions run at the same time.
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -367,6 +372,42 @@ elif [[ $mode == y2020 ]]; then
     jm=$(sub "$jv" sbatch/metrics_over_time.sh --version $V)
     echo "census_conus $jc | grid_cutout $jg | bui_fix $jb | water_frac $jw | features $jf | train $jt | predict $jp | validate $jv | summary $js | metrics_over_time $jm" \
         | tee logs/conus_y2020_jobs.txt
+elif [[ $mode == uncfilter ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    YRS="1920 1960 2010 2020"
+    BASE=Dasy_CONUS_RF_v3_all
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    U=results/hisdac_uncertainty
+    miss=()  # everything is checked before anything is submitted
+    for f in $U/county_record_uncertainty.csv $U/nobuilt_values.csv $HISDAC_DIR/BUI/2015_BUI.tif $CUT/window.json \
+             $CUT/layers/DEM/DEM.tif $CUT/zones/zones_2010.csv $D/$BASE/predictions/pop_2010.tif; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    for y in $YRS; do
+        for f in $CUT/zones/zones_$y.tif $CUT/layers/BUI/${y}_BUI.tif $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $DATA_ROOT/processed/tract/tracts_$y.gpkg $D/$BASE/Y$y/model/oof_predictions.csv \
+                 results/dasymetric/conus/$BASE/Y$y/test_predictions.csv results/dasymetric/conus/$BASE/Y$y/county_features.csv \
+                 results/validation/conus/$BASE/tract_errors_$y.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (record uncertainty, BUI 2015, cutout $YRS, tracts, v5.4 outputs)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    jx=$(sub "" --time=${FILTER_TIME:-00:30:00} sbatch/uncertainty_filter.sh)
+    ids="" after=""
+    for t in 090 070 050; do  # three versions side by side; train waits for the exclusion sets
+        C=configs/conus_rf_v3_u$t.yaml
+        f=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-00:45:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+        tr=$(sub "$f $jx" --ntasks=16 --time=${TRAIN_TIME:-02:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+        p=$(sub "$tr" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+        q=$(sub "$p" --ntasks=8 --time=${VALIDATE_TIME:-01:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+            --version Dasy_CONUS_RF_v3_u$t --years $YRS $VAL)
+        ids="$ids | u$t features $f train $tr predict $p validate $q"
+        after="$after $q"
+    done
+    jc=$(sub "${after# }" sbatch/filter_compare.sh)
+    echo "uncertainty_filter $jx$ids | filter_compare $jc" | tee logs/conus_uncfilter_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

@@ -86,6 +86,8 @@ def load_config(path: Path) -> dict:
             sys.exit(f"ERROR: {path}: years {extra} are not study years of {study_path}")
         cfg["years"] = own
     cfg["split"] = resolve_repo_path(cfg.get("split"), path)
+    # uncertainty filter: a CSV with a GISJOIN column, read by train.py only (features / predict run without it)
+    cfg["exclude_counties"] = resolve_repo_path(cfg.get("exclude_counties"), path)
     if cfg["split"] and cfg.get("folds_from"):
         sys.exit(f"ERROR: {path}: give either `split` or `folds_from`, not both")
     cfg["unusable"] = str(cfg.get("unusable", "stop")).lower()
