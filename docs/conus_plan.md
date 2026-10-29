@@ -510,6 +510,34 @@ licenses, US input units: `docs/data_sources.md` ("External gridded population p
 | Interpretation | products with input units finer than tracts (likely GPW / GHS-POP / WorldPop in 2000 / 2010, if US blocks or block groups) start from near-correct tract totals; only Fang & Jawitz has county input like v5.4. Read the table by input unit, and F&J 2000 as not independent (their M3-M5 used 2000 tracts) |
 | Env | `exactextract`, `py7zr` (the F&J archive; no 7z on Alpine, and `p7zip` has no Windows build for the laptop env), `openpyxl` (GPW country summary) added to `envs/hisdac/environment.yml` |
 
+## External comparison result (jobs 35052315-35052319, run 2026-10-30)
+
+All 5 jobs COMPLETED (minutes each). GPW v4.11 and GRUMP v1 skipped (Earthdata login failed; `missing` rows).
+`results/validation/conus/external/external_comparison.csv`, figure `external_mdape_by_year.png`. Each product is
+compared with v5.4 and areal weighting on the tracts it covers without nodata.
+
+Tract MdAPE (%), product vs v5.4 on the same tracts:
+
+| Year | GHS-POP | WorldPop | Fang & Jawitz M3 / M5 | v5.4 (same tracts as F&J) | Areal weighting |
+|---|---|---|---|---|---|
+| 1910 | - | - | 84.5 / 81.3 | 52.7 / 53.1 | 83.3 |
+| 1930 | - | - | 84.7 / 83.6 | 48.0 / 47.8 | 81.1 |
+| 1950 | - | - | 76.8 / 75.2 | 41.0 / 40.8 | 83.1 |
+| 1970 | - | - | 61.5 / 60.2 | 33.8 / 33.8 | 81.3 |
+| 1980 | 23.8 | - | 52.8 / 51.8 | 32.1 / 32.1 | 79.9 |
+| 1990 | 15.2 | - | 46.6 / 46.2 | 28.2 / 28.2 | 76.9 |
+| 2000 | 7.9 | 8.7 | (2000 tracts used by F&J) | 27.1 | 75.9 |
+| 2010 | 1.0 | 0.8 | 38.6 / 38.2 | 26.3 / 26.3 | 74.6 |
+
+- **GHS-POP and WorldPop are near-exact in 2000 / 2010 (MdAPE about 1 %)**: in the US they are built from census
+  units finer than tracts (blocks), so tract validation measures their input, not their method. Not a fair
+  benchmark for a county-input model; report them as such. Their 1980 / 1990 values are GPWv4 counts carried back
+  from 2000+ units, hence 24 / 15 % (still finer input than counties).
+- **Against the only county-input product (Fang & Jawitz 2018), v5.4 is better in every year** by 12-33 points
+  (2010: 26.3 vs 38.2 %; 1910: 53 vs 81-85 %), on the same tracts. F&J M3 and M5 hardly differ.
+- In BUI gap counties F&J is better (2010: 31-32 % vs 73 %): it does not depend on HISDAC records.
+- Coverage: WorldPop leaves out 32 % of the population (tracts with nodata pixels, coast); F&J 6-13 %.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
