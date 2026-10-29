@@ -1,0 +1,30 @@
+== job 35052315 (external_ghs_pop) on c3cpu-c15-u1-2 at 2026-10-29T09:16:58-06:00
+== cores=16 gpus=none restart=0
+== git af4fae7
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  step: extract  args: --product ghs_pop
+09:17:07 INFO arg step = extract
+09:17:07 INFO arg config = configs/external_grids.yaml
+09:17:07 INFO arg data_root = /projects/jaju1407/data/raw/external
+09:17:07 INFO arg name = conus
+09:17:07 INFO arg results_root = results
+09:17:07 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+09:17:07 INFO arg work_dir = /scratch/alpine/jaju1407/hisdac/external/conus
+09:17:07 INFO arg product = ghs_pop
+09:17:07 INFO arg products = None
+09:17:07 INFO arg years = None
+09:17:07 INFO arg workers = 16
+09:17:07 INFO arg chunks_per_worker = 8
+09:17:07 INFO arg max_nodata_share = 0.0
+09:17:07 INFO arg available = False
+09:17:07 INFO arg out = None
+09:17:07 INFO arg plot = None
+09:17:08 INFO ===== ghs_pop 1980: /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif | {'driver': 'GTiff', 'crs': 'ESRI:54009', 'geographic': False, 'width': 360820, 'height': 180000, 'res_x': 100.0, 'res_y': 100.0, 'dtype': 'float64', 'nodata': -200.0, 'west': -18041000.0, 'south': -9000000.0, 'east': 18041000.0, 'north': 9000000.0}
+09:17:58 INFO   44586 tracts: 44586 fully inside the raster, 9 with nodata pixels, 0 with a negative pixel | product pop in the tracts 182882853 vs census 188327385 | wrote /scratch/alpine/jaju1407/hisdac/external/conus/sums/ghs_pop_1980.csv
+09:17:58 INFO ===== ghs_pop 1990: /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1990_GLOBE_R2023A_54009_100_V1_0.tif | {'driver': 'GTiff', 'crs': 'ESRI:54009', 'geographic': False, 'width': 360820, 'height': 180000, 'res_x': 100.0, 'res_y': 100.0, 'dtype': 'float64', 'nodata': -200.0, 'west': -18041000.0, 'south': -9000000.0, 'east': 18041000.0, 'north': 9000000.0}
+09:18:56 INFO   57338 tracts: 57338 fully inside the raster, 15 with nodata pixels, 0 with a negative pixel | product pop in the tracts 235140373 vs census 237068826 | wrote /scratch/alpine/jaju1407/hisdac/external/conus/sums/ghs_pop_1990.csv
+09:18:56 INFO ===== ghs_pop 2000: /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2000_GLOBE_R2023A_54009_100_V1_0.tif | {'driver': 'GTiff', 'crs': 'ESRI:54009', 'geographic': False, 'width': 360820, 'height': 180000, 'res_x': 100.0, 'res_y': 100.0, 'dtype': 'float64', 'nodata': -200.0, 'west': -18041000.0, 'south': -9000000.0, 'east': 18041000.0, 'north': 9000000.0}
+09:19:49 INFO   62380 tracts: 62380 fully inside the raster, 15 with nodata pixels, 0 with a negative pixel | product pop in the tracts 269237785 vs census 268844173 | wrote /scratch/alpine/jaju1407/hisdac/external/conus/sums/ghs_pop_2000.csv
+09:19:49 INFO ===== ghs_pop 2010: /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif | {'driver': 'GTiff', 'crs': 'ESRI:54009', 'geographic': False, 'width': 360820, 'height': 180000, 'res_x': 100.0, 'res_y': 100.0, 'dtype': 'float64', 'nodata': -200.0, 'west': -18041000.0, 'south': -9000000.0, 'east': 18041000.0, 'north': 9000000.0}
+09:20:47 INFO   72243 tracts: 72243 fully inside the raster, 14 with nodata pixels, 0 with a negative pixel | product pop in the tracts 308860887 vs census 306609675 | wrote /scratch/alpine/jaju1407/hisdac/external/conus/sums/ghs_pop_2010.csv
+09:20:47 INFO DONE
+== done 2026-10-29T09:20:48-06:00

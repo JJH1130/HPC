@@ -1,0 +1,132 @@
+== job 35052319 (external_evaluate) on c3cpu-e2-u1 at 2026-10-29T09:22:08-06:00
+== cores=2 gpus=none restart=0
+== git af4fae7
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  step: evaluate  args: 
+09:22:13 INFO arg step = evaluate
+09:22:13 INFO arg config = configs/external_grids.yaml
+09:22:13 INFO arg data_root = /projects/jaju1407/data/raw/external
+09:22:13 INFO arg name = conus
+09:22:13 INFO arg results_root = results
+09:22:13 INFO arg tract_dir = None
+09:22:13 INFO arg work_dir = /scratch/alpine/jaju1407/hisdac/external/conus
+09:22:13 INFO arg product = None
+09:22:13 INFO arg products = None
+09:22:13 INFO arg years = None
+09:22:13 INFO arg workers = 2
+09:22:13 INFO arg chunks_per_worker = 8
+09:22:13 INFO arg max_nodata_share = 0.0
+09:22:13 INFO arg available = False
+09:22:13 INFO arg out = results/validation/conus/external/external_comparison.csv
+09:22:13 INFO arg plot = results/validation/conus/external/external_mdape_by_year.png
+09:22:13 INFO ===== 1910
+09:22:13 INFO   fj_m3     1910: 1673 of 1897 tracts (87.2 % of the population) | left out: 0 outside the raster, 224 with nodata pixels (12.8 % of the population)
+09:22:14 INFO   fj_m5     1910: 1638 of 1897 tracts (85.6 % of the population) | left out: 0 outside the raster, 259 with nodata pixels (14.4 % of the population)
+09:22:14 INFO ===== 1920
+09:22:14 INFO   fj_m3     1920: 1954 of 2197 tracts (89.6 % of the population) | left out: 0 outside the raster, 243 with nodata pixels (10.4 % of the population)
+09:22:15 INFO   fj_m5     1920: 1889 of 2197 tracts (86.8 % of the population) | left out: 0 outside the raster, 308 with nodata pixels (13.2 % of the population)
+09:22:15 INFO ===== 1930
+09:22:15 INFO   fj_m3     1930: 5676 of 6362 tracts (91.8 % of the population) | left out: 0 outside the raster, 686 with nodata pixels (8.2 % of the population)
+09:22:15 INFO   fj_m5     1930: 5497 of 6362 tracts (90.3 % of the population) | left out: 0 outside the raster, 865 with nodata pixels (9.7 % of the population)
+09:22:15 INFO ===== 1940
+09:22:15 INFO   fj_m3     1940: 6790 of 7350 tracts (90.1 % of the population) | left out: 0 outside the raster, 560 with nodata pixels (9.9 % of the population)
+09:22:15 INFO   fj_m5     1940: 6751 of 7350 tracts (89.0 % of the population) | left out: 0 outside the raster, 599 with nodata pixels (11.0 % of the population)
+09:22:15 INFO ===== 1950
+09:22:15 INFO   fj_m3     1950: 11175 of 12300 tracts (91.5 % of the population) | left out: 0 outside the raster, 1125 with nodata pixels (8.5 % of the population)
+09:22:15 INFO   fj_m5     1950: 11018 of 12300 tracts (90.6 % of the population) | left out: 0 outside the raster, 1282 with nodata pixels (9.4 % of the population)
+09:22:15 INFO ===== 1970
+09:22:15 INFO   fj_m3     1970: 30887 of 33298 tracts (92.8 % of the population) | left out: 0 outside the raster, 2411 with nodata pixels (7.2 % of the population)
+09:22:19 INFO   fj_m5     1970: 30657 of 33298 tracts (92.2 % of the population) | left out: 0 outside the raster, 2641 with nodata pixels (7.8 % of the population)
+09:22:19 INFO ===== 1980
+09:22:21 INFO   ghs_pop   1980: 44577 of 44586 tracts (100.0 % of the population) | left out: 0 outside the raster, 9 with nodata pixels (0.0 % of the population)
+09:22:21 INFO   fj_m3     1980: 41380 of 44586 tracts (93.0 % of the population) | left out: 0 outside the raster, 3206 with nodata pixels (7.0 % of the population)
+09:22:21 INFO   fj_m5     1980: 41098 of 44586 tracts (92.4 % of the population) | left out: 0 outside the raster, 3488 with nodata pixels (7.6 % of the population)
+09:22:21 INFO ===== 1990
+09:22:22 INFO   ghs_pop   1990: 57323 of 57338 tracts (100.0 % of the population) | left out: 0 outside the raster, 15 with nodata pixels (0.0 % of the population)
+09:22:22 WARNING   grump1    1990: no tract sums (/scratch/alpine/jaju1407/hisdac/external/conus/sums/grump1_1990.csv): skipped (product not downloaded or its extract job failed)
+09:22:22 INFO   fj_m3     1990: 53436 of 57338 tracts (93.3 % of the population) | left out: 0 outside the raster, 3902 with nodata pixels (6.7 % of the population)
+09:22:24 INFO   fj_m5     1990: 53113 of 57338 tracts (92.8 % of the population) | left out: 0 outside the raster, 4225 with nodata pixels (7.2 % of the population)
+09:22:24 INFO ===== 2000
+09:22:31 INFO   ghs_pop   2000: 62365 of 62380 tracts (100.0 % of the population) | left out: 0 outside the raster, 15 with nodata pixels (0.0 % of the population)
+09:22:32 INFO   worldpop  2000: 42927 of 62380 tracts (67.8 % of the population) | left out: 0 outside the raster, 19453 with nodata pixels (32.2 % of the population)
+09:22:32 WARNING   gpw4      2000: no tract sums (/scratch/alpine/jaju1407/hisdac/external/conus/sums/gpw4_2000.csv): skipped (product not downloaded or its extract job failed)
+09:22:32 WARNING   grump1    2000: no tract sums (/scratch/alpine/jaju1407/hisdac/external/conus/sums/grump1_2000.csv): skipped (product not downloaded or its extract job failed)
+09:22:32 INFO   fj_m3     2000: 58357 of 62380 tracts (93.8 % of the population) | left out: 0 outside the raster, 4023 with nodata pixels (6.2 % of the population)
+09:22:33 INFO   fj_m5     2000: 58018 of 62380 tracts (93.3 % of the population) | left out: 0 outside the raster, 4362 with nodata pixels (6.7 % of the population)
+09:22:33 INFO ===== 2010
+09:22:33 INFO   ghs_pop   2010: 72229 of 72243 tracts (100.0 % of the population) | left out: 0 outside the raster, 14 with nodata pixels (0.0 % of the population)
+09:22:33 INFO   worldpop  2010: 49811 of 72243 tracts (68.3 % of the population) | left out: 0 outside the raster, 22432 with nodata pixels (31.7 % of the population)
+09:22:34 WARNING   gpw4      2010: no tract sums (/scratch/alpine/jaju1407/hisdac/external/conus/sums/gpw4_2010.csv): skipped (product not downloaded or its extract job failed)
+09:22:34 INFO   fj_m3     2010: 67449 of 72243 tracts (93.9 % of the population) | left out: 0 outside the raster, 4794 with nodata pixels (6.1 % of the population)
+09:22:34 INFO   fj_m5     2010: 67086 of 72243 tracts (93.4 % of the population) | left out: 0 outside the raster, 5157 with nodata pixels (6.6 % of the population)
+09:22:34 INFO tract MdAPE (%) on each product's tracts (Dasy_CONUS_RF_v3_all and areal weighting on the same tracts):
+                 product_mdape  Dasy_CONUS_RF_v3_all  areal_weighting  n_tracts  tract_share
+year product                                                                                
+1910 all_tracts            NaN                53.172           82.929      1897        1.000
+     fj_m3              84.516                52.682           83.336      1673        0.882
+     fj_m5              81.310                53.126           83.352      1638        0.863
+1920 all_tracts            NaN                53.271           79.229      2197        1.000
+     fj_m3              87.096                52.600           79.362      1954        0.889
+     fj_m5              85.679                52.579           79.229      1889        0.860
+1930 all_tracts            NaN                49.706           81.505      6362        1.000
+     fj_m3              84.742                48.001           81.122      5676        0.892
+     fj_m5              83.637                47.780           81.061      5497        0.864
+1940 all_tracts            NaN                42.626           86.915      7350        1.000
+     fj_m3              82.483                42.326           86.964      6790        0.924
+     fj_m5              81.096                42.325           87.057      6751        0.919
+1950 all_tracts            NaN                41.825           83.104     12300        1.000
+     fj_m3              76.807                41.021           83.081     11175        0.909
+     fj_m5              75.202                40.801           83.154     11018        0.896
+1970 all_tracts            NaN                34.025           81.281     33298        1.000
+     fj_m3              61.483                33.812           81.332     30887        0.928
+     fj_m5              60.195                33.814           81.369     30657        0.921
+1980 all_tracts            NaN                32.347           79.909     44586        1.000
+     fj_m3              52.784                32.126           79.862     41380        0.928
+     fj_m5              51.834                32.135           79.916     41098        0.922
+     ghs_pop            23.812                32.340           79.905     44577        1.000
+1990 all_tracts            NaN                28.531           76.940     57338        1.000
+     fj_m3              46.611                28.211           76.905     53436        0.932
+     fj_m5              46.208                28.237           76.937     53113        0.926
+     ghs_pop            15.231                28.529           76.937     57323        1.000
+2000 all_tracts            NaN                27.150           75.858     62380        1.000
+     fj_m3              39.133                26.920           75.853     58357        0.936
+     fj_m5              39.000                26.934           75.918     58018        0.930
+     ghs_pop             7.907                27.146           75.855     62365        1.000
+     worldpop            8.717                27.083           76.986     42927        0.688
+2010 all_tracts            NaN                26.597           74.516     72243        1.000
+     fj_m3              38.584                26.309           74.582     67449        0.934
+     fj_m5              38.242                26.308           74.631     67086        0.929
+     ghs_pop             0.985                26.593           74.515     72229        1.000
+     worldpop            0.835                26.247           75.719     49811        0.689
+09:22:34 INFO products: MAPE (tracts >= 10 people), p90 APE, total ratio, gap / no_gap, density classes:
+ year  product   mape  p90_ape  total_ratio  mdape_no_gap  mdape_gap  mdape_dens_0_50  mdape_dens_50_500  mdape_dens_500_2000  mdape_dens_2000_plus
+ 1910    fj_m3 398.51   100.00         0.50         84.52        NaN          9085.51             481.27                87.08                 82.59
+ 1910    fj_m5 359.73   100.00         0.52         81.31        NaN          8607.80             517.27                88.15                 79.85
+ 1920    fj_m3 126.85   117.41         0.46         87.10        NaN           100.00             290.44                49.90                 86.88
+ 1920    fj_m5 124.71   110.34         0.46         85.68        NaN           100.00             310.35                48.20                 85.51
+ 1930    fj_m3 379.64   394.04         0.55         84.74        NaN          8256.77             702.47                94.47                 81.15
+ 1930    fj_m5 377.14   385.97         0.56         83.64        NaN          8266.38             720.51                92.65                 80.31
+ 1940    fj_m3 215.39   101.66         0.63         82.48        NaN          1431.24             256.56                59.93                 82.30
+ 1940    fj_m5 191.63   113.96         0.64         81.10        NaN          1347.62             249.97                60.03                 81.01
+ 1950    fj_m3 208.76   146.59         0.77         76.78      89.89           232.40             179.24                57.30                 76.27
+ 1950    fj_m5 206.04   139.81         0.79         75.13      92.46           215.83             176.88                58.59                 74.40
+ 1970    fj_m3 122.16   138.44         0.96         61.46      61.98            76.60              87.49                47.00                 65.48
+ 1970    fj_m5 120.83   135.27         0.95         60.18      60.70            74.91              85.08                45.76                 63.30
+ 1980  ghs_pop  46.33    63.15         0.97         24.13      18.06            21.09              27.27                24.76                 22.06
+ 1980    fj_m3  97.93   105.84         0.95         52.95      48.17            45.34              68.46                42.61                 61.69
+ 1980    fj_m5  99.75   104.44         0.95         51.99      48.00            45.63              66.66                41.76                 59.70
+ 1990  ghs_pop  29.58    45.48         0.99         15.62      10.36            11.58              16.14                17.39                 15.15
+ 1990    fj_m3  86.62   100.00         0.97         47.04      38.87            37.23              54.95                38.52                 58.29
+ 1990    fj_m5  84.44   100.00         0.97         46.63      38.64            38.07              54.79                38.07                 56.56
+ 2000  ghs_pop  19.42    27.29         1.00          8.13       5.11             5.08               8.46                 9.12                  8.27
+ 2000 worldpop  20.09    27.96         0.98          8.85       5.75             5.53               8.96                 9.43                  8.51
+ 2000    fj_m3  70.66    93.94         0.98         39.53      31.96            31.13              34.30                33.15                 53.98
+ 2000    fj_m5  67.82    95.19         0.98         39.32      32.35            31.68              34.98                33.16                 52.34
+ 2010  ghs_pop   2.53     3.43         1.01          1.00       0.76             0.81               0.88                 1.01                  1.64
+ 2010 worldpop   2.37     3.74         1.00          0.85       0.54             0.20               0.41                 0.77                  1.62
+ 2010    fj_m3  87.71    91.50         0.99         38.94      31.36            30.84              34.38                32.43                 54.09
+ 2010    fj_m5  87.50    92.54         0.99         38.54      32.20            31.86              34.75                32.16                 52.30
+09:22:34 WARNING missing (skipped): grump1 1990, gpw4 2000, grump1 2000, gpw4 2010
+09:22:34 INFO wrote results/validation/conus/external/external_comparison.csv
+09:22:35 INFO wrote results/validation/conus/external/external_mdape_by_year.png
+09:22:35 INFO DONE
+== done 2026-10-29T09:22:35-06:00
