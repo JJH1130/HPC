@@ -37,8 +37,8 @@
 #                                       # water (all 13 years, deterministic) -> features / train / predict --years 2020
 #                                       # (the 1900-2010 eras are not recomputed) -> tract validation 1910-2020 ->
 #                                       # summary_by_year + figure, and metrics_over_time (county MdAPE, fixed sets)
-#   bash sbatch/submit_conus.sh uncertainty  # HISDAC record uncertainty (record_uncertainty.sh), after
-#                                       # sbatch/hisdac_extra_download.sh; independent of the other modes
+#   bash sbatch/submit_conus.sh uncertainty  # HISDAC record uncertainty (record_uncertainty.sh); BUPR_contemp
+#                                       # optional (NobuiltYear only without it); independent of the other modes
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -370,13 +370,16 @@ elif [[ $mode == y2020 ]]; then
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()
-    for f in $DATA_ROOT/raw/hisdac_extra/BUPR_contemp.tif $HISDAC_DIR/FBUY/NobuiltYear.tif $HISDAC_DIR/BUPR/2015_BUPR.tif \
+    C=$DATA_ROOT/raw/hisdac_extra/BUPR_contemp.tif
+    if [[ -f $C ]]; then echo "BUPR_contemp found: ratio_A_contemp + ratio_A_nby + ratio_B"
+    else echo "BUPR_contemp not found ($C): NobuiltYear only (ratio_A_nby + ratio_B; none if NobuiltYear is 0/1)"; fi
+    for f in $HISDAC_DIR/FBUY/NobuiltYear.tif $HISDAC_DIR/BUPR/2015_BUPR.tif $HISDAC_DIR/BUPR/2020_BUPR.tif \
              $CUT/zones/zones_2010.tif $CUT/zones/zones_2010.csv \
              results/dasymetric/conus/Dasy_CONUS_RF_v3_all/Y2010/county_features.csv; do
         [[ -f $f ]] || miss+=("$f")
     done
     if (( ${#miss[@]} )); then
-        printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted (download: sbatch/hisdac_extra_download.sh)"; exit 1
+        printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1
     fi
     ju=$(sub "" --ntasks=${UNC_TASKS:-2} --time=${UNC_TIME:-02:00:00} sbatch/record_uncertainty.sh)
     echo "record_uncertainty $ju" | tee logs/conus_uncertainty_jobs.txt

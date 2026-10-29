@@ -40,9 +40,11 @@ MdAPE / MAPE / R2 for TEST and CV counties (exp(y_hat) x the target's area_km2 v
 MdAPE on fixed county sets (counties tracted in every year from 1910 / 1920 / 1940 / 1960) next to all tracts ->
 `county_metrics_by_year.csv`, `fixed_tract_metrics.csv`, `mdape_over_time.png` in `results/validation/conus/<version>/`;
 `src/grid/record_uncertainty.py` (`sbatch/record_uncertainty.sh`; `BUPR_contemp.tif` from `sbatch/hisdac_extra_download.sh`,
-login node) measures the HISDAC records without a built year per 2010 county (A = (contemp - BUPR_2015) / contemp,
-B_year = NobuiltYear / (BUPR_year + NobuiltYear)), vs the BUI gap counties, and threshold tables ->
-`results/hisdac_uncertainty/` (diagnosis only). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+login node) measures the HISDAC records without a built year per 2010 county (`ratio_A_contemp` = (contemp - BUPR_2015) /
+contemp, only with contemp - not in the Dataverse BUPR.tar, asked of Stefan; `ratio_A_nby` = NobuiltYear / (BUPR_2015 +
+NobuiltYear) (+ `_2020`); `ratio_B_<year>` = NobuiltYear / (BUPR_year + NobuiltYear); both A ratios -> `a_compare.csv`;
+no contemp + a 0/1 NobuiltYear = value distribution only, exit 0), vs the BUI gap counties, and threshold tables per
+ratio (column `measure`) -> `results/hisdac_uncertainty/` (diagnosis only). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -105,8 +107,9 @@ without, NTL nodata, `ntl_qa.py` against brute force, `compare_models --years --
 county ntlv, `ntl_qa.py` NTL + NTLV); stubs `shap` and `plots`;
 one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_conus_dasymetric as t; t.test_ntl()"`), `python tests/test_external_compare.py` (tract sums of a projected and a lon / lat raster = brute-force polygon x
 pixel intersection, nodata / outside tracts left out, extract -> evaluate: product, v5.4 and areal weighting metrics on
-the kept subset = by hand, a missing product = `missing` row, path resolution), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county A / B_year, cell checks,
-thresholds, gap overlap, strips = one strip, 0/1 NobuiltYear), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+the kept subset = by hand, a missing product = `missing` row, path resolution), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county ratio_A_contemp /
+ratio_A_nby / ratio_B, A compare, cell checks, thresholds, gap overlap, strips = one strip; contemp + 0/1 NobuiltYear;
+no contemp + NobuiltYear counts = same NobuiltYear ratios; no contemp + 0/1 = value distribution only, exit 0), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:

@@ -22,6 +22,8 @@ Section 7 ran 2026-10-28 (jobs 34961482-34961489). Next: section 8 (external pro
 2026-10-28, not run yet). Written 2026-10-30, not run yet: section 9 (county MdAPE + fixed tract sets: 1900-2010 computed on
 the laptop, no job needed), section 10 (2020 added to v3_all: pre-check, then `submit_conus.sh y2020`), section 11
 (HISDAC record uncertainty: download, then `submit_conus.sh uncertainty`). Sections 8, 10 and 11 are independent.
+Section 10 ran 2026-10-29 (jobs 35053415-35053424). Section 11 block 1 ran 2026-10-29: `BUPR_contemp.tif` is not in the
+Dataverse archive; the job now runs without it (NobuiltYear only): blocks 2-3, written 2026-10-30, not run yet.
 
 ## Inputs / outputs
 
@@ -992,18 +994,31 @@ What to look for in the logs (Claude reads them after the pull):
 - `predict`: `--years: reallocation_qa.csv keeps ... rows of years [1900 ... 2010]`, mass check 0 fail
 - `compare_models`: the 2020 row; `metrics_over_time`: the fixed sets now need 2020 tracts too
 
-## 11. HISDAC record uncertainty: BUPR_contemp vs the yearly records (2026-10-30)
+## 11. HISDAC record uncertainty: share of records without a built year (2026-10-30)
 
-Share of property records without a built year per county, two ways (A fixed from `BUPR_contemp - BUPR_2015`, B per
-year from `NobuiltYear`), compared with the BUI gap counties, and tables of how many counties / people remain at each
-threshold (`docs/conus_plan.md`, "HISDAC record uncertainty"). Diagnosis only; independent of section 10.
+Share of property records without a built year per county, compared with the BUI gap counties, and tables of how many
+counties / people remain at each threshold (`docs/conus_plan.md`, "HISDAC record uncertainty"). Diagnosis only;
+independent of section 10. Ratios (column names say the definition):
+
+- `ratio_A_contemp = (BUPR_contemp - BUPR_2015) / BUPR_contemp`: needs `BUPR_contemp.tif`.
+- `ratio_A_nby = NobuiltYear / (BUPR_2015 + NobuiltYear)` (+ `ratio_A_nby_2020` with BUPR_2020): the same share from
+  NobuiltYear; needs NobuiltYear to be a count.
+- `ratio_B_<year> = NobuiltYear / (BUPR_year + NobuiltYear)` per census year (upper bound); needs a count.
+
+**Status 2026-10-30:** block 1 ran 2026-10-29: `BUPR_contemp.tif` is **not** in the Dataverse BUPR.tar
+(`logs/hisdac_extra_download.txt`, `results/hisdac_uncertainty/BUPR.tar_members.txt`); its location is asked of Stefan.
+The job runs without it (`ratio_A_nby` + `ratio_B`): **skip block 1, go to block 2.** If NobuiltYear turns out to be a 0/1
+flag, no ratio can be computed without contemp; the job then writes only the value distribution and still ends
+`COMPLETED` (exit 0). When the file turns up, put it at `/projects/jaju1407/data/raw/hisdac_extra/BUPR_contemp.tif` and
+run blocks 2-3 again: `ratio_A_contemp` is added and compared with `ratio_A_nby`.
 
 | Step | Where | What | Estimate |
 |---|---|---|---|
-| download | login node in tmux, not a job | Dataverse file listing; `BUPR_contemp.tif` alone, or the BUPR archive to scratch and only that file unpacked -> `$DATA_ROOT/raw/hisdac_extra/` | minutes if the tif is a file of its own; the whole archive (size unknown, likely several GB): 10-60 min |
-| record_uncertainty | job, 2 cores, 2 h wall | grid / cell checks, county ratios, gap comparison, threshold tables + figure -> `results/hisdac_uncertainty/` | 20-40 min (16 CONUS rasters read in strips; estimate) |
+| download | login node in tmux, not a job | Dataverse file listing; `BUPR_contemp.tif` alone, or the BUPR archive to scratch and only that file unpacked -> `$DATA_ROOT/raw/hisdac_extra/` | ran 2026-10-29 (archive 660 MB, 12 s; no contemp in it) |
+| record_uncertainty | job, 2 cores, 2 h wall | NobuiltYear value pass, then grid / cell checks, county ratios, gap comparison, threshold tables + figure -> `results/hisdac_uncertainty/` | 20-40 min (NobuiltYear + 15 CONUS rasters read in strips; estimate) |
 
-Block 1, download (login node, inside tmux so a dropped connection does not stop it):
+Block 1, download (done 2026-10-29; only again if Stefan names a new Dataverse source and the script is changed for
+it). Login node, inside tmux so a dropped connection does not stop it:
 
 ```bash
 cd /projects/jaju1407/HPC
@@ -1031,13 +1046,16 @@ Block 2, submit (login node):
 
 ```bash
 cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
 bash sbatch/submit_conus.sh uncertainty
 squeue -u $USER
 echo "== end of block 2"
 ```
 
-Good: `record_uncertainty N` (also in `logs/conus_uncertainty_jobs.txt`), the job in `squeue`, `== end of block 2`.
-`MISSING ...`: send it to Claude.
+Good: `BUPR_contemp not found (...): NobuiltYear only ...` (or `BUPR_contemp found ...`), then `record_uncertainty N`
+(also in `logs/conus_uncertainty_jobs.txt`), the job in `squeue`, `== end of block 2`. `MISSING ...`: send it to Claude.
 
 Block 3, close the loop (after the job left `squeue`):
 
@@ -1047,6 +1065,7 @@ squeue -u $USER
 j=$(grep -oE '[0-9]{6,}' logs/conus_uncertainty_jobs.txt)
 sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_uncertainty_sacct.txt
 seff "$j" > logs/conus_uncertainty_seff.txt; cat logs/conus_uncertainty_seff.txt
+grep -E "NobuiltYear: max|outcome|DONE" logs/record_uncertainty.$j.out
 ls -l results/hisdac_uncertainty/
 git add logs/ results/hisdac_uncertainty
 git commit -m "run: HISDAC record uncertainty (logs + results)"
@@ -1056,13 +1075,17 @@ git log --oneline -1
 echo "== end of block 3"
 ```
 
-Good: `record_uncertainty` `COMPLETED`; the folder lists `county_record_uncertainty.csv`, `threshold_table.csv`,
-`threshold_counties.png`, `grid_check.csv`, `cell_check.csv` and the gap files; `git push` ends with `main -> main`;
+Good: `record_uncertainty` `COMPLETED`; the grep shows `NobuiltYear: max ... -> a COUNT ...` (or `a 0/1 FLAG`) and a
+`DONE` line; with a count the folder lists `county_record_uncertainty.csv`, `threshold_table.csv`,
+`threshold_counties.png`, `grid_check.csv`, `cell_check.csv`, `nobuilt_values.csv` and the gap files (with a flag and no
+contemp: only `nobuilt_values.csv`, `grid_check.csv`, `cell_check.csv`); `git push` ends with `main -> main`;
 `== end of block 3`.
 
-What to look for in the log: the grid line of each raster (`direct` or `WarpedVRT nearest onto the zones`), `NobuiltYear:
-max ... -> a COUNT ...` or `a 0/1 FLAG`, the cell check (d == NobuiltYear share, d < 0 cells), counties with
-contemp < BUPR_2015, the C4 overlap and the C5 tables, `DONE`.
+What to look for in the log: `BUPR_contemp not found` (expected now), the grid line of each raster (`direct` or
+`WarpedVRT nearest onto the zones`), `NobuiltYear: max ... -> a COUNT ...` or `a 0/1 FLAG`, `C3 ratio_A_nby` quantiles,
+`ratio_A_nby 2015 vs 2020` (difference and counties above each threshold), the C4 overlap and the C5 tables, `DONE`.
+With contemp also: the cell check (d == NobuiltYear share, d < 0 cells, `cells_a_*`), counties with contemp <
+BUPR_2015, `ratio_A_contemp vs ratio_A_nby`.
 
 ## If it fails
 
@@ -1089,6 +1112,7 @@ contemp < BUPR_2015, the C4 overlap and the C5 tables, `DONE`.
 | y2020: a job failed | the later ones never start (`DependencyNeverSatisfied`): `scancel` them, send the log. Reruns are safe: `--years 2020` touches only 2020 (the other years' rows of the QA / summary CSVs are kept), water and validation are deterministic |
 | y2020: `REPRO DIFFERS` | commit anyway and tell Claude: something changed an old year's file (the run itself only adds 2020) |
 | uncertainty: download `ERROR` (403, md5) | send `logs/hisdac_extra_download.txt`; a rerun resumes the archive download (`curl -C -`) and skips a checked tif |
+| uncertainty: log ends `DONE (NobuiltYear value distribution only)` | not a failure: NobuiltYear is a 0/1 flag and contemp is missing, so no ratio exists; commit as block 3 and tell Claude (the next step waits for contemp from Stefan) |
 | all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |
 | ntl: `ntl_qa` `FAILED` with `no cell with DN >= 60 in the box` | the fixed DN rule (known since Massachusetts 2026-10-06, change on hold); nothing waits for it: send the log with the others |
 | ntl: `ntl_qa` `OUT_OF_MEMORY` | nothing waits for it; rerun alone with more cores: `sbatch --ntasks=16 --time=00:45:00 --export=ALL,CONFIG=configs/conus_study_area.yaml sbatch/ntl_qa.sh` |

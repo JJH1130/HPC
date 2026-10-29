@@ -3,7 +3,7 @@
 The Massachusetts pilot (v1-v4.1) is closed; the pipeline now moves to the conterminous US (48 states + DC).
 This file is the plan for the first CONUS runs. Decisions are also in `docs/open_items.md` (decision log).
 
-Last updated: 2026-10-30 (metrics over time: county MdAPE + fixed tract sets, result 1900-2010; 2020 code; HISDAC record uncertainty code; map label fix); 2026-10-28 (external comparison code: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz vs v5.4 on tracts); 2026-10-28 (VIIRS-like NTL test code)
+Last updated: 2026-10-30 (record uncertainty without BUPR_contemp: ratio_A_nby from NobuiltYear); 2026-10-30 (metrics over time: county MdAPE + fixed tract sets, result 1900-2010; 2020 code; HISDAC record uncertainty code; map label fix); 2026-10-28 (external comparison code: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz vs v5.4 on tracts); 2026-10-28 (VIIRS-like NTL test code)
 
 Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.yaml`, `configs/conus_rf_v1.yaml`,
 `configs/conus_rf_v2.yaml`, `configs/conus_rf_v3.yaml`, `configs/conus_rf_v4.yaml`, `configs/conus_rf_v1_bui.yaml`,
@@ -641,6 +641,7 @@ thresholds and the selection rule are decided by the user from the tables, then 
 | C4 gap counties | BUI gap counties (floor area per person < 5 % of the year's median, as `tract_validate.py`; 416 in 2010) vs A: overlap per threshold, A quantiles gap vs other, Spearman A vs floor area per person, by state |
 | C5 thresholds | 0.1 ... 0.9: counties kept (ratio <= t; undefined kept and counted), their share of the year's pop (used counties of v3_all's `county_features.csv`), train / test kept (`configs/conus_split.csv`), gap counties kept, by state; A with the pop of every census year, B_year for its own year. Figure `threshold_counties.png` (counties / pop kept vs threshold: A 2010, B 1920 / 1960 / 2010 / 2020) |
 | Chain | `bash sbatch/submit_conus.sh uncertainty` (one job, `record_uncertainty.sh`), independent of `y2020`; uses Y2020 pop only if that run finished first |
+| Without contemp (request 2026-10-30, `docs/handoff/record_uncertainty_fallback_request.md`) | `BUPR_contemp.tif` is not in the Dataverse BUPR.tar (v2; `results/hisdac_uncertainty/BUPR.tar_members.txt`); asked of Stefan. contemp is optional: without it the A share is `ratio_A_nby = NobuiltYear / (BUPR_2015 + NobuiltYear)` (contemp = records with a year + records without one; 2015 = the series year nearest the ZTRAX collection ~2016), with `ratio_A_nby_2020` (BUPR_2020) beside it and the 2015 - 2020 difference logged. `ratio_B_<year>` as before. Column names say the definition: `ratio_A_contemp` (with contemp), `ratio_A_nby`, `ratio_B_<year>`; C4 and C5 run for every ratio that exists (column `measure`: A_contemp, A_nby, B). Both A ratios -> `a_compare.csv` + `a_compare_thresholds.csv` (county) and the per-cell difference in `cell_check.csv` (`cells_a_*`; d == NobuiltYear = equal A in that cell). No contemp and a 0/1 NobuiltYear: no ratio can be computed; the run writes the value distribution and `outcome` in `cell_check.csv` and ends with exit 0 |
 
 ## BUI outliers (bui_qa, job 34921582)
 
