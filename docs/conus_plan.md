@@ -643,6 +643,35 @@ thresholds and the selection rule are decided by the user from the tables, then 
 | Chain | `bash sbatch/submit_conus.sh uncertainty` (one job, `record_uncertainty.sh`), independent of `y2020`; uses Y2020 pop only if that run finished first |
 | Without contemp (request 2026-10-30, `docs/handoff/record_uncertainty_fallback_request.md`) | `BUPR_contemp.tif` is not in the Dataverse BUPR.tar (v2; `results/hisdac_uncertainty/BUPR.tar_members.txt`); asked of Stefan. contemp is optional: without it the A share is `ratio_A_nby = NobuiltYear / (BUPR_2015 + NobuiltYear)` (contemp = records with a year + records without one; 2015 = the series year nearest the ZTRAX collection ~2016), with `ratio_A_nby_2020` (BUPR_2020) beside it and the 2015 - 2020 difference logged. `ratio_B_<year>` as before. Column names say the definition: `ratio_A_contemp` (with contemp), `ratio_A_nby`, `ratio_B_<year>`; C4 and C5 run for every ratio that exists (column `measure`: A_contemp, A_nby, B). Both A ratios -> `a_compare.csv` + `a_compare_thresholds.csv` (county) and the per-cell difference in `cell_check.csv` (`cells_a_*`; d == NobuiltYear = equal A in that cell). No contemp and a 0/1 NobuiltYear: no ratio can be computed; the run writes the value distribution and `outcome` in `cell_check.csv` and ends with exit 0 |
 
+## HISDAC record uncertainty: diagnosis (job 35056349, run 2026-10-29 MT)
+
+`BUPR_contemp.tif` not available (not in the Dataverse BUPR.tar); ratios from `NobuiltYear.tif`, which is a **count**
+(max 24,246, 0 fractional cells). Results `results/hisdac_uncertainty/`.
+
+- **Nationally 39 % of all records have no built year**: 109.4 M without vs 168.5 M with a year (BUPR 2015). Of the 26.2 M
+  study cells with any record, **54 % (14.2 M) hold only records without a year**: they are BUI = BUA = 0 in every year of
+  the time series although buildings stand there.
+- County ratio A = NobuiltYear / (BUPR_2015 + NobuiltYear): median 0.55 (all counties), 0.50 outside the gap counties;
+  Spearman with BUI floor area per person -0.72.
+- **The BUI gap counties are the counties without built years**: their ratio median 1.000 (10th percentile 0.974);
+  all 416 are above 0.3, 412 above 0.5. Same states (IL, WI, ND, MI, SD, LA, VT ~0.98-1.00 median).
+- Counties kept below each threshold (2010; 3,109 counties):
+
+  | Ratio A below | Counties | Population | Train / test | Gap counties kept |
+  |---|---|---|---|---|
+  | 0.3 | 515 | 55 % | 414 / 101 | 0 |
+  | 0.5 | 1,337 | 80 % | 1,076 / 261 | 4 |
+  | 0.6 | 1,745 | 87 % | 1,391 / 354 | 5 |
+  | 0.7 | 2,098 | 91 % | 1,671 / 427 | 9 |
+  | 0.8 | 2,403 | 94 % | 1,916 / 487 | 13 |
+  | 0.9 | 2,590 | 95 % | 2,062 / 528 | 20 |
+
+  Ratio B (per year, NobuiltYear / (BUPR_year + NobuiltYear)) is an upper bound that grows backwards: in 1920 only 62
+  counties are below 0.5. 2015 vs 2020 reference: nearly the same counts.
+- Caveat: NobuiltYear values are far more often even than odd (1: 8.3 M cells, 2: 5.3 M, 3: 1.6 M, 4: 1.8 M, 5: 0.7 M, 6:
+  0.9 M, ...): possibly records counted twice (e.g. the same building from two sources). If so the ratios are too high.
+  To ask Stefan, together with where `BUPR_contemp` is.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
