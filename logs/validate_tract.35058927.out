@@ -1,0 +1,264 @@
+== job 35058927 (validate_tract) on c3cpu-c11-u15-1 at 2026-10-29T12:21:19-06:00
+== cores=8 gpus=none restart=0
+== git b284483
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== coverage: none  args: --version Dasy_CONUS_RF_v3_u070 --years 1920 1960 2010 2020 --name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05
+12:21:30 INFO arg version = Dasy_CONUS_RF_v3_u070
+12:21:30 INFO arg name = conus
+12:21:30 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:21:30 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+12:21:30 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+12:21:30 INFO arg coverage_csv = None
+12:21:30 INFO arg results_root = results/validation
+12:21:30 INFO arg years = [1920, 1960, 2010, 2020]
+12:21:30 INFO arg map_years = []
+12:21:30 INFO arg state_prefix = 
+12:21:30 INFO arg split = configs/conus_split.csv
+12:21:30 INFO arg gap_share = 0.05
+12:21:30 INFO no --coverage-csv: tract totals QA of fully tracted counties skipped
+12:21:30 INFO split configs/conus_split.csv: {'train': 2487, 'test': 622}; metrics per part (train / test) as well as all
+12:21:30 INFO ===== 1920 =====
+12:22:06 INFO   BUI gap counties (floor area per person < 5 % of the median 96 sq ft): 533 of 3056, pop 10328369 (9.8 %)
+12:22:06 INFO   2952 tracts | flags {'ok': 2197, 'not_ok': 742, 'outside_model': 8, 'no_cells': 5}
+12:22:06 INFO   0 evaluated tracts in 0 gap counties, 2197 outside
+12:22:06 INFO   all   model    all            n=2197 share=0.091 area=1.000 rmse=3620 mae=2399 mdape=52.4% r2_log=-1.021 | r2 log density=-0.377
+12:22:06 INFO   all   baseline all            n=2197 share=0.091 area=1.000 rmse=4665 mae=3320 mdape=79.2% r2_log=-1.769 | r2 log density=-0.802
+12:22:06 INFO   all   model    dens_0_50      n=4 share=0.000 area=0.007 rmse=400 mae=245 mdape=59.5% r2_log=-3.233 | r2 log density=-8.671
+12:22:06 INFO   all   baseline dens_0_50      n=4 share=0.000 area=0.007 rmse=7210 mae=5765 mdape=16546.2% r2_log=-10.477 | r2 log density=-18.514
+12:22:06 INFO   all   model    dens_50_500    n=59 share=0.000 area=0.143 rmse=2879 mae=1896 mdape=230.3% r2_log=-1.250 | r2 log density=-10.984
+12:22:06 INFO   all   baseline dens_50_500    n=59 share=0.000 area=0.143 rmse=5852 mae=3447 mdape=467.5% r2_log=-2.132 | r2 log density=-15.377
+12:22:06 INFO   all   model    dens_500_2000  n=149 share=0.003 area=0.228 rmse=5074 mae=2970 mdape=144.4% r2_log=-0.693 | r2 log density=-15.504
+12:22:06 INFO   all   baseline dens_500_2000  n=149 share=0.003 area=0.228 rmse=2377 mae=1274 mdape=43.6% r2_log=0.013 | r2 log density=-8.148
+12:22:06 INFO   all   model    dens_2000_plus n=1985 share=0.088 area=0.622 rmse=3511 mae=2376 mdape=48.2% r2_log=-1.888 | r2 log density=-1.611
+12:22:06 INFO   all   baseline dens_2000_plus n=1985 share=0.088 area=0.622 rmse=4748 mae=3464 mdape=79.1% r2_log=-3.104 | r2 log density=-2.544
+12:22:06 INFO   train model    all            n=2127 share=0.090 area=1.000 rmse=3667 mae=2440 mdape=51.9% r2_log=-0.940 | r2 log density=-0.328
+12:22:06 INFO   train baseline all            n=2127 share=0.090 area=1.000 rmse=4730 mae=3381 mdape=78.7% r2_log=-1.673 | r2 log density=-0.748
+12:22:06 INFO   test  model    all            n=70 share=0.001 area=1.000 rmse=1609 mae=1181 mdape=63.0% r2_log=-18.360 | r2 log density=-3.865
+12:22:06 INFO   test  baseline all            n=70 share=0.001 area=1.000 rmse=1825 mae=1468 mdape=88.3% r2_log=-23.202 | r2 log density=-4.733
+12:22:06 INFO   no_gap model    all            n=2197 share=0.091 area=1.000 rmse=3620 mae=2399 mdape=52.4% r2_log=-1.021 | r2 log density=-0.377
+12:22:06 INFO   no_gap baseline all            n=2197 share=0.091 area=1.000 rmse=4665 mae=3320 mdape=79.2% r2_log=-1.769 | r2 log density=-0.802
+12:22:06 INFO   gap   model    all            n=0 share=0.000 area=nan rmse=nan mae=nan mdape=nan% r2_log=nan | r2 log density=nan
+12:22:06 INFO   gap   baseline all            n=0 share=0.000 area=nan rmse=nan mae=nan mdape=nan% r2_log=nan | r2 log density=nan
+12:22:06 INFO ===== 1960 =====
+12:22:39 INFO   BUI gap counties (floor area per person < 5 % of the median 368 sq ft): 479 of 3095, pop 11612082 (6.5 %)
+12:22:39 INFO   22915 tracts | flags {'ok': 22042, 'not_ok': 368, 'multi_county': 334, 'outside_model': 146, 'no_cells': 25}
+12:22:40 INFO   460 evaluated tracts in 13 gap counties, 21582 outside
+12:22:40 INFO   all   model    all            n=22042 share=0.564 area=1.000 rmse=3178 mae=2038 mdape=36.0% r2_log=-0.559 | r2 log density=0.667
+12:22:40 INFO   all   baseline all            n=22042 share=0.564 area=1.000 rmse=11086 mae=4862 mdape=82.7% r2_log=-5.033 | r2 log density=-0.260
+12:22:40 INFO   all   model    dens_0_50      n=1302 share=0.022 area=0.732 rmse=6619 mae=3879 mdape=98.6% r2_log=0.118 | r2 log density=-2.932
+12:22:40 INFO   all   baseline dens_0_50      n=1302 share=0.022 area=0.732 rmse=37198 mae=19849 mdape=424.5% r2_log=-0.908 | r2 log density=-6.961
+12:22:40 INFO   all   model    dens_50_500    n=3001 share=0.074 area=0.187 rmse=4318 mae=2802 mdape=52.9% r2_log=0.048 | r2 log density=-0.433
+12:22:40 INFO   all   baseline dens_50_500    n=3001 share=0.074 area=0.187 rmse=13850 mae=6119 mdape=69.7% r2_log=-1.476 | r2 log density=-2.752
+12:22:40 INFO   all   model    dens_500_2000  n=5561 share=0.145 area=0.053 rmse=2493 mae=1659 mdape=28.0% r2_log=-0.375 | r2 log density=-3.151
+12:22:40 INFO   all   baseline dens_500_2000  n=5561 share=0.145 area=0.053 rmse=4650 mae=3598 mdape=80.0% r2_log=-7.225 | r2 log density=-23.721
+12:22:40 INFO   all   model    dens_2000_plus n=12178 share=0.323 area=0.028 rmse=2484 mae=1827 mdape=34.2% r2_log=-2.649 | r2 log density=-0.749
+12:22:40 INFO   all   baseline dens_2000_plus n=12178 share=0.323 area=0.028 rmse=4169 mae=3527 mdape=83.0% r2_log=-14.156 | r2 log density=-6.198
+12:22:40 INFO   train model    all            n=17460 share=0.443 area=1.000 rmse=3198 mae=2053 mdape=36.8% r2_log=-0.519 | r2 log density=0.655
+12:22:40 INFO   train baseline all            n=17460 share=0.443 area=1.000 rmse=10403 mae=4773 mdape=82.4% r2_log=-4.522 | r2 log density=-0.222
+12:22:40 INFO   test  model    all            n=4582 share=0.121 area=1.000 rmse=3103 mae=1981 mdape=32.6% r2_log=-0.890 | r2 log density=0.722
+12:22:40 INFO   test  baseline all            n=4582 share=0.121 area=1.000 rmse=13376 mae=5201 mdape=83.3% r2_log=-8.966 | r2 log density=-0.465
+12:22:40 INFO   no_gap model    all            n=21582 share=0.552 area=1.000 rmse=3031 mae=1972 mdape=35.3% r2_log=-0.420 | r2 log density=0.692
+12:22:40 INFO   no_gap baseline all            n=21582 share=0.552 area=1.000 rmse=11151 mae=4854 mdape=82.4% r2_log=-4.912 | r2 log density=-0.249
+12:22:40 INFO   gap   model    all            n=460 share=0.013 area=1.000 rmse=7284 mae=5156 mdape=90.5% r2_log=-17.099 | r2 log density=-0.833
+12:22:40 INFO   gap   baseline all            n=460 share=0.013 area=1.000 rmse=7430 mae=5242 mdape=92.1% r2_log=-19.654 | r2 log density=-1.093
+12:22:40 INFO ===== 2010 =====
+12:25:58 INFO   BUI gap counties (floor area per person < 5 % of the median 935 sq ft): 416 of 3109, pop 14559076 (4.7 %)
+12:25:58 INFO   72271 tracts | flags {'ok': 72243, 'no_cells': 28}
+12:25:58 INFO   3776 evaluated tracts in 416 gap counties, 68467 outside
+12:25:58 INFO   all   model    all            n=72243 share=1.000 area=1.000 rmse=2457 mae=1416 mdape=23.8% r2_log=-0.553 | r2 log density=0.832
+12:25:58 INFO   all   baseline all            n=72243 share=1.000 area=1.000 rmse=15330 mae=4245 mdape=74.5% r2_log=-4.796 | r2 log density=0.343
+12:25:58 INFO   all   model    dens_0_50      n=13286 share=0.162 area=0.916 rmse=2628 mae=1241 mdape=18.3% r2_log=0.423 | r2 log density=0.267
+12:25:58 INFO   all   baseline dens_0_50      n=13286 share=0.162 area=0.916 rmse=34267 mae=8614 mdape=73.6% r2_log=-0.538 | r2 log density=-1.195
+12:25:58 INFO   all   model    dens_50_500    n=16261 share=0.247 area=0.068 rmse=3111 mae=1668 mdape=23.4% r2_log=-1.486 | r2 log density=-0.375
+12:25:58 INFO   all   baseline dens_50_500    n=16261 share=0.247 area=0.068 rmse=7251 mae=4056 mdape=67.6% r2_log=-6.359 | r2 log density=-3.207
+12:25:58 INFO   all   model    dens_500_2000  n=24660 share=0.345 area=0.014 rmse=2158 mae=1294 mdape=21.5% r2_log=-2.480 | r2 log density=-3.935
+12:25:58 INFO   all   baseline dens_500_2000  n=24660 share=0.345 area=0.014 rmse=3493 mae=2877 mdape=73.6% r2_log=-14.896 | r2 log density=-21.971
+12:25:58 INFO   all   model    dens_2000_plus n=18036 share=0.246 area=0.003 rmse=2001 mae=1482 mdape=31.2% r2_log=-4.201 | r2 log density=-0.806
+12:25:58 INFO   all   baseline dens_2000_plus n=18036 share=0.246 area=0.003 rmse=3507 mae=3069 mdape=78.7% r2_log=-20.862 | r2 log density=-6.435
+12:25:58 INFO   train model    all            n=57451 share=0.795 area=1.000 rmse=2489 mae=1410 mdape=23.6% r2_log=-0.548 | r2 log density=0.830
+12:25:58 INFO   train baseline all            n=57451 share=0.795 area=1.000 rmse=14193 mae=4196 mdape=73.9% r2_log=-4.672 | r2 log density=0.349
+12:25:58 INFO   test  model    all            n=14792 share=0.204 area=1.000 rmse=2330 mae=1438 mdape=24.6% r2_log=-0.574 | r2 log density=0.840
+12:25:58 INFO   test  baseline all            n=14792 share=0.204 area=1.000 rmse=19115 mae=4439 mdape=76.6% r2_log=-5.327 | r2 log density=0.317
+12:25:58 INFO   no_gap model    all            n=68467 share=0.952 area=1.000 rmse=2034 mae=1308 mdape=22.7% r2_log=-0.296 | r2 log density=0.856
+12:25:58 INFO   no_gap baseline all            n=68467 share=0.952 area=1.000 rmse=15690 mae=4302 mdape=74.5% r2_log=-4.788 | r2 log density=0.318
+12:25:58 INFO   gap   model    all            n=3776 share=0.047 area=1.000 rmse=6365 mae=3367 mdape=77.5% r2_log=-5.379 | r2 log density=0.338
+12:25:58 INFO   gap   baseline all            n=3776 share=0.047 area=1.000 rmse=5735 mae=3224 mdape=75.6% r2_log=-5.029 | r2 log density=0.380
+12:25:58 INFO ===== 2020 =====
+12:29:13 INFO   BUI gap counties (floor area per person < 5 % of the median 1000 sq ft): 410 of 3108, pop 14566454 (4.4 %)
+12:29:13 INFO   83507 tracts | flags {'ok': 78200, 'multi_county': 4367, 'outside_model': 890, 'no_cells': 50}
+12:29:14 INFO   3528 evaluated tracts in 364 gap counties, 74672 outside
+12:29:14 INFO   all   model    all            n=78200 share=0.941 area=1.000 rmse=2250 mae=1318 mdape=23.7% r2_log=-0.675 | r2 log density=0.797
+12:29:14 INFO   all   baseline all            n=78200 share=0.941 area=1.000 rmse=12686 mae=3644 mdape=74.5% r2_log=-5.131 | r2 log density=0.232
+12:29:14 INFO   all   model    dens_0_50      n=11786 share=0.112 area=0.867 rmse=2116 mae=996 mdape=17.9% r2_log=0.417 | r2 log density=-0.065
+12:29:14 INFO   all   baseline dens_0_50      n=11786 share=0.112 area=0.867 rmse=30961 mae=7029 mdape=72.2% r2_log=-0.454 | r2 log density=-1.852
+12:29:14 INFO   all   model    dens_50_500    n=17514 share=0.221 area=0.104 rmse=2827 mae=1474 mdape=22.6% r2_log=-1.819 | r2 log density=-0.382
+12:29:14 INFO   all   baseline dens_50_500    n=17514 share=0.221 area=0.104 rmse=6579 mae=3633 mdape=68.2% r2_log=-7.745 | r2 log density=-3.427
+12:29:14 INFO   all   model    dens_500_2000  n=27690 share=0.345 area=0.024 rmse=2118 mae=1274 mdape=21.8% r2_log=-2.980 | r2 log density=-4.019
+12:29:14 INFO   all   baseline dens_500_2000  n=27690 share=0.345 area=0.024 rmse=3226 mae=2710 mdape=72.5% r2_log=-16.655 | r2 log density=-21.704
+12:29:14 INFO   all   model    dens_2000_plus n=21210 share=0.263 area=0.005 rmse=1928 mae=1428 mdape=30.5% r2_log=-5.109 | r2 log density=-0.888
+12:29:14 INFO   all   baseline dens_2000_plus n=21210 share=0.263 area=0.005 rmse=3367 mae=2991 mdape=79.1% r2_log=-23.542 | r2 log density=-6.399
+12:29:14 INFO   train model    all            n=62260 share=0.751 area=1.000 rmse=2288 mae=1313 mdape=23.4% r2_log=-0.736 | r2 log density=0.793
+12:29:14 INFO   train baseline all            n=62260 share=0.751 area=1.000 rmse=11746 mae=3604 mdape=73.8% r2_log=-5.188 | r2 log density=0.243
+12:29:14 INFO   test  model    all            n=15940 share=0.190 area=1.000 rmse=2094 mae=1341 mdape=24.7% r2_log=-0.456 | r2 log density=0.810
+12:29:14 INFO   test  baseline all            n=15940 share=0.190 area=1.000 rmse=15831 mae=3801 mdape=76.6% r2_log=-4.933 | r2 log density=0.188
+12:29:14 INFO   no_gap model    all            n=74672 share=0.903 area=1.000 rmse=1891 mae=1235 mdape=22.6% r2_log=-0.405 | r2 log density=0.825
+12:29:14 INFO   no_gap baseline all            n=74672 share=0.903 area=1.000 rmse=12947 mae=3683 mdape=74.4% r2_log=-5.061 | r2 log density=0.215
+12:29:14 INFO   gap   model    all            n=3528 share=0.038 area=1.000 rmse=6040 mae=3078 mdape=78.9% r2_log=-7.489 | r2 log density=0.142
+12:29:14 INFO   gap   baseline all            n=3528 share=0.038 area=1.000 rmse=4384 mae=2808 mdape=76.6% r2_log=-7.016 | r2 log density=0.195
+12:29:14 INFO metrics (subset all):
+ year   part   method subset     n  pop_share  area_share         rmse         mae     mdape     r2_log  r2_logdens  gap_counties  gap_tracts
+ 1920    all    model    all  2197   0.091008         1.0  3619.985102 2399.446400 52.416744  -1.021137   -0.377335           533           0
+ 1920    all baseline    all  2197   0.091008         1.0  4665.399258 3319.655468 79.228898  -1.769285   -0.802107           533           0
+ 1920  train    model    all  2127   0.089863         1.0  3667.474806 2439.535583 51.948792  -0.940054   -0.327975           533           0
+ 1920  train baseline    all  2127   0.089863         1.0  4729.969496 3380.607020 78.723933  -1.672514   -0.748266           533           0
+ 1920   test    model    all    70   0.001145         1.0  1608.858289 1181.307933 63.044202 -18.360057   -3.865132           533           0
+ 1920   test baseline    all    70   0.001145         1.0  1825.408569 1467.599012 88.342448 -23.201886   -4.733098           533           0
+ 1920 no_gap    model    all  2197   0.091008         1.0  3619.985102 2399.446400 52.416744  -1.021137   -0.377335           533           0
+ 1920 no_gap baseline    all  2197   0.091008         1.0  4665.399258 3319.655468 79.228898  -1.769285   -0.802107           533           0
+ 1920    gap    model    all     0   0.000000         NaN          NaN         NaN       NaN        NaN         NaN           533           0
+ 1920    gap baseline    all     0   0.000000         NaN          NaN         NaN       NaN        NaN         NaN           533           0
+ 1960    all    model    all 22042   0.564159         1.0  3178.370170 2038.373700 36.002206  -0.559125    0.666635           479         460
+ 1960    all baseline    all 22042   0.564159         1.0 11086.451199 4861.795559 82.665034  -5.033082   -0.259953           479         460
+ 1960  train    model    all 17460   0.442883         1.0  3197.767592 2053.302072 36.824945  -0.518884    0.654830           479         460
+ 1960  train baseline    all 17460   0.442883         1.0 10402.575169 4772.658014 82.436395  -4.521865   -0.221991           479         460
+ 1960   test    model    all  4582   0.121276         1.0  3103.344014 1981.488194 32.563225  -0.889693    0.722111           479         460
+ 1960   test baseline    all  4582   0.121276         1.0 13375.678956 5201.459794 83.302804  -8.965609   -0.464981           479         460
+ 1960 no_gap    model    all 21582   0.551561         1.0  3030.947825 1971.915354 35.294715  -0.420003    0.691978           479         460
+ 1960 no_gap baseline    all 21582   0.551561         1.0 11151.337500 4853.694055 82.354947  -4.912444   -0.248995           479         460
+ 1960    gap    model    all   460   0.012599         1.0  7283.532920 5156.425930 90.517820 -17.098567   -0.832521           479         460
+ 1960    gap baseline    all   460   0.012599         1.0  7430.409784 5241.896949 92.149801 -19.654220   -1.092610           479         460
+ 2010    all    model    all 72243   0.999787         1.0  2457.082279 1415.626390 23.802539  -0.552987    0.831910           416        3776
+ 2010    all baseline    all 72243   0.999787         1.0 15330.399727 4245.372292 74.515841  -4.796435    0.342808           416        3776
+ 2010  train    model    all 57451   0.795417         1.0  2488.740726 1409.858576 23.608952  -0.548197    0.829829           416        3776
+ 2010  train baseline    all 57451   0.795417         1.0 14193.476783 4195.594646 73.872758  -4.672181    0.349151           416        3776
+ 2010   test    model    all 14792   0.204370         1.0  2330.047188 1438.028141 24.575291  -0.573564    0.840199           416        3776
+ 2010   test baseline    all 14792   0.204370         1.0 19115.187346 4438.704870 76.608227  -5.326526    0.317293           416        3776
+ 2010 no_gap    model    all 68467   0.952313         1.0  2033.678178 1307.982384 22.672946  -0.296037    0.855805           416        3776
+ 2010 no_gap baseline    all 68467   0.952313         1.0 15689.774002 4301.696944 74.487816  -4.788225    0.318483           416        3776
+ 2010    gap    model    all  3776   0.047474         1.0  6365.048313 3367.443698 77.455449  -5.379368    0.338281           416        3776
+ 2010    gap baseline    all  3776   0.047474         1.0  5734.685551 3224.085213 75.626905  -5.028524    0.379785           416        3776
+ 2020    all    model    all 78200   0.941287         1.0  2249.820859 1318.449181 23.666563  -0.674528    0.796798           410        3528
+ 2020    all baseline    all 78200   0.941287         1.0 12685.703376 3644.013480 74.479429  -5.131388    0.231849           410        3528
+ 2020  train    model    all 62260   0.751290         1.0  2288.050653 1312.736466 23.367734  -0.735758    0.793406           410        3528
+ 2020  train baseline    all 62260   0.751290         1.0 11745.856322 3603.901708 73.838824  -5.187549    0.242857           410        3528
+ 2020   test    model    all 15940   0.189997         1.0  2093.822215 1340.762459 24.685941  -0.456073    0.810426           410        3528
+ 2020   test baseline    all 15940   0.189997         1.0 15830.792903 3800.685935 76.638248  -4.932824    0.187617           410        3528
+ 2020 no_gap    model    all 74672   0.903219         1.0  1891.335190 1235.323367 22.637731  -0.404651    0.824619           410        3528
+ 2020 no_gap baseline    all 74672   0.903219         1.0 12946.894681 3683.491653 74.434288  -5.061068    0.214842           410        3528
+ 2020    gap    model    all  3528   0.038069         1.0  6040.106118 3077.851326 78.892040  -7.488677    0.142339           410        3528
+ 2020    gap baseline    all  3528   0.038069         1.0  4384.470223 2808.436912 76.572394  -7.015728    0.195473           410        3528
+12:29:14 INFO by observed tract density (people/km2), MdAPE %:
+                              model   baseline      n  pop_share  area_share
+year part   subset                                                          
+1920 all    dens_0_50        59.461  16546.185      4      0.000       0.007
+            dens_50_500     230.266    467.541     59      0.000       0.143
+            dens_500_2000   144.401     43.641    149      0.003       0.228
+            dens_2000_plus   48.164     79.057   1985      0.088       0.622
+     train  dens_0_50        59.461  16546.185      4      0.000       0.007
+            dens_50_500     235.167    479.839     58      0.000       0.143
+            dens_500_2000   162.489     47.451    143      0.002       0.225
+            dens_2000_plus   47.705     78.586   1922      0.087       0.625
+     test   dens_50_500      91.463    144.429      1      0.000       0.149
+            dens_500_2000    66.697     24.745      6      0.000       0.330
+            dens_2000_plus   63.028     88.799     63      0.001       0.521
+     no_gap dens_0_50        59.461  16546.185      4      0.000       0.007
+            dens_50_500     230.266    467.541     59      0.000       0.143
+            dens_500_2000   144.401     43.641    149      0.003       0.228
+            dens_2000_plus   48.164     79.057   1985      0.088       0.622
+1960 all    dens_0_50        98.579    424.528   1302      0.022       0.732
+            dens_50_500      52.941     69.715   3001      0.074       0.187
+            dens_500_2000    28.008     79.957   5561      0.145       0.053
+            dens_2000_plus   34.199     83.042  12178      0.323       0.028
+     train  dens_0_50        98.665    463.676   1042      0.017       0.748
+            dens_50_500      53.443     71.388   2325      0.057       0.175
+            dens_500_2000    27.907     81.564   4418      0.115       0.051
+            dens_2000_plus   35.819     82.002   9675      0.254       0.026
+     test   dens_0_50        97.269    354.375    260      0.004       0.664
+            dens_50_500      50.522     66.929    676      0.018       0.239
+            dens_500_2000    28.596     71.228   1143      0.030       0.059
+            dens_2000_plus   28.590     85.026   2503      0.069       0.038
+     no_gap dens_0_50        95.981    424.777   1257      0.021       0.736
+            dens_50_500      53.149     70.290   2911      0.071       0.184
+            dens_500_2000    27.370     79.640   5417      0.141       0.052
+            dens_2000_plus   33.589     82.657  11997      0.318       0.028
+     gap    dens_0_50       406.034    414.491     45      0.001       0.600
+            dens_50_500      44.271     51.303     90      0.003       0.314
+            dens_500_2000    83.655     86.124    144      0.004       0.063
+            dens_2000_plus   94.355     95.795    181      0.005       0.023
+2010 all    dens_0_50        18.323     73.579  13286      0.162       0.916
+            dens_50_500      23.419     67.632  16261      0.247       0.068
+            dens_500_2000    21.482     73.557  24660      0.345       0.014
+            dens_2000_plus   31.204     78.721  18036      0.246       0.003
+     train  dens_0_50        18.451     73.294  10628      0.130       0.914
+            dens_50_500      23.160     67.884  12952      0.197       0.069
+            dens_500_2000    21.059     74.167  19891      0.279       0.014
+            dens_2000_plus   31.621     76.814  13980      0.190       0.003
+     test   dens_0_50        18.004     74.267   2658      0.032       0.922
+            dens_50_500      24.324     66.805   3309      0.051       0.063
+            dens_500_2000    23.445     71.294   4769      0.066       0.012
+            dens_2000_plus   29.799     83.462   4056      0.056       0.003
+     no_gap dens_0_50        16.326     78.570  11587      0.142       0.908
+            dens_50_500      21.776     66.895  15309      0.234       0.073
+            dens_500_2000    20.606     73.133  23796      0.334       0.015
+            dens_2000_plus   30.772     78.624  17775      0.243       0.003
+     gap    dens_0_50        47.251     51.762   1699      0.020       0.965
+            dens_50_500      78.006     78.767    952      0.014       0.031
+            dens_500_2000    88.512     86.809    864      0.011       0.003
+            dens_2000_plus   91.678     87.974    261      0.003       0.000
+2020 all    dens_0_50        17.899     72.226  11786      0.112       0.867
+            dens_50_500      22.554     68.203  17514      0.221       0.104
+            dens_500_2000    21.776     72.476  27690      0.345       0.024
+            dens_2000_plus   30.515     79.081  21210      0.263       0.005
+     train  dens_0_50        17.734     72.165   9386      0.090       0.864
+            dens_50_500      22.149     68.461  13938      0.176       0.106
+            dens_500_2000    21.284     73.269  22306      0.279       0.025
+            dens_2000_plus   30.959     77.120  16630      0.206       0.005
+     test   dens_0_50        18.451     72.484   2400      0.022       0.878
+            dens_50_500      24.029     67.434   3576      0.045       0.095
+            dens_500_2000    23.699     69.756   5384      0.066       0.022
+            dens_2000_plus   29.081     83.987   4580      0.056       0.005
+     no_gap dens_0_50        16.348     77.537  10500      0.100       0.859
+            dens_50_500      21.000     67.389  16475      0.209       0.109
+            dens_500_2000    20.887     72.004  26760      0.335       0.026
+            dens_2000_plus   30.171     78.956  20937      0.259       0.006
+     gap    dens_0_50        44.383     49.042   1286      0.012       0.933
+            dens_50_500      78.716     79.193   1039      0.012       0.059
+            dens_500_2000    88.618     86.923    930      0.010       0.007
+            dens_2000_plus   91.623     90.196    273      0.003       0.001
+12:29:14 INFO totals QA: 24736 rows, 0 flagged (> 0.1%); by check:
+               size  sum
+check                   
+county_cells  12368    0
+masked_cells  12368    0
+12:29:14 INFO wrote results/validation/conus/Dasy_CONUS_RF_v3_u070
+12:29:14 INFO DONE
+9.8M	results/validation/conus/county_maps
+4.7M	results/validation/conus/county_maps_ntl
+9.6M	results/validation/conus/county_maps_ntlv
+7.8M	results/validation/conus/Dasy_CONUS_CAT_v3_n60
+7.8M	results/validation/conus/Dasy_CONUS_LGBM_v3_n60
+7.8M	results/validation/conus/Dasy_CONUS_RF_v1
+7.8M	results/validation/conus/Dasy_CONUS_RF_v1_bui
+7.4M	results/validation/conus/Dasy_CONUS_RF_v2
+7.4M	results/validation/conus/Dasy_CONUS_RF_v3
+34M	results/validation/conus/Dasy_CONUS_RF_v3_all
+7.9M	results/validation/conus/Dasy_CONUS_RF_v3_bui
+7.8M	results/validation/conus/Dasy_CONUS_RF_v3_n60
+11M	results/validation/conus/Dasy_CONUS_RF_v3_ntl
+11M	results/validation/conus/Dasy_CONUS_RF_v3_ntlv
+14M	results/validation/conus/Dasy_CONUS_RF_v3_u050
+14M	results/validation/conus/Dasy_CONUS_RF_v3_u070
+7.4M	results/validation/conus/Dasy_CONUS_RF_v4
+7.8M	results/validation/conus/Dasy_CONUS_XGB_v3_n60
+488K	results/validation/conus/external
+48K	results/validation/conus/model_comparison.csv
+48K	results/validation/conus/ntl_comparison.csv
+48K	results/validation/conus/ntl_viirs_comparison.csv
+3.6M	results/validation/massachusetts/v2
+3.6M	results/validation/massachusetts/v3_1
+1.5M	results/validation/massachusetts/v3_2
+1.5M	results/validation/massachusetts/v3_3
+3.5M	results/validation/massachusetts/v3_4
+3.6M	results/validation/massachusetts/v4
+3.6M	results/validation/massachusetts/v4_1
+== done 2026-10-29T12:29:15-06:00

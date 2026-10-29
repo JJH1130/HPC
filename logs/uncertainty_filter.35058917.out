@@ -1,0 +1,78 @@
+== job 35058917 (uncertainty_filter) on c3cpu-c15-u1-1 at 2026-10-29T11:38:31-06:00
+== cores=1 gpus=none restart=0
+== git b284483
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  extra args: 
+11:38:38 INFO arg uncertainty = results/hisdac_uncertainty/county_record_uncertainty.csv
+11:38:38 INFO arg bui = /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2015_BUI.tif
+11:38:38 INFO arg cutout = /scratch/alpine/jaju1407/hisdac/cutouts/conus
+11:38:38 INFO arg zone_year = 2010
+11:38:38 INFO arg nobuilt_values = results/hisdac_uncertainty/nobuilt_values.csv
+11:38:38 INFO arg thresholds = [0.9, 0.7, 0.5]
+11:38:38 INFO arg share = 0.05
+11:38:38 INFO arg pop_year = 2010
+11:38:38 INFO arg years = [1920, 1960, 2010, 2020]
+11:38:38 INFO arg gap_year = 2010
+11:38:38 INFO arg block_rows = 1024
+11:38:38 INFO arg out_dir = results/hisdac_uncertainty
+11:38:38 INFO NOTE NobuiltYear values 1-99 (study cells): even 10141860 vs odd 11997534 cells (2+: even 10141860 vs odd 3+ 3679137) -> records may be counted twice; used as they are (not corrected), as requested
+11:38:39 INFO BUI_2015       /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUI/2015_BUI.tif | 18459x11615 ESRI:102039 | direct
+11:38:43 INFO BUI_2015: direct | nodata cells read as 0: 0 | max 5.45e+09 | cells above 3e+07 in counties: 317
+11:38:43 INFO records rule: median records per person (2015 records / 2010 pop) 1.366 over 3109 counties -> limit 0.0683; 3 counties below, 0 without a value (no 2010 pop)
+11:38:43 INFO area rule: median BUI_2015 per dated record 1638 sq ft over 3003 counties -> limit 81.9; 36 counties below, 106 without a value (BUPR_2015 = 0)
+11:38:43 INFO   flag_records counties:
+ GISJOIN        state           name  part  pop_2010  records_per_person  bui_per_record  ratio_A_nby  bui_cells_above_cap
+G1700430     Illinois  DuPage County train  916924.0              0.0010       3049.6555       0.3724                    0
+G3500350   New Mexico   Otero County train   63797.0              0.0006       2052.9130       0.4103                    0
+G4601130 South Dakota Shannon County train   13586.0              0.0038        864.0000       0.9808                    0
+11:38:43 INFO   flag_area counties:
+ GISJOIN        state                name  part  pop_2010  records_per_person  bui_per_record  ratio_A_nby  bui_cells_above_cap
+G0601030   California       Tehama County train   63463.0              1.1465         24.8235       0.3487                    0
+G2100790     Kentucky      Garrard County  test   16912.0              1.0921         26.2648       0.6676                    0
+G2700270    Minnesota         Clay County train   58999.0              1.7417         14.0963       0.7323                    0
+G2900350     Missouri       Carter County  test    6265.0              3.1277          0.0000       0.9999                    0
+G3800290 North Dakota       Emmons County train    3550.0             10.8242          0.0000       0.9998                    0
+G3800390 North Dakota       Griggs County train    2420.0              9.3074          0.0000       0.9999                    0
+G3800650 North Dakota       Oliver County train    1846.0             10.4469          0.0000       0.9999                    0
+G3800730 North Dakota       Ransom County train    5457.0              6.6830          0.0000       1.0000                    0
+G3800970 North Dakota       Traill County train    8121.0              4.1289          0.0000       0.9999                    0
+G3801030 North Dakota        Wells County train    4207.0              5.1517         25.0526       0.9930                    0
+G3801050 North Dakota     Williams County train   22398.0              3.3873          0.0000       1.0000                    0
+G4100230       Oregon        Grant County train    7445.0              4.4285          0.5933       0.8185                    0
+G4200210 Pennsylvania      Cambria County train  143679.0              1.6120          2.2485       0.6201                    0
+G4600290 South Dakota    Codington County  test   27227.0              2.0862          0.0000       0.4328                    0
+G4600390 South Dakota        Deuel County train    4364.0              3.1684          0.0000       0.9983                    0
+G4600490 South Dakota        Faulk County train    2364.0              9.8435          1.3877       0.9610                    0
+G4600610 South Dakota       Hanson County  test    3331.0              4.7826          4.5251       0.6274                    0
+G4600850 South Dakota        Lyman County  test    3755.0              8.5079          0.0000       0.9045                    0
+G4600970 South Dakota        Miner County train    2389.0              8.2336          0.0000       0.9994                    0
+G4601110 South Dakota      Sanborn County train    2355.0              7.8098          0.0000       0.9169                    0
+G4803590        Texas       Oldham County train    2052.0              4.6516          0.0000       0.9353                    0
+G4803930        Texas      Roberts County train     929.0              8.9064          0.0000       0.8544                    0
+G5100110     Virginia   Appomattox County train   14973.0              2.5104          0.8079       0.5107                    0
+G5100290     Virginia   Buckingham County train   17146.0              2.6463         64.0000       0.9992                    0
+G5100490     Virginia   Cumberland County  test   10052.0              3.1920          3.8670       0.6172                    0
+G5101050     Virginia          Lee County  test   25587.0              5.4426          7.8647       0.8504                    0
+G5101350     Virginia     Nottoway County train   15853.0              3.0934          2.8073       0.7344                    0
+G5101830     Virginia       Sussex County train   12087.0              3.0671         19.5962       0.7912                    0
+G5101930     Virginia Westmoreland County train   17454.0              4.3489         29.5020       0.7776                    0
+G5500110    Wisconsin      Buffalo County train   13587.0              2.4884          0.0000       0.9999                    0
+G5500310    Wisconsin      Douglas County train   44159.0              3.4249          0.0000       1.0000                    0
+G5500530    Wisconsin      Jackson County  test   20449.0              4.4008          0.0000       1.0000                    0
+G5500610    Wisconsin     Kewaunee County train   20574.0              2.7295          0.0000       0.9685                    0
+G5500730    Wisconsin     Marathon County train  134063.0              1.9039          0.0000       0.8709                    0
+G5500890    Wisconsin      Ozaukee County train   86395.0              1.2596          8.0329       0.8616                    0
+G5500970    Wisconsin      Portage County train   70019.0              2.0460          0.0000       0.8828                    0
+11:38:44 INFO t = 0.9 (t090): 538 of 3109 counties excluded (ratio 519, records 3, area 36; fixed rules only 19) | train / test excluded 439 / 99 | pop kept {1920: 0.904, 1960: 0.931, 2010: 0.944, 2020: 0.947} | gap counties excluded 415 of 416
+11:38:44 INFO t = 0.7 (t070): 1020 of 3109 counties excluded (ratio 1011, records 3, area 36; fixed rules only 9) | train / test excluded 821 / 199 | pop kept {1920: 0.836, 1960: 0.889, 2010: 0.91, 2020: 0.915} | gap counties excluded 416 of 416
+11:38:44 INFO t = 0.5 (t050): 1776 of 3109 counties excluded (ratio 1772, records 3, area 36; fixed rules only 4) | train / test excluded 1414 / 362 | pop kept {1920: 0.641, 1960: 0.745, 2010: 0.796, 2020: 0.806} | gap counties excluded 416 of 416
+11:38:44 INFO sets nested (a larger t excludes a subset of a smaller t's set): True
+11:38:44 INFO summary:
+ threshold label  counties  excluded  kept  by_ratio  by_records  by_area  fixed_rules_only  train_excluded  test_excluded  train_kept  test_kept  gap_2010_counties  gap_2010_excluded  pop_share_kept_1920  pop_share_kept_1960  pop_share_kept_2010  pop_share_kept_2020
+       0.9  t090      3109       538  2571       519           3       36                19             439             99        2048        523                416                415                0.904                0.931                0.944                0.947
+       0.7  t070      3109      1020  2089      1011           3       36                 9             821            199        1666        423                416                416                0.836                0.889                0.910                0.915
+       0.5  t050      3109      1776  1333      1772           3       36                 4            1414            362        1073        260                416                416                0.641                0.745                0.796                0.806
+11:38:44 INFO DONE
+-rw-r--r-- 1 jaju1407 jaju1407grp 228562 Oct 29 11:38 results/hisdac_uncertainty/excluded_counties_t050.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp 129087 Oct 29 11:38 results/hisdac_uncertainty/excluded_counties_t070.csv
+-rw-r--r-- 1 jaju1407 jaju1407grp  65936 Oct 29 11:38 results/hisdac_uncertainty/excluded_counties_t090.csv
+== done 2026-10-29T11:38:44-06:00

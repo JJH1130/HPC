@@ -1,0 +1,44 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+35058917         uncertainty_filter  COMPLETED   00:00:15                   1  00:05.963 
+35058917.ba+                  batch  COMPLETED   00:00:15    996876K        1  00:05.962 
+35058917.ex+                 extern  COMPLETED   00:00:15       284K        1   00:00:00 
+35058920        dasymetric_features  COMPLETED   00:12:51                   6  03:08.656 
+35058920.ba+                  batch  COMPLETED   00:12:51   9809088K        6  03:08.655 
+35058920.ex+                 extern  COMPLETED   00:12:51          0        6  00:00.001 
+35058921           dasymetric_train  COMPLETED   00:21:56                  16  54:17.289 
+35058921.ba+                  batch  COMPLETED   00:21:56   6899176K       16  54:17.287 
+35058921.ex+                 extern  COMPLETED   00:21:56       256K       16  00:00.002 
+35058922         dasymetric_predict  COMPLETED   00:19:15                  32   02:00:22 
+35058922.ba+                  batch  COMPLETED   00:19:15  15553624K       32   02:00:22 
+35058922.ex+                 extern  COMPLETED   00:19:15       256K       32  00:00.001 
+35058923             validate_tract  COMPLETED   00:09:43                   8  06:34.341 
+35058923.ba+                  batch  COMPLETED   00:09:43  18122572K        8  06:34.339 
+35058923.ex+                 extern  COMPLETED   00:09:43       256K        8  00:00.001 
+35058924        dasymetric_features  COMPLETED   00:09:55                   6  03:52.290 
+35058924.ba+                  batch  COMPLETED   00:09:55   9811812K        6  03:52.288 
+35058924.ex+                 extern  COMPLETED   00:09:55       256K        6  00:00.001 
+35058925           dasymetric_train  COMPLETED   00:15:45                  16  45:50.380 
+35058925.ba+                  batch  COMPLETED   00:15:45   6124860K       16  45:50.379 
+35058925.ex+                 extern  COMPLETED   00:15:45       256K       16  00:00.001 
+35058926         dasymetric_predict  COMPLETED   00:15:59                  32   01:28:03 
+35058926.ba+                  batch  COMPLETED   00:15:59  14772828K       32   01:28:03 
+35058926.ex+                 extern  COMPLETED   00:15:59       256K       32  00:00.001 
+35058927             validate_tract  COMPLETED   00:08:06                   8  06:05.621 
+35058927.ba+                  batch  COMPLETED   00:08:06  18120520K        8  06:05.619 
+35058927.ex+                 extern  COMPLETED   00:08:06       256K        8  00:00.001 
+35058928        dasymetric_features  COMPLETED   00:17:19                   6  03:45.905 
+35058928.ba+                  batch  COMPLETED   00:17:19  10245932K        6  03:45.904 
+35058928.ex+                 extern  COMPLETED   00:17:19       256K        6  00:00.001 
+35058929           dasymetric_train  COMPLETED   00:04:33                  16  22:39.676 
+35058929.ba+                  batch  COMPLETED   00:04:33   4105196K       16  22:39.675 
+35058929.ex+                 extern  COMPLETED   00:04:33          0       16  00:00.001 
+35058930         dasymetric_predict  COMPLETED   00:18:04                  32   01:08:13 
+35058930.ba+                  batch  COMPLETED   00:18:04  15037132K       32   01:08:13 
+35058930.ex+                 extern  COMPLETED   00:18:04       256K       32  00:00.001 
+35058932             validate_tract  COMPLETED   00:09:08                   8  06:30.568 
+35058932.ba+                  batch  COMPLETED   00:09:08  18122180K        8  06:30.567 
+35058932.ex+                 extern  COMPLETED   00:09:08       256K        8  00:00.001 
+35058933             filter_compare  COMPLETED   00:00:24                   1  00:04.958 
+35058933.ba+                  batch  COMPLETED   00:00:24    283192K        1  00:04.957 
+35058933.ex+                 extern  COMPLETED   00:00:25       288K        1  00:00.001 
