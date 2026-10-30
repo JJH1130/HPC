@@ -1,0 +1,346 @@
+== job 35099133 (aggregation_diag) on c3cpu-e2-u8 at 2026-10-30T08:55:30-06:00
+== cores=8 gpus=none restart=0
+== git cce80cc
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_rf_v3_u070.yaml (name=conus version=Dasy_CONUS_RF_v3_u070)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: --years 1960 2010
+08:55:46 INFO arg config = configs/conus_rf_v3_u070.yaml
+08:55:46 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+08:55:46 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+08:55:46 INFO arg years = [1960, 2010]
+08:55:46 INFO arg tracts_dir = results/validation/conus/Dasy_CONUS_RF_v3_u070
+08:55:46 INFO arg out = results/aggregation/conus
+08:55:46 INFO arg min_tracts = 5
+08:55:46 INFO arg plot_year = 2010
+08:55:46 INFO conus Dasy_CONUS_RF_v3_u070 | years [1960, 2010] | cutout /scratch/alpine/jaju1407/hisdac/cutouts/conus | tracts results/validation/conus/Dasy_CONUS_RF_v3_u070 -> results/aggregation/conus
+08:55:46 INFO == 1960 (era Y1960): features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+08:58:33 INFO     1960: strip 20/23 (rows 9728-10240)
+08:58:38 INFO     1960: strip 23/23 (rows 11264-11615)
+08:58:39 INFO   1960: 3095 counties, 123518894 kept cells (4439584 built, 0.036)
+08:58:39 INFO   1960: recomputed means = county_features.csv for 3095 counties (max rel. diff 9.3e-13)
+08:58:39 INFO   1960: county sets {'train': 1659, 'excluded': 1017, 'test': 419}
+08:59:23 INFO   1960: allocated pop on the kept cells vs census: max rel. diff 3.1e-08
+08:59:23 INFO   1960: bui        median over all cells = 0 in 3054 of 3095 counties; built-cell median = 0 in 0
+08:59:23 INFO   1960: bldg_size  median over all cells = 0 in 3055 of 3095 counties; built-cell median = 0 in 19
+08:59:23 INFO   1960: mu_ratio   median over all cells = 0 in 3052 of 3095 counties; built-cell median = 0 in 19
+08:59:23 INFO   1960: dist_built median over all cells = 0 in 43 of 3095 counties; built-cell median = 0 in 0
+08:59:23 INFO   1960: res_share  median over all cells = 0 in 3053 of 3095 counties; built-cell median = 0 in 29
+08:59:23 INFO   1960: rent_share median over all cells = 0 in 3088 of 3095 counties; built-cell median = 0 in 2890
+08:59:23 INFO   1960: elev       median over all cells = 0 in 0 of 3095 counties; built-cell median = 0 in 0
+08:59:23 INFO   1960: slope      median over all cells = 0 in 0 of 3095 counties; built-cell median = 0 in 0
+08:59:23 INFO   wrote results/aggregation/conus/county_aggregates_1960.csv
+08:59:24 INFO   1960: 275 counties with >= 5 tracts ({'train': 217, 'test': 43, 'excluded': 15}); wrote results/aggregation/conus/tract_error_by_county_1960.csv
+08:59:33 INFO == 2010 (era Y2010): features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope']
+09:04:56 INFO     2010: strip 20/23 (rows 9728-10240)
+09:05:07 INFO     2010: strip 23/23 (rows 11264-11615)
+09:05:08 INFO   2010: 3109 counties, 123804966 kept cells (10901310 built, 0.088)
+09:05:08 INFO   2010: recomputed means = county_features.csv for 3109 counties (max rel. diff 9.8e-13)
+09:05:08 INFO   2010: county sets {'train': 1666, 'excluded': 1020, 'test': 423}
+09:05:55 INFO   2010: allocated pop on the kept cells vs census: max rel. diff 1.5e-08
+09:05:55 INFO   2010: bui        median over all cells = 0 in 2931 of 3109 counties; built-cell median = 0 in 0
+09:05:55 INFO   2010: bldg_size  median over all cells = 0 in 2934 of 3109 counties; built-cell median = 0 in 8
+09:05:55 INFO   2010: mu_ratio   median over all cells = 0 in 2907 of 3109 counties; built-cell median = 0 in 8
+09:05:55 INFO   2010: dist_built median over all cells = 0 in 205 of 3109 counties; built-cell median = 0 in 0
+09:05:55 INFO   2010: res_share  median over all cells = 0 in 2944 of 3109 counties; built-cell median = 0 in 16
+09:05:55 INFO   2010: rent_share median over all cells = 0 in 3099 of 3109 counties; built-cell median = 0 in 2963
+09:05:55 INFO   2010: elev       median over all cells = 0 in 0 of 3109 counties; built-cell median = 0 in 0
+09:05:55 INFO   2010: slope      median over all cells = 0 in 0 of 3109 counties; built-cell median = 0 in 0
+09:06:03 INFO   wrote results/aggregation/conus/county_aggregates_2010.csv
+09:06:03 INFO   2010: 2009 counties with >= 5 tracts ({'train': 1257, 'excluded': 445, 'test': 307}); wrote results/aggregation/conus/tract_error_by_county_2010.csv
+09:06:04 INFO cells / allocated people outside the training range (all cells; shares):
+                cell_share_below         cell_share_above         pop_share_below         pop_share_above        
+range                     minmax p01_p99           minmax p01_p99          minmax p01_p99          minmax p01_p99
+year feature                                                                                                     
+1960 bui                  0.9641  0.9641           0.0000  0.0029          0.2114  0.2114          0.0057  0.3460
+     bldg_size            0.9654  0.9654           0.0001  0.0027          0.2137  0.2137          0.0052  0.1321
+     mu_ratio             0.9619  0.9619           0.0001  0.0189          0.2129  0.2129          0.0075  0.4906
+     dist_built           0.0396  0.0396           0.0652  0.1991          0.7894  0.7894          0.0076  0.0280
+     res_share            0.9616  0.9616           0.0297  0.0305          0.2226  0.2226          0.5385  0.5658
+     rent_share           0.0000  0.0000           0.0006  0.0027          0.0000  0.0000          0.0736  0.2692
+     elev                 0.0060  0.0126           0.0016  0.0297          0.0105  0.0359          0.0000  0.0006
+     slope                0.0589  0.0999           0.0242  0.0624          0.0819  0.1462          0.0009  0.0043
+2010 bui                  0.9120  0.9120           0.0000  0.0051          0.0504  0.0504          0.0037  0.2679
+     bldg_size            0.9138  0.9138           0.0002  0.0028          0.0535  0.0535          0.0070  0.0943
+     mu_ratio             0.9067  0.9067           0.0002  0.0277          0.0532  0.0532          0.0094  0.2489
+     dist_built           0.0000  0.0953           0.0610  0.1897          0.0000  0.9500          0.0060  0.0180
+     res_share            0.9102  0.9102           0.0683  0.0698          0.0945  0.0945          0.6004  0.6256
+     rent_share           0.0000  0.0000           0.0012  0.0043          0.0000  0.0000          0.0617  0.1987
+     elev                 0.0060  0.0126           0.0016  0.0299          0.0094  0.0366          0.0000  0.0012
+     slope                0.0581  0.0990           0.0242  0.0625          0.0764  0.1390          0.0005  0.0030
+09:06:04 INFO every feature inside the range (shares of cells / people):
+             cell_share_inside               pop_share_inside              
+subset                     all   built empty              all   built empty
+year range                                                                 
+1960 minmax             0.0000  0.0000   0.0           0.0000  0.0000   0.0
+     p01_p99            0.0000  0.0000   0.0           0.0000  0.0000   0.0
+2010 minmax             0.0193  0.2194   0.0           0.2385  0.2511   0.0
+     p01_p99            0.0000  0.0000   0.0           0.0000  0.0000   0.0
+09:06:04 INFO cell quantiles vs training county means:
+ year    feature         sample         n  zero_share      p01       p10       p50        p90         p99          max
+ 1960        bui      cells_all 123518894      0.9641   0.0000    0.0000    0.0000     0.0000  10596.0000 2.979498e+07
+ 1960        bui    cells_built   4439584      0.0000 620.0000 1248.0000 4016.0000 56877.0000 269108.3400 2.979498e+07
+ 1960        bui    cells_empty 119079310      1.0000   0.0000    0.0000    0.0000     0.0000      0.0000 0.000000e+00
+ 1960        bui counties_train      1659      0.0000  13.9073   88.8802  457.8921  4031.8704  70946.6710 3.844531e+06
+ 1960  bldg_size      cells_all 123518894      0.9654   0.0000    0.0000    0.0000     0.0000   2642.8476 2.192614e+07
+ 1960  bldg_size    cells_built   4439584      0.0385   0.0000  660.0000 1777.1666  4419.7358  21339.5000 2.192614e+07
+ 1960  bldg_size    cells_empty 119079310      1.0000   0.0000    0.0000    0.0000     0.0000      0.0000 0.000000e+00
+ 1960  bldg_size counties_train      1659      0.0000   3.7808   26.7112  121.0543   625.5480   5085.2795 1.857941e+05
+ 1960   mu_ratio      cells_all 123518894      0.9619   0.0000    0.0000    0.0000     0.0000      2.0000 1.324000e+03
+ 1960   mu_ratio    cells_built   4439584      0.0385   0.0000    1.0000    1.4000     2.0000      4.0000 1.324000e+03
+ 1960   mu_ratio    cells_empty 119079310      0.9963   0.0000    0.0000    0.0000     0.0000      0.0000 7.755000e+02
+ 1960   mu_ratio counties_train      1659      0.0000   0.0025    0.0202    0.0889     0.3547      1.3532 6.574500e+00
+ 1960 dist_built      cells_all 123518894      0.0396   0.0000    0.2500    2.5739    23.1948     62.0408 1.520413e+02
+ 1960 dist_built    cells_built   4439584      1.0000   0.0000    0.0000    0.0000     0.0000      0.0000 0.000000e+00
+ 1960 dist_built    cells_empty 119079310      0.0038   0.2500    0.3536    2.8284    23.8026     62.6743 1.520413e+02
+ 1960 dist_built counties_train      1659      0.0000   0.1257    0.3639    0.8237     3.5728     12.5435 3.031980e+01
+ 1960  res_share      cells_all 123518894      0.9616   0.0000    0.0000    0.0000     0.0000      1.0000 1.000000e+00
+ 1960  res_share    cells_built   4439584      0.0531   0.0000    0.5000    1.0000     1.0000      1.0000 1.000000e+00
+ 1960  res_share    cells_empty 119079310      0.9955   0.0000    0.0000    0.0000     0.0000      0.0000 1.000000e+00
+ 1960  res_share counties_train      1659      0.0000   0.0015    0.0112    0.0572     0.1930      0.5784 7.349000e-01
+ 1960 rent_share      cells_all 123518894      0.9966   0.0000    0.0000    0.0000     0.0000      0.0000 1.000000e+00
+ 1960 rent_share    cells_built   4439584      0.9065   0.0000    0.0000    0.0000     0.0000      0.7500 1.000000e+00
+ 1960 rent_share    cells_empty 119079310      0.9999   0.0000    0.0000    0.0000     0.0000      0.0000 1.000000e+00
+ 1960 rent_share counties_train      1659      0.0524   0.0000    0.0000    0.0003     0.0051      0.0617 5.516000e-01
+ 1960       elev      cells_all 123518894      0.0004   5.6812   76.7454  481.1349  1899.4928   2885.8887 4.351781e+03
+ 1960       elev    cells_built   4439584      0.0001   5.1389   31.4621  222.8517   526.5770   1711.4450 4.071677e+03
+ 1960       elev    cells_empty 119079310      0.0004   5.7235   80.0537  508.8655  1917.5028   2899.9890 4.351781e+03
+ 1960       elev counties_train      1659      0.0000   7.0009   38.7758  260.0480   954.8901   2430.5556 3.476483e+03
+ 1960      slope      cells_all 123518894      0.0019   0.0432    0.2025    1.1647     8.6369     22.8041 6.307810e+01
+ 1960      slope    cells_built   4439584      0.0001   0.0537    0.2016    0.8902     3.5885      9.6890 4.062360e+01
+ 1960      slope    cells_empty 119079310      0.0019   0.0428    0.2025    1.1791     8.8573     22.9891 6.307810e+01
+ 1960      slope counties_train      1659      0.0000   0.2022    0.4101    1.1559     5.7901     11.8979 1.791000e+01
+ 2010        bui      cells_all 123804966      0.9119   0.0000    0.0000    0.0000     0.0000  77074.0000 2.988861e+07
+ 2010        bui    cells_built  10901310      0.0000 710.0000 1516.0000 6332.0000 86953.0000 320460.9100 2.988861e+07
+ 2010        bui    cells_empty 112903656      1.0000   0.0000    0.0000    0.0000     0.0000      0.0000 0.000000e+00
+ 2010        bui counties_train      1666      0.0000  71.5378  329.1284 1791.8140 18586.7803 129907.3925 5.373769e+06
+ 2010  bldg_size      cells_all 123804966      0.9138   0.0000    0.0000    0.0000     0.0000   5564.0000 2.764039e+07
+ 2010  bldg_size    cells_built  10901310      0.0205   0.0000  872.0000 2195.5938  5956.0000  49502.5569 2.764039e+07
+ 2010  bldg_size    cells_empty 112903656      1.0000   0.0000    0.0000    0.0000     0.0000      0.0000 0.000000e+00
+ 2010  bldg_size counties_train      1666      0.0000  17.9204   94.0208  479.0015  2382.5107  13023.3974 2.446878e+05
+ 2010   mu_ratio      cells_all 123804966      0.9067   0.0000    0.0000    0.0000     0.0000      2.0000 7.112000e+03
+ 2010   mu_ratio    cells_built  10901310      0.0205   0.0000    1.0000    1.5000     2.0000      4.0000 7.112000e+03
+ 2010   mu_ratio    cells_empty 112903656      0.9922   0.0000    0.0000    0.0000     0.0000      0.0000 5.900000e+02
+ 2010   mu_ratio counties_train      1666      0.0000   0.0125    0.0593    0.2723     0.8218      1.9630 1.088580e+01
+ 2010 dist_built      cells_all 123804966      0.0953   0.0000    0.2500    1.6008    17.2373     49.2728 1.357905e+02
+ 2010 dist_built    cells_built  10901310      1.0000   0.0000    0.0000    0.0000     0.0000      0.0000 0.000000e+00
+ 2010 dist_built    cells_empty 112903656      0.0079   0.2500    0.2500    2.1213    18.4560     50.7001 1.357905e+02
+ 2010 dist_built counties_train      1666      0.0006   0.0632    0.2002    0.5196     2.4227      9.4824 2.384990e+01
+ 2010  res_share      cells_all 123804966      0.9102   0.0000    0.0000    0.0000     0.0000      1.0000 1.000000e+00
+ 2010  res_share    cells_built  10901310      0.0537   0.0000    0.5000    1.0000     1.0000      1.0000 1.000000e+00
+ 2010  res_share    cells_empty 112903656      0.9929   0.0000    0.0000    0.0000     0.0000      0.0000 1.000000e+00
+ 2010  res_share counties_train      1666      0.0000   0.0064    0.0301    0.1500     0.4205      0.6703 7.863000e-01
+ 2010 rent_share      cells_all 123804966      0.9941   0.0000    0.0000    0.0000     0.0000      0.0000 1.000000e+00
+ 2010 rent_share    cells_built  10901310      0.9341   0.0000    0.0000    0.0000     0.0000      0.6154 1.000000e+00
+ 2010 rent_share    cells_empty 112903656      0.9999   0.0000    0.0000    0.0000     0.0000      0.0000 1.000000e+00
+ 2010 rent_share counties_train      1666      0.0240   0.0000    0.0001    0.0009     0.0109      0.0743 5.189000e-01
+ 2010       elev      cells_all 123804966      0.0004   5.6767   77.0191  482.2722  1905.1837   2885.2306 4.351781e+03
+ 2010       elev    cells_built  10901310      0.0001   5.4142   31.1449  223.2945   614.4168   2004.8431 4.246524e+03
+ 2010       elev    cells_empty 112903656      0.0004   5.7305   86.1004  554.7016  1947.5079   2919.8053 4.351781e+03
+ 2010       elev counties_train      1666      0.0000   7.0099   38.7300  259.9971   959.7383   2428.4653 3.476483e+03
+ 2010      slope      cells_all 123804966      0.0013   0.0451    0.2038    1.1669     8.6349     22.7939 6.307810e+01
+ 2010      slope    cells_built  10901310      0.0002   0.0560    0.2140    0.9400     3.7400     10.4099 4.247950e+01
+ 2010      slope    cells_empty 112903656      0.0014   0.0442    0.2027    1.1985     9.1755     23.2576 6.307810e+01
+ 2010      slope counties_train      1666      0.0000   0.2023    0.4105    1.1598     5.7728     11.8864 1.791000e+01
+09:06:04 INFO Spearman with y (training counties):
+year               1960   2010
+a                             
+mean_bui          0.873  0.937
+mean_bldg_size    0.834  0.888
+mean_mu_ratio     0.792  0.819
+mean_dist_built  -0.621 -0.588
+mean_res_share    0.791  0.811
+mean_rent_share   0.719  0.800
+mean_elev        -0.366 -0.388
+mean_slope       -0.074 -0.021
+bmean_bui         0.499  0.634
+bmean_bldg_size   0.363  0.505
+bmean_mu_ratio    0.192  0.170
+bmean_res_share   0.052 -0.056
+bmean_rent_share  0.441  0.509
+bmean_elev       -0.368 -0.401
+bmean_slope      -0.002  0.016
+med_bui           0.240  0.462
+bmed_bui          0.424  0.630
+med_bldg_size     0.240  0.460
+bmed_bldg_size    0.263  0.408
+med_mu_ratio      0.244  0.485
+bmed_mu_ratio     0.181  0.180
+med_dist_built   -0.688 -0.702
+med_res_share     0.240  0.444
+bmed_res_share   -0.022 -0.024
+med_rent_share    0.112  0.127
+bmed_rent_share   0.152  0.152
+med_elev         -0.369 -0.397
+bmed_elev        -0.369 -0.407
+med_slope        -0.083 -0.036
+bmed_slope        0.001  0.014
+built_share       0.847  0.877
+top10_share      -0.048 -0.345
+gini_bui          0.169 -0.070
+09:06:04 INFO Spearman among ['mean_bui', 'mean_bldg_size', 'mean_mu_ratio']:
+ year              a              b   rho    n
+ 1960       mean_bui mean_bldg_size 0.933 1659
+ 1960       mean_bui  mean_mu_ratio 0.889 1659
+ 1960 mean_bldg_size  mean_mu_ratio 0.942 1659
+ 2010       mean_bui mean_bldg_size 0.954 1666
+ 2010       mean_bui  mean_mu_ratio 0.873 1666
+ 2010 mean_bldg_size  mean_mu_ratio 0.926 1666
+09:06:04 INFO Spearman among ['bmean_bui', 'bmean_bldg_size', 'bmean_mu_ratio']:
+ year               a               b   rho    n
+ 1960       bmean_bui bmean_bldg_size 0.698 1659
+ 1960       bmean_bui  bmean_mu_ratio 0.473 1659
+ 1960 bmean_bldg_size  bmean_mu_ratio 0.597 1659
+ 2010       bmean_bui bmean_bldg_size 0.835 1666
+ 2010       bmean_bui  bmean_mu_ratio 0.461 1666
+ 2010 bmean_bldg_size  bmean_mu_ratio 0.548 1666
+09:06:04 INFO Spearman among ['bmed_bui', 'bmed_bldg_size', 'bmed_mu_ratio']:
+ year              a              b   rho    n
+ 1960       bmed_bui bmed_bldg_size 0.744 1659
+ 1960       bmed_bui  bmed_mu_ratio 0.538 1659
+ 1960 bmed_bldg_size  bmed_mu_ratio 0.523 1659
+ 2010       bmed_bui bmed_bldg_size 0.812 1666
+ 2010       bmed_bui  bmed_mu_ratio 0.473 1666
+ 2010 bmed_bldg_size  bmed_mu_ratio 0.522 1666
+09:06:04 INFO Spearman, aggregates of bui:
+ year         a           b   rho    n
+ 1960  mean_bui   bmean_bui 0.677 1659
+ 1960  mean_bui     med_bui 0.239 1659
+ 1960  mean_bui    bmed_bui 0.622 1659
+ 1960  mean_bui built_share 0.873 1659
+ 1960 bmean_bui     med_bui 0.228 1659
+ 1960 bmean_bui    bmed_bui 0.853 1659
+ 1960 bmean_bui built_share 0.303 1659
+ 1960   med_bui    bmed_bui 0.236 1659
+ 1960   med_bui built_share 0.242 1659
+ 1960  bmed_bui built_share 0.314 1659
+ 2010  mean_bui   bmean_bui 0.752 1666
+ 2010  mean_bui     med_bui 0.460 1666
+ 2010  mean_bui    bmed_bui 0.761 1666
+ 2010  mean_bui built_share 0.865 1666
+ 2010 bmean_bui     med_bui 0.409 1666
+ 2010 bmean_bui    bmed_bui 0.892 1666
+ 2010 bmean_bui built_share 0.385 1666
+ 2010   med_bui    bmed_bui 0.429 1666
+ 2010   med_bui built_share 0.479 1666
+ 2010  bmed_bui built_share 0.471 1666
+09:06:04 INFO Spearman, aggregates of bldg_size:
+ year               a               b   rho    n
+ 1960  mean_bldg_size bmean_bldg_size 0.541 1659
+ 1960  mean_bldg_size   med_bldg_size 0.238 1659
+ 1960  mean_bldg_size  bmed_bldg_size 0.441 1659
+ 1960  mean_bldg_size     built_share 0.942 1659
+ 1960 bmean_bldg_size   med_bldg_size 0.174 1659
+ 1960 bmean_bldg_size  bmed_bldg_size 0.848 1659
+ 1960 bmean_bldg_size     built_share 0.276 1659
+ 1960   med_bldg_size  bmed_bldg_size 0.161 1659
+ 1960   med_bldg_size     built_share 0.242 1659
+ 1960  bmed_bldg_size     built_share 0.209 1659
+ 2010  mean_bldg_size bmean_bldg_size 0.660 1666
+ 2010  mean_bldg_size   med_bldg_size 0.452 1666
+ 2010  mean_bldg_size  bmed_bldg_size 0.565 1666
+ 2010  mean_bldg_size     built_share 0.924 1666
+ 2010 bmean_bldg_size   med_bldg_size 0.329 1666
+ 2010 bmean_bldg_size  bmed_bldg_size 0.806 1666
+ 2010 bmean_bldg_size     built_share 0.370 1666
+ 2010   med_bldg_size  bmed_bldg_size 0.273 1666
+ 2010   med_bldg_size     built_share 0.478 1666
+ 2010  bmed_bldg_size     built_share 0.335 1666
+09:06:04 INFO Spearman, aggregates of mu_ratio:
+ year              a              b   rho    n
+ 1960  mean_mu_ratio bmean_mu_ratio 0.480 1659
+ 1960  mean_mu_ratio   med_mu_ratio 0.244 1659
+ 1960  mean_mu_ratio  bmed_mu_ratio 0.460 1659
+ 1960  mean_mu_ratio    built_share 0.946 1659
+ 1960 bmean_mu_ratio   med_mu_ratio 0.112 1659
+ 1960 bmean_mu_ratio  bmed_mu_ratio 0.958 1659
+ 1960 bmean_mu_ratio    built_share 0.216 1659
+ 1960   med_mu_ratio  bmed_mu_ratio 0.085 1659
+ 1960   med_mu_ratio    built_share 0.245 1659
+ 1960  bmed_mu_ratio    built_share 0.207 1659
+ 2010  mean_mu_ratio bmean_mu_ratio 0.461 1666
+ 2010  mean_mu_ratio   med_mu_ratio 0.491 1666
+ 2010  mean_mu_ratio  bmed_mu_ratio 0.484 1666
+ 2010  mean_mu_ratio    built_share 0.936 1666
+ 2010 bmean_mu_ratio   med_mu_ratio 0.187 1666
+ 2010 bmean_mu_ratio  bmed_mu_ratio 0.926 1666
+ 2010 bmean_mu_ratio    built_share 0.166 1666
+ 2010   med_mu_ratio  bmed_mu_ratio 0.166 1666
+ 2010   med_mu_ratio    built_share 0.507 1666
+ 2010  bmed_mu_ratio    built_share 0.206 1666
+09:06:04 INFO Spearman, aggregates of res_share:
+ year               a               b    rho    n
+ 1960  mean_res_share bmean_res_share  0.384 1659
+ 1960  mean_res_share   med_res_share  0.239 1659
+ 1960  mean_res_share  bmed_res_share  0.295 1659
+ 1960  mean_res_share     built_share  0.956 1659
+ 1960 bmean_res_share   med_res_share -0.051 1659
+ 1960 bmean_res_share  bmed_res_share  0.697 1659
+ 1960 bmean_res_share     built_share  0.171 1659
+ 1960   med_res_share  bmed_res_share -0.089 1659
+ 1960   med_res_share     built_share  0.242 1659
+ 1960  bmed_res_share     built_share  0.058 1659
+ 2010  mean_res_share bmean_res_share  0.319 1666
+ 2010  mean_res_share   med_res_share  0.456 1666
+ 2010  mean_res_share  bmed_res_share  0.296 1666
+ 2010  mean_res_share     built_share  0.951 1666
+ 2010 bmean_res_share   med_res_share -0.051 1666
+ 2010 bmean_res_share  bmed_res_share  0.714 1666
+ 2010 bmean_res_share     built_share  0.085 1666
+ 2010   med_res_share  bmed_res_share -0.017 1666
+ 2010   med_res_share     built_share  0.467 1666
+ 2010  bmed_res_share     built_share  0.037 1666
+09:06:04 INFO Spearman, aggregates of elev:
+ year          a           b    rho    n
+ 1960  mean_elev  bmean_elev  0.956 1659
+ 1960  mean_elev    med_elev  0.993 1659
+ 1960  mean_elev   bmed_elev  0.940 1659
+ 1960  mean_elev built_share -0.302 1659
+ 1960 bmean_elev    med_elev  0.970 1659
+ 1960 bmean_elev   bmed_elev  0.996 1659
+ 1960 bmean_elev built_share -0.288 1659
+ 1960   med_elev   bmed_elev  0.958 1659
+ 1960   med_elev built_share -0.302 1659
+ 1960  bmed_elev built_share -0.286 1659
+ 2010  mean_elev  bmean_elev  0.964 1666
+ 2010  mean_elev    med_elev  0.993 1666
+ 2010  mean_elev   bmed_elev  0.949 1666
+ 2010  mean_elev built_share -0.405 1666
+ 2010 bmean_elev    med_elev  0.975 1666
+ 2010 bmean_elev   bmed_elev  0.995 1666
+ 2010 bmean_elev built_share -0.382 1666
+ 2010   med_elev   bmed_elev  0.966 1666
+ 2010   med_elev built_share -0.406 1666
+ 2010  bmed_elev built_share -0.380 1666
+09:06:04 INFO county tract MdAPE vs aggregates:
+ year     kind         measure  counties    rho  quartile    lo    hi  tracts  county_mdape_median  tract_mdape_pooled  baseline_mdape_pooled
+ 1960 spearman     top10_share       275  0.195       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 1960 spearman        gini_bui       275  0.094       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 1960 spearman     built_share       275 -0.209       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 1960 spearman   oor_pop_share       275    NaN       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 1960 spearman  oor_cell_share       275    NaN       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 1960 spearman oor_p_pop_share       275    NaN       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 1960 quartile     top10_share        69    NaN       1.0 0.177 0.391 10503.0               31.332              32.865                 75.192
+ 1960 quartile     top10_share        69    NaN       2.0 0.391 0.481  4895.0               35.637              37.224                 86.713
+ 1960 quartile     top10_share        68    NaN       3.0 0.482 0.565  3628.0               38.452              39.501                 90.185
+ 1960 quartile     top10_share        69    NaN       4.0 0.567 0.749  2972.0               40.172              38.616                 91.302
+ 1960 quartile        gini_bui        69    NaN       1.0 0.051 0.589  9811.0               32.110              32.806                 73.296
+ 1960 quartile        gini_bui        69    NaN       2.0 0.589 0.653  5314.0               36.270              39.643                 85.956
+ 1960 quartile        gini_bui        68    NaN       3.0 0.653 0.692  4221.0               36.685              36.193                 88.019
+ 1960 quartile        gini_bui        69    NaN       4.0 0.694 0.804  2652.0               39.226              38.581                 94.295
+ 2010 spearman     top10_share      1952 -0.214       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 2010 spearman        gini_bui      1952 -0.181       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 2010 spearman     built_share      2009 -0.350       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 2010 spearman   oor_pop_share      2009  0.317       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 2010 spearman  oor_cell_share      2009  0.352       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 2010 spearman oor_p_pop_share      2009    NaN       NaN   NaN   NaN     NaN                  NaN                 NaN                    NaN
+ 2010 quartile     top10_share       488    NaN       1.0 0.148 0.430 37865.0               24.914              27.637                 69.414
+ 2010 quartile     top10_share       488    NaN       2.0 0.430 0.508 13380.0               17.226              22.116                 79.780
+ 2010 quartile     top10_share       488    NaN       3.0 0.508 0.569  9830.0               16.174              19.219                 83.532
+ 2010 quartile     top10_share       488    NaN       4.0 0.570 1.000  7896.0               16.852              19.795                 87.403
+ 2010 quartile        gini_bui       488    NaN       1.0 0.000 0.551 27568.0               27.441              29.097                 65.861
+ 2010 quartile        gini_bui       488    NaN       2.0 0.551 0.620 15819.0               16.127              23.129                 73.283
+ 2010 quartile        gini_bui       488    NaN       3.0 0.620 0.673 14211.0               16.174              20.822                 81.454
+ 2010 quartile        gini_bui       488    NaN       4.0 0.673 0.976 11373.0               18.352              20.241                 89.193
+09:06:08 INFO   plot results/aggregation/conus/cell_vs_county_2010.png
+09:06:08 INFO wrote results/aggregation/conus
+09:06:08 INFO DONE
+== done 2026-10-30T09:06:08-06:00

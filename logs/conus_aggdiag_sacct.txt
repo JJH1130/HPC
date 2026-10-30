@@ -1,0 +1,5 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+35099133           aggregation_diag  COMPLETED   00:10:47                   8  03:40.057 
+35099133.ba+                  batch  COMPLETED   00:10:47  12241052K        8  03:40.056 
+35099133.ex+                 extern  COMPLETED   00:10:47          0        8  00:00.001 
