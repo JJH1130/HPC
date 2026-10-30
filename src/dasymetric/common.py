@@ -46,7 +46,10 @@ LAYER_FEATURES = {"bui": "BUI", "bupl": "BUPL", "bupr": "BUPR", "bua": "BUA", "n
 PLACE_DIST = ["d_10k", "d_20k", "d_50k", "d_100k", "d_250k"]
 LAYER_FEATURES.update({f: f"PLACEDIST/{f}" for f in PLACE_DIST})
 DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share",
-                    "elev", "slope"}  # v4: elev, slope from the static DEM layer (docs/dasymetric_v4.md)
+                    "elev", "slope",  # v4: elev, slope from the static DEM layer (docs/dasymetric_v4.md)
+                    "plural"}  # PLURAL grid test (docs/conus_plan.md "PLURAL grid test"): see plural_spec()
+PLURAL_LAYERS = ("PLURAL", "PLURALC")  # cutout layers: 900 m PLURAL grid, bilinear / cubic (clipped to 0-1)
+PLURAL_BREAKS = ("quantile", "equal")
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
 LAND_USE = ["A", "C", "GV", "I", "RC", "RI", "RO", "VL"]  # cutout layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif
 WATER_LAYER = "water_frac"  # cutout layers/water_frac/water_frac.tif (static) or {YEAR}_water_frac.tif (v4)
@@ -111,7 +114,21 @@ def load_config(path: Path) -> dict:
         sys.exit(f"ERROR: {path}: water_mask must be true, false or yearly, not {wm!r}")
     if cfg["model"] not in cfg["models"]:
         sys.exit(f"ERROR: {path}: model {cfg['model']!r} has no entry under models: {sorted(cfg['models'])}")
+    cfg["plural"] = check_plural(cfg.get("plural"), "plural" in used, path)
     return cfg
+
+
+def check_plural(spec, used: bool, path: Path):
+    """The `plural:` block (PLURAL grid test): {layer: PLURAL | PLURALC, classes: null | k >= 2, breaks: quantile |
+    equal}. Needed when the feature plural is used; without classes plural = the cell value (0-1)."""
+    if not used:
+        return None
+    if not isinstance(spec, dict) or spec.get("layer") not in PLURAL_LAYERS:
+        sys.exit(f"ERROR: {path}: feature plural needs a `plural:` block with layer one of {PLURAL_LAYERS}, got {spec!r}")
+    k = spec.get("classes")
+    if k is not None and (not isinstance(k, int) or k < 2 or spec.get("breaks") not in PLURAL_BREAKS):
+        sys.exit(f"ERROR: {path}: plural classes must be an integer >= 2 with breaks one of {PLURAL_BREAKS}, got {spec!r}")
+    return {"layer": spec["layer"], "classes": k, "breaks": spec.get("breaks") if k else None}
 
 
 def resolve_repo_path(value, config_path: Path):
@@ -334,12 +351,50 @@ def terrain(cutout: Path, grid: dict, rows: slice | None = None):
     return dem[keep], slope_deg(dem)[keep]
 
 
+def plural_setup(cutout: Path, year: int, grid: dict, zones: np.ndarray, ids, spec: dict | None,
+                 block_rows=None) -> dict | None:
+    """The plural feature of one year (PLURAL grid test; docs/conus_plan.md "PLURAL grid test"): {layer, inner,
+    table}. inner = the k - 1 inner class breaks (None = continuous): `equal` = 1/k, ..., (k-1)/k; `quantile` =
+    the 1/k, ..., (k-1)/k quantiles (numpy linear) of the layer over all cells of the used counties that year (the
+    "study cells", water-masked cells included; read in strips of block_rows rows). Class = 1 + number of inner
+    breaks <= value (1 ... k). table = one row for plural_breaks.csv (breaks + cell share per class)."""
+    if spec is None:
+        return None
+    k = spec["classes"]
+    if not k:
+        return {"layer": spec["layer"], "inner": None, "table": None}
+    vals = []
+    for rws in strips(zones.shape, block_rows):
+        m = used_mask(zones[rws], ids)
+        if m.any():
+            vals.append(read_layer(cutout, spec["layer"], year, grid, m, rws))
+    v = np.concatenate(vals)
+    q = np.arange(1, k) / k
+    inner = q.copy() if spec["breaks"] == "equal" else np.quantile(v, q)
+    n = len(v)
+    share = np.bincount(np.digitize(v, inner), minlength=k) / n
+    del vals, v
+    table = {"year": year, "layer": spec["layer"], "breaks": spec["breaks"], "classes": k, "study_cells": n,
+             **{f"break_{i}": float(b) for i, b in enumerate(inner, 1)},
+             **{f"share_{i}": float(s) for i, s in enumerate(share, 1)}}
+    log.info("  %d: plural %s %d classes (%s breaks over %d study cells): inner breaks %s | cell share per class %s",
+             year, spec["layer"], k, spec["breaks"], n, np.round(inner, 4).tolist(), np.round(share, 4).tolist())
+    if len(np.unique(inner)) < len(inner):
+        log.warning("  %d: plural breaks repeat (%s): some classes are empty", year, inner.tolist())
+    return {"layer": spec["layer"], "inner": inner, "table": table}
+
+
+def plural_classes(values: np.ndarray, inner: np.ndarray) -> np.ndarray:
+    """Class number 1 ... k of each value (1 + number of inner breaks <= value), as float."""
+    return (np.digitize(values, inner) + 1).astype("float64")
+
+
 def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, rows: slice | None = None,
-                  full: dict | None = None) -> pd.DataFrame:
+                  full: dict | None = None, plural: dict | None = None) -> pd.DataFrame:
     """Cell features (docs/dasymetric_v1.md, v2) for the masked cells, columns in `names` order. With `rows`,
     only that strip of the window is read (mask has the strip's shape). dist_built needs the whole window: it is
     computed once and kept in `full` (one dict per year, shared by its strips). elev / slope are read per strip
-    (slope with one halo row each side, `terrain`)."""
+    (slope with one halo row each side, `terrain`). plural = the year's plural_setup() (needed for feature plural)."""
     cache = {}
     full = {} if full is None else full
 
@@ -379,6 +434,11 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, 
             if "terrain" not in cache:  # the strip (+ 1 halo row each side) or the whole window
                 cache["terrain"] = terrain(cutout, grid, rows)
             out[f] = cache["terrain"][0 if f == "elev" else 1][mask]
+        elif f == "plural":  # PLURAL grid test: the cell value, or its class number with breaks
+            if plural is None:
+                sys.exit("ERROR: feature plural without plural_setup() (the config's plural: block)")
+            v = layer(plural["layer"])
+            out[f] = v if plural["inner"] is None else plural_classes(v, plural["inner"])
         elif f == "year":
             out[f] = np.full(int(mask.sum()), float(year))
     return pd.DataFrame(out, columns=list(names))

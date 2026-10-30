@@ -42,6 +42,11 @@
 #   bash sbatch/submit_conus.sh uncfilter    # uncertainty filter: exclusion sets (uncertainty_filter.sh), then
 #                                       # Dasy_CONUS_RF_v3_u090 / u070 / u050 side by side (features, train, predict,
 #                                       # validate; 1920 / 1960 / 2010 / 2020), then filter_compare.sh vs v5.4
+#   bash sbatch/submit_conus.sh plural  # PLURAL grid test: PLURAL / PLURALC layers into the cutout (--layers) ->
+#                                       # plural_qa (nothing waits for it); v5.6 (u070) 1940 / 1980 added (--years) +
+#                                       # validated on all its years; six variants v5.6 + plural (plc, plcc, pq3, pq5,
+#                                       # pe3, pe5; 1940 / 1980 / 2010) features / train / predict / validate ->
+#                                       # plural_compare.sh (table, figure, best classed variant, county maps 2010)
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -67,10 +72,13 @@
 # year ~1/12 of features / train / predict; water and validate run all years again (validate: 12 years, 2 h wall).
 # uncfilter: 4 of v3_all's 12 years per version: features ~6 min, train ~35 min (fewer rows), predict ~16 min,
 # validate ~5 min (estimates); wall times ~3-4 x. Three versions run at the same time.
+# plural: v5.6 2 years ~1/2 of uncfilter's 4-year jobs; variants 3 years + one feature (quantile breaks read the
+# layer once more per year); cutout: two warps of a 900 m source per year, 3 years (NTLV took 2 min for 2 years).
+# Seven chains side by side (estimates; wall times ~3-4 x).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -408,6 +416,61 @@ elif [[ $mode == uncfilter ]]; then
     done
     jc=$(sub "${after# }" sbatch/filter_compare.sh)
     echo "uncertainty_filter $jx$ids | filter_compare $jc" | tee logs/conus_uncfilter_jobs.txt
+elif [[ $mode == plural ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    BASE=Dasy_CONUS_RF_v3_u070  # v5.6
+    C0=configs/conus_rf_v3_u070.yaml
+    V54=Dasy_CONUS_RF_v3_all
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    SRC=$DATA_ROOT/raw/plural/siqiao_2026/PLURAL_grid_data
+    miss=()  # everything is checked before anything is submitted
+    for y in 1900 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010 2020; do  # --layers checks the window on all years
+        [[ -f $CEN/counties_$y.gpkg ]] || miss+=("$CEN/counties_$y.gpkg")
+    done
+    for y in 1940 1980 2010; do
+        for f in $SRC/index3_${y}_900_US.tif $CUT/zones/zones_$y.tif $CUT/layers/BUI/${y}_BUI.tif \
+                 $CUT/layers/Land_Use/RO/${y}_RO.tif $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $D/$V54/Y$y/model/oof_predictions.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    for y in 1920 1940 1960 1980 2010 2020; do  # v5.6 is validated again on all its years (the old ones must not change)
+        [[ -f $DATA_ROOT/processed/tract/tracts_$y.gpkg ]] || miss+=("$DATA_ROOT/processed/tract/tracts_$y.gpkg")
+    done
+    for y in 1920 1960 2010 2020; do  # the v5.6 eras that are kept as they are
+        for f in $D/$BASE/Y$y/model/rf.joblib $D/$BASE/predictions/pop_$y.tif; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    for f in $CUT/window.json $CUT/layers/DEM/DEM.tif $D/$BASE/cv_summary.csv $D/$BASE/qa/reallocation_qa.csv \
+             $D/$BASE/qa/water_mask_by_year.csv results/hisdac_uncertainty/excluded_counties_t070.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (PLURAL 900 m files, cutout 1940 / 1980 / 2010, tracts, v5.6 + v5.4 outputs)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    jn=$(sub "" --ntasks=8 --time=${CUTOUT_TIME:-01:00:00} --export=ALL,CONFIG=$S,CENSUS_DIR=$CEN sbatch/grid_cutout.sh \
+         --layers PLURAL PLURALC)
+    jq=$(sub "$jn" --ntasks=8 --time=${QA_TIME:-00:45:00} --export=ALL,CONFIG=$S sbatch/plural_qa.sh)  # nothing waits for it
+    # v5.6 for 1940 / 1980 only (--years: its other eras and the other years' rows of its QA / summary CSVs are kept)
+    bf=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-00:45:00} --export=ALL,CONFIG=$C0 sbatch/dasymetric_features.sh --years 1940 1980)
+    bt=$(sub "$bf" --ntasks=16 --time=${TRAIN_TIME:-02:00:00} --export=ALL,CONFIG=$C0 sbatch/dasymetric_train.sh --years 1940 1980)
+    bp=$(sub "$bt" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C0 sbatch/dasymetric_predict.sh --years 1940 1980)
+    bv=$(sub "$bp" --ntasks=8 --time=${VALIDATE_TIME:-01:30:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+         --version $BASE --years 1920 1940 1960 1980 2010 2020 $VAL)
+    ids="plural_cutout $jn | plural_qa $jq | v5.6 features $bf train $bt predict $bp validate $bv" after="$bv"
+    for v in plc plcc pq3 pq5 pe3 pe5; do  # each = v5.6 + plural, 1940 / 1980 / 2010; train compares with v5.6 (needs its 1940 / 1980)
+        C=configs/conus_rf_v3_u070_$v.yaml
+        f=$(sub "$jn" --ntasks=6 --time=${FEATURES_TIME:-00:45:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+        t=$(sub "$f $bt" --ntasks=16 --time=${TRAIN_TIME:-02:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+        p=$(sub "$t" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+        q=$(sub "$p" --ntasks=8 --time=${VALIDATE_TIME:-01:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+            --version ${BASE}_$v --years 1940 1980 2010 $VAL)
+        ids="$ids | $v features $f train $t predict $p validate $q"
+        after="$after $q"
+    done
+    jc=$(sub "$after" sbatch/plural_compare.sh)
+    echo "$ids | plural_compare $jc" | tee logs/conus_plural_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

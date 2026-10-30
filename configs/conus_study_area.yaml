@@ -50,6 +50,29 @@ layers:
   # nodata_to: 0 = the producers' sea mask (no light) is written as 0 instead of nodata, so coastal county cells whose
   # centre falls on a masked pixel do not stop the features; the cutout log counts those cells inside the counties.
   - {name: NTLV, path: "/projects/jaju1407/data/raw/ntl/viirs_like/v1/{YEAR}/*.tif", years: [2000, 2010], resampling: nearest, dtype: float32, nodata_to: 0}
+  # PLURAL 900 m grid from Siqiao ("index3", 0 = urban ... 1 = remote; docs/data_sources.md "PLURAL") for the PLURAL
+  # feature test on v5.6 (request 2026-10-30, docs/handoff/plural_grid_request.md; docs/conus_plan.md "PLURAL grid
+  # test"). Source: LAEA 45N 100W, 900 m, float32, no nodata value, 0 outside the US (fill) as well as in big cities.
+  # PLURAL = bilinear (main; the classed features are cut from it), PLURALC = cubic (sensitivity), clipped to [0, 1]
+  # (cubic overshoots at steps; clipped cells are counted in the cutout log). Whether the 0 fill leaks into coast /
+  # border cells: src/grid/plural_qa.py. Added with `grid_cutout.sh --layers PLURAL PLURALC` (sbatch/submit_conus.sh plural).
+  - {name: PLURAL,  path: "/projects/jaju1407/data/raw/plural/siqiao_2026/PLURAL_grid_data/index3_{YEAR}_900_US.tif", years: [1940, 1980, 2010], resampling: bilinear, dtype: float32}
+  - {name: PLURALC, path: "/projects/jaju1407/data/raw/plural/siqiao_2026/PLURAL_grid_data/index3_{YEAR}_900_US.tif", years: [1940, 1980, 2010], resampling: cubic, dtype: float32, clip: [0, 1]}
+
+# PLURAL QA (src/grid/plural_qa.py): coast / border band width, and points where the 900 m source and the 250 m layers
+# are compared (cities near 0, remote places near 1).
+plural_qa:
+  layers: [PLURAL, PLURALC]
+  edge_km: 5
+  points:
+    - {name: New York, lon: -73.99, lat: 40.75}
+    - {name: Boston, lon: -71.06, lat: 42.36}
+    - {name: Chicago, lon: -87.63, lat: 41.88}
+    - {name: Denver, lon: -104.99, lat: 39.74}
+    - {name: Pittsfield MA, lon: -73.25, lat: 42.45}
+    - {name: Ely NV (remote), lon: -114.89, lat: 39.25}
+    - {name: Miami (coast), lon: -80.19, lat: 25.77}
+    - {name: San Diego (coast / border), lon: -117.16, lat: 32.72}
 
 # BUI record errors (docs/conus_plan.md "BUI outliers", decided 2026-10-27): a cell with BUI > max (sq ft; 3e7 = about
 # 45 x the land area of a 250 m cell) gets the median BUI of its 3 x 3 neighbours (neighbours above max left out,

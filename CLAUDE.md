@@ -53,7 +53,16 @@ fit and TEST in `train.py`, which writes `excluded_predictions.csv`; still alloc
 `src/validation/filter_compare.py` (`sbatch/filter_compare.sh`; also runs locally) compares v5.4 and the three on the
 common TEST counties (a), the TEST counties excluded at 0.9 (b, imputed) and tract parts, with the selection rule fixed
 before the results (lowest mean of (a) and (b); within 1 pp the one keeping more counties; the user decides) ->
-`results/validation/conus/uncertainty_filter/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+`results/validation/conus/uncertainty_filter/` (t = 0.7 chosen: v5.6 = `Dasy_CONUS_RF_v3_u070`, eras 1920 / 1940 / 1960 /
+1980 / 2010 / 2020). PLURAL grid test (`docs/conus_plan.md` "PLURAL grid test"): cutout layers `PLURAL` (bilinear) /
+`PLURALC` (cubic, `clip: [0, 1]` = a `make_cutout.py` layer option) from Siqiao's 900 m grid, 1940 / 1980 / 2010;
+`src/grid/plural_qa.py` (`sbatch/plural_qa.sh`) measures the leak of the 0 fill outside the US into coast / border cells
+(weight of outside pixels, edge vs interior, points) -> `results/cutout/conus/plural_qa.csv`; feature `plural` with a
+model-config block `plural: {layer, classes, breaks: quantile|equal}` (`common.plural_setup`: quantile breaks over the
+year's study cells -> `<era>/features/plural_breaks.csv`, checked again by `predict.py`); configs
+`conus_rf_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}.yaml` (v5.6 + plural); `src/validation/plural_compare.py`
+(`sbatch/plural_compare.sh`, + county maps of v5.6 / plc / the best classed variant by a fixed rule; also runs locally)
+-> `results/validation/conus/plural_grid/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -91,8 +100,8 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
-`filter_compare`; `y2020` =
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
+`filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `y2020` =
 2020 added to `Dasy_CONUS_RF_v3_all` as era Y2020 with `--years 2020`, after `sbatch/y2020_precheck.sh`; with `--years`,
 `county_features` / `train` / `predict` keep the other years' rows of `water_mask_by_year.csv` / `cv_summary.csv` /
 `reallocation_qa.csv`; stage scripts take `CONFIG=`,
@@ -122,7 +131,9 @@ ratio_A_nby / ratio_B, A compare, cell checks, thresholds, gap overlap, strips =
 no contemp + NobuiltYear counts = same NobuiltYear ratios; no contemp + 0/1 = value distribution only, exit 0),
 `python tests/test_uncertainty_filter.py` (exclusion sets: BUI sums, fixed rules, nested sets, reasons, summary, strips;
 filter_compare: common / imputed TEST sets, metrics by hand, tract parts, the rule with the 1 pp tie, a leak stops the
-run; `exclude_counties` in train / predict: `test_conus_dasymetric.test_exclude_counties`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+run; `exclude_counties` in train / predict: `test_conus_dasymetric.test_exclude_counties`), `python tests/test_plural.py` (PLURAL grid test: resampling of a linear LAEA field = the field at the cell centres,
+cubic clip, plural_qa deficit, breaks / classes / strips, predict breaks check, a new era via `--years` leaves the old
+era byte for byte, plural_compare by hand + figure), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:

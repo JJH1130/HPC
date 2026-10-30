@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -32,7 +32,7 @@ Last updated: 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record unc
 | HydroRIVERS | v1.0, North America | `/projects/jaju1407/data/raw/water/` | Distance-to-river feature (later) | Optional |
 | USGS GMTED2010 (mean elevation) | `mn75_grd`, 7.5 arc-seconds, global | `/projects/jaju1407/data/raw/dem/gmted2010/` | Ch1 elevation and slope features | In use: Massachusetts v4 (2026-10-19); CONUS v3 / v4 (cutout layer `DEM`, `average`; code 2026-10-27) |
 | PLURAL place-level urban–rural indices | 2023 release (points, 1930–2018) | `/projects/jaju1407/data/raw/plural/plural_2023/` | Distance features `d_10k` … `d_250k` (v4.1: place populations + points → km to the nearest place per size class) | On Alpine; in code for v4.1 (`src/grid/place_dist.py`), not run yet |
-| PLURAL gridded + tract (from Siqiao) | received 2026-10-24: 900 m grid 1940, 1980, 2010; tracts 1990–2020 on 2010 boundaries | `/projects/jaju1407/data/raw/plural/siqiao_2026/` | Not a feature: comparison check of the `d_*` distance layers (v2) | On Alpine; method of the grid ("index3") to confirm with Siqiao |
+| PLURAL gridded + tract (from Siqiao) | received 2026-10-24: 900 m grid 1940, 1980, 2010; tracts 1990–2020 on 2010 boundaries | `/projects/jaju1407/data/raw/plural/siqiao_2026/` | Grid: feature test (v5.6 + plural, 1940 / 1980 / 2010; cutout layers PLURAL bilinear / PLURALC cubic); tracts: not a feature | On Alpine; method of the grid ("index3") to confirm with Siqiao (see Details: possible same-year population leakage) |
 
 ## Details
 
@@ -421,6 +421,14 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
     0.68 / 0.65, Pittsfield MA 0.55 / 0.69. Contrast between large cities and remote places is weaker than in the
     place-level index (New York 2010 = 0.013 there); what "index3" is (PLURAL-1 or -2, weighting, how points became a
     grid) is not in the `.tif.xml` metadata: ask Siqiao.
+    Use (2026-10-30, request `docs/handoff/plural_grid_request.md`): feature test (v5.6 + plural, 1940 / 1980 / 2010;
+    `docs/conus_plan.md` "PLURAL grid test"): resampled to the HISDAC 250 m grid (bilinear = main, cubic clipped to
+    0-1 = sensitivity; cutout layers PLURAL / PLURALC), continuous and in 3 / 5 classes. Still unknown: whether
+    index3 is PLURAL-1 or PLURAL-2 and whether it is population-weighted. Caution: if the index is built from
+    population (place populations, focal population density, population weights), a grid of the same year carries
+    that year's census population into the model as a feature (leakage into the county target and the tract
+    validation), and a good score would partly measure that. Confirm with Siqiao before any result is used beyond
+    this test.
   - `PLURAL_tract_data/`: `PLURAL_rurality_index_tract_2010boundaries.csv` (72,271 CONUS tracts, 2010 boundaries,
     1990/2000/2010/2020; five versions 0–100, higher = more remote: `remote_area_wt`, `remote_pop_wt` (population
     weighted), `remote_dist_place` / `_metro` / `_balanced` (distances to five place tiers, percentile ranks pooled

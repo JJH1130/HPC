@@ -41,9 +41,11 @@ from affine import Affine
 import plots
 from models import set_threads
 from common import (NODATA_OUT, add_common_args, cell_features, county_selection, dist_built, era_of, load_config,
-                    log, log_args, out_dir, read_zones, setup_logging, strips, used_mask, water_mask, write_tif)
+                    log, log_args, out_dir, plural_setup, read_zones, setup_logging, strips, used_mask, water_mask,
+                    write_tif)
 
 MASS_TOL = 1e-6
+BREAK_TOL = 1e-9  # plural class breaks: recomputed here = the ones county_features.py wrote
 MAP_MAX_CELLS = 20_000_000  # larger windows (CONUS: 214 M cells -> 1 km) are drawn as sums over f x f cells
 MAP_DEFAULTS = {"years": [1810, 1900, 2020], "compare_years": [1810]}
 
@@ -66,6 +68,19 @@ def parse_args(argv=None):
     return p.parse_args(argv)
 
 
+def check_breaks(plural: dict, path: Path, year: int):
+    """Classed plural: the breaks recomputed for prediction must be the ones the county features (and so the model)
+    used, from <era>/features/plural_breaks.csv."""
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (county_features.py writes it with a classed plural)")
+    old = pd.read_csv(path)
+    old = old[old["year"] == year]
+    cols = [f"break_{i}" for i in range(1, len(plural["inner"]) + 1)]
+    if len(old) != 1 or not np.allclose(old[cols].to_numpy(float)[0], plural["inner"], rtol=0, atol=BREAK_TOL):
+        sys.exit(f"ERROR: {year}: plural breaks {plural['inner'].tolist()} differ from {path}:\n{old.to_string()}")
+    log.info("  %d: plural breaks = %s", year, path)
+
+
 def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, measure: int = 0):
     """Predict + reallocate one year. Pass 1 predicts the weights strip by strip (`block_rows`; one strip = the
     whole window without it) for the cells of used counties only; pass 2 scales them to the county totals.
@@ -77,6 +92,10 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
     parts = strips(zones.shape, cfg.get("block_rows"))
     whole = len(parts) == 1
     full = {}  # whole-window features (dist_built), computed once for the year
+    plural = plural_setup(cutout, year, grid, zones, ids, cfg["plural"] if "plural" in bundle["features"] else None,
+                          cfg.get("block_rows"))
+    if plural and plural["inner"] is not None:
+        check_breaks(plural, out / (bundle.get("era") or "") / "features" / "plural_breaks.csv", year)
     if not whole and "dist_built" in bundle["features"]:  # timed on its own (whole-window distance transform)
         t = time.perf_counter()
         full["dist_built"] = dist_built(cutout, year, grid)
@@ -92,7 +111,7 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
             W.append(np.zeros(0)), Z.append(np.zeros(0, zones.dtype)), M.append(np.zeros(0, bool))
             continue
         t1 = time.perf_counter()
-        X = cell_features(cutout, year, grid, mask, bundle["features"], None if whole else rws, full)
+        X = cell_features(cutout, year, grid, mask, bundle["features"], None if whole else rws, full, plural)
         t2 = time.perf_counter()
         y_hat = bundle["model"].predict(X)
         del X

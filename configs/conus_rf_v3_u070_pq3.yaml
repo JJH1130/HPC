@@ -1,0 +1,70 @@
+# Dasy_CONUS_RF_v3_u070_pq3 (PLURAL grid test; request 2026-10-30, docs/handoff/plural_grid_request.md; docs/conus_plan.md "PLURAL grid
+# test"): v5.6 (= Dasy_CONUS_RF_v3_u070: same split, folds, excluded counties, statuses, water mask, strips, search
+# space and 60 candidates) + one feature, plural = Siqiao's 900 m PLURAL grid ("index3", 0 = urban ... 1 = remote) on
+# the 250 m HISDAC grid: 3 classes, quantile breaks of the year's study cells (bilinear values).
+# Cell feature = the class number (1 = most urban); county feature = mean over the unmasked cells (as every other feature).
+# Years 1940 / 1980 / 2010 (the grid's years); compare_with v5.6 (its eras of the same years).
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_u070_pq3/
+version: Dasy_CONUS_RF_v3_u070_pq3
+
+study_area: configs/conus_study_area.yaml
+years: [1940, 1980, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3_u070
+
+split: configs/conus_split.csv
+exclude_counties: results/hisdac_uncertainty/excluded_counties_t070.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+plural:
+  layer: PLURAL
+  classes: 3
+  breaks: quantile   # class breaks per year: <era>/features/plural_breaks.csv
+
+eras:
+  Y1940:
+    years: [1940]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, plural]
+  Y1980:
+    years: [1980]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, plural]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, plural]
+
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+  PLURAL: [plural]
+
+maps:
+  years: [2010]
+  compare_years: [2010]   # side by side with v5.6
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 60   # as v5.6
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:        # sklearn.ensemble.RandomForestRegressor
+    fixed: {random_state: 42}
+    space:
+      n_estimators: {dist: randint, low: 200, high: 1000}
+      max_depth: [null, 5, 10, 15, 20, 30]
+      min_samples_leaf: {dist: randint, low: 1, high: 10}
+      max_features: [sqrt, 0.33, 0.5, 0.75, 1.0]

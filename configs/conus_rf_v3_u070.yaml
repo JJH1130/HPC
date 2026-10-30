@@ -4,11 +4,14 @@
 # >= 0.7, or the fixed records / area rules; src/grid/uncertainty_filter.py). Hyperparameters searched again per year on
 # the remaining counties. Prediction and allocation cover every county as in v5.4 (excluded ones = imputation).
 # Years 1920 / 1960 / 2010 / 2020 (the chosen threshold is run for all years later). No-filter reference = v5.4 as it
-# is (not rerun). Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_u070/
+# is (not rerun). Chosen 2026-10-30 as v5.6 (docs/conus_plan.md "Version summary"). 1940 and 1980 added 2026-10-30 as
+# the base of the PLURAL grid test (docs/handoff/plural_grid_request.md; eras Y1940 / Y1980 with v5.4's features of
+# those years; run with --years 1940 1980 only, sbatch/submit_conus.sh plural, so the other eras stay as they are).
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_u070/
 version: Dasy_CONUS_RF_v3_u070
 
 study_area: configs/conus_study_area.yaml
-years: [1920, 1960, 2010, 2020]
+years: [1920, 1940, 1960, 1980, 2010, 2020]
 
 water_mask: yearly
 compare_with: Dasy_CONUS_RF_v3_all
@@ -24,8 +27,14 @@ eras:
   Y1920:
     years: [1920]
     features: [bui, bldg_size, mu_ratio, dist_built, elev, slope]
+  Y1940:
+    years: [1940]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
   Y1960:
     years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
+  Y1980:
+    years: [1980]
     features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope]
   Y2010:
     years: [2010]

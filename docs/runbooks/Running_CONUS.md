@@ -1,4 +1,4 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty and the uncertainty filter
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty, the uncertainty filter and the PLURAL grid test
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
 layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), `configs/external_grids.yaml`
@@ -1162,6 +1162,92 @@ What to look for in the logs: `uncertainty_filter` (rule medians, counties per r
 `train` (`exclude_counties: N rows left out ...`, CV / TEST vs v5.4 on the same rows, `excluded counties ... RMSE`),
 `predict` (mass preserved as before), `filter_compare` (the (a) / (b) set sizes per year, MdAPE table, selection, `DONE`).
 
+## 13. PLURAL grid test: v5.6 + plural, 1940 / 1980 / 2010 (2026-10-30)
+
+Siqiao's 900 m PLURAL grid (`index3`) on the 250 m grid as one more feature of v5.6 (`docs/conus_plan.md`, "PLURAL
+grid test"): continuous (bilinear `plc`, cubic `plcc`) and classed (3 / 5 classes, quantile `pq*` / equal `pe*`
+breaks). v5.6 (`Dasy_CONUS_RF_v3_u070`) gets 1940 and 1980 first (its other years stay as they are). Needs the
+PLURAL files in `/projects/jaju1407/data/raw/plural/siqiao_2026/PLURAL_grid_data/`, the CONUS cutout (1940 / 1980 / 2010
+with water), v5.6 (section 12) and v5.4 (section 5) on scratch.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| plural_cutout | 8 cores, 1 h | `grid_cutout.sh --layers PLURAL PLURALC`: 2 warps x 3 years; cubic clip counts in the log | a few minutes |
+| plural_qa | 8 cores, 45 min | coast / border leak of the 0 fill (edge vs interior), points -> `results/cutout/conus/plural_qa.csv`, `plural_points.csv`; nothing waits for it | ~5 min |
+| v5.6 features / train / predict | 6 / 16 / 32 cores | 1940 + 1980 only (`--years`) | ~3 / 20 / 8 min |
+| v5.6 validate | 8 cores, 1.5 h | tracts of all six v5.6 years (old ones must come out the same) | ~10 min |
+| variants (x6) features / train / predict / validate | 6 / 16 / 32 / 8 cores | 1940 / 1980 / 2010, side by side; train waits for v5.6's train | ~5 / 30 / 12 / 6 min |
+| plural_compare | 4 cores, 45 min | table, figure, best classed variant, county maps 2010 -> `results/validation/conus/plural_grid/` | ~5 min |
+
+31 jobs; the whole chain ~1.5-2 h after the jobs start (estimates). Override a wall time: `CUTOUT_TIME`, `QA_TIME`,
+`FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+ls -l /projects/jaju1407/data/raw/plural/siqiao_2026/PLURAL_grid_data/index3_*_900_US.tif
+bash sbatch/submit_conus.sh plural
+squeue -u $USER | wc -l
+echo "== end of block 1"
+```
+
+Good: three `index3_{1940,1980,2010}_900_US.tif` files listed, `PRECHECK: 0 missing ...`, then one line `plural_cutout N |
+plural_qa N | v5.6 features N ... | plural_compare N` (also in `logs/conus_plural_jobs.txt`), 32 from `wc -l` (31 jobs + the
+header line, if nothing else of yours is queued), `== end of block 1`. `MISSING ...` + `ERROR: nothing submitted`: send the
+output to Claude (nothing was submitted).
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_plural_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+f=$(ls -t logs/grid_cutout.*.out 2>/dev/null | head -1); [[ -n $f ]] && grep -E "PLURAL|clip" "$f" | tail -8
+f=$(ls -t logs/plural_qa.*.out 2>/dev/null | head -1); [[ -n $f ]] && grep -E " edge | interior " "$f" | tail -6
+echo "== end of block 2"
+```
+
+Good: states `PENDING` / `RUNNING` / `COMPLETED`; once the cutout is done, `PLURAL 1940 ... warped (bilinear)` lines and
+`PLURALC ...: clip [0, 1]: N cells below ..., N above ...` per year; once plural_qa is done, the edge / interior lines;
+`== end of block 2`. A `FAILED` job: the later ones stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and send
+the log to Claude.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_plural_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_plural_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_plural_seff.txt
+cat logs/conus_plural_sacct.txt
+B=results/dasymetric/conus/Dasy_CONUS_RF_v3_u070
+V=results/validation/conus/Dasy_CONUS_RF_v3_u070
+ch=$(git status --porcelain $B/Y1920 $B/Y1960 $B/Y2010 $B/Y2020 $V/tract_errors_{1920,1960,2010,2020}.csv | wc -l)
+del=$(git diff -U0 -- $B/cv_summary.csv $B/reallocation_qa.csv $B/water_mask_by_year.csv $V/metrics_by_year.csv | grep -c '^-[^-]' || true)
+echo "v5.6 OLD YEARS: $ch changed files, $del removed CSV lines (0 and 0 = unchanged)"
+grep -h "RULE RESULT" logs/plural_compare.*.out | tail -1
+git add logs/ results/
+git commit -m "run: PLURAL grid test, v5.6 1940 / 1980 + six plural variants (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: every job `COMPLETED`, `v5.6 OLD YEARS: 0 changed files, 0 removed CSV lines`, one `RULE RESULT: best classed
+variant ...` line (picks only the map variant; keeping PLURAL is your decision), `git push` ends with `main -> main`,
+`== end of block 3`. Any number other than 0 in `OLD YEARS`: commit anyway and tell Claude.
+
+What to look for in the logs: `grid_cutout` (clip counts of PLURALC per year), `plural_qa` (outside pixels exactly 0
+~1.0, edge vs interior, deficit, points), `dasymetric_features` of a classed variant (`plural PLURAL k classes ...: inner
+breaks [...] | cell share per class [...]`), `train` (CV / TEST vs v5.6), `predict` (`plural breaks = ...`, mass
+preserved), `plural_compare` (tract MdAPE / MAPE tables, TEST counties + plural rank, `RULE RESULT`, county maps summary).
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1189,6 +1275,11 @@ What to look for in the logs: `uncertainty_filter` (rule medians, counties per r
 | uncertainty: download `ERROR` (403, md5) | send `logs/hisdac_extra_download.txt`; a rerun resumes the archive download (`curl -C -`) and skips a checked tif |
 | uncfilter: `train` stops with `exclude_counties ... not found` | the `uncertainty_filter` job failed or wrote elsewhere: send its log; rerun the chain after the fix (the features jobs can stay) |
 | uncfilter: `filter_compare` stops with `... counties missing` or `excluded counties in its TEST predictions` | a version's results are incomplete or old (e.g. a train run before the sets changed): send the log; nothing is chosen |
+| plural: `MISSING .../index3_<YEAR>_900_US.tif` | the PLURAL grid is not where the config says: send `ls -lR /projects/jaju1407/data/raw/plural/siqiao_2026/` |
+| plural: features `nodata cells inside the used counties` (`.../PLURAL/...`) | the warped grid does not cover a county cell: send the features and cutout logs |
+| plural: predict `plural breaks [...] differ from .../plural_breaks.csv` | the cutout layer or the county selection changed between features and predict: send the log; rerun that variant's chain from features |
+| plural: `plural_compare` stops with `TEST counties differ` | a version ran with another split or exclusion set (an old config?): send the log |
+| plural: `v5.6 OLD YEARS` not 0 | commit anyway and tell Claude: something changed an old year's file (the run only adds 1940 / 1980) |
 | uncertainty: log ends `DONE (NobuiltYear value distribution only)` | not a failure: NobuiltYear is a 0/1 flag and contemp is missing, so no ratio exists; commit as block 3 and tell Claude (the next step waits for contemp from Stefan) |
 | all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |
 | ntl: `ntl_qa` `FAILED` with `no cell with DN >= 60 in the box` | the fixed DN rule (known since Massachusetts 2026-10-06, change on hold); nothing waits for it: send the log with the others |

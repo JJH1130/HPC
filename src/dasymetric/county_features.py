@@ -30,7 +30,8 @@ import numpy as np
 import pandas as pd
 
 from common import (CELL_KM, add_common_args, cell_features, county_selection, era_of, load_config, log,
-                    log_args, out_dir, read_zones, setup_logging, strips, used_mask, water_mask, year_filter)
+                    log_args, out_dir, plural_setup, read_zones, setup_logging, strips, used_mask, water_mask,
+                    year_filter)
 
 
 def parse_args(argv=None):
@@ -43,8 +44,9 @@ def parse_args(argv=None):
 
 
 def year_rows(cutout: Path, year: int, features, cfg: dict):
-    """County rows of one year + water-mask QA (None without water_mask) + the table size. The window is read in
-    strips of `block_rows` rows (whole window without it); per-county sums are added up over the strips."""
+    """County rows of one year + water-mask QA (None without water_mask) + the table size + the plural breaks row
+    (None unless plural is classed). The window is read in strips of `block_rows` rows (whole window without it);
+    per-county sums are added up over the strips."""
     zones, table, grid = read_zones(cutout, year)
     used = county_selection(table, zones, cfg["use_status"], year, cfg["unusable"])
     ids = used["zone_id"].to_numpy()
@@ -54,12 +56,14 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
     sums = {f: np.zeros(nz) for f in features}
     n_study = n_water_built = 0
     full = {}  # whole-window features (dist_built), computed once for the year
+    plural = plural_setup(cutout, year, grid, zones, ids, cfg["plural"] if "plural" in features else None,
+                          cfg.get("block_rows"))
     parts = strips(zones.shape, cfg.get("block_rows"))
     for k, rws in enumerate(parts):
         mask = used_mask(zones[rws], ids)
         if not mask.any():
             continue
-        feats = cell_features(cutout, year, grid, mask, features, None if len(parts) == 1 else rws, full)
+        feats = cell_features(cutout, year, grid, mask, features, None if len(parts) == 1 else rws, full, plural)
         z = zones[rws][mask]
         keep = np.ones(len(z), bool)
         if cfg.get("water_mask"):
@@ -102,7 +106,7 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
         rows["area_km2"] = used["area_km2"].to_numpy()
     rows["y"] = np.log(rows["pop"] / rows["area_km2"])
     log.info("  %d: %d counties in the table, %d used, %d cells", year, len(table), len(rows), n_study)
-    return rows, qa, len(table)
+    return rows, qa, len(table), plural["table"] if plural else None
 
 
 def main(argv=None):
@@ -122,10 +126,12 @@ def main(argv=None):
         feats = e["features"]
         log.info("era %s | %d years %d-%d | features %s", era or "(none)", len(e["years"]), e["years"][0],
                  e["years"][-1], feats)
-        parts = []
+        parts, breaks = [], []
         for year in e["years"]:
-            rows, qa, n_table = year_rows(cutout, year, feats, cfg)
+            rows, qa, n_table, brk = year_rows(cutout, year, feats, cfg)
             parts.append(rows)
+            if brk:
+                breaks.append(brk)
             n_all += n_table
             if qa:
                 mask_qa.append(qa)
@@ -140,6 +146,9 @@ def main(argv=None):
         path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(path, index=False)
         log.info("wrote %s", path)
+        if breaks:  # classed plural: the breaks predict.py must find again
+            pd.DataFrame(breaks).to_csv(path.parent / "plural_breaks.csv", index=False)
+            log.info("wrote %s", path.parent / "plural_breaks.csv")
 
     if mask_qa:
         path = out_dir(cfg, args.out_root) / "qa" / "water_mask_by_year.csv"

@@ -25,6 +25,8 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | v5.5 | `Dasy_CONUS_RF_v3_ntl` / `_ntlv` | + night lights (DMSP / VIIRS-like), 2000 / 2010 | 2010: 31.0 / 36.2 % | dropped (helps only gap counties) |
 | v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen**, 4 years so far |
 
+Next (2026-10-30): PLURAL grid test on v5.6 (v5.6 + plural, 1940 / 1980 / 2010; section "PLURAL grid test"); v5.6
+1940 / 1980 added for it.
 Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
 GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
 (gap counties = counties without built years).
@@ -734,6 +736,26 @@ county sets, not on tracts.
 | **Selection rule (fixed 2026-10-30, before any result)** | Per model the mean over 1920 / 1960 / 2010 / 2020 of (MdAPE (a) + MdAPE (b)) / 2; the lowest wins; models within 1 percentage point of it count as equal and the one keeping more counties wins (no filter > 0.9 > 0.7 > 0.5). Every year needed. Logged as one `RULE RESULT` line; **the final decision is the user's** |
 | Chain | `bash sbatch/submit_conus.sh uncfilter`: pre-check of the inputs, `uncertainty_filter` + the three features jobs at once, then per version train (after its features and the sets) -> predict -> validate (1920 / 1960 / 2010 / 2020, `--gap-share 0.05`), the three versions side by side; `filter_compare` after the three validations |
 | Tests | `tests/test_uncertainty_filter.py` (sets, rules, summary; common / imputed sets, metrics, rule with the tie, a leak stops the run), `tests/test_conus_dasymetric.py` `test_exclude_counties` (out of search / fit / TEST, folds kept, excluded predictions = the model, allocated with mass preserved) |
+
+## PLURAL grid test (request 2026-10-30, `docs/handoff/plural_grid_request.md`; run steps `docs/runbooks/Running_CONUS.md`, section 13)
+
+Meeting 2026-10-28 item 3 (Stefan): Siqiao's 900 m PLURAL grid (`index3`, 0 = urban ... 1 = remote; three years
+1940 / 1980 / 2010) resampled to 250 m and tried as a feature, continuous and in a few classes (number of classes and
+breaks = sensitivity). If it helps, PLURAL values for 1900-2020 are made and every year is run; if not, v5.6 goes on
+to all years. What index3 is (PLURAL-1 / -2, population weighting) is still unknown: if it is built from population,
+the same year's census population enters as a feature (`docs/data_sources.md` "PLURAL").
+
+| Topic | Decision |
+|---|---|
+| Layers | `configs/conus_study_area.yaml`: `PLURAL` (bilinear, main) and `PLURALC` (cubic, sensitivity; `clip: [0, 1]` in `make_cutout.py`, clipped cells below / above, all and inside the zones, in the cutout log), float32, years 1940 / 1980 / 2010, cut with `grid_cutout.sh --layers PLURAL PLURALC`. Cells outside the source extent would be nodata (the features stop on a nodata cell inside a used county) |
+| Fill check | `src/grid/plural_qa.py` (`sbatch/plural_qa.sh`, nothing waits for it) -> `results/cutout/conus/plural_qa.csv`, `plural_points.csv`. 0 outside the US is also the urban value, so the leak is measured by weight, not value: out_w = the indicator "900 m pixel centre outside every county" (zones sampled at the pixel centres) warped with the layer's own method; the warp is linear, so value = (1 - out_w) x the US-only value; deficit = value / (1 - out_w) - value. Edge (<= 5 km of a non-county cell) vs interior distributions; points New York, Boston, Chicago, Denver, Pittsfield, Ely NV, Miami, San Diego (900 m pixel vs 250 m cells). If the edge is pulled down a lot, options (user decides): nearest on cells with out_w > 0, or the renormalized value value / (1 - out_w) there |
+| Base | v5.6 = `Dasy_CONUS_RF_v3_u070` gets eras Y1940 / Y1980 (v5.4's features of those years), run with `--years 1940 1980` (its other eras and the other rows of `cv_summary.csv` / `reallocation_qa.csv` / `water_mask_by_year.csv` are kept); validated again on all six years (the old `tract_errors_{YEAR}.csv` must come out the same: deterministic) |
+| Variants | `configs/conus_rf_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}.yaml` = v5.6 + `plural` (same split, folds, excluded counties, statuses, water mask, search space, 60 candidates), 1940 / 1980 / 2010, `compare_with` v5.6. Block `plural: {layer, classes, breaks}`: plc = PLURAL continuous, plcc = PLURALC continuous, pq3 / pq5 = 3 / 5 classes with quantile breaks, pe3 / pe5 = equal intervals of 0-1 (classes from the bilinear layer). Quantile breaks = the 1/k ... (k-1)/k quantiles (numpy linear) of the layer over all cells of the used counties that year (water-masked cells included); class = 1 + number of breaks <= value (1 = most urban); `<era>/features/plural_breaks.csv` (breaks + cell share per class), and `predict.py` stops if its recomputed breaks differ. Cell feature = value or class number; county feature = mean over the unmasked cells (as every feature) |
+| Evaluation | `src/validation/plural_compare.py` (in `sbatch/plural_compare.sh`; also runs locally) -> `results/validation/conus/plural_grid/plural_comparison.csv` + `.png`: tract MdAPE and MAPE (tracts >= 10 people) on the tracts evaluated in every version, sets all / kept_t070 / excluded_t070 / no_gap / gap / dens_0_50 ... dens_2000_plus, areal weighting; county TEST MdAPE / MAPE before allocation, CV RMSE / R2, TEST RMSE / R2; plural permutation / SHAP rank and value; d_mdape = minus v5.6 |
+| **Best classed variant (rule fixed 2026-10-30, before any result)** | The lowest mean over the three years of tract MdAPE (all tracts) among pq3 / pq5 / pe3 / pe5 (`plural_best.txt`, `RULE RESULT` line). Only picks what is drawn in the maps; whether PLURAL is kept is the user's decision |
+| Maps | Same job: `county_maps.py`, 2010, Chelan WA, Reno KS, Fremont CO, Macoupin IL, v5.6 / plc / best classed -> `plural_grid/county_maps/` (+ `county_maps.csv`: share of people on BUI = 0 cells: does plural spread people onto empty land, as the distances / night lights did?) |
+| Chain | `bash sbatch/submit_conus.sh plural`: pre-check, cutout (`--layers`) -> plural_qa; v5.6 features / train / predict `--years 1940 1980` -> validate (6 years); per variant features (after the cutout) -> train (after its features and v5.6's train) -> predict -> validate; `plural_compare.sh` after every validation |
+| Tests | `tests/test_plural.py` (configs; resampling of a linear LAEA field = the field at the cell centres; cubic clip; plural_qa deficit = the fill's pull; breaks, classes, strips; predict breaks check; a new era via `--years` leaves the old era byte for byte; plural_compare by hand + figure) |
 
 ## BUI outliers (bui_qa, job 34921582)
 

@@ -18,6 +18,8 @@ Steps:
      grids (DEM, NTL, ...): GDAL warp onto the window with the layer's `resampling`.
      `nodata_to: <value>` (VIIRS-like NTL, whose sea is masked): source nodata cells are written as that value
      instead of nodata; how many, and how many of them lie inside that year's zones, is logged.
+     `clip: [lo, hi]` (PLURAL cubic, which can overshoot 0-1): warped values are clipped to that range; the cells
+     below / above it (all, and inside that year's zones) are logged.
   4. zone_id = the county's GPKG feature id (1-based row number in counties_{YEAR}.gpkg).
      Counties not picked, and cells outside all counties, are 0.
 
@@ -104,6 +106,9 @@ def expand_layers(cfg: dict) -> list[dict]:
             errors.append(f"  {name}: resampling {res!r} not in {sorted(RESAMPLING)}")
         if dtype not in DTYPES:
             errors.append(f"  {name}: dtype {dtype!r} not in {sorted(DTYPES)}")
+        clip = entry.get("clip")
+        if clip is not None and not (isinstance(clip, list) and len(clip) == 2 and clip[0] < clip[1]):
+            errors.append(f"  {name}: clip must be [lo, hi] with lo < hi, not {clip!r}")
         y = entry.get("years", "all")
         static = y is None or y == "none"
         if static:
@@ -120,7 +125,7 @@ def expand_layers(cfg: dict) -> list[dict]:
             out.append({"label": f"{name}_{cls}" if cls else name, "name": name, "class": cls,
                         "path": entry["path"], "years": years, "resampling": res, "dtype": dtype,
                         "out": entry.get("out", default_out), "nodata_to": entry.get("nodata_to"),
-                        "aligned": {}})
+                        "clip": entry.get("clip"), "aligned": {}})
     labels = [layer["label"] for layer in out]
     dup = sorted({x for x in labels if labels.count(x) > 1})
     if dup:
@@ -338,6 +343,28 @@ def fill_nodata(arr, nd, value, out_dir: Path, year, label):
     return arr, np.zeros(arr.shape, bool), None
 
 
+def zone_cells(out_dir: Path, year, shape):
+    """That year's zone grid of the cutout (> 0 = county cell), or None when it is not there (yet)."""
+    zpath = out_dir / "zones" / f"zones_{year}.tif"
+    if not year or not zpath.exists():
+        return None
+    with rasterio.open(zpath) as z:
+        zones = z.read(1)
+    return zones if zones.shape == shape else None
+
+
+def clip_values(arr, nd, clip, out_dir: Path, year, label):
+    """`clip: [lo, hi]`: valid values outside the range are set to its ends; counts logged (all / inside zones)."""
+    lo, hi = clip
+    below, above = ~nd & (arr < lo), ~nd & (arr > hi)
+    zones = zone_cells(out_dir, year, arr.shape)
+    inside = "-" if zones is None else (int((below & (zones > 0)).sum()), int((above & (zones > 0)).sum()))
+    log.info("  %s: clip [%s, %s]: %d cells below (min %s), %d above (max %s) of %d valid | inside the %s zones "
+             "(below, above): %s", label, lo, hi, int(below.sum()), arr[below].min() if below.any() else "-",
+             int(above.sum()), arr[above].max() if above.any() else "-", int((~nd).sum()), year, inside)
+    return np.where(nd, arr, np.clip(arr, lo, hi))
+
+
 def layer_path(layer, year, path, out_dir) -> Path:
     return out_dir / "layers" / fill(layer["out"], layer, year).replace("{FILENAME}", path.name)
 
@@ -347,6 +374,8 @@ def cut_layer(layer, year, path, win_transform, shape, out_dir, ref):
     arr, nd, src_nodata, how = read_layer(layer, year, path, win_transform, shape, ref, label)
     if layer["nodata_to"] is not None and nd.any():
         arr, nd, src_nodata = fill_nodata(arr, nd, layer["nodata_to"], out_dir, year, label)
+    if layer.get("clip") is not None:
+        arr = clip_values(arr, nd, layer["clip"], out_dir, year, label)
     out, out_nd, valid = convert(arr, nd, src_nodata, layer, not layer["aligned"][year], label)
     out_path = layer_path(layer, year, path, out_dir)
     write_tif(out_path, out, win_transform, ref["crs"], out_nd)

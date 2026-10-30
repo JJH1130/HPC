@@ -41,6 +41,8 @@ for ERA in "${ERAS[@]:-}"; do
     [[ -f $F ]] || continue   # --years: only some eras were written
     mkdir -p "$RESULTS/$ERA"
     cp "$F" "$RESULTS/$ERA/"
+    B=$(dirname "$F")/plural_breaks.csv   # classed plural (PLURAL grid test)
+    if [[ -f $B ]]; then cp "$B" "$RESULTS/$ERA/"; fi
 done
 Q=$OUT_ROOT/$NAME/$VERSION/qa/water_mask_by_year.csv   # with water_mask: true (v3.1)
 if [[ -f $Q ]]; then cp "$Q" "$RESULTS/"; fi
