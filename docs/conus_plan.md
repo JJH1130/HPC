@@ -10,6 +10,51 @@ Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.
 `configs/conus_rf_v3_bui.yaml`, `configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `configs/conus_rf_v3_all.yaml`,
 `configs/conus_rf_v3_ntl.yaml`, `configs/conus_rf_v3_ntlv.yaml`, split `configs/conus_split.csv`.
 
+## Version summary (for meetings; updated 2026-10-30)
+
+Naming: CONUS = v5 series on HISDAC-US v2 (v6 = HISDAC-US v3, later). One RF per census year, county split 80 / 20 by
+state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all tracts of the year.
+
+| Version | Folder | What | Tract MdAPE 1960 / 2010 | Status |
+|---|---|---|---|---|
+| v5 | `Dasy_CONUS_RF_v1` | MA v3.4 features (bui, bldg_size, mu_ratio, dist_built; res_share, rent_share from 1940) | 38.4 / 29.8 % | reference |
+| v5.1 | `Dasy_CONUS_RF_v2` | + PLURAL-1 distances | 41.6 / 40.2 % | dropped |
+| v5.2 | `Dasy_CONUS_RF_v3` | + elevation, slope | 38.3 / 29.2 % | kept |
+| v5.3 | `Dasy_CONUS_RF_v4` | + distances + terrain | 40.3 / 39.8 % | dropped |
+| v5.4 | `Dasy_CONUS_RF_v3_all` | v5.2 on BUI-fixed input, RF (vs LightGBM / XGBoost / CatBoost), 60 candidates, 1900-2020 | 37.9 / 26.6 % (2020: 26.1) | base |
+| v5.5 | `Dasy_CONUS_RF_v3_ntl` / `_ntlv` | + night lights (DMSP / VIIRS-like), 2000 / 2010 | 2010: 31.0 / 36.2 % | dropped (helps only gap counties) |
+| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen**, 4 years so far |
+
+Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
+GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
+(gap counties = counties without built years).
+
+## Uncertainty filter result (jobs in `logs/conus_uncfilter_jobs.txt`, run 2026-10-30)
+
+All jobs COMPLETED. Excluded counties (fixed set for all years): t = 0.9 / 0.7 / 0.5 -> 538 / 1,020 / 1,776 (ratio rule
+519 / 1,011 / 1,772; records rule 3; area rule 36); population kept 2010: 94 / 91 / 80 %; all 416 gap counties
+excluded at 0.7 and 0.5 (415 at 0.9). `results/validation/conus/uncertainty_filter/`.
+
+Tract MdAPE (%):
+
+| Year | v5.4 (no filter) | t = 0.9 | t = 0.7 | t = 0.5 | Areal weighting |
+|---|---|---|---|---|---|
+| 1920 | 53.3 | 52.6 | 52.4 | 52.9 | 79.2 |
+| 1960 | 37.9 | 37.8 | 36.0 | 34.9 | 82.7 |
+| 2010 | 26.6 | 26.1 | 23.8 | 23.7 | 74.5 |
+| 2020 | 26.1 | 25.8 | 23.7 | 23.8 | 74.5 |
+
+2010 split by the t = 0.7 sets: kept counties 25.0 -> 22.4 %, excluded (imputed) counties 55.7 -> 51.2 %; gap-county
+tracts 72.0 -> 77.5 % (areal weighting 75.6 %).
+
+- County level: common TEST counties slightly better with filters (2010 23.8 -> 22.6 % at 0.7); county totals of the
+  excluded counties much worse (51 -> 89-94 %): the filtered model reads their thin records as few people. Allocation
+  uses only relative weights inside a county and the census sets the total, so this does not reach the product.
+- The pre-set rule (mean of (a) and (b)) picked v5.4; it was ill-posed because (b) scores county totals before
+  allocation. **Decision 2026-10-30: t = 0.7** (tracts ~ t = 0.5, keeps 91 % vs 80 % of the population), chosen on
+  tract validation among 4 candidates, stated openly; all thresholds reported as a sensitivity.
+- Next: u070 for all years 1900-2020 (= v5.6).
+
 ## Decisions (2026-10-23)
 
 | Topic | Decision |
