@@ -4,16 +4,16 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
-- **Status (2026-10-30, v5.6 all years, request `docs/handoff/v56_all_years_request.md`):** PLURAL dropped (no gain on
-  tracts). v5.6 (`Dasy_CONUS_RF_v3_u070`) is the final version; its 7 missing years + summaries next to v5.4 written as
-  code, not run (`docs/runbooks/Running_CONUS.md` section 14). The v5.6 row of the version table is updated by Claude
-  from the results.
+- **Status (2026-10-30, v5.6 all years, run):** done (`docs/conus_plan.md` "v5.6 all years result"). Stefan items
+  1, 2, 3, 4 and the every-decade tract MdAPE are answered with v5.6: tract MdAPE 53 % (1910) -> 24 % (2010 / 2020),
+  better than v5.4 from 1960; fixed sets improve over time; county TEST MdAPE 22-29 %. **Next:** item 5 (county feature
+  aggregation); move the final v5.6 rasters off scratch (90-day purge); Word docx update.
 
 - **Status (2026-10-30, PLURAL grid test, run):** all 31 jobs done (`docs/conus_plan.md` "PLURAL grid test result").
   No variant beats v5.6 on tracts (2010: v5.6 23.8 %, variants 24.1-28.2 %; 1980: 26.8 vs 28.1-33.2 %); county CV R2

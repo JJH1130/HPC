@@ -23,11 +23,12 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | v5.3 | `Dasy_CONUS_RF_v4` | + distances + terrain | 40.3 / 39.8 % | dropped |
 | v5.4 | `Dasy_CONUS_RF_v3_all` | v5.2 on BUI-fixed input, RF (vs LightGBM / XGBoost / CatBoost), 60 candidates, 1900-2020 | 37.9 / 26.6 % (2020: 26.1) | base |
 | v5.5 | `Dasy_CONUS_RF_v3_ntl` / `_ntlv` | + night lights (DMSP / VIIRS-like), 2000 / 2010 | 2010: 31.0 / 36.2 % | dropped (helps only gap counties) |
-| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen**, 6 years so far (+1940 / 1980) |
+| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen, final**, all 13 years 1900-2020 |
 | v5.7 (test) | `Dasy_CONUS_RF_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}` | v5.6 + Siqiao's 900 m PLURAL grid (continuous / 3 or 5 classes), 1940 / 1980 / 2010 | 2010: 24.1-28.2 % (v5.6 23.8) | worse on tracts; drop proposed (user decides) |
 
 Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no variant beats v5.6 on tracts; PLURAL
-dropped. v5.6 for all census years 1900-2020 written as code (section "v5.6 all years"), not run yet.
+dropped. v5.6 run for all census years 1900-2020 (section "v5.6 all years result"). Next: Stefan item 5 (county
+feature aggregation).
 Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
 GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
 (gap counties = counties without built years).
@@ -800,6 +801,43 @@ meeting items (tract MdAPE every decade, county TEST MdAPE, fixed tract sets).
 | Summaries | `results/validation/conus/Dasy_CONUS_RF_v3_u070/` with v5.4's file names: `summary_by_year.csv` + `mdape_by_year.png` (`compare_models.py --versions v5.6 v5.4 --exclusions .../excluded_counties_t070.csv`: rows of both versions; new columns `tract_kept_t070_*` / `tract_excluded_t070_*` from `tract_errors_{YEAR}.csv`; the figure draws v5.6 with v5.4's all-tracts MdAPE dotted; no `--repro-with`: v5.6 is not expected to equal v5.4), `county_metrics_by_year.csv`, `fixed_tract_metrics.csv`, `fixed_tract_counties.csv`, `mdape_over_time.png` (`metrics_over_time.py --compare-with v5.4`: v5.4's sets dotted in the same colours; the differences v5.6 minus v5.4 are logged) |
 | Caution when reading | v5.6's TEST counties = the TEST counties not excluded at t = 0.7; v5.4's = all TEST counties: the county TEST MdAPE and TEST R2 of the two are on different sets (the uncertainty filter comparison has the common sets). CV R2 likewise. Tracts are the same in both |
 | Tests | `tests/test_plural.py`: `test_configs` (13 eras = v5.4's features), `test_plural_feature` (a new era via `--years` leaves the old era byte for byte), `test_v56all` (kept / excluded t070 tract MdAPE by hand, both versions in the summary, figures, `--compare-with` writes nothing of v5.4) |
+
+## v5.6 all years result (jobs 35090242-35090247, code 4eca76d, run 2026-10-30)
+
+All 6 jobs COMPLETED (features 7 min, train 28, predict 29, validate 16). The six earlier years unchanged (no line of
+their files changed in the run commit f581b11). Files: `results/validation/conus/Dasy_CONUS_RF_v3_u070/`
+(`summary_by_year.csv`, `mdape_by_year.png`, `county_metrics_by_year.csv`, `fixed_tract_metrics.csv`,
+`mdape_over_time.png`).
+
+Tract MdAPE, all tracts of the year (%; same tracts for all three):
+
+| Year | Tracts | Areal weighting | v5.4 | v5.6 | v5.6 kept / excluded t070 | gap counties v5.4 / v5.6 |
+|---|---|---|---|---|---|---|
+| 1910 | 1,897 | 82.9 | 53.2 | 53.1 | 53.1 / - | - |
+| 1920 | 2,197 | 79.2 | 53.3 | 52.4 | 52.4 / - | - |
+| 1930 | 6,362 | 81.5 | 49.7 | 50.2 | 50.2 / - | - |
+| 1940 | 7,350 | 86.9 | 42.6 | 42.2 | 42.2 / - | - |
+| 1950 | 12,300 | 83.1 | 41.8 | 41.9 | 41.5 / 87.5 | 86.2 / 86.6 |
+| 1960 | 22,042 | 82.7 | 37.9 | **36.0** | 35.1 / 88.4 | 89.9 / 90.5 |
+| 1970 | 33,298 | 81.3 | 34.0 | **31.7** | 30.8 / 82.4 | 87.9 / 88.8 |
+| 1980 | 44,586 | 79.9 | 32.3 | **26.8** | 25.5 / 79.3 | 89.5 / 89.4 |
+| 1990 | 57,338 | 76.9 | 28.5 | **24.5** | 22.9 / 55.0 | 78.7 / 79.0 |
+| 2000 | 62,380 | 75.9 | 27.2 | 26.4 | 25.0 / 53.5 | 75.7 / 78.3 |
+| 2010 | 72,243 | 74.5 | 26.6 | **23.8** | 22.4 / 51.2 | 72.0 / 77.5 |
+| 2020 | 78,200 | 74.5 | 26.1 | **23.7** | 22.4 / 54.7 | 74.0 / 78.9 |
+
+- Before 1950 the tracts are big cities only (8-74 counties, none excluded at t = 0.7): v5.6 = v5.4 within 1 pp, as
+  expected. From 1960 v5.6 is better every year (-0.8 to -5.5 pp; largest 1980). Tracts in excluded counties improve
+  from 1990 (2010: 55.7 -> 51.2 %); gap-county tracts get 0-5 pp worse (2010: 72.0 -> 77.5 %, areal weighting 75.6 %),
+  the known cost of the filter.
+- Fixed tract sets (v5.6 / areal weighting, first -> last year): 1910+ (6 counties) 49.2 -> 31.0 % / 82.3 -> 49.2 %;
+  1940+ (73) 42.2 -> 28.2 % / 86.9 -> 62.2 %; 1960+ (295) 36.0 -> 27.4 % / 82.7 -> 70.9 %. The model improves over time
+  on the same counties too, and its gap to areal weighting stays 18-45 pp.
+- County TEST MdAPE (before allocation): 22-29 % every year, CV and TEST alike. **Same-set comparison** (the 398-423
+  TEST counties not excluded, v5.4 predictions from `test_predictions.csv`): MdAPE v5.4 / v5.6 within -3.6 / +1.2 pp
+  (e.g. 2010 24.1 / 23.0 %), TEST R2 equal or up to +0.015 (2010 0.910 / 0.919). The dotted v5.4 county line in
+  `mdape_over_time.png` is on v5.4's full TEST set (excluded counties included), so its 3-5 pp gap there overstates the
+  difference.
 
 ## BUI outliers (bui_qa, job 34921582)
 
