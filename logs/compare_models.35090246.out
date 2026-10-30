@@ -1,0 +1,127 @@
+== job 35090246 (compare_models) on c3cpu-e2-u4 at 2026-10-29T23:39:09-06:00
+== cores=1 gpus=none restart=0
+== git 4eca76d (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: --versions Dasy_CONUS_RF_v3_u070 Dasy_CONUS_RF_v3_all --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv --out results/validation/conus/Dasy_CONUS_RF_v3_u070/summary_by_year.csv --plot results/validation/conus/Dasy_CONUS_RF_v3_u070/mdape_by_year.png
+23:39:13 INFO arg versions = ['Dasy_CONUS_RF_v3_u070', 'Dasy_CONUS_RF_v3_all']
+23:39:13 INFO arg name = conus
+23:39:13 INFO arg results_root = results
+23:39:13 INFO arg out = results/validation/conus/Dasy_CONUS_RF_v3_u070/summary_by_year.csv
+23:39:13 INFO arg plot = results/validation/conus/Dasy_CONUS_RF_v3_u070/mdape_by_year.png
+23:39:13 INFO arg repro_with = None
+23:39:13 INFO arg years = None
+23:39:13 INFO arg rank_features = []
+23:39:13 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+23:39:13 INFO exclusion set results/hisdac_uncertainty/excluded_counties_t070.csv (t070): 1020 counties
+23:39:16 INFO 1900 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6277      0.8147   0.8449          NaN             NaN              NaN               NaN                 NaN              NaN                    NaN                 NaN           NaN          0          239.6
+Dasy_CONUS_RF_v3_u070    rf        0.5693      0.8110   0.8353          NaN             NaN              NaN               NaN                 NaN              NaN                    NaN                 NaN           NaN          0          276.2
+23:39:16 INFO 1910 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.5657      0.8124   0.8221       1897.0            10.0          53.1722           72.0719             53.1722              NaN              9228.3102             82.9285         527.0          0          230.8
+Dasy_CONUS_RF_v3_u070    rf        0.5022      0.8297   0.8460       1897.0            10.0          53.0582           73.2560             53.0582              NaN              9058.5870             82.9285         527.0          0           89.3
+23:39:16 INFO 1920 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.5764      0.8228   0.8344       2197.0             8.0          53.2714           65.4051             53.2714              NaN               141.0588             79.2289         533.0          0          513.1
+Dasy_CONUS_RF_v3_u070    rf        0.4989      0.8479   0.8725       2197.0             8.0          52.4167           63.0442             52.4167              NaN                59.4605             79.2289         533.0          0          120.2
+23:39:16 INFO 1930 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.5846      0.8151   0.8392       6362.0            24.0          49.7057           50.4565             49.7057              NaN               616.5233             81.5053         523.0          0          162.8
+Dasy_CONUS_RF_v3_u070    rf        0.5058      0.8491   0.8690       6362.0            24.0          50.2073           49.3583             50.2073              NaN               698.0181             81.5053         523.0          0           86.8
+23:39:16 INFO 1940 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.5716      0.8265   0.8577       7350.0            74.0          42.6264           39.8372             42.6264              NaN               310.6183              86.915         504.0          0          742.6
+Dasy_CONUS_RF_v3_u070    rf        0.4753      0.8664   0.8848       7350.0            74.0          42.1863           39.8789             42.1863              NaN               278.5242              86.915         504.0          0          390.7
+23:39:16 INFO 1950 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.5889      0.8323   0.8558      12300.0           114.0          41.8246           37.4053             41.5268          86.1970               164.3833             83.1041         494.0          0          194.9
+Dasy_CONUS_RF_v3_u070    rf        0.4834      0.8737   0.8935      12300.0           114.0          41.9013           37.0619             41.6670          86.6427               196.5429             83.1041         494.0          0          210.0
+23:39:16 INFO 1960 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6002      0.8427   0.8612      22042.0           295.0          37.8881           34.6014             37.1005          89.9316               127.0886              82.665         479.0          0          233.9
+Dasy_CONUS_RF_v3_u070    rf        0.4819      0.8861   0.9076      22042.0           295.0          36.0022           32.5632             35.2947          90.5178                98.5788              82.665         479.0          0          107.0
+23:39:16 INFO 1970 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6079      0.8528   0.8628      33298.0           607.0          34.0255           32.8609             33.1780          87.8853                80.9605             81.2806         464.0          0          789.5
+Dasy_CONUS_RF_v3_u070    rf        0.4686      0.9002   0.9153      33298.0           607.0          31.7327           30.1480             30.8717          88.8101                65.7511             81.2806         464.0          0          328.9
+23:39:16 INFO 1980 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6027      0.8568   0.8615      44586.0          1772.0          32.3468           31.4195             31.2268          89.4570                51.1264             79.9093         443.0          0          452.3
+Dasy_CONUS_RF_v3_u070    rf        0.4432      0.9083   0.9110      44586.0          1772.0          26.8013           26.7686             25.7784          89.4369                26.8406             79.9093         443.0          0          323.3
+23:39:16 INFO 1990 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6128      0.8601   0.8758      57338.0          3016.0          28.5314           28.2576             27.3161          78.7096                32.1533             76.9398         428.0          0          709.1
+Dasy_CONUS_RF_v3_u070    rf        0.4320      0.9168   0.9201      57338.0          3016.0          24.5224           24.6778             23.2374          78.9783                19.3011             76.9398         428.0          0          321.5
+23:39:16 INFO 2000 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6172      0.8631   0.8753      62380.0          3007.0          27.1501           27.3888             26.0611          75.6941                29.3959             75.8582         416.0          0          705.3
+Dasy_CONUS_RF_v3_u070    rf        0.4169      0.9237   0.9192      62380.0          3007.0          26.3991           26.6184             25.1866          78.2553                21.0041             75.8582         416.0          0          356.0
+23:39:16 INFO 2010 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6265      0.8663   0.8775      72243.0          3109.0          26.5973           27.4040             25.5654          71.9931                30.7103             74.5158         416.0          0          721.5
+Dasy_CONUS_RF_v3_u070    rf        0.4151      0.9273   0.9189      72243.0          3109.0          23.8025           24.5753             22.6729          77.4554                18.3230             74.5158         416.0          0          314.1
+23:39:16 INFO 2020 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+              version model  cv_rmse_mean  cv_r2_mean  test_r2  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+ Dasy_CONUS_RF_v3_all    rf        0.6485      0.8632   0.8675      78200.0          2945.0          26.0609           27.1062             25.1188          73.9915                28.7643             74.4794         410.0          0          248.6
+Dasy_CONUS_RF_v3_u070    rf        0.4314      0.9251   0.9146      78200.0          2945.0          23.6666           24.6859             22.6377          78.8920                17.8995             74.4794         410.0          0          310.6
+23:39:16 INFO chosen hyperparameters:
+ year               version                                                                           best_params
+ 1900  Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1900 Dasy_CONUS_RF_v3_u070    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1910  Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1910 Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1920  Dasy_CONUS_RF_v3_all    {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 400}
+ 1920 Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1930  Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1930 Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1940  Dasy_CONUS_RF_v3_all    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1940 Dasy_CONUS_RF_v3_u070    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1950  Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1950 Dasy_CONUS_RF_v3_u070    {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 400}
+ 1960  Dasy_CONUS_RF_v3_all    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 204}
+ 1960 Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1970  Dasy_CONUS_RF_v3_all    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1970 Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 1980  Dasy_CONUS_RF_v3_all    {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 400}
+ 1980 Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 1990  Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 1990 Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2000  Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2000 Dasy_CONUS_RF_v3_u070    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 2010  Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2010 Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2020  Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 2020 Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+23:39:16 INFO tract MdAPE (%) by part (gap = BUI gap counties, dens_* = observed people / km2):
+ year               version   all  test  no_gap   gap  kept_t070  excluded_t070  dens_0_50  dens_50_500  dens_500_2000  dens_2000_plus
+ 1900  Dasy_CONUS_RF_v3_all   NaN   NaN     NaN   NaN        NaN            NaN        NaN          NaN            NaN             NaN
+ 1900 Dasy_CONUS_RF_v3_u070   NaN   NaN     NaN   NaN        NaN            NaN        NaN          NaN            NaN             NaN
+ 1910  Dasy_CONUS_RF_v3_all 53.17 72.07   53.17   NaN      53.17            NaN    9228.31       179.00         111.57           49.64
+ 1910 Dasy_CONUS_RF_v3_u070 53.06 73.26   53.06   NaN      53.06            NaN    9058.59       191.09         110.20           49.77
+ 1920  Dasy_CONUS_RF_v3_all 53.27 65.41   53.27   NaN      53.27            NaN     141.06       267.95         145.07           50.14
+ 1920 Dasy_CONUS_RF_v3_u070 52.42 63.04   52.42   NaN      52.42            NaN      59.46       230.27         144.40           48.16
+ 1930  Dasy_CONUS_RF_v3_all 49.71 50.46   49.71   NaN      49.71            NaN     616.52       166.38          98.99           41.59
+ 1930 Dasy_CONUS_RF_v3_u070 50.21 49.36   50.21   NaN      50.21            NaN     698.02       187.63         103.89           41.79
+ 1940  Dasy_CONUS_RF_v3_all 42.63 39.84   42.63   NaN      42.63            NaN     310.62       107.33          44.34           38.25
+ 1940 Dasy_CONUS_RF_v3_u070 42.19 39.88   42.19   NaN      42.19            NaN     278.52       105.64          45.73           37.51
+ 1950  Dasy_CONUS_RF_v3_all 41.82 37.41   41.53 86.20      41.44          86.92     164.38        79.51          40.47           38.61
+ 1950 Dasy_CONUS_RF_v3_u070 41.90 37.06   41.67 86.64      41.50          87.46     196.54        84.62          38.75           38.41
+ 1960  Dasy_CONUS_RF_v3_all 37.89 34.60   37.10 89.93      36.96          88.51     127.09        55.18          30.40           35.82
+ 1960 Dasy_CONUS_RF_v3_u070 36.00 32.56   35.29 90.52      35.12          88.38      98.58        52.94          28.01           34.20
+ 1970  Dasy_CONUS_RF_v3_all 34.03 32.86   33.18 87.89      33.06          80.50      80.96        39.64          28.09           32.66
+ 1970 Dasy_CONUS_RF_v3_u070 31.73 30.15   30.87 88.81      30.76          82.44      65.75        37.52          25.71           30.91
+ 1980  Dasy_CONUS_RF_v3_all 32.35 31.42   31.23 89.46      30.93          78.63      51.13        32.88          29.40           31.83
+ 1980 Dasy_CONUS_RF_v3_u070 26.80 26.77   25.78 89.44      25.48          79.33      26.84        29.01          23.77           29.18
+ 1990  Dasy_CONUS_RF_v3_all 28.53 28.26   27.32 78.71      26.70          60.60      32.15        29.13          24.42           31.08
+ 1990 Dasy_CONUS_RF_v3_u070 24.52 24.68   23.24 78.98      22.95          55.04      19.30        25.82          22.60           29.93
+ 2000  Dasy_CONUS_RF_v3_all 27.15 27.39   26.06 75.69      25.49          58.49      29.40        27.44          23.06           31.21
+ 2000 Dasy_CONUS_RF_v3_u070 26.40 26.62   25.19 78.26      24.99          53.49      21.00        27.13          23.84           32.19
+ 2010  Dasy_CONUS_RF_v3_all 26.60 27.40   25.57 71.99      25.04          55.67      30.71        25.38          22.49           31.74
+ 2010 Dasy_CONUS_RF_v3_u070 23.80 24.58   22.67 77.46      22.45          51.24      18.32        23.42          21.48           31.20
+ 2020  Dasy_CONUS_RF_v3_all 26.06 27.11   25.12 73.99      24.55          57.41      28.76        24.26          22.70           31.01
+ 2020 Dasy_CONUS_RF_v3_u070 23.67 24.69   22.64 78.89      22.37          54.71      17.90        22.55          21.78           30.52
+23:39:16 INFO mass check (reallocation_qa.csv, tolerance 1e-06): 0 county-years fail; years with a failure: none
+23:39:17 INFO wrote results/validation/conus/Dasy_CONUS_RF_v3_u070/mdape_by_year.png
+23:39:17 INFO wrote results/validation/conus/Dasy_CONUS_RF_v3_u070/summary_by_year.csv (26 rows)
+23:39:17 INFO DONE
+== done 2026-10-29T23:39:17-06:00

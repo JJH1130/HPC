@@ -1,0 +1,20 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+35090242        dasymetric_features  COMPLETED   00:07:08                   6  05:03.687 
+35090242.ba+                  batch  COMPLETED   00:07:08  10016412K        6  05:03.685 
+35090242.ex+                 extern  COMPLETED   00:07:08          0        6  00:00.001 
+35090243           dasymetric_train  COMPLETED   00:28:29                  16   01:23:15 
+35090243.ba+                  batch  COMPLETED   00:28:29      5884M       16   01:23:15 
+35090243.ex+                 extern  COMPLETED   00:28:29       256K       16  00:00.001 
+35090244         dasymetric_predict  COMPLETED   00:29:23                  32   02:36:13 
+35090244.ba+                  batch  COMPLETED   00:29:23  14573960K       32   02:36:13 
+35090244.ex+                 extern  COMPLETED   00:29:23       256K       32  00:00.001 
+35090245             validate_tract  COMPLETED   00:16:16                   8  11:36.640 
+35090245.ba+                  batch  COMPLETED   00:16:16  19900248K        8  11:36.639 
+35090245.ex+                 extern  COMPLETED   00:16:16          0        8  00:00.001 
+35090246             compare_models  COMPLETED   00:00:14                   1  00:02.853 
+35090246.ba+                  batch  COMPLETED   00:00:14    245712K        1  00:02.852 
+35090246.ex+                 extern  COMPLETED   00:00:14       292K        1  00:00.001 
+35090247          metrics_over_time  COMPLETED   00:00:17                   1  00:04.682 
+35090247.ba+                  batch  COMPLETED   00:00:17    310996K        1  00:04.681 
+35090247.ex+                 extern  COMPLETED   00:00:17       288K        1   00:00:00 

@@ -1,0 +1,82 @@
+Job ID: 35090242
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 6
+
+-------- CPU Metrics --------
+CPU Utilized: 00:05:04
+CPU Efficiency: 11.84% of 00:42:48 core-walltime
+Job Wall-clock time: 00:07:08
+Memory Utilized: 9.55 GiB
+Memory Efficiency: 42.46% of 22.50 GiB (3.75 GiB/core)
+
+Job ID: 35090243
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 16
+
+-------- CPU Metrics --------
+CPU Utilized: 01:23:15
+CPU Efficiency: 18.27% of 07:35:44 core-walltime
+Job Wall-clock time: 00:28:29
+Memory Utilized: 5.75 GiB
+Memory Efficiency: 9.58% of 60.00 GiB (3.75 GiB/core)
+
+Job ID: 35090244
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 32
+
+-------- CPU Metrics --------
+CPU Utilized: 02:36:14
+CPU Efficiency: 16.62% of 15:40:16 core-walltime
+Job Wall-clock time: 00:29:23
+Memory Utilized: 13.90 GiB
+Memory Efficiency: 11.58% of 120.00 GiB (3.75 GiB/core)
+
+Job ID: 35090245
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+
+-------- CPU Metrics --------
+CPU Utilized: 00:11:37
+CPU Efficiency: 8.93% of 02:10:08 core-walltime
+Job Wall-clock time: 00:16:16
+Memory Utilized: 18.98 GiB
+Memory Efficiency: 63.26% of 30.00 GiB (3.75 GiB/core)
+
+Job ID: 35090246
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Cores: 1
+
+-------- CPU Metrics --------
+CPU Utilized: 00:00:03
+CPU Efficiency: 21.43% of 00:00:14 core-walltime
+Job Wall-clock time: 00:00:14
+Memory Utilized: 239.95 MiB
+Memory Efficiency: 6.25% of 3.75 GiB (3.75 GiB/core)
+
+Job ID: 35090247
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Cores: 1
+
+-------- CPU Metrics --------
+CPU Utilized: 00:00:05
+CPU Efficiency: 29.41% of 00:00:17 core-walltime
+Job Wall-clock time: 00:00:17
+Memory Utilized: 303.71 MiB
+Memory Efficiency: 7.91% of 3.75 GiB (3.75 GiB/core)
+
