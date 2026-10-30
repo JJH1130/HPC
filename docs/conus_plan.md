@@ -839,6 +839,26 @@ Tract MdAPE, all tracts of the year (%; same tracts for all three):
   `mdape_over_time.png` is on v5.4's full TEST set (excluded counties included), so its 3-5 pp gap there overstates the
   difference.
 
+## County feature aggregation: diagnosis (request 2026-10-30, `docs/handoff/aggregation_diagnosis_request.md`; run steps `docs/runbooks/Running_CONUS.md`, section 15)
+
+Stefan item 5 (meeting 2026-10-28). County features are the mean over all unmasked cells of a county, empty cells (0)
+included, so `bui`, `bldg_size` and `mu_ratio` mostly measure the built share (county Spearman 0.97-0.99). The model
+learns on county means and is applied to cells (change of support), so cell values are likely outside the range it
+learned from. **Diagnosis only** (no training, no prediction); the alternative aggregations to test are chosen from
+its results (Claude + user).
+
+| Topic | Decision |
+|---|---|
+| Version, years | v5.6 (`Dasy_CONUS_RF_v3_u070`), 1960 and 2010; the era's features (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope) |
+| Cells | exactly the cells of `county_features.py`: used counties, yearly water mask (masked cells left out), strips of `block_rows`, `common.cell_features` unchanged. Built cell = BUI > 0, empty cell = BUI = 0 |
+| County sets | `train` / `test` (split table), `excluded` (t = 0.7 set), `not_trained` (status outside `train_status`, i.e. `filled_nhgis_alloc`), in `train.py`'s order. Training counties (ranges, Spearman) = `train` |
+| 1. Extrapolation | range per feature = min / max of the training county means (also p01 / p99). Per feature: share of cells below / above and share of v5.6's allocated people on them (`predictions/pop_{YEAR}.tif` on scratch; the job stops without it); share of cells / people with every feature inside, for all / built / empty cells; quantiles p01 p10 p50 p90 p99 max of cells (all / built / empty) and training county means, with the zero share. Cells outside a range are counted per county too (`oor_cell_share`, `oor_pop_share`; `oor_p_*` for p01 / p99) |
+| 2. Aggregates | `mean_<f>` (current mean; must equal `county_features.csv` within 1e-9 relative, else the job stops), `built_share`, `bmean_<f>` / `bmed_<f>` (built cells; bui, bldg_size, mu_ratio, res_share, rent_share, elev, slope; dist_built is 0 on built cells), `med_<f>` (all cells; the log counts counties with median 0), `top10_share` (share of the county BUI on its top ceil(n_built / 10) built cells), `gini_bui` (Gini of BUI over built cells). Medians / quantiles from float32 cell values, means from float64 sums |
+| 3. Summaries | Spearman over training counties: every aggregate with y and every pair of aggregates (`aggregate_correlations.csv`). Tract MdAPE per county (v5.6 `tract_errors_{YEAR}.csv`, evaluated tracts by their 2010 county, >= 5 tracts; tracts with observed 0 left out of the MdAPE as everywhere; set `not_used` = a county without a used row that year) against top10_share / gini_bui / built_share / out-of-range shares (Spearman) and by quartile of top10_share and gini_bui (counties, tracts, median county MdAPE, pooled tract MdAPE, areal weighting). Figure: built cells vs training county means per feature, 2010, log x (dist_built: all cells; values <= 0 left out, their share in the panel title) |
+| Outputs | `results/aggregation/conus/`: `county_aggregates_{1960,2010}.csv`, `extrapolation.csv`, `cell_vs_county_quantiles.csv`, `aggregate_correlations.csv`, `tract_error_by_county_{1960,2010}.csv`, `aggregate_vs_tract_error.csv`, `cell_vs_county_2010.png` |
+| Code | `src/validation/aggregation_diag.py`, `sbatch/aggregation_diag.sh` (8 cores, 1:30; all kept cells held as float32, ~5 GB), `bash sbatch/submit_conus.sh aggdiag` (pre-check + one job). Test `tests/test_aggregation_diag.py` (synthetic cutout through features / train / predict: aggregates, ranges, shares, quantiles, Spearman, tract table = brute force; strips = whole window; a changed `county_features.csv` or a missing prediction stops it) |
+| Not decided | the alternative aggregation(s) and how a model would use them (e.g. built-cell mean as county feature with built_share as its own feature, a concentration index, the populated part only): after the results |
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is

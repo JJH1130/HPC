@@ -51,6 +51,9 @@
 #                                       # predict --years 1900 1910 1930 1950 1970 1990 2000 (the six eras run before
 #                                       # stay) -> tract validation of every tract year -> summary_by_year (next to
 #                                       # v5.4, kept / excluded t070) and metrics_over_time (v5.4 dotted); one chain
+#   bash sbatch/submit_conus.sh aggdiag # county feature aggregation diagnosis of v5.6, 1960 / 2010 (one job, no
+#                                       # training / prediction): pre-check of v5.6's predictions + features ->
+#                                       # aggregation_diag.sh -> results/aggregation/conus/
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -81,10 +84,12 @@
 # Seven chains side by side (estimates; wall times ~3-4 x).
 # v56all: from plural (seff: v5.6 2 years features 4 min, train ~13 min, predict ~8 min / 13 GB, validate 6 years
 # ~8 min / 15 GB) for 7 years ~3.5 x; validate 12 years; wall times ~3-4 x (estimates).
+# aggdiag: as the v5.6 features job (7 years: 7 min / 9.6 GB) for 2 years + the float32 cell values (~5 GB) and the
+# per-county medians: 8 cores, 1:30 wall (estimate).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -530,6 +535,28 @@ elif [[ $mode == v56all ]]; then
     jm=$(sub "$jv" --time=${SUMMARY_TIME:-00:20:00} sbatch/metrics_over_time.sh --version $V --compare-with $V54)
     echo "features $jf | train $jt | predict $jp | validate $jv | summary $js | metrics_over_time $jm" \
         | tee logs/conus_v56all_jobs.txt
+elif [[ $mode == aggdiag ]]; then
+    V=Dasy_CONUS_RF_v3_u070  # v5.6
+    C=configs/conus_rf_v3_u070.yaml
+    D=$HISDAC_SCRATCH/dasymetric/conus/$V
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    miss=()
+    for y in 1960 2010; do
+        for f in $D/predictions/pop_$y.tif $D/Y$y/features/county_features.csv $CUT/zones/zones_$y.tif                  $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif                  results/validation/conus/$V/tract_errors_$y.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for l in BUI BUPL BUPR BUA Land_Use/RO; do
+            [[ -f $CUT/layers/$l/${y}_${l#Land_Use/}.tif ]] || miss+=("$CUT/layers/$l/${y}_${l#Land_Use/}.tif")
+        done
+    done
+    for f in $CUT/layers/DEM/DEM.tif results/hisdac_uncertainty/excluded_counties_t070.csv configs/conus_split.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    echo "PRECHECK: $(( ${#miss[@]} )) missing (v5.6 predictions + features 1960 / 2010, cutout, tract errors)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s
+' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    ja=$(sub "" --ntasks=${AGG_TASKS:-8} --time=${AGG_TIME:-01:30:00} --export=ALL,CONFIG=$C sbatch/aggregation_diag.sh          --years 1960 2010)
+    echo "aggregation_diag $ja" | tee logs/conus_aggdiag_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

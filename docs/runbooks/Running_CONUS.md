@@ -1328,6 +1328,76 @@ What to look for in the logs: `dasymetric_train` (per era `exclude_counties: N r
 mass check), `validate_tract` (one block per year), `compare_models` (kept / excluded t070 columns),
 `metrics_over_time` (`recomputed R2 = reported ...`, `... minus Dasy_CONUS_RF_v3_all` tables).
 
+## 15. County feature aggregation diagnosis, v5.6 1960 / 2010 (2026-10-30)
+
+Stefan item 5: how far cell values lie outside the range of the county means the model learned from, and what other
+county aggregates (built-cell mean / median, built share, concentration) look like (`docs/conus_plan.md`, "County
+feature aggregation: diagnosis"). One job, no training, no prediction. Needs v5.6's prediction rasters and county
+features of 1960 / 2010 on scratch (sections 12 / 14) and the CONUS cutout.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| aggregation_diag | 8 cores, 1:30 | cells of 1960 and 2010 (strips), aggregates, ranges, summaries, figure | ~15-25 min, ~15 GB |
+
+Override: `AGG_TIME=03:00:00`, `AGG_TASKS=16`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh aggdiag
+squeue -u $USER
+echo "== end of block 1"
+```
+
+Good: `PRECHECK: 0 missing (...)`, one line `aggregation_diag N` (also in `logs/conus_aggdiag_jobs.txt`), the job in
+`squeue`, `== end of block 1`. `MISSING ...` + `ERROR: nothing submitted`: send the output to Claude (scratch purged?
+nothing was submitted).
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+id=$(grep -oE '[0-9]{6,}' logs/conus_aggdiag_jobs.txt | head -1)
+sacct -j "$id" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+f=logs/aggregation_diag.$id.out; [[ -f $f ]] && grep -E "== [0-9]{4}|recomputed means|kept cells|wrote .*county_aggregates" "$f" | tail -6
+echo "== end of block 2"
+```
+
+Good: `PENDING` / `RUNNING` / `COMPLETED`; while it runs, `== 1960 (era Y1960)`, `recomputed means = county_features.csv
+for N counties`, `wrote .../county_aggregates_1960.csv`, then the same for 2010; `== end of block 2`.
+
+Block 3, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+id=$(grep -oE '[0-9]{6,}' logs/conus_aggdiag_jobs.txt | head -1)
+sacct -j "$id" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_aggdiag_sacct.txt
+seff "$id" > logs/conus_aggdiag_seff.txt
+cat logs/conus_aggdiag_sacct.txt
+grep -E "DONE|ERROR" logs/aggregation_diag.$id.out | tail -2
+ls results/aggregation/conus/
+git add logs/ results/aggregation/
+git commit -m "run: county feature aggregation diagnosis, v5.6 1960 / 2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: `COMPLETED`, `DONE`, 9 files listed (`county_aggregates_{1960,2010}.csv`, `extrapolation.csv`,
+`cell_vs_county_quantiles.csv`, `aggregate_correlations.csv`, `tract_error_by_county_{1960,2010}.csv`,
+`aggregate_vs_tract_error.csv`, `cell_vs_county_2010.png`), `git push` ends with `main -> main`, `== end of block 3`.
+A `FAILED` job: commit the log anyway (same block) and tell Claude.
+
+What to look for in the log: `recomputed means = county_features.csv` (both years), `county sets`, `allocated pop on
+the kept cells vs census: max rel. diff`, the median = 0 lines per feature, the tables `outside the training range`,
+`every feature inside the range`, `Spearman with y`, `Spearman among ...`, `county tract MdAPE vs aggregates`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1362,6 +1432,9 @@ mass check), `validate_tract` (one block per year), `compare_models` (kept / exc
 | plural: `v5.6 OLD YEARS` not 0 | commit anyway and tell Claude: something changed an old year's file (the run only adds 1940 / 1980) |
 | v56all: `MISSING .../cutouts/conus/...` or `.../Dasy_CONUS_RF_v3_all/Y<year>/...` | scratch files purged (90 days) or never made: send the list; nothing was submitted |
 | v56all: a job failed overnight | the later ones stay `PENDING (DependencyNeverSatisfied)`: `scancel` them, send the log. Reruns are safe: `--years` touches only the 7 new years; validation and the summaries are deterministic |
+| aggdiag: `recomputed county means differ from .../county_features.csv` | the cells differ from the features job (cutout, water mask or code changed since): the job stops; send the log |
+| aggdiag: `missing inputs` / `MISSING .../predictions/pop_<YEAR>.tif` | v5.6's scratch outputs were purged (90 days) or never made: send the list (rerunning v5.6 predict for those years is a separate request) |
+| aggdiag: `OUT_OF_MEMORY` | resubmit with more cores: `AGG_TASKS=16 bash sbatch/submit_conus.sh aggdiag`; send `seff` |
 | v56all: `v5.6 OLD YEARS` not 0 | commit anyway and tell Claude: something changed an old year's file (the run only adds 7 years) |
 | uncertainty: log ends `DONE (NobuiltYear value distribution only)` | not a failure: NobuiltYear is a 0/1 flag and contemp is missing, so no ratio exists; commit as block 3 and tell Claude (the next step waits for contemp from Stefan) |
 | all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |

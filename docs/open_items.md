@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -95,6 +95,12 @@ Last updated: 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL 
   outside it they are `filled_nhgis_alloc`, allocated only.
 
 ### Meeting with Stefan, 2026-10-28 (to do; details to be settled)
+
+- **Status (2026-10-30, item 5, request `docs/handoff/aggregation_diagnosis_request.md`):** diagnosis written as code,
+  not run (`docs/conus_plan.md` "County feature aggregation: diagnosis", `docs/runbooks/Running_CONUS.md` section 15,
+  `bash sbatch/submit_conus.sh aggdiag`): v5.6 1960 / 2010, cells outside the training county range (cells and
+  allocated people), built-cell mean / median, all-cell median, built share, top 10 % BUI share, Gini, Spearman, tract
+  MdAPE per county by concentration. **Open (Claude + user):** which alternative aggregation to test, from its results.
 
 - Stefan: R2 and MdAPE cannot be ranked as metrics; report both. Compute tract MdAPE for every decade 1920-2020 so
   the trajectory over time is clear (2020 needs the 2020 county input).
