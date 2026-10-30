@@ -859,6 +859,31 @@ its results (Claude + user).
 | Code | `src/validation/aggregation_diag.py`, `sbatch/aggregation_diag.sh` (8 cores, 1:30; all kept cells held as float32, ~5 GB), `bash sbatch/submit_conus.sh aggdiag` (pre-check + one job). Test `tests/test_aggregation_diag.py` (synthetic cutout through features / train / predict: aggregates, ranges, shares, quantiles, Spearman, tract table = brute force; strips = whole window; a changed `county_features.csv` or a missing prediction stops it) |
 | Not decided | the alternative aggregation(s) and how a model would use them (e.g. built-cell mean as county feature with built_share as its own feature, a concentration index, the populated part only): after the results |
 
+## County feature aggregation: diagnosis result (job 35099133, run 2026-10-31)
+
+v5.6, 1960 / 2010, no training. Files: `results/aggregation/conus/`. Ranges = min-max of the training county means.
+
+- **Empty cells (BUI = 0; 96 % of cells 1960, 91 % 2010)** have bui = 0, below every training county mean: all of them
+  are extrapolated. They receive 21.1 % (1960) / 5.0 % (2010) of the allocated population (1960: incomplete HISDAC).
+- **Built cells:** bui / bldg_size inside the min-max range (99 % of their population) but shifted right of the county
+  means (cells several times denser; 28 % of the 2010 population above p99 of the county bui means). mu_ratio: cells
+  sit at 1-3 (records per location), county means at 0.01-1 (mostly the built share): the same name measures two
+  different things. res_share: cells near 1, county means at most 0.79 -> 63 % (1960 68 %) of the built-cell
+  population above the county max. rent_share likewise (21 % above p99). elev / slope match.
+- **Means = built share:** Spearman of the county means of bui / bldg_size / mu_ratio with built_share 0.86-0.95; of
+  the built-cell means 0.28-0.39, so built-cell means carry other information (with y: bui 0.50 / 0.63, bldg_size
+  0.36 / 0.51, 1960 / 2010). The all-cell median is 0 in 2,931-3,055 of ~3,100 counties (useless); only a built-cell
+  median is meaningful (it behaves like the built-cell mean, rho with y 0.42 / 0.63).
+- **Tract error per county (>= 5 tracts):** 2010 share of out-of-range cells rho +0.35 and built_share -0.35 with the
+  county's tract MdAPE (more extrapolation, worse tracts). Concentration (top 10 % BUI share, Gini) changes sign between
+  years (1960 +0.20, 2010 -0.21) and follows urbanness: no direct lead.
+- Reading: the change of support is real and sits mainly in two places: (1) empty vs built (built share at county,
+  0 / 1 at cell); (2) mu_ratio and res_share / rent_share meaning different things at the two scales. Proposed next
+  (user decides): variant "built-cell aggregation" = county features as built_share + built-cell means of bui /
+  bldg_size / mu_ratio / res_share / rent_share (+ dist_built, elev, slope as now); the cell keeps its own values (the
+  same quantity as a built-cell mean) and a local built share (share of built cells in a small window, e.g. 5 x 5 =
+  1.25 km) in place of the county built share. 1960 / 2010 first, against v5.6 on the same tracts.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is

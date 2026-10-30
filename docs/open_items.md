@@ -10,6 +10,12 @@ Last updated: 2026-10-30 (county feature aggregation diagnosis written as code, 
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-10-31, aggregation diagnosis, run):** `docs/conus_plan.md` "County feature aggregation: diagnosis
+  result". Empty cells are all out of range (5-21 % of the population on them); county means of bui / bldg_size /
+  mu_ratio = built share; mu_ratio / res_share differ in meaning between county and cell. **Open (user):** test the
+  "built-cell aggregation" variant (built_share + built-cell means; cell: own values + 5 x 5 local built share) on 1960 /
+  2010.
+
 - **Status (2026-10-30, v5.6 all years, run):** done (`docs/conus_plan.md` "v5.6 all years result"). Stefan items
   1, 2, 3, 4 and the every-decade tract MdAPE are answered with v5.6: tract MdAPE 53 % (1910) -> 24 % (2010 / 2020),
   better than v5.4 from 1960; fixed sets improve over time; county TEST MdAPE 22-29 %. **Next:** item 5 (county feature
