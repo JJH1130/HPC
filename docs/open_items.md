@@ -4,19 +4,17 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
-- **Status (2026-10-30, PLURAL grid test, request `docs/handoff/plural_grid_request.md`):** written as code, not run
-  (`docs/runbooks/Running_CONUS.md` section 13, `docs/conus_plan.md` "PLURAL grid test"): v5.6 (u070) gets 1940 / 1980;
-  six variants v5.6 + plural (continuous bilinear / cubic, 3 / 5 classes with quantile / equal breaks), 1940 / 1980 /
-  2010. Rule fixed before results: best classed variant = lowest mean tract MdAPE (all) over the three years (only for
-  the maps). **Open (user):** (1) if `plural_qa` shows the 0 fill pulling coast / border cells down, nearest or the
-  renormalized value there; (2) keep PLURAL or not (then 1900-2020 values or v5.6 for all years); (3) ask Siqiao what
-  index3 is (PLURAL-1 / -2, population weighting: same-year population leakage, `docs/data_sources.md` "PLURAL").
+- **Status (2026-10-30, PLURAL grid test, run):** all 31 jobs done (`docs/conus_plan.md` "PLURAL grid test result").
+  No variant beats v5.6 on tracts (2010: v5.6 23.8 %, variants 24.1-28.2 %; 1980: 26.8 vs 28.1-33.2 %); county CV R2
+  +0.005-0.01; more population on BUI = 0 cells (same pattern as PLURAL distances / NTL). Coast / border leak of the 0
+  fill exists (about 8 % of edge cells = 0) but is moot. **Open (user):** drop PLURAL and run v5.6 for all census years
+  1900-2020 (proposed); asking Siqiao what index3 is no longer blocks anything.
 
 - **Status (2026-10-30, request `docs/handoff/validation_2020_uncertainty_request.md`):** (A) county MdAPE and fixed
   tract sets computed on the laptop from the tracked v5.4 files (`docs/conus_plan.md` "Metrics over time"): county

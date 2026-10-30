@@ -23,10 +23,11 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | v5.3 | `Dasy_CONUS_RF_v4` | + distances + terrain | 40.3 / 39.8 % | dropped |
 | v5.4 | `Dasy_CONUS_RF_v3_all` | v5.2 on BUI-fixed input, RF (vs LightGBM / XGBoost / CatBoost), 60 candidates, 1900-2020 | 37.9 / 26.6 % (2020: 26.1) | base |
 | v5.5 | `Dasy_CONUS_RF_v3_ntl` / `_ntlv` | + night lights (DMSP / VIIRS-like), 2000 / 2010 | 2010: 31.0 / 36.2 % | dropped (helps only gap counties) |
-| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen**, 4 years so far |
+| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen**, 6 years so far (+1940 / 1980) |
+| v5.7 (test) | `Dasy_CONUS_RF_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}` | v5.6 + Siqiao's 900 m PLURAL grid (continuous / 3 or 5 classes), 1940 / 1980 / 2010 | 2010: 24.1-28.2 % (v5.6 23.8) | worse on tracts; drop proposed (user decides) |
 
-Next (2026-10-30): PLURAL grid test on v5.6 (v5.6 + plural, 1940 / 1980 / 2010; section "PLURAL grid test"); v5.6
-1940 / 1980 added for it.
+Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no variant beats v5.6 on tracts. Proposed
+next step: v5.6 for all census years 1900-2020 (user decides).
 Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
 GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
 (gap counties = counties without built years).
@@ -756,6 +757,36 @@ the same year's census population enters as a feature (`docs/data_sources.md` "P
 | Maps | Same job: `county_maps.py`, 2010, Chelan WA, Reno KS, Fremont CO, Macoupin IL, v5.6 / plc / best classed -> `plural_grid/county_maps/` (+ `county_maps.csv`: share of people on BUI = 0 cells: does plural spread people onto empty land, as the distances / night lights did?) |
 | Chain | `bash sbatch/submit_conus.sh plural`: pre-check, cutout (`--layers`) -> plural_qa; v5.6 features / train / predict `--years 1940 1980` -> validate (6 years); per variant features (after the cutout) -> train (after its features and v5.6's train) -> predict -> validate; `plural_compare.sh` after every validation |
 | Tests | `tests/test_plural.py` (configs; resampling of a linear LAEA field = the field at the cell centres; cubic clip; plural_qa deficit = the fill's pull; breaks, classes, strips; predict breaks check; a new era via `--years` leaves the old era byte for byte; plural_compare by hand + figure) |
+
+## PLURAL grid test result (jobs 35084995-35085025, code 288a921, run 2026-10-29 MT)
+
+All 31 jobs COMPLETED (about 50 min wall). Same tracts (1940: 7,350, 1980: 44,586, 2010: 72,243), same split / folds /
+excluded counties / search space as v5.6. Files: `results/validation/conus/plural_grid/plural_comparison.csv`, `.png`,
+`county_maps/`.
+
+Tract MdAPE (all tracts, %):
+
+| Year | Areal weighting | v5.6 | plc | plcc | pq3 | pq5 | pe3 | pe5 |
+|---|---|---|---|---|---|---|---|---|
+| 1940 | 86.9 | 42.2 | 43.3 | 43.4 | 42.1 | 41.5 | 42.4 | 42.2 |
+| 1980 | 79.9 | **26.8** | 29.6 | 29.7 | 28.2 | 28.1 | 32.3 | 33.2 |
+| 2010 | 74.5 | **23.8** | 25.4 | 25.3 | 24.1 | 24.2 | 28.2 | 25.8 |
+
+- Fixed rule (best classed variant for the maps): pq5, 3-year mean 31.25 % vs v5.6 30.93 % (plc 32.76 %).
+- Every variant is worse than v5.6 in 1980 and 2010 (continuous +1.6 to +2.9 pp, equal-interval classes up to +6.4 pp);
+  1940 within -0.7 / +1.2 pp. Kept / excluded / gap / density parts show the same; only gap counties move slightly
+  (2010: 77.5 -> 76.0-77.8 %, areal weighting 75.6 %).
+- County level is the opposite: CV R2 rises by about 0.005-0.01 in every year, TEST R2 about equal, TEST MdAPE mixed
+  (2010: 23.0 -> 21.5-24.4 %). plural ranks 2nd-4th of 9 features (permutation and SHAP; pe3 1940: 9th).
+- Maps (2010): population on BUI = 0 cells rises (Chelan 3.7 -> 6.5 % plc / 5.1 % pq5, Reno 2.1 -> 3.9 / 3.0, Fremont
+  3.8 -> 6.1 / 5.0, Macoupin 55.3 -> 65.3 / 61.9). PLURAL spreads people into empty land, as the PLURAL distances (v5.1)
+  and night lights (v5.5) did: it describes county-scale remoteness, which helps the county mean and hurts the
+  within-county shape.
+- `plural_qa`: interior cells untouched; 2.2 % of county cells are edge cells (<= 5 km of a non-county cell), of
+  which 17.6 % (bilinear) / 18.8 % (cubic) use outside-US pixels and about 8 % are exactly 0 (fill). Real leak at
+  coasts / borders, but it does not change the conclusion. Cubic clipping and bilinear give the same tract results.
+- Reading: PLURAL adds no within-county information beyond BUI / bldg_size / dist_built; with no gain in its three
+  years there is no case for building 1900-2020 PLURAL values. Proposed: drop PLURAL; run v5.6 for all years.
 
 ## BUI outliers (bui_qa, job 34921582)
 
