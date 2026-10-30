@@ -1,0 +1,95 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+35084995                grid_cutout  COMPLETED   00:04:45                   8  03:00.873 
+35084995.ba+                  batch  COMPLETED   00:04:45  10198752K        8  03:00.872 
+35084995.ex+                 extern  COMPLETED   00:04:45       256K        8  00:00.001 
+35084996                  plural_qa  COMPLETED   00:03:59                   8  03:07.254 
+35084996.ba+                  batch  COMPLETED   00:03:59  10702584K        8  03:07.253 
+35084996.ex+                 extern  COMPLETED   00:04:00       256K        8  00:00.001 
+35084997        dasymetric_features  COMPLETED   00:04:36                   6  01:57.691 
+35084997.ba+                  batch  COMPLETED   00:04:36   9958752K        6  01:57.690 
+35084997.ex+                 extern  COMPLETED   00:04:36          0        6  00:00.001 
+35084998           dasymetric_train  COMPLETED   00:12:46                  16  29:54.309 
+35084998.ba+                  batch  COMPLETED   00:12:46   5993724K       16  29:54.308 
+35084998.ex+                 extern  COMPLETED   00:12:46          0       16  00:00.001 
+35084999         dasymetric_predict  COMPLETED   00:08:01                  32  56:15.170 
+35084999.ba+                  batch  COMPLETED   00:08:01  13198416K       32  56:15.169 
+35084999.ex+                 extern  COMPLETED   00:08:01          0       32  00:00.001 
+35085000             validate_tract  COMPLETED   00:07:45                   8  06:37.265 
+35085000.ba+                  batch  COMPLETED   00:07:45  18506448K        8  06:37.263 
+35085000.ex+                 extern  COMPLETED   00:07:45          0        8  00:00.001 
+35085001        dasymetric_features  COMPLETED   00:06:40                   6  02:56.825 
+35085001.ba+                  batch  COMPLETED   00:06:40  10013928K        6  02:56.824 
+35085001.ex+                 extern  COMPLETED   00:06:40          0        6  00:00.001 
+35085002           dasymetric_train  COMPLETED   00:16:24                  16  43:02.013 
+35085002.ba+                  batch  COMPLETED   00:16:24   6065076K       16  43:02.012 
+35085002.ex+                 extern  COMPLETED   00:16:24          0       16  00:00.001 
+35085003         dasymetric_predict  COMPLETED   00:10:51                  32   01:14:06 
+35085003.ba+                  batch  COMPLETED   00:10:51  13748116K       32   01:14:06 
+35085003.ex+                 extern  COMPLETED   00:10:51       256K       32  00:00.001 
+35085004             validate_tract  COMPLETED   00:05:07                   8  04:36.343 
+35085004.ba+                  batch  COMPLETED   00:05:07  16525336K        8  04:36.342 
+35085004.ex+                 extern  COMPLETED   00:05:07       256K        8  00:00.001 
+35085005        dasymetric_features  COMPLETED   00:05:15                   6  02:55.636 
+35085005.ba+                  batch  COMPLETED   00:05:15  10086832K        6  02:55.635 
+35085005.ex+                 extern  COMPLETED   00:05:15       256K        6  00:00.001 
+35085006           dasymetric_train  COMPLETED   00:14:46                  16  43:44.317 
+35085006.ba+                  batch  COMPLETED   00:14:46   5866780K       16  43:44.316 
+35085006.ex+                 extern  COMPLETED   00:14:46       256K       16  00:00.001 
+35085007         dasymetric_predict  COMPLETED   00:09:47                  32  56:50.620 
+35085007.ba+                  batch  COMPLETED   00:09:47  14037964K       32  56:50.618 
+35085007.ex+                 extern  COMPLETED   00:09:47       256K       32  00:00.001 
+35085008             validate_tract  COMPLETED   00:04:58                   8  04:11.204 
+35085008.ba+                  batch  COMPLETED   00:04:58  15833444K        8  04:11.202 
+35085008.ex+                 extern  COMPLETED   00:04:58       260K        8  00:00.001 
+35085009        dasymetric_features  COMPLETED   00:05:14                   6  03:02.374 
+35085009.ba+                  batch  COMPLETED   00:05:14   9832508K        6  03:02.373 
+35085009.ex+                 extern  COMPLETED   00:05:14       256K        6  00:00.001 
+35085010           dasymetric_train  COMPLETED   00:18:26                  16  50:44.467 
+35085010.ba+                  batch  COMPLETED   00:18:26   6024968K       16  50:44.465 
+35085010.ex+                 extern  COMPLETED   00:18:26          0       16  00:00.001 
+35085011         dasymetric_predict  COMPLETED   00:14:23                  32   01:32:49 
+35085011.ba+                  batch  COMPLETED   00:14:23  13450244K       32   01:32:49 
+35085011.ex+                 extern  COMPLETED   00:14:23       256K       32  00:00.001 
+35085012             validate_tract  COMPLETED   00:04:50                   8  04:09.080 
+35085012.ba+                  batch  COMPLETED   00:04:50  16522520K        8  04:09.078 
+35085012.ex+                 extern  COMPLETED   00:04:50       256K        8  00:00.001 
+35085013        dasymetric_features  COMPLETED   00:05:14                   6  03:02.942 
+35085013.ba+                  batch  COMPLETED   00:05:14   9840072K        6  03:02.941 
+35085013.ex+                 extern  COMPLETED   00:05:14          0        6  00:00.001 
+35085014           dasymetric_train  COMPLETED   00:16:37                  16  49:11.237 
+35085014.ba+                  batch  COMPLETED   00:16:37   5994932K       16  49:11.235 
+35085014.ex+                 extern  COMPLETED   00:16:37          0       16  00:00.001 
+35085015         dasymetric_predict  COMPLETED   00:12:58                  32   01:07:13 
+35085015.ba+                  batch  COMPLETED   00:12:58  13770664K       32   01:07:13 
+35085015.ex+                 extern  COMPLETED   00:12:58       256K       32  00:00.001 
+35085016             validate_tract  COMPLETED   00:04:44                   8  04:14.371 
+35085016.ba+                  batch  COMPLETED   00:04:44  16524496K        8  04:14.370 
+35085016.ex+                 extern  COMPLETED   00:04:44       256K        8  00:00.001 
+35085017        dasymetric_features  COMPLETED   00:05:51                   6  03:07.521 
+35085017.ba+                  batch  COMPLETED   00:05:51  10074696K        6  03:07.518 
+35085017.ex+                 extern  COMPLETED   00:05:51       256K        6  00:00.002 
+35085018           dasymetric_train  COMPLETED   00:14:40                  16  44:55.812 
+35085018.ba+                  batch  COMPLETED   00:14:40   6303384K       16  44:55.811 
+35085018.ex+                 extern  COMPLETED   00:14:40       256K       16  00:00.001 
+35085019         dasymetric_predict  COMPLETED   00:09:28                  32  47:04.946 
+35085019.ba+                  batch  COMPLETED   00:09:28  13432372K       32  47:04.945 
+35085019.ex+                 extern  COMPLETED   00:09:28          0       32  00:00.001 
+35085020             validate_tract  COMPLETED   00:05:00                   8  04:09.416 
+35085020.ba+                  batch  COMPLETED   00:05:00  15775996K        8  04:09.414 
+35085020.ex+                 extern  COMPLETED   00:05:00       256K        8  00:00.001 
+35085021        dasymetric_features  COMPLETED   00:05:51                   6  03:11.293 
+35085021.ba+                  batch  COMPLETED   00:05:51  10097696K        6  03:11.291 
+35085021.ex+                 extern  COMPLETED   00:05:51       256K        6  00:00.001 
+35085022           dasymetric_train  COMPLETED   00:12:39                  16  33:37.657 
+35085022.ba+                  batch  COMPLETED   00:12:39   6402436K       16  33:37.655 
+35085022.ex+                 extern  COMPLETED   00:12:39       256K       16  00:00.001 
+35085023         dasymetric_predict  COMPLETED   00:12:51                  32   01:08:28 
+35085023.ba+                  batch  COMPLETED   00:12:51  13196652K       32   01:08:28 
+35085023.ex+                 extern  COMPLETED   00:12:51       256K       32  00:00.001 
+35085024             validate_tract  COMPLETED   00:05:02                   8  04:30.879 
+35085024.ba+                  batch  COMPLETED   00:05:02  16155192K        8  04:30.878 
+35085024.ex+                 extern  COMPLETED   00:05:02       256K        8  00:00.001 
+35085025             plural_compare  COMPLETED   00:01:57                   4  01:15.659 
+35085025.ba+                  batch  COMPLETED   00:01:57   5677436K        4  01:15.658 
+35085025.ex+                 extern  COMPLETED   00:01:57          0        4  00:00.001 

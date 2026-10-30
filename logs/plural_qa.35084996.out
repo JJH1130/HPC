@@ -1,0 +1,78 @@
+== job 35084996 (plural_qa) on c3cpu-c15-u1-1 at 2026-10-29T21:01:14-06:00
+== cores=8 gpus=none restart=0
+== git 288a921 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  cutout: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: 
+21:01:19 INFO arg config = configs/conus_study_area.yaml
+21:01:19 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+21:01:19 INFO arg years = None
+21:01:19 INFO ===== 1940 =====
+21:01:31 INFO   county cells 124576956 | edge (<= 5 km of a non-county cell) 2782557 | interior 121794399
+21:01:56 INFO   source index3_1940_900_US.tif | 8634x8500 | PROJCS["WGS_1984_Lambert_Azimuthal_Equal_Area",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["latitude_of_center",45],PARAMETER["longitude_of_center",-100],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1],AXIS["Easting",EAST],AXIS["Northing",NORTH]] | outside pixels 63776584: exactly 0 0.9676 | inside pixels 9612416: exactly 0 0.0027, value p05 / p50 / p95 [0.727, 0.803, 0.862]
+21:01:56 INFO   PLURAL  edge       2782557 cells | mean 0.685 p05 0.000 p50 0.775 p95 0.852 | zero 0.0828 <0.1 0.0950 | outside pixels used in 0.1765 (491150 cells, mean out_w 0.315, >= 0.5: 111164) | deficit mean 0.4277 p95 1.4998 max 81.708
+21:01:58 INFO   PLURAL  interior 121794399 cells | mean 0.802 p05 0.729 p50 0.804 p95 0.862 | zero 0.0000 <0.1 0.0000 | outside pixels used in 0.0000 (0 cells, mean out_w 0.000, >= 0.5: 0) | deficit mean 0.0000 p95 0.0000 max 0.000
+21:02:01 INFO   PLURAL  all      124576956 cells | mean 0.800 p05 0.726 p50 0.803 p95 0.862 | zero 0.0019 <0.1 0.0021 | outside pixels used in 0.0039 (491150 cells, mean out_w 0.315, >= 0.5: 111164) | deficit mean 0.4277 p95 1.4998 max 81.708
+21:02:28 INFO   PLURALC edge       2782557 cells | mean 0.688 p05 0.000 p50 0.778 p95 0.861 | zero 0.0787 <0.1 0.0994 | outside pixels used in 0.1881 (523442 cells, mean out_w 0.278, >= 0.5: 115717) | deficit mean 0.4763 p95 1.7913 max 84.938
+21:02:31 INFO   PLURALC interior 121794399 cells | mean 0.802 p05 0.729 p50 0.804 p95 0.862 | zero 0.0000 <0.1 0.0000 | outside pixels used in 0.0000 (0 cells, mean out_w 0.000, >= 0.5: 0) | deficit mean 0.0000 p95 0.0000 max 0.000
+21:02:33 INFO   PLURALC all      124576956 cells | mean 0.800 p05 0.726 p50 0.803 p95 0.862 | zero 0.0018 <0.1 0.0022 | outside pixels used in 0.0042 (523442 cells, mean out_w 0.278, >= 0.5: 115717) | deficit mean 0.4763 p95 1.7913 max 84.938
+21:02:33 INFO ===== 1980 =====
+21:02:45 INFO   county cells 124576956 | edge (<= 5 km of a non-county cell) 2782557 | interior 121794399
+21:03:09 INFO   source index3_1980_900_US.tif | 8634x8500 | PROJCS["WGS_1984_Lambert_Azimuthal_Equal_Area",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["latitude_of_center",45],PARAMETER["longitude_of_center",-100],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1],AXIS["Easting",EAST],AXIS["Northing",NORTH]] | outside pixels 63776584: exactly 0 0.9676 | inside pixels 9612416: exactly 0 0.0027, value p05 / p50 / p95 [0.712, 0.786, 0.853]
+21:03:09 INFO   PLURAL  edge       2782557 cells | mean 0.666 p05 0.000 p50 0.749 p95 0.850 | zero 0.0819 <0.1 0.0953 | outside pixels used in 0.1765 (491150 cells, mean out_w 0.315, >= 0.5: 111164) | deficit mean 0.4157 p95 1.4602 max 76.829
+21:03:12 INFO   PLURAL  interior 121794399 cells | mean 0.787 p05 0.715 p50 0.787 p95 0.853 | zero 0.0000 <0.1 0.0000 | outside pixels used in 0.0000 (0 cells, mean out_w 0.000, >= 0.5: 0) | deficit mean 0.0000 p95 0.0000 max 0.000
+21:03:14 INFO   PLURAL  all      124576956 cells | mean 0.784 p05 0.712 p50 0.786 p95 0.853 | zero 0.0018 <0.1 0.0021 | outside pixels used in 0.0039 (491150 cells, mean out_w 0.315, >= 0.5: 111164) | deficit mean 0.4157 p95 1.4602 max 76.829
+21:03:45 INFO   PLURALC edge       2782557 cells | mean 0.669 p05 0.000 p50 0.753 p95 0.855 | zero 0.0781 <0.1 0.0997 | outside pixels used in 0.1881 (523442 cells, mean out_w 0.278, >= 0.5: 115717) | deficit mean 0.4632 p95 1.7441 max 85.803
+21:03:48 INFO   PLURALC interior 121794399 cells | mean 0.787 p05 0.715 p50 0.787 p95 0.853 | zero 0.0000 <0.1 0.0000 | outside pixels used in 0.0000 (0 cells, mean out_w 0.000, >= 0.5: 0) | deficit mean 0.0000 p95 0.0000 max 0.000
+21:03:50 INFO   PLURALC all      124576956 cells | mean 0.785 p05 0.712 p50 0.786 p95 0.853 | zero 0.0018 <0.1 0.0022 | outside pixels used in 0.0042 (523442 cells, mean out_w 0.278, >= 0.5: 115717) | deficit mean 0.4632 p95 1.7441 max 85.803
+21:03:50 INFO ===== 2010 =====
+21:04:02 INFO   county cells 124576956 | edge (<= 5 km of a non-county cell) 2782557 | interior 121794399
+21:04:26 INFO   source index3_2010_900_US.tif | 8634x8500 | PROJCS["WGS_1984_Lambert_Azimuthal_Equal_Area",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["latitude_of_center",45],PARAMETER["longitude_of_center",-100],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1],AXIS["Easting",EAST],AXIS["Northing",NORTH]] | outside pixels 63776584: exactly 0 0.9676 | inside pixels 9612416: exactly 0 0.0027, value p05 / p50 / p95 [0.698, 0.776, 0.838]
+21:04:26 INFO   PLURAL  edge       2782557 cells | mean 0.656 p05 0.000 p50 0.736 p95 0.843 | zero 0.0807 <0.1 0.0955 | outside pixels used in 0.1765 (491150 cells, mean out_w 0.315, >= 0.5: 111164) | deficit mean 0.4097 p95 1.4400 max 76.384
+21:04:29 INFO   PLURAL  interior 121794399 cells | mean 0.775 p05 0.701 p50 0.777 p95 0.838 | zero 0.0000 <0.1 0.0000 | outside pixels used in 0.0000 (0 cells, mean out_w 0.000, >= 0.5: 0) | deficit mean 0.0000 p95 0.0000 max 0.000
+21:04:31 INFO   PLURAL  all      124576956 cells | mean 0.773 p05 0.697 p50 0.776 p95 0.838 | zero 0.0018 <0.1 0.0021 | outside pixels used in 0.0039 (491150 cells, mean out_w 0.315, >= 0.5: 111164) | deficit mean 0.4097 p95 1.4400 max 76.384
+21:05:00 INFO   PLURALC edge       2782557 cells | mean 0.659 p05 0.000 p50 0.739 p95 0.847 | zero 0.0772 <0.1 0.0999 | outside pixels used in 0.1881 (523442 cells, mean out_w 0.278, >= 0.5: 115717) | deficit mean 0.4566 p95 1.7191 max 85.243
+21:05:03 INFO   PLURALC interior 121794399 cells | mean 0.775 p05 0.701 p50 0.777 p95 0.838 | zero 0.0000 <0.1 0.0000 | outside pixels used in 0.0000 (0 cells, mean out_w 0.000, >= 0.5: 0) | deficit mean 0.0000 p95 0.0000 max 0.000
+21:05:05 INFO   PLURALC all      124576956 cells | mean 0.773 p05 0.697 p50 0.776 p95 0.838 | zero 0.0017 <0.1 0.0022 | outside pixels used in 0.0042 (523442 cells, mean out_w 0.278, >= 0.5: 115717) | deficit mean 0.4566 p95 1.7191 max 85.243
+21:05:05 INFO points (source = 900 m pixel; layers = the 250 m cell; out_w = weight of outside pixels):
+ year                      point     lon   lat  source_900m  PLURAL  PLURAL_out_w  PLURALC  PLURALC_out_w
+ 1940                   New York  -73.99 40.75        0.000   0.000         0.000    0.000          0.000
+ 1940                     Boston  -71.06 42.36        0.559   0.525         0.000    0.516         -0.033
+ 1940                    Chicago  -87.63 41.88        0.638   0.641         0.000    0.641         -0.062
+ 1940                     Denver -104.99 39.74        0.680   0.638         0.000    0.633          0.000
+ 1940              Pittsfield MA  -73.25 42.45        0.549   0.587         0.000    0.564          0.000
+ 1940            Ely NV (remote) -114.89 39.25        0.809   0.794         0.000    0.791          0.000
+ 1940              Miami (coast)  -80.19 25.77        0.004   0.002         0.001    0.002         -0.057
+ 1940 San Diego (coast / border) -117.16 32.72        0.672   0.642         0.000    0.646         -0.000
+ 1980                   New York  -73.99 40.75        0.000   0.000         0.000    0.000          0.000
+ 1980                     Boston  -71.06 42.36        0.633   0.631         0.000    0.631         -0.033
+ 1980                    Chicago  -87.63 41.88        0.646   0.649         0.000    0.649         -0.062
+ 1980                     Denver -104.99 39.74        0.628   0.629         0.000    0.629          0.000
+ 1980              Pittsfield MA  -73.25 42.45        0.673   0.657         0.000    0.658          0.000
+ 1980            Ely NV (remote) -114.89 39.25        0.813   0.804         0.000    0.804          0.000
+ 1980              Miami (coast)  -80.19 25.77        0.000   0.000         0.001    0.000         -0.057
+ 1980 San Diego (coast / border) -117.16 32.72        0.676   0.676         0.000    0.676         -0.000
+ 2010                   New York  -73.99 40.75        0.000   0.000         0.000    0.000          0.000
+ 2010                     Boston  -71.06 42.36        0.604   0.601         0.000    0.601         -0.033
+ 2010                    Chicago  -87.63 41.88        0.651   0.653         0.000    0.653         -0.062
+ 2010                     Denver -104.99 39.74        0.653   0.653         0.000    0.653          0.000
+ 2010              Pittsfield MA  -73.25 42.45        0.694   0.681         0.000    0.681          0.000
+ 2010            Ely NV (remote) -114.89 39.25        0.808   0.807         0.000    0.807          0.000
+ 2010              Miami (coast)  -80.19 25.77        0.000   0.000         0.001    0.000         -0.057
+ 2010 San Diego (coast / border) -117.16 32.72        0.656   0.655         0.000    0.655         -0.000
+21:05:05 INFO edge vs interior:
+ year   layer     part     cells   mean    p05    p50  share_zero  touched_share  out_w_ge_0.5  deficit_mean  deficit_p95
+ 1940  PLURAL     edge   2782557 0.6850 0.0000 0.7755      0.0828         0.1765      111164.0        0.4277       1.4998
+ 1940  PLURAL interior 121794399 0.8024 0.7287 0.8042      0.0000         0.0000           0.0        0.0000       0.0000
+ 1940 PLURALC     edge   2782557 0.6882 0.0000 0.7778      0.0787         0.1881      115717.0        0.4763       1.7913
+ 1940 PLURALC interior 121794399 0.8024 0.7287 0.8042      0.0000         0.0000           0.0        0.0000       0.0000
+ 1980  PLURAL     edge   2782557 0.6658 0.0000 0.7494      0.0819         0.1765      111164.0        0.4157       1.4602
+ 1980  PLURAL interior 121794399 0.7872 0.7152 0.7871      0.0000         0.0000           0.0        0.0000       0.0000
+ 1980 PLURALC     edge   2782557 0.6688 0.0000 0.7526      0.0781         0.1881      115717.0        0.4632       1.7441
+ 1980 PLURALC interior 121794399 0.7872 0.7152 0.7871      0.0000         0.0000           0.0        0.0000       0.0000
+ 2010  PLURAL     edge   2782557 0.6556 0.0000 0.7362      0.0807         0.1765      111164.0        0.4097       1.4400
+ 2010  PLURAL interior 121794399 0.7754 0.7012 0.7769      0.0000         0.0000           0.0        0.0000       0.0000
+ 2010 PLURALC     edge   2782557 0.6586 0.0000 0.7389      0.0772         0.1881      115717.0        0.4566       1.7191
+ 2010 PLURALC interior 121794399 0.7754 0.7012 0.7769      0.0000         0.0000           0.0        0.0000       0.0000
+21:05:05 INFO wrote /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/plural_qa.csv, /scratch/alpine/jaju1407/hisdac/cutouts/conus/qa/plural_points.csv
+21:05:05 INFO DONE
+== done 2026-10-29T21:05:05-06:00

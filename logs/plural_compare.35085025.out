@@ -1,0 +1,147 @@
+== job 35085025 (plural_compare) on c3cpu-e2-u8 at 2026-10-29T21:51:53-06:00
+== cores=4 gpus=none restart=0
+== git 288a921 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== base Dasy_CONUS_RF_v3_u070  out results/validation/conus/plural_grid  extra args (plural_compare): 
+21:51:57 INFO arg base = Dasy_CONUS_RF_v3_u070
+21:51:57 INFO arg variants = ['plc', 'plcc', 'pq3', 'pq5', 'pe3', 'pe5']
+21:51:57 INFO arg years = [1940, 1980, 2010]
+21:51:57 INFO arg name = conus
+21:51:57 INFO arg results_root = results
+21:51:57 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+21:51:57 INFO arg mape_min = 10
+21:51:57 INFO arg out_dir = results/validation/conus/plural_grid
+21:51:57 INFO exclusion set results/hisdac_uncertainty/excluded_counties_t070.csv: 1020 counties
+21:51:57 INFO RULE (fixed before the results, 2026-10-30): best classed variant = lowest mean over [1940, 1980, 2010] of tract MdAPE (all tracts) among ['pq3', 'pq5', 'pe3', 'pe5']
+21:52:04 INFO tract MdAPE (%) by set, year and variant:
+variant                base     plc    plcc     pq3     pq5     pe3     pe5  areal_weighting
+set            year                                                                         
+all            1940   42.19   43.28   43.38   42.09   41.52   42.38   42.18            86.92
+               1980   26.80   29.65   29.71   28.16   28.05   32.30   33.25            79.91
+               2010   23.80   25.35   25.34   24.11   24.17   28.20   25.81            74.52
+kept_t070      1940   42.19   43.28   43.38   42.09   41.52   42.38   42.18            86.92
+               1980   25.48   28.25   28.31   26.79   26.62   30.88   31.86            79.08
+               2010   22.45   24.05   24.06   22.80   22.79   26.92   24.63            74.62
+excluded_t070  1980   79.33   78.25   78.32   78.42   78.50   77.33   78.51            91.44
+               2010   51.24   50.68   50.77   51.05   50.88   51.79   50.77            73.15
+no_gap         1940   42.19   43.28   43.38   42.09   41.52   42.38   42.18            86.92
+               1980   25.78   28.58   28.65   27.10   26.95   31.17   32.13            79.44
+               2010   22.67   24.21   24.26   23.00   23.01   27.00   24.77            74.49
+gap            1980   89.44   88.99   89.01   89.16   88.97   88.18   89.08            91.38
+               2010   77.46   76.33   76.31   76.45   76.01   77.82   75.45            75.63
+dens_0_50      1940  278.52  351.47  349.70  322.73  304.35  276.35  320.70          3125.02
+               1980   26.84   37.05   36.95   33.72   32.16   39.80   49.15           129.54
+               2010   18.32   20.14   20.03   18.84   19.03   20.38   20.22            73.58
+dens_50_500    1940  105.64  110.36  113.28  103.35  100.85  107.01  106.62           165.68
+               1980   29.01   29.85   29.87   29.61   29.69   31.41   33.05            70.60
+               2010   23.42   24.14   24.11   23.79   23.99   25.24   24.19            67.63
+dens_500_2000  1940   45.73   44.26   43.86   43.53   43.89   44.35   44.07            77.70
+               1980   23.77   27.18   27.22   24.97   24.79   31.72   30.70            82.02
+               2010   21.48   23.28   23.24   21.85   21.64   29.77   24.00            73.56
+dens_2000_plus 1940   37.51   39.12   38.96   37.28   37.18   38.27   38.28            87.27
+               1980   29.18   30.66   30.76   30.04   30.38   31.66   33.36            79.36
+               2010   31.20   32.52   32.62   31.50   31.38   33.60   33.71            78.72
+21:52:04 INFO tract MAPE (%, tracts >= 10 people):
+variant                 base      plc     plcc      pq3      pq5      pe3      pe5  areal_weighting
+set            year                                                                                
+all            1940    88.03    91.09    91.86    88.86    87.24    88.37    90.03           334.76
+               1980    59.50    65.29    65.39    61.62    61.91    66.12    67.00           222.85
+               2010    47.38    50.47    50.39    48.02    47.84    54.32    51.08           273.59
+kept_t070      1940    88.03    91.09    91.86    88.86    87.24    88.37    90.03           334.76
+               1980    57.62    63.77    63.87    59.87    60.18    64.77    65.65           229.23
+               2010    44.28    47.77    47.69    45.07    44.87    51.89    48.48           293.02
+excluded_t070  1980    87.84    88.29    88.33    88.07    88.06    86.43    87.47           126.69
+               2010    75.12    74.56    74.58    74.49    74.43    76.07    74.28            99.62
+no_gap         1940    88.03    91.09    91.86    88.86    87.24    88.37    90.03           334.76
+               1980    57.74    63.80    63.90    59.98    60.28    64.66    65.57           227.59
+               2010    44.38    47.73    47.65    45.14    44.96    51.69    48.41           283.28
+gap            1980   103.52   102.50   102.50   102.62   102.49   102.53   102.69           104.67
+               2010   101.73   100.14   100.18   100.33    99.99   102.06    99.44            97.71
+dens_0_50      1940  1314.97  1416.09  1444.56  1389.38  1355.65  1343.45  1414.20         10263.74
+               1980   172.99   208.34   208.04   188.27   189.25   197.73   209.38          1215.08
+               2010    94.44   105.33   104.85    96.92    96.73   107.71   106.04          1156.63
+dens_50_500    1940   203.94   210.08   213.64   203.20   194.73   201.79   204.34           607.69
+               1980    69.89    72.54    72.96    70.36    71.06    75.15    75.10           139.23
+               2010    44.13    45.83    45.84    44.72    44.51    48.90    45.74           103.34
+dens_500_2000  1940    76.69    76.53    76.04    73.81    72.79    75.98    75.86           104.62
+               1980    36.69    38.99    39.04    37.06    37.02    42.47    40.25            78.21
+               2010    32.93    34.60    34.58    33.05    32.85    41.56    35.14            68.79
+dens_2000_plus 1940    43.87    44.58    44.55    43.64    43.51    43.92    43.96            79.52
+               1980    36.16    37.02    37.10    36.46    36.58    37.95    38.91            72.97
+               2010    36.24    36.92    36.99    36.35    36.20    38.31    38.19            72.77
+21:52:04 INFO TEST counties (before allocation) + CV / TEST + rank of plural (1 = most important):
+variant  year   n   mdape    mape  cv_rmse  cv_r2  test_rmse  test_r2  plural_perm_rank  plural_perm  plural_shap_rank  plural_shap  n_features
+   base  1940 417 27.3400 37.8491   0.4753 0.8664     0.4608   0.8848               NaN          NaN               NaN          NaN         NaN
+    plc  1940 417 26.2512 39.2457   0.4648 0.8722     0.4711   0.8796               2.0       0.3285               3.0       0.1933         9.0
+   plcc  1940 417 26.0974 39.4746   0.4646 0.8723     0.4728   0.8788               2.0       0.3332               3.0       0.1937         9.0
+    pq3  1940 417 26.6544 37.9572   0.4643 0.8725     0.4621   0.8842               2.0       0.3065               3.0       0.1865         9.0
+    pq5  1940 417 26.7538 38.3561   0.4636 0.8729     0.4664   0.8820               2.0       0.3260               3.0       0.1930         9.0
+    pe3  1940 417 26.1187 37.7324   0.4698 0.8695     0.4602   0.8852               9.0       0.0977               8.0       0.0429         9.0
+    pe5  1940 417 26.0763 36.9724   0.4549 0.8773     0.4509   0.8898               2.0       0.3467               3.0       0.1983         9.0
+   base  1980 423 25.0249 34.8982   0.4432 0.9083     0.4494   0.9110               NaN          NaN               NaN          NaN         NaN
+    plc  1980 423 24.4152 35.7438   0.4289 0.9143     0.4508   0.9105               3.0       0.2074               4.0       0.1046         9.0
+   plcc  1980 423 24.4173 35.6980   0.4283 0.9146     0.4507   0.9105               3.0       0.2092               4.0       0.1051         9.0
+    pq3  1980 423 24.9873 34.8386   0.4352 0.9117     0.4462   0.9123               5.0       0.1422               4.0       0.0882         9.0
+    pq5  1980 423 25.1170 34.1564   0.4305 0.9136     0.4395   0.9149               4.0       0.1919               4.0       0.1057         9.0
+    pe3  1980 423 24.5794 34.3397   0.4223 0.9169     0.4400   0.9147               3.0       0.2247               3.0       0.1460         9.0
+    pe5  1980 423 24.6196 35.5398   0.4301 0.9136     0.4522   0.9099               4.0       0.1537               4.0       0.0933         9.0
+   base  2010 423 23.0270 35.8797   0.4151 0.9273     0.4449   0.9189               NaN          NaN               NaN          NaN         NaN
+    plc  2010 423 24.1831 34.7758   0.3977 0.9334     0.4398   0.9207               3.0       0.2033               4.0       0.1114         9.0
+   plcc  2010 423 24.3814 34.6913   0.3979 0.9334     0.4392   0.9209               3.0       0.2032               4.0       0.1115         9.0
+    pq3  2010 423 23.1492 34.5745   0.4033 0.9315     0.4383   0.9213               4.0       0.1386               4.0       0.0850         9.0
+    pq5  2010 423 22.9792 33.7409   0.4005 0.9325     0.4341   0.9228               4.0       0.1743               4.0       0.1058         9.0
+    pe3  2010 423 21.4873 33.9953   0.3933 0.9349     0.4334   0.9230               3.0       0.2227               3.0       0.1219         9.0
+    pe5  2010 423 22.5550 34.1250   0.3998 0.9327     0.4333   0.9231               4.0       0.1441               4.0       0.0841         9.0
+21:52:04 INFO RULE RESULT: best classed variant pq5 (Dasy_CONUS_RF_v3_u070_pq5): mean tract MdAPE 31.25 % | v5.6 30.93 % | plc 32.76 % | the user decides
+21:52:05 INFO   plot results/validation/conus/plural_grid/plural_comparison.png
+21:52:05 INFO wrote results/validation/conus/plural_grid
+21:52:05 INFO DONE
+== county maps 2010: Dasy_CONUS_RF_v3_u070 Dasy_CONUS_RF_v3_u070_plc Dasy_CONUS_RF_v3_u070_pq5
+21:52:08 INFO arg study_config = configs/conus_study_area.yaml
+21:52:08 INFO arg counties = ['G5300070', 'G2001550', 'G0800430', 'G1701170']
+21:52:08 INFO arg versions = ['Dasy_CONUS_RF_v3_u070', 'Dasy_CONUS_RF_v3_u070_plc', 'Dasy_CONUS_RF_v3_u070_pq5']
+21:52:08 INFO arg year = 2010
+21:52:08 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+21:52:08 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+21:52:08 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+21:52:08 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+21:52:08 INFO arg validation_root = results/validation
+21:52:08 INFO arg out_dir = results/validation/conus/plural_grid/county_maps
+21:52:08 INFO arg margin_km = 5.0
+21:52:08 INFO arg metro_pop = 250000
+21:52:17 INFO CSV /projects/jaju1407/data/raw/plural/plural_2023/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv: 31768 places, PLURAL years [2010]
+21:52:18 INFO shapefile CRS USA_Contiguous_Albers_Equal_Area_Conic -> cutout CRS ESRI:102039
+21:52:18 INFO   2010: plural_indices_scaled_across_years_2010.shp: 28724 points (28724 placeids not seen in earlier years)
+21:52:18 INFO metros: 72 PLURAL places with >= 250000 people in 2010
+21:52:27 INFO   G5300070 Dasy_CONUS_RF_v3_u070 pop 72453 | on BUI = 0 cells 3.7 % | people-weighted km to Seattle city 149.9
+21:52:27 INFO   G5300070 Dasy_CONUS_RF_v3_u070_plc pop 72453 | on BUI = 0 cells 6.5 % | people-weighted km to Seattle city 149.1
+21:52:27 INFO   G5300070 Dasy_CONUS_RF_v3_u070_pq5 pop 72453 | on BUI = 0 cells 5.1 % | people-weighted km to Seattle city 149.7
+21:52:47 INFO   plot results/validation/conus/plural_grid/county_maps/county_G5300070_2010.png
+21:52:55 INFO   G2001550 Dasy_CONUS_RF_v3_u070 pop 64511 | on BUI = 0 cells 2.1 % | people-weighted km to Wichita city 66.6
+21:52:55 INFO   G2001550 Dasy_CONUS_RF_v3_u070_plc pop 64511 | on BUI = 0 cells 3.9 % | people-weighted km to Wichita city 66.6
+21:52:55 INFO   G2001550 Dasy_CONUS_RF_v3_u070_pq5 pop 64511 | on BUI = 0 cells 3.0 % | people-weighted km to Wichita city 66.6
+21:53:09 INFO   plot results/validation/conus/plural_grid/county_maps/county_G2001550_2010.png
+21:53:13 INFO   G0800430 Dasy_CONUS_RF_v3_u070 pop 46824 | on BUI = 0 cells 3.8 % | people-weighted km to Colorado Springs city 58.8
+21:53:13 INFO   G0800430 Dasy_CONUS_RF_v3_u070_plc pop 46824 | on BUI = 0 cells 6.1 % | people-weighted km to Colorado Springs city 59.1
+21:53:13 INFO   G0800430 Dasy_CONUS_RF_v3_u070_pq5 pop 46824 | on BUI = 0 cells 5.0 % | people-weighted km to Colorado Springs city 58.5
+21:53:28 INFO   plot results/validation/conus/plural_grid/county_maps/county_G0800430_2010.png
+21:53:31 INFO   G1701170 Dasy_CONUS_RF_v3_u070 pop 47765 | on BUI = 0 cells 55.3 % | people-weighted km to St. Louis city 74.3
+21:53:31 INFO   G1701170 Dasy_CONUS_RF_v3_u070_plc pop 47765 | on BUI = 0 cells 65.3 % | people-weighted km to St. Louis city 74.4
+21:53:31 INFO   G1701170 Dasy_CONUS_RF_v3_u070_pq5 pop 47765 | on BUI = 0 cells 61.9 % | people-weighted km to St. Louis city 74.5
+21:53:46 INFO   plot results/validation/conus/plural_grid/county_maps/county_G1701170_2010.png
+21:53:46 INFO summary:
+ GISJOIN                    county                   version  cells     pop  share_on_bui0                 metro  metro_km_from_county  pop_weighted_metro_km
+G5300070 Chelan County, Washington     Dasy_CONUS_RF_v3_u070 124063 72453.0          0.037          Seattle city               135.324                149.891
+G5300070 Chelan County, Washington Dasy_CONUS_RF_v3_u070_plc 124063 72453.0          0.065          Seattle city               135.324                149.127
+G5300070 Chelan County, Washington Dasy_CONUS_RF_v3_u070_pq5 124063 72453.0          0.051          Seattle city               135.324                149.714
+G2001550       Reno County, Kansas     Dasy_CONUS_RF_v3_u070  52706 64511.0          0.021          Wichita city                71.650                 66.581
+G2001550       Reno County, Kansas Dasy_CONUS_RF_v3_u070_plc  52706 64511.0          0.039          Wichita city                71.650                 66.584
+G2001550       Reno County, Kansas Dasy_CONUS_RF_v3_u070_pq5  52706 64511.0          0.030          Wichita city                71.650                 66.613
+G0800430  Fremont County, Colorado     Dasy_CONUS_RF_v3_u070  63566 46824.0          0.038 Colorado Springs city                69.197                 58.809
+G0800430  Fremont County, Colorado Dasy_CONUS_RF_v3_u070_plc  63566 46824.0          0.061 Colorado Springs city                69.197                 59.062
+G0800430  Fremont County, Colorado Dasy_CONUS_RF_v3_u070_pq5  63566 46824.0          0.050 Colorado Springs city                69.197                 58.467
+G1701170 Macoupin County, Illinois     Dasy_CONUS_RF_v3_u070  35957 47765.0          0.553        St. Louis city                74.875                 74.349
+G1701170 Macoupin County, Illinois Dasy_CONUS_RF_v3_u070_plc  35957 47765.0          0.653        St. Louis city                74.875                 74.399
+G1701170 Macoupin County, Illinois Dasy_CONUS_RF_v3_u070_pq5  35957 47765.0          0.619        St. Louis city                74.875                 74.522
+21:53:46 INFO DONE
+== done 2026-10-29T21:53:46-06:00

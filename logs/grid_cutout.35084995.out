@@ -1,0 +1,45 @@
+== job 35084995 (grid_cutout) on c3cpu-c15-u1-1 at 2026-10-29T20:56:03-06:00
+== cores=8 gpus=none restart=0
+== git 288a921
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_study_area.yaml (name=conus)  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  out: /scratch/alpine/jaju1407/hisdac/cutouts/conus  extra args: --layers PLURAL PLURALC
+20:56:39 INFO arg config = configs/conus_study_area.yaml
+20:56:39 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+20:56:39 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+20:56:39 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/cutouts
+20:56:39 INFO arg years = None
+20:56:39 INFO arg layers = ['PLURAL', 'PLURALC']
+20:56:39 INFO study area 'conus': states=all | 13 config years 1900-2020 | writing 13 years -> /scratch/alpine/jaju1407/hisdac/cutouts/conus
+20:56:39 INFO layer PLURAL         years 1940-2010        resampling bilinear float32 | files to write: 3
+20:56:39 INFO layer PLURALC        years 1940-2010        resampling cubic    float32 | files to write: 3
+20:56:40 INFO reference grid: 1900_BUI.tif | 18459x11615 | cell 250.0 | origin (-2356398.7593, 3172999.2873629997) | ESRI:102039
+20:56:40 INFO 0 rasters on the HISDAC grid (window read), 6 to warp onto it
+20:56:45 INFO 1900: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:56:47 INFO 1910: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:56:50 INFO 1920: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:56:53 INFO 1930: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:56:56 INFO 1940: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:56:59 INFO 1950: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:02 INFO 1960: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:05 INFO 1970: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:08 INFO 1980: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:11 INFO 1990: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:14 INFO 2000: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:17 INFO 2010: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:20 INFO 2020: 3109 counties, bounds [-2356114.0, 269281.0, 2258244.0, 3172568.0]
+20:57:20 INFO window: full (the whole HISDAC grid of 1900_BUI.tif)
+20:57:20 INFO window: col_off 0 row_off 0 | 18459 x 11615 cells | bounds [-2356399, 269249, 2258351, 3172999] (counties [-2356114, 269281, 2258244, 3172568])
+20:57:20 INFO --layers ['PLURAL', 'PLURALC']: window matches /scratch/alpine/jaju1407/hisdac/cutouts/conus/window.json; zones, window.json and cutout_qa.csv are kept
+20:57:20 INFO cutting 6 rasters
+20:57:51 INFO   PLURAL 1940        float64, warped (bilinear) -> float32 nodata=nan | min 0.0 max 0.885817716453059 | zeros 87115609 | nodata cells 0 | 194.8 MB
+20:58:19 INFO   PLURAL 1980        float64, warped (bilinear) -> float32 nodata=nan | min 0.0 max 0.889360820149699 | zeros 87111706 | nodata cells 0 | 205.4 MB
+20:58:49 INFO   PLURAL 2010        float64, warped (bilinear) -> float32 nodata=nan | min 0.0 max 0.8755931450911655 | zeros 87107050 | nodata cells 0 | 215.3 MB
+20:59:14 INFO   PLURALC 1940: clip [0, 1]: 378147 cells below (min -0.16973236855296214), 11 above (max 1.0240561683673008) of 214401285 valid | inside the 1940 zones (below, above): (109869, 7)
+20:59:26 INFO   PLURALC 1940       float64, warped (cubic) -> float32 nodata=nan | min 0.0 max 1.0 | zeros 87015364 | nodata cells 0 | 191.9 MB
+20:59:54 INFO   PLURALC 1980: clip [0, 1]: 382375 cells below (min -0.16415458883522974), 11 above (max 1.0193703336001918) of 214401285 valid | inside the 1980 zones (below, above): (111506, 8)
+21:00:05 INFO   PLURALC 1980       float64, warped (cubic) -> float32 nodata=nan | min 0.0 max 1.0 | zeros 87011423 | nodata cells 0 | 203.6 MB
+21:00:29 INFO   PLURALC 2010: clip [0, 1]: 387649 cells below (min -0.16327819008443054), 3 above (max 1.0062652916984827) of 214401285 valid | inside the 2010 zones (below, above): (113815, 0)
+21:00:41 INFO   PLURALC 2010       float64, warped (cubic) -> float32 nodata=nan | min 0.0 max 1.0 | zeros 87006051 | nodata cells 0 | 214.6 MB
+21:00:41 INFO DONE
+5.2G	/scratch/alpine/jaju1407/hisdac/cutouts/conus
+== done 2026-10-29T21:00:44-06:00
