@@ -835,7 +835,7 @@ Tract MdAPE, all tracts of the year (%; same tracts for all three):
   on the same counties too, and its gap to areal weighting stays 18-45 pp.
 - County TEST MdAPE (before allocation): 22-29 % every year, CV and TEST alike. **Same-set comparison** (the 398-423
   TEST counties not excluded, v5.4 predictions from `test_predictions.csv`): MdAPE v5.4 / v5.6 within -3.6 / +1.2 pp
-  (e.g. 2010 24.1 / 23.0 %), TEST R2 equal or up to +0.015 (2010 0.910 / 0.919). The dotted v5.4 county line in
+  (e.g. 2010 24.1 / 23.0 %), TEST R2 -0.005 (1900) to +0.014 (2020), 2010 0.910 / 0.919. The dotted v5.4 county line in
   `mdape_over_time.png` is on v5.4's full TEST set (excluded counties included), so its 3-5 pp gap there overstates the
   difference.
 
