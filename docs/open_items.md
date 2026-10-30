@@ -10,6 +10,11 @@ Last updated: 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-10-30, v5.6 all years, request `docs/handoff/v56_all_years_request.md`):** PLURAL dropped (no gain on
+  tracts). v5.6 (`Dasy_CONUS_RF_v3_u070`) is the final version; its 7 missing years + summaries next to v5.4 written as
+  code, not run (`docs/runbooks/Running_CONUS.md` section 14). The v5.6 row of the version table is updated by Claude
+  from the results.
+
 - **Status (2026-10-30, PLURAL grid test, run):** all 31 jobs done (`docs/conus_plan.md` "PLURAL grid test result").
   No variant beats v5.6 on tracts (2010: v5.6 23.8 %, variants 24.1-28.2 %; 1980: 26.8 vs 28.1-33.2 %); county CV R2
   +0.005-0.01; more population on BUI = 0 cells (same pattern as PLURAL distances / NTL). Coast / border leak of the 0

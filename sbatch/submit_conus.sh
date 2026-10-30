@@ -47,6 +47,10 @@
 #                                       # validated on all its years; six variants v5.6 + plural (plc, plcc, pq3, pq5,
 #                                       # pe3, pe5; 1940 / 1980 / 2010) features / train / predict / validate ->
 #                                       # plural_compare.sh (table, figure, best classed variant, county maps 2010)
+#   bash sbatch/submit_conus.sh v56all  # v5.6 (Dasy_CONUS_RF_v3_u070) for all census years: features / train /
+#                                       # predict --years 1900 1910 1930 1950 1970 1990 2000 (the six eras run before
+#                                       # stay) -> tract validation of every tract year -> summary_by_year (next to
+#                                       # v5.4, kept / excluded t070) and metrics_over_time (v5.4 dotted); one chain
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -75,10 +79,12 @@
 # plural: v5.6 2 years ~1/2 of uncfilter's 4-year jobs; variants 3 years + one feature (quantile breaks read the
 # layer once more per year); cutout: two warps of a 900 m source per year, 3 years (NTLV took 2 min for 2 years).
 # Seven chains side by side (estimates; wall times ~3-4 x).
+# v56all: from plural (seff: v5.6 2 years features 4 min, train ~13 min, predict ~8 min / 13 GB, validate 6 years
+# ~8 min / 15 GB) for 7 years ~3.5 x; validate 12 years; wall times ~3-4 x (estimates).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -471,6 +477,59 @@ elif [[ $mode == plural ]]; then
     done
     jc=$(sub "$after" sbatch/plural_compare.sh)
     echo "$ids | plural_compare $jc" | tee logs/conus_plural_jobs.txt
+elif [[ $mode == v56all ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    V=Dasy_CONUS_RF_v3_u070  # v5.6, the final version
+    C=configs/conus_rf_v3_u070.yaml
+    V54=Dasy_CONUS_RF_v3_all
+    NEW="1900 1910 1930 1950 1970 1990 2000"
+    OLD="1920 1940 1960 1980 2010 2020"
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    TR=$DATA_ROOT/processed/tract
+    miss=()  # everything is checked before anything is submitted
+    for y in $NEW; do
+        for f in $CUT/zones/zones_$y.tif $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $D/$V54/Y$y/model/oof_predictions.csv $D/$V54/Y$y/model/test_predictions.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for l in BUI BUPL BUPR BUA; do
+            [[ -f $CUT/layers/$l/${y}_$l.tif ]] || miss+=("$CUT/layers/$l/${y}_$l.tif")
+        done
+        if (( y >= 1940 )); then [[ -f $CUT/layers/Land_Use/RO/${y}_RO.tif ]] || miss+=("$CUT/layers/Land_Use/RO/${y}_RO.tif"); fi
+    done
+    for y in $OLD; do  # the eras that are kept as they are
+        for f in $D/$V/Y$y/model/rf.joblib $D/$V/predictions/pop_$y.tif; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    for f in $CUT/window.json $CUT/layers/DEM/DEM.tif $D/$V/cv_summary.csv $D/$V/qa/reallocation_qa.csv \
+             $D/$V/qa/water_mask_by_year.csv results/hisdac_uncertainty/excluded_counties_t070.csv \
+             results/validation/conus/$V54/metrics_by_year.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    VYRS=""  # tract years: every year with a tract file (1900: none expected)
+    for y in 1900 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010 2020; do
+        if [[ -f $TR/tracts_$y.gpkg ]]; then VYRS="$VYRS $y"
+        elif [[ $y == 1900 ]]; then echo "SKIP 1900 tract validation: no $TR/tracts_1900.gpkg (as v5.4)"
+        else miss+=("$TR/tracts_$y.gpkg"); fi
+    done
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (cutout $NEW, v5.6 eras $OLD, v5.4 eras, tracts) | tract years:$VYRS"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    # --years: only the new eras are computed; the old eras and the other years' rows of the QA / summary CSVs stay
+    jf=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh --years $NEW)
+    jt=$(sub "$jf" --ntasks=16 --time=${TRAIN_TIME:-03:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh --years $NEW)
+    jp=$(sub "$jt" --ntasks=32 --time=${PREDICT_TIME:-02:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh --years $NEW)
+    # every tract year again (metrics_by_year.csv holds all years; the old tract_errors_{YEAR}.csv must come out the same)
+    jv=$(sub "$jp" --ntasks=8 --time=${VALIDATE_TIME:-02:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+         --version $V --years $VYRS $VAL)
+    R=results/validation/conus/$V
+    js=$(sub "$jv" --time=${SUMMARY_TIME:-00:20:00} sbatch/compare_models.sh --versions $V $V54 \
+         --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv --out $R/summary_by_year.csv \
+         --plot $R/mdape_by_year.png)
+    jm=$(sub "$jv" --time=${SUMMARY_TIME:-00:20:00} sbatch/metrics_over_time.sh --version $V --compare-with $V54)
+    echo "features $jf | train $jt | predict $jp | validate $jv | summary $js | metrics_over_time $jm" \
+        | tee logs/conus_v56all_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

@@ -23,6 +23,9 @@ Writes to <results-root>/validation/<name>/<version>/:
   fixed_tract_metrics.csv      set (all / from_<S>), year, method (model / baseline), tracts, counties, MdAPE, MAPE
   fixed_tract_counties.csv     set, GISJOIN, state, name: the counties of each fixed set
   mdape_over_time.png          MdAPE by year: all tracts, the fixed sets, county TEST; dashed = areal weighting
+With --compare-with VERSION (v5.6 next to v5.4, docs/conus_plan.md "v5.6 all years"), that version's county TEST and
+tract sets (the same --starts, computed the same way from its own files) are drawn as dotted lines in the figure (model
+only, same colour per set); its CSVs are not written here.
 Paths come from CLI flags (sbatch/metrics_over_time.sh); runs locally as well (only tracked files).
 """
 from __future__ import annotations
@@ -51,6 +54,7 @@ def parse_args(argv=None):
     p.add_argument("--results-root", type=Path, default=Path("results"))
     p.add_argument("--starts", type=int, nargs="+", default=STARTS, help="start years of the fixed tract sets")
     p.add_argument("--mape-min", type=float, default=MAPE_MIN, help="MAPE only over observed pop >= this")
+    p.add_argument("--compare-with", metavar="VERSION", help="draw this version as dotted lines (e.g. v5.4)")
     return p.parse_args(argv)
 
 
@@ -174,9 +178,10 @@ def county_names(ddir: Path) -> pd.DataFrame:
 
 # ---------------------------------------------------------------- figure
 
-def plot(tr: pd.DataFrame, cm: pd.DataFrame, path: Path, version: str):
+def plot(tr: pd.DataFrame, cm: pd.DataFrame, path: Path, version: str, other=None):
     """MdAPE by year: solid = model, dashed = areal weighting, one colour per set (fixed order); county TEST MdAPE
-    (model before allocation) as its own line. One y-axis (%)."""
+    (model before allocation) as its own line. One y-axis (%). other = (version, tract sets, county metrics) of a
+    second version: its model lines dotted, same colours."""
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dasymetric"))
     import plots  # noqa: E402  (palette + style of the pipeline figures)
     plt = plots.plt
@@ -192,12 +197,21 @@ def plot(tr: pd.DataFrame, cm: pd.DataFrame, path: Path, version: str):
             m = d[d["method"] == method].sort_values("year")
             ax.plot(m["year"], m["mdape"], ls=ls, color=color, lw=2 if method == "model" else 1.2, marker=mk, ms=5,
                     label=label if method == "model" else None)
+        if other is not None:
+            o = other[1]
+            o = o[(o["set"] == s) & (o["method"] == "model")].sort_values("year")
+            ax.plot(o["year"], o["mdape"], ls=":", color=color, lw=1.6)
     test = cm[cm["set"] == "test"].sort_values("year")
     if len(test):
         # ink, not the next series slot: another scale (counties), and slot 6 is a second green next to slot 3
         ax.plot(test["year"], test["mdape"], ls="-", color=plots.INK, lw=2, marker="s", ms=5,
                 label="counties, TEST (before allocation)")
+    if other is not None:
+        ot = other[2][other[2]["set"] == "test"].sort_values("year")
+        ax.plot(ot["year"], ot["mdape"], ls=":", color=plots.INK, lw=1.6)
     ax.plot([], [], ls="--", color=plots.MUTED, lw=1.2, label="dashed: areal weighting (same tracts)")
+    if other is not None:
+        ax.plot([], [], ls=":", color=plots.MUTED, lw=1.6, label=f"dotted: {other[0]} (model)")
     years = sorted(set(tr["year"]) | set(test["year"]))
     ax.set_xticks(years, [str(y) for y in years])
     ax.set_ylim(bottom=0)
@@ -255,7 +269,21 @@ def main(argv=None):
         log.info("tract MdAPE / MAPE (tracts >= %g people) by set and year:\n%s", args.mape_min,
                  tr.pivot_table(index=["set", "year"], columns="method", values=["tracts", "counties", "mdape", "mape"],
                                 sort=False).round(2).to_string())
-    plot(tr, cm, vdir / "mdape_over_time.png", args.version)
+    other = None
+    if args.compare_with:
+        oddir = args.results_root / "dasymetric" / args.name / args.compare_with
+        ovdir = args.results_root / "validation" / args.name / args.compare_with
+        ocm = pd.DataFrame([r for y, e in era_dirs(oddir).items() for r in county_rows(y, e, args.mape_min)])
+        otr = fixed_sets(read_tracts(ovdir), args.starts, args.mape_min, county_names(oddir))[0]
+        other = (args.compare_with, otr, ocm)
+        with pd.option_context("display.width", 200):
+            a = tr[tr["method"] == "model"].pivot_table(index="year", columns="set", values="mdape", sort=False)
+            b = otr[otr["method"] == "model"].pivot_table(index="year", columns="set", values="mdape", sort=False)
+            log.info("tract MdAPE (%%), %s minus %s (negative = %s better):\n%s", args.version, args.compare_with,
+                     args.version, (a - b).round(2).to_string())
+            ct = cm[cm["set"] == "test"].set_index("year")["mdape"] - ocm[ocm["set"] == "test"].set_index("year")["mdape"]
+            log.info("county TEST MdAPE (%%), %s minus %s:\n%s", args.version, args.compare_with, ct.round(2).to_string())
+    plot(tr, cm, vdir / "mdape_over_time.png", args.version, other)
     log.info("wrote %s", vdir)
     log.info("DONE")
 

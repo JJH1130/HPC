@@ -53,8 +53,10 @@ fit and TEST in `train.py`, which writes `excluded_predictions.csv`; still alloc
 `src/validation/filter_compare.py` (`sbatch/filter_compare.sh`; also runs locally) compares v5.4 and the three on the
 common TEST counties (a), the TEST counties excluded at 0.9 (b, imputed) and tract parts, with the selection rule fixed
 before the results (lowest mean of (a) and (b); within 1 pp the one keeping more counties; the user decides) ->
-`results/validation/conus/uncertainty_filter/` (t = 0.7 chosen: v5.6 = `Dasy_CONUS_RF_v3_u070`, eras 1920 / 1940 / 1960 /
-1980 / 2010 / 2020). PLURAL grid test (`docs/conus_plan.md` "PLURAL grid test"): cutout layers `PLURAL` (bilinear) /
+`results/validation/conus/uncertainty_filter/` (t = 0.7 chosen: v5.6 = `Dasy_CONUS_RF_v3_u070`, the final version, 13 eras 1900-2020 with
+v5.4's features per year; `docs/conus_plan.md` "v5.6 all years"; summaries next to v5.4 by `compare_models.py
+--exclusions <excluded_counties_t070.csv>` (tract MdAPE of kept / excluded counties; other versions dotted in the figure)
+and `metrics_over_time.py --compare-with Dasy_CONUS_RF_v3_all`). PLURAL grid test (`docs/conus_plan.md` "PLURAL grid test"): cutout layers `PLURAL` (bilinear) /
 `PLURALC` (cubic, `clip: [0, 1]` = a `make_cutout.py` layer option) from Siqiao's 900 m grid, 1940 / 1980 / 2010;
 `src/grid/plural_qa.py` (`sbatch/plural_qa.sh`) measures the leak of the 0 fill outside the US into coast / border cells
 (weight of outside pixels, edge vs interior, points) -> `results/cutout/conus/plural_qa.csv`; feature `plural` with a
@@ -100,8 +102,8 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
-`filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `y2020` =
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
+`filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
 2020 added to `Dasy_CONUS_RF_v3_all` as era Y2020 with `--years 2020`, after `sbatch/y2020_precheck.sh`; with `--years`,
 `county_features` / `train` / `predict` keep the other years' rows of `water_mask_by_year.csv` / `cv_summary.csv` /
 `reallocation_qa.csv`; stage scripts take `CONFIG=`,
@@ -133,7 +135,8 @@ no contemp + NobuiltYear counts = same NobuiltYear ratios; no contemp + 0/1 = va
 filter_compare: common / imputed TEST sets, metrics by hand, tract parts, the rule with the 1 pp tie, a leak stops the
 run; `exclude_counties` in train / predict: `test_conus_dasymetric.test_exclude_counties`), `python tests/test_plural.py` (PLURAL grid test: resampling of a linear LAEA field = the field at the cell centres,
 cubic clip, plural_qa deficit, breaks / classes / strips, predict breaks check, a new era via `--years` leaves the old
-era byte for byte, plural_compare by hand + figure), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+era byte for byte, plural_compare by hand + figure; `test_v56all`: kept / excluded t070 MdAPE by hand on a copy of the
+tracked v5.6 / v5.4 results, `--compare-with`), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:

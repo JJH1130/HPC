@@ -59,7 +59,7 @@ def test_configs():
     assert lay["PLURALC"]["clip"] == [0, 1] and lay["PLURAL"]["clip"] is None
     base = dcommon.load_config(REPO / "configs" / "conus_rf_v3_u070.yaml")
     v54 = dcommon.load_config(REPO / "configs" / "conus_rf_v3_all.yaml")
-    assert base["years"] == [1920, 1940, 1960, 1980, 2010, 2020]
+    assert base["years"] == list(range(1900, 2021, 10)) and list(base["eras"]) == list(v54["eras"])
     for e in base["eras"]:
         assert base["eras"][e]["features"] == v54["eras"][e]["features"], e
     for v, (layer, k, brk) in VARIANTS.items():
@@ -73,7 +73,7 @@ def test_configs():
                     "model", "search", "models", "permutation", "correlation_threshold"):
             assert c[key] == base[key], (v, key)
         assert c["feature_groups"]["PLURAL"] == ["plural"]
-    print("ok configs: PLURAL / PLURALC layers; v5.6 + Y1940 / Y1980 (v5.4 features); six variants = v5.6 + plural")
+    print("ok configs: PLURAL / PLURALC layers; v5.6 = 13 eras 1900-2020 with v5.4's features; six variants = v5.6 + plural")
 
 
 def write_src(path: Path, arr, transform, crs=LAEA):
@@ -427,8 +427,50 @@ def test_compare():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_v56all():
+    """v5.6 all years (docs/conus_plan.md "v5.6 all years"): compare_models --exclusions (kept / excluded t070 tract MdAPE
+    by hand) next to v5.4, and metrics_over_time --compare-with, on a copy of the tracked v5.6 / v5.4 result files."""
+    import compare_models
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        vs = ["Dasy_CONUS_RF_v3_u070", "Dasy_CONUS_RF_v3_all"]
+        for v in vs:
+            for kind in ("dasymetric", "validation"):
+                shutil.copytree(REPO / "results" / kind / "conus" / v, tmp / kind / "conus" / v)
+        ex = REPO / "results" / "hisdac_uncertainty" / "excluded_counties_t070.csv"
+        out = tmp / "validation" / "conus" / vs[0]
+        compare_models.main(["--versions", *vs, "--exclusions", str(ex), "--results-root", str(tmp), "--out",
+                             str(out / "summary_by_year.csv"), "--plot", str(out / "mdape_by_year.png")])
+        s = pd.read_csv(out / "summary_by_year.csv")
+        assert set(s["version"]) == set(vs) and {"tract_kept_t070_mdape", "tract_excluded_t070_mdape"} <= set(s)
+        ids = set(pd.read_csv(ex)["GISJOIN"])
+        for v in vs:
+            te = pd.read_csv(tmp / "validation" / "conus" / v / "tract_errors_2010.csv")
+            te = te[te["flag"] == "ok"]
+            r = s[(s["version"] == v) & (s["year"] == 2010)].iloc[0]
+            for part, m in (("kept_t070", ~te["zone_gisjoin"].isin(ids)), ("excluded_t070", te["zone_gisjoin"].isin(ids))):
+                o, e = te.loc[m, "pop_obs"].to_numpy(float), te.loc[m, "pop_model"].to_numpy(float)
+                pos = o > 0
+                assert r[f"tract_{part}_n"] == m.sum()
+                assert np.isclose(r[f"tract_{part}_mdape"], 100 * np.median(np.abs(e[pos] - o[pos]) / o[pos])), (v, part)
+            assert r["tract_kept_t070_n"] + r["tract_excluded_t070_n"] == r["tract_all_n"]
+        assert (out / "mdape_by_year.png").stat().st_size > 10_000
+        before = {f: f.read_bytes() for f in (tmp / "validation" / "conus" / vs[1]).iterdir()}
+        r = subprocess.run([sys.executable, str(REPO / "src" / "validation" / "metrics_over_time.py"), "--version", vs[0],
+                            "--compare-with", vs[1], "--results-root", str(tmp)], capture_output=True, text=True, cwd=REPO)
+        assert r.returncode == 0, r.stdout[-3000:] + r.stderr[-3000:]  # a fresh interpreter: the real plots module
+        assert "county TEST MdAPE (%), Dasy_CONUS_RF_v3_u070 minus Dasy_CONUS_RF_v3_all" in r.stdout
+        assert (out / "mdape_over_time.png").stat().st_size > 10_000 and (out / "county_metrics_by_year.csv").exists()
+        assert all(f.read_bytes() == b for f, b in before.items())  # the compared version's files are not written
+        print("ok v56all summaries: kept / excluded t070 tract MdAPE by hand for v5.6 and v5.4, both versions in "
+              "summary_by_year, figures; metrics_over_time --compare-with leaves v5.4's files as they are")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
     test_configs()
+    test_v56all()
     test_resample()
     test_plural_qa()
     test_plural_feature()

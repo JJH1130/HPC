@@ -27,6 +27,13 @@ values and the number of features (empty where the version has no such feature),
 VIIRS-like NTL test (docs/conus_plan.md "VIIRS-like NTL test"): --versions Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_ntl
 Dasy_CONUS_RF_v3_ntlv --years 2000 2010 --rank-features ntl ntlv --out .../ntl_viirs_comparison.csv. Every run also
 logs the tract MdAPE by part side by side (all, test, no_gap, gap, the four density classes).
+
+v5.6 over all years next to v5.4 (docs/conus_plan.md "v5.6 all years"): --versions Dasy_CONUS_RF_v3_u070
+Dasy_CONUS_RF_v3_all --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv --out .../summary_by_year.csv
+--plot .../mdape_by_year.png. --exclusions adds tract n / MdAPE of the tracts whose 2010 county (zone_gisjoin) is kept
+or in that exclusion set (columns tract_kept_<t>_* / tract_excluded_<t>_*, <t> from the file name, e.g. t070; from
+tract_errors_{YEAR}.csv, flag ok). The figure draws the first version; every other version's all-tracts MdAPE is a
+dotted line next to it.
 """
 from __future__ import annotations
 
@@ -38,6 +45,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from metrics_over_time import mdape  # noqa: E402
 
 log = logging.getLogger("compare_models")
 
@@ -62,6 +72,8 @@ def parse_args(argv=None):
     p.add_argument("--years", nargs="+", type=int, help="only these years (default: every era of each version)")
     p.add_argument("--rank-features", nargs="+", default=[], metavar="FEATURE",
                    help="add the permutation / SHAP rank of these features (e.g. ntl)")
+    p.add_argument("--exclusions", type=Path, metavar="CSV",
+                   help="excluded_counties_t070.csv: add tract MdAPE of kept / excluded counties")
     return p.parse_args(argv)
 
 
@@ -136,13 +148,22 @@ def tract_row(met: pd.DataFrame, year: int) -> dict:
     return out
 
 
-def extra_rows(valdir: Path, year: int, mass) -> dict:
-    """tract_counties from tract_errors_{year}.csv, the mass check from reallocation_qa.csv (when present)."""
+def extra_rows(valdir: Path, year: int, mass, excl=None) -> dict:
+    """tract_counties from tract_errors_{year}.csv (+ kept / excluded counties with `excl` = (label, GISJOIN set)),
+    the mass check from reallocation_qa.csv (when present)."""
     out = {}
     te = valdir / f"tract_errors_{year}.csv"
     if te.exists():
-        t = pd.read_csv(te, usecols=["flag", "zone_gisjoin"])
-        out["tract_counties"] = int(t.loc[t["flag"] == "ok", "zone_gisjoin"].nunique())
+        t = pd.read_csv(te, usecols=["flag", "zone_gisjoin", "pop_obs", "pop_model"])
+        t = t[t["flag"] == "ok"]
+        out["tract_counties"] = int(t["zone_gisjoin"].nunique())
+        if excl is not None:
+            lab, ids = excl
+            inside = t["zone_gisjoin"].isin(ids)
+            for part, m in ((f"kept_{lab}", ~inside), (f"excluded_{lab}", inside)):
+                s = t[m]
+                out[f"tract_{part}_n"] = len(s)
+                out[f"tract_{part}_mdape"] = mdape(s["pop_obs"].to_numpy(float), s["pop_model"].to_numpy(float))
     if mass is not None:
         q = mass[mass["year"] == year]
         if len(q):
@@ -171,7 +192,7 @@ def version_rows(args, v: str) -> list[dict]:
             row.update(rank_row(vdir / era, args.rank_features))
         if met is not None:
             row.update(tract_row(met, year))
-        row.update(extra_rows(valdir, year, mass))
+        row.update(extra_rows(valdir, year, mass, args.excl))
         rows.append(row)
     return rows
 
@@ -199,13 +220,13 @@ def repro(df: pd.DataFrame, ref: pd.DataFrame, ref_name: str) -> pd.DataFrame:
     return df
 
 
-def plot_years(df: pd.DataFrame, path: Path):
+def plot_years(df: pd.DataFrame, path: Path, first: str):
     """Tract MdAPE by year (model, model without gap counties, areal weighting) above counties with tracts.
     Two panels, not two y-scales on one axis."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    d = df[df["version"] == df["version"].iloc[0]].sort_values("year")
+    d = df[df["version"] == first].sort_values("year")
     fig, (a, b) = plt.subplots(2, 1, figsize=(8, 6.5), sharex=True, gridspec_kw={"height_ratios": [2, 1]})
     lines = [("tract_all_mdape", "model, all tracts", "#2a78d6", "-", "o"),
              ("tract_no_gap_mdape", "model, without BUI gap counties", "#1baf7a", "--", "s"),
@@ -213,6 +234,11 @@ def plot_years(df: pd.DataFrame, path: Path):
     for colname, label, color, ls, mk in lines:
         if colname in d and d[colname].notna().any():
             a.plot(d["year"], d[colname], ls, color=color, lw=2, marker=mk, ms=6, label=label)
+    for v in dict.fromkeys(df["version"]):  # other versions: all tracts, dotted
+        if v != first and "tract_all_mdape" in df:
+            o = df[df["version"] == v].sort_values("year")
+            a.plot(o["year"], o["tract_all_mdape"], ":", color="#52514e", lw=1.6, marker=".", ms=6,
+                   label=f"{v}, all tracts")
     a.set_ylabel("tract MdAPE (%)")
     a.set_ylim(bottom=0)
     a.legend(frameon=False, fontsize=9)
@@ -242,6 +268,13 @@ def main(argv=None):
     for flag, value in vars(args).items():
         log.info("arg %s = %s", flag, value)
     out = args.out or args.results_root / "validation" / args.name / "model_comparison.csv"
+    args.excl = None
+    if args.exclusions:
+        if not args.exclusions.exists():
+            sys.exit(f"ERROR: {args.exclusions} not found")
+        lab = args.exclusions.stem.replace("excluded_counties_", "")
+        args.excl = (lab, set(pd.read_csv(args.exclusions)["GISJOIN"]))
+        log.info("exclusion set %s (%s): %d counties", args.exclusions, lab, len(args.excl[1]))
     rows = [r for v in args.versions for r in version_rows(args, v)]
     if not rows:
         sys.exit("ERROR: no version / year found")
@@ -255,7 +288,8 @@ def main(argv=None):
             log.info("%d (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):\n%s", year,
                      g[[c for c in SUMMARY if c in g]].round(4).to_string(index=False))
         log.info("chosen hyperparameters:\n%s", df[["year", "version", "best_params"]].to_string(index=False))
-        parts = [c for c in [f"tract_{p}_mdape" for p in ("all", "test", "no_gap", "gap")] +
+        ex = [f"kept_{args.excl[0]}", f"excluded_{args.excl[0]}"] if args.excl else []
+        parts = [c for c in [f"tract_{p}_mdape" for p in ["all", "test", "no_gap", "gap"] + ex] +
                  [f"tract_{d}_mdape" for d in DENS] if c in df]
         if parts:
             log.info("tract MdAPE (%%) by part (gap = BUI gap counties, dens_* = observed people / km2):\n%s",
@@ -270,7 +304,7 @@ def main(argv=None):
         log.info("mass check (reallocation_qa.csv, tolerance %.0e): %d county-years fail; years with a failure: %s",
                  MASS_TOL, int(df["mass_fail"].fillna(0).sum()), bad or "none")
     if args.plot:
-        plot_years(df, args.plot)
+        plot_years(df, args.plot, args.versions[0])
     log.info("wrote %s (%d rows)", out, len(df))
     log.info("DONE")
 

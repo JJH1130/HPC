@@ -1,4 +1,4 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty, the uncertainty filter and the PLURAL grid test
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty, the uncertainty filter, the PLURAL grid test and v5.6 for all years
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
 layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), `configs/external_grids.yaml`
@@ -1248,6 +1248,86 @@ What to look for in the logs: `grid_cutout` (clip counts of PLURALC per year), `
 breaks [...] | cell share per class [...]`), `train` (CV / TEST vs v5.6), `predict` (`plural breaks = ...`, mass
 preserved), `plural_compare` (tract MdAPE / MAPE tables, TEST counties + plural rank, `RULE RESULT`, county maps summary).
 
+## 14. v5.6 for all census years 1900-2020 (2026-10-30)
+
+v5.6 (`Dasy_CONUS_RF_v3_u070`, the final version) gets its seven missing years (1900 1910 1930 1950 1970 1990 2000),
+then the summaries next to v5.4 (`docs/conus_plan.md`, "v5.6 all years"). One chain, submitted once: every job waits
+for the one before, so nothing has to be done between submission and block 3. Needs the CONUS cutout of all years
+(section 5), v5.4 (sections 5, 10) and v5.6's six years (sections 12, 13) on scratch.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| features | 6 cores, 1 h | county features of the 7 new years | ~15 min |
+| train | 16 cores, 3 h | 7 eras: search (60) + fit without the excluded counties, TEST, comparison with v5.4 | ~45 min |
+| predict | 32 cores, 2 h | allocation of the 7 years | ~35 min |
+| validate | 8 cores, 2 h | tracts of every tract year (1910-2020; 1900 has none) | ~25 min |
+| compare_models, metrics_over_time | 1 core, 20 min each | `summary_by_year.csv` / `mdape_by_year.png`, `county_metrics_by_year.csv` / `fixed_tract_metrics.csv` / `mdape_over_time.png` | < 1 min |
+
+6 jobs; ~2 h after the first one starts (estimates). Override a wall time: `FEATURES_TIME`, `TRAIN_TIME`,
+`PREDICT_TIME`, `VALIDATE_TIME`, `SUMMARY_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh v56all
+squeue -u $USER
+echo "== end of block 1"
+```
+
+Good: `SKIP 1900 tract validation: no .../tracts_1900.gpkg (as v5.4)`, `PRECHECK: 0 missing ... | tract years: 1910 1920 ...
+2020`, one line `features N | train N | predict N | validate N | summary N | metrics_over_time N` (also in
+`logs/conus_v56all_jobs.txt`), 6 jobs in `squeue`, `== end of block 1`. `MISSING ...` + `ERROR: nothing submitted`: send
+the output to Claude (nothing was submitted).
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v56all_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+f=$(ls -t logs/dasymetric_train.*.out 2>/dev/null | head -1); [[ -n $f ]] && grep -E "^.*era Y[0-9]{4}: model|exclude_counties:" "$f" | tail -4
+echo "== end of block 2"
+```
+
+Good: states `PENDING` / `RUNNING` / `COMPLETED`; while train runs, one `era Y<year>: model rf ...` line per era started;
+`== end of block 2`. A `FAILED` job: the later ones stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and send the
+log to Claude.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v56all_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_v56all_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_v56all_seff.txt
+cat logs/conus_v56all_sacct.txt
+B=results/dasymetric/conus/Dasy_CONUS_RF_v3_u070
+V=results/validation/conus/Dasy_CONUS_RF_v3_u070
+ch=$(git status --porcelain $B/Y1920 $B/Y1940 $B/Y1960 $B/Y1980 $B/Y2010 $B/Y2020 $V/tract_errors_{1920,1940,1960,1980,2010,2020}.csv | wc -l)
+del=$(git diff -U0 -- $B/cv_summary.csv $B/reallocation_qa.csv $B/water_mask_by_year.csv $V/metrics_by_year.csv | grep -c '^-[^-]' || true)
+echo "v5.6 OLD YEARS: $ch changed files, $del removed CSV lines (0 and 0 = unchanged)"
+ls $V/summary_by_year.csv $V/mdape_by_year.png $V/county_metrics_by_year.csv $V/fixed_tract_metrics.csv $V/mdape_over_time.png
+git add logs/ results/
+git commit -m "run: v5.6 (u070) all census years 1900-2020 + summaries next to v5.4 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: every job `COMPLETED`, `v5.6 OLD YEARS: 0 changed files, 0 removed CSV lines`, the five summary files listed, `git
+push` ends with `main -> main`, `== end of block 3`. Any number other than 0 in `OLD YEARS`: commit anyway and tell Claude.
+
+What to look for in the logs: `dasymetric_train` (per era `exclude_counties: N rows left out ...`, CV / TEST vs v5.4,
+`--years: cv_summary.csv keeps the rows of eras [...]`), `dasymetric_predict` (`--years: reallocation_qa.csv keeps N rows`,
+mass check), `validate_tract` (one block per year), `compare_models` (kept / excluded t070 columns),
+`metrics_over_time` (`recomputed R2 = reported ...`, `... minus Dasy_CONUS_RF_v3_all` tables).
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1280,6 +1360,9 @@ preserved), `plural_compare` (tract MdAPE / MAPE tables, TEST counties + plural 
 | plural: predict `plural breaks [...] differ from .../plural_breaks.csv` | the cutout layer or the county selection changed between features and predict: send the log; rerun that variant's chain from features |
 | plural: `plural_compare` stops with `TEST counties differ` | a version ran with another split or exclusion set (an old config?): send the log |
 | plural: `v5.6 OLD YEARS` not 0 | commit anyway and tell Claude: something changed an old year's file (the run only adds 1940 / 1980) |
+| v56all: `MISSING .../cutouts/conus/...` or `.../Dasy_CONUS_RF_v3_all/Y<year>/...` | scratch files purged (90 days) or never made: send the list; nothing was submitted |
+| v56all: a job failed overnight | the later ones stay `PENDING (DependencyNeverSatisfied)`: `scancel` them, send the log. Reruns are safe: `--years` touches only the 7 new years; validation and the summaries are deterministic |
+| v56all: `v5.6 OLD YEARS` not 0 | commit anyway and tell Claude: something changed an old year's file (the run only adds 7 years) |
 | uncertainty: log ends `DONE (NobuiltYear value distribution only)` | not a failure: NobuiltYear is a 0/1 flag and contemp is missing, so no ratio exists; commit as block 3 and tell Claude (the next step waits for contemp from Stefan) |
 | all: `repro ... -> DIFFERENT` in the summary log | 1920 / 1960 / 2010 should equal v3_n60 (same seed, features, folds): send Claude the log; nothing is rerun automatically |
 | ntl: `ntl_qa` `FAILED` with `no cell with DN >= 60 in the box` | the fixed DN rule (known since Massachusetts 2026-10-06, change on hold); nothing waits for it: send the log with the others |

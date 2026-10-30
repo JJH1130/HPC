@@ -26,8 +26,8 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen**, 6 years so far (+1940 / 1980) |
 | v5.7 (test) | `Dasy_CONUS_RF_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}` | v5.6 + Siqiao's 900 m PLURAL grid (continuous / 3 or 5 classes), 1940 / 1980 / 2010 | 2010: 24.1-28.2 % (v5.6 23.8) | worse on tracts; drop proposed (user decides) |
 
-Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no variant beats v5.6 on tracts. Proposed
-next step: v5.6 for all census years 1900-2020 (user decides).
+Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no variant beats v5.6 on tracts; PLURAL
+dropped. v5.6 for all census years 1900-2020 written as code (section "v5.6 all years"), not run yet.
 Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
 GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
 (gap counties = counties without built years).
@@ -787,6 +787,19 @@ Tract MdAPE (all tracts, %):
   coasts / borders, but it does not change the conclusion. Cubic clipping and bilinear give the same tract results.
 - Reading: PLURAL adds no within-county information beyond BUI / bldg_size / dist_built; with no gain in its three
   years there is no case for building 1900-2020 PLURAL values. Proposed: drop PLURAL; run v5.6 for all years.
+
+## v5.6 all years (request 2026-10-30, `docs/handoff/v56_all_years_request.md`; run steps `docs/runbooks/Running_CONUS.md`, section 14)
+
+v5.6 (`Dasy_CONUS_RF_v3_u070`) is the final version and is run for every census year, next to v5.4, for Stefan's
+meeting items (tract MdAPE every decade, county TEST MdAPE, fixed tract sets).
+
+| Topic | Decision |
+|---|---|
+| Eras | `configs/conus_rf_v3_u070.yaml`: 13 eras 1900-2020, one per year; each era's features = the same year's era of `conus_rf_v3_all.yaml` (no Land_Use before 1940). Split, folds, `exclude_counties` (t = 0.7 set, the same counties every year), statuses, water mask, search space, 60 candidates unchanged |
+| Run | `bash sbatch/submit_conus.sh v56all`: one dependency chain (submitted once): features / train / predict `--years 1900 1910 1930 1950 1970 1990 2000` (the six eras run before are not recomputed; the other years' rows of `cv_summary.csv` / `reallocation_qa.csv` / `water_mask_by_year.csv` are kept) -> tract validation of every year with a tract file (1910-2020; 1900 has none, logged as SKIP in the pre-check) -> `compare_models.sh` and `metrics_over_time.sh` side by side. The old years' files must come out byte for byte (`OLD YEARS 0 / 0` line of runbook block 3; validation is deterministic) |
+| Summaries | `results/validation/conus/Dasy_CONUS_RF_v3_u070/` with v5.4's file names: `summary_by_year.csv` + `mdape_by_year.png` (`compare_models.py --versions v5.6 v5.4 --exclusions .../excluded_counties_t070.csv`: rows of both versions; new columns `tract_kept_t070_*` / `tract_excluded_t070_*` from `tract_errors_{YEAR}.csv`; the figure draws v5.6 with v5.4's all-tracts MdAPE dotted; no `--repro-with`: v5.6 is not expected to equal v5.4), `county_metrics_by_year.csv`, `fixed_tract_metrics.csv`, `fixed_tract_counties.csv`, `mdape_over_time.png` (`metrics_over_time.py --compare-with v5.4`: v5.4's sets dotted in the same colours; the differences v5.6 minus v5.4 are logged) |
+| Caution when reading | v5.6's TEST counties = the TEST counties not excluded at t = 0.7; v5.4's = all TEST counties: the county TEST MdAPE and TEST R2 of the two are on different sets (the uncertainty filter comparison has the common sets). CV R2 likewise. Tracts are the same in both |
+| Tests | `tests/test_plural.py`: `test_configs` (13 eras = v5.4's features), `test_plural_feature` (a new era via `--years` leaves the old era byte for byte), `test_v56all` (kept / excluded t070 tract MdAPE by hand, both versions in the summary, figures, `--compare-with` writes nothing of v5.4) |
 
 ## BUI outliers (bui_qa, job 34921582)
 
