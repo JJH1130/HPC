@@ -26,6 +26,11 @@ Dasy_CONUS_RF_v3_u070; 1960 and 2010 by default):
 
 Medians and quantiles use the cell values stored as float32 (means and sums are float64, as county_features.py).
 
+A config with an `aggregation:` block (built-cell aggregation test, docs/conus_plan.md "Built-cell aggregation test")
+is read with its own county values: a built_mean feature's training value (range, quantiles, figure, check against
+county_features.csv) is bmean_<f> (0 without a built cell, as county_features.py), and built_local is a cell feature
+like the others. extrapolation.csv has pop_share_of_total per subset (the empty row = people on BUI = 0 cells).
+
 Writes to --out (results/aggregation/<name>/):
   county_aggregates_{YEAR}.csv      one row per used county: GISJOIN, set (train / test / excluded / not_trained),
                                     pop, area_km2, y, cells, the aggregates above
@@ -53,8 +58,8 @@ import rasterio
 from rasterio.windows import Window
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dasymetric"))
-from common import (NODATA_OUT, cell_features, county_selection, era_of, load_config, log, log_args,  # noqa: E402
-                    out_dir, read_zones, setup_logging, strips, used_mask, water_mask)
+from common import (NODATA_OUT, built_local_setup, cell_features, county_selection, era_of, load_config,  # noqa: E402
+                    log, log_args, out_dir, read_zones, setup_logging, strips, used_mask, water_mask)
 
 YEARS = [1960, 2010]
 BUILT_FEATURES = ["bui", "bldg_size", "mu_ratio", "res_share", "rent_share", "elev", "slope"]  # bmean / bmed
@@ -120,6 +125,15 @@ def county_sets(rows: pd.DataFrame, cfg: dict) -> pd.Series:
     return out
 
 
+def model_col(cfg: dict, f: str) -> str:
+    """The aggregates column that holds the county value the model trained on (mean_<f> or bmean_<f>)."""
+    return f"bmean_{f}" if cfg.get("aggregation", {}).get(f) == "built_mean" else f"mean_{f}"
+
+
+def model_values(rows: pd.DataFrame, cfg: dict, f: str) -> np.ndarray:
+    return rows[model_col(cfg, f)].fillna(0.0).to_numpy()  # built_mean: 0 without a built cell (county_features.py)
+
+
 def read_pop(path: Path, grid: dict, rows: slice | None):
     with rasterio.open(path) as src:
         if (src.height, src.width) != grid["shape"] or src.transform != grid["transform"]:
@@ -140,16 +154,17 @@ def cell_pass(cutout: Path, year: int, feats: list, cfg: dict, pop_path: Path):
     nz = int(max(zones.max(), ids.max())) + 1
     n, nb = np.zeros(nz, np.int64), np.zeros(nz, np.int64)
     sums = {f: np.zeros(nz) for f in feats}
-    bsums = {f: np.zeros(nz) for f in feats if f in BUILT_FEATURES}
+    bsums = {f: np.zeros(nz) for f in feats if f in BUILT_FEATURES or model_col(cfg, f) != f"mean_{f}"}
     Z, P, V = [], [], {f: [] for f in feats}
     full = {}
+    blocal = built_local_setup(cfg, zones, ids) if "built_local" in feats else None
     parts = strips(zones.shape, cfg.get("block_rows"))
     for k, rws in enumerate(parts):
         mask = used_mask(zones[rws], ids)
         if not mask.any():
             continue
         sub = None if len(parts) == 1 else rws
-        X = cell_features(cutout, year, grid, mask, feats, sub, full)
+        X = cell_features(cutout, year, grid, mask, feats, sub, full, None, blocal)
         z = zones[rws][mask]
         keep = np.ones(len(z), bool)
         if cfg.get("water_mask"):
@@ -193,8 +208,9 @@ def cell_pass(cutout: Path, year: int, feats: list, cfg: dict, pop_path: Path):
     return rows, cells
 
 
-def check_means(rows: pd.DataFrame, feats: list, path: Path, year: int):
-    """mean_<f> must equal county_features.csv (same counties, same values within MEAN_RTOL), else stop."""
+def check_means(rows: pd.DataFrame, feats: list, path: Path, year: int, cfg: dict):
+    """The model's county value of every feature (mean_<f>, or bmean_<f> for built_mean) must equal
+    county_features.csv (same counties, same values within MEAN_RTOL), else stop."""
     if not path.exists():
         sys.exit(f"ERROR: {path} not found (county_features.py of this version)")
     cf = pd.read_csv(path, dtype={"GISJOIN": str})
@@ -206,7 +222,7 @@ def check_means(rows: pd.DataFrame, feats: list, path: Path, year: int):
     m = rows.merge(cf, on="GISJOIN", suffixes=("", "_cf"))
     worst = {}
     for f in feats:
-        x, y = m[f"mean_{f}"].to_numpy(), m[f].to_numpy()
+        x, y = model_values(m, cfg, f), m[f].to_numpy()
         worst[f] = float(np.max(np.abs(x - y) / np.maximum(np.abs(y), 1e-12)))
     for c in ("pop", "area_km2", "y"):
         worst[c] = float(np.max(np.abs(m[c] - m[f"{c}_cf"]) / np.maximum(np.abs(m[f"{c}_cf"]), 1e-12)))
@@ -243,11 +259,11 @@ def county_medians(rows: pd.DataFrame, cells: dict, feats: list):
         del v
 
 
-def train_ranges(train: pd.DataFrame, feats: list) -> dict:
-    """{range kind: {feature: (lo, hi)}} from the training county means."""
+def train_ranges(train: pd.DataFrame, feats: list, cfg: dict) -> dict:
+    """{range kind: {feature: (lo, hi)}} from the training county values."""
     out = {"minmax": {}, "p01_p99": {}}
     for f in feats:
-        v = train[f"mean_{f}"].to_numpy()
+        v = model_values(train, cfg, f)
         out["minmax"][f] = (float(v.min()), float(v.max()))
         out["p01_p99"][f] = tuple(float(q) for q in np.quantile(v, [0.01, 0.99]))
     return out
@@ -280,14 +296,15 @@ def extrapolation(year: int, rows: pd.DataFrame, cells: dict, feats: list, range
                 cb, pb = share(below, s)
                 ca, pa = share(above, s)
                 out.append({"year": year, "range": kind, "feature": f, "subset": s, "lo": lo, "hi": hi,
-                            "cells": tot[s][0], "cell_share_below": cb, "cell_share_above": ca,
+                            "cells": tot[s][0], "pop_share_of_total": tot[s][1] / tot["all"][1], "cell_share_below": cb, "cell_share_above": ca,
                             "cell_share_inside": 1 - cb - ca if tot[s][0] else np.nan, "pop_share_below": pb,
                             "pop_share_above": pa, "pop_share_inside": 1 - pb - pa if tot[s][1] > 0 else np.nan})
             del below, above
         for s in subsets:
             ci, pi = share(inside, s)
             out.append({"year": year, "range": kind, "feature": "all_features", "subset": s, "cells": tot[s][0],
-                        "cell_share_inside": ci, "pop_share_inside": pi})
+                        "pop_share_of_total": tot[s][1] / tot["all"][1], "cell_share_inside": ci,
+                        "pop_share_inside": pi})
         tag = "" if kind == "minmax" else "_p"
         oor = ~inside
         n_cells = np.bincount(cells["zone"], minlength=nz)[zid]
@@ -300,12 +317,12 @@ def extrapolation(year: int, rows: pd.DataFrame, cells: dict, feats: list, range
     return out
 
 
-def quantile_rows(year: int, cells: dict, train: pd.DataFrame, feats: list) -> list[dict]:
+def quantile_rows(year: int, cells: dict, train: pd.DataFrame, feats: list, cfg: dict) -> list[dict]:
     built = cells["bui"] > 0
     out = []
     for f in feats:
         samples = {"cells_all": cells[f], "cells_built": cells[f][built], "cells_empty": cells[f][~built],
-                   "counties_train": train[f"mean_{f}"].to_numpy()}
+                   "counties_train": model_values(train, cfg, f)}
         for s, v in samples.items():
             r = {"year": year, "feature": f, "sample": s, "n": len(v),
                  "zero_share": float((v == 0).mean()) if len(v) else np.nan}
@@ -316,14 +333,14 @@ def quantile_rows(year: int, cells: dict, train: pd.DataFrame, feats: list) -> l
     return out
 
 
-def histograms(cells: dict, train: pd.DataFrame, feats: list, ranges: dict) -> dict:
+def histograms(cells: dict, train: pd.DataFrame, feats: list, ranges: dict, cfg: dict) -> dict:
     """Per feature: log10 histograms (density) of the built cells' positive values (dist_built: all cells, built
     ones are 0) and of the positive training county means, on common bins; zero / non-positive shares."""
     built = cells["bui"] > 0
     out = {}
     for f in feats:
         c = cells[f] if f == "dist_built" else cells[f][built]
-        m = train[f"mean_{f}"].to_numpy()
+        m = model_values(train, cfg, f)
         cp, mp = c[c > 0].astype("float64"), m[m > 0]
         if not len(cp) or not len(mp):
             continue
@@ -458,14 +475,17 @@ def main(argv=None):
             cf = pd.read_csv(vdir / era / "features" / "county_features.csv", dtype={"GISJOIN": str})
             rows["area_km2"] = rows["GISJOIN"].map(dict(zip(cf["GISJOIN"], cf["area_km2"])))
         rows["y"] = np.log(rows["pop"] / rows["area_km2"])
-        check_means(rows, feats, vdir / era / "features" / "county_features.csv", year)
+        check_means(rows, feats, vdir / era / "features" / "county_features.csv", year, cfg)
         rows.insert(rows.columns.get_loc("status") + 1, "set", county_sets(rows, cfg))
         log.info("  %d: county sets %s", year, rows["set"].value_counts().to_dict())
         county_medians(rows, cells, feats)
         train = rows[rows["set"] == "train"]
-        ranges = train_ranges(train, feats)
+        ranges = train_ranges(train, feats, cfg)
         ext += extrapolation(year, rows, cells, feats, ranges)
-        qua += quantile_rows(year, cells, train, feats)
+        qua += quantile_rows(year, cells, train, feats, cfg)
+        e = ext[-1] if ext[-1]["subset"] == "empty" else None
+        log.info("  %d: allocated people on empty cells (BUI = 0): %.4f of the total", year,
+                 e["pop_share_of_total"] if e else np.nan)
         rel = (rows["pop_alloc"] - rows["pop"]).abs() / rows["pop"]
         log.info("  %d: allocated pop on the kept cells vs census: max rel. diff %.1e%s", year, rel.max(),
                  "" if rel.max() < POP_RTOL else " (LARGER than expected)")
@@ -474,7 +494,7 @@ def main(argv=None):
             log.info("  %d: %-10s median over all cells = 0 in %d of %d counties; built-cell median = 0 in %d", year,
                      f, z, len(rows), int((rows.get(f"bmed_{f}", pd.Series(dtype=float)) == 0).sum()))
         if year == args.plot_year:
-            hists = histograms(cells, train, feats, ranges)
+            hists = histograms(cells, train, feats, ranges, cfg)
         del cells
         train = rows[rows["set"] == "train"]  # with the medians / shares added
         aggs = [c for c in rows.columns if c.split("_", 1)[0] in ("mean", "bmean", "bmed", "med")]

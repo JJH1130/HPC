@@ -54,6 +54,11 @@
 #   bash sbatch/submit_conus.sh aggdiag # county feature aggregation diagnosis of v5.6, 1960 / 2010 (one job, no
 #                                       # training / prediction): pre-check of v5.6's predictions + features ->
 #                                       # aggregation_diag.sh -> results/aggregation/conus/
+#   bash sbatch/submit_conus.sh builtcell  # built-cell aggregation test, 1960 / 2010: v5.6 + built-cell county means +
+#                                       # built_local (bc3 / bc5 / bc9) features / train / predict / validate (gap
+#                                       # counties from v5.6) + aggregation_diag per variant, side by side; aggregation_diag
+#                                       # of v5.6 (new pop_share_of_total column) -> builtcell_compare.sh (table, figure,
+#                                       # window k by the CV rule, county maps 2010)
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -86,10 +91,13 @@
 # ~8 min / 15 GB) for 7 years ~3.5 x; validate 12 years; wall times ~3-4 x (estimates).
 # aggdiag: as the v5.6 features job (7 years: 7 min / 9.6 GB) for 2 years + the float32 cell values (~5 GB) and the
 # per-county medians: 8 cores, 1:30 wall (estimate).
+# builtcell: per variant as one plural variant (2-3 years: features ~4 min, train ~15 min, predict ~8 min, validate
+# ~4 min) + built_local per strip (a box sum over BUI / water / zones of the strip + halo: small); aggregation_diag as
+# aggdiag (job 35099133); wall times ~3-4 x (estimates).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -557,6 +565,49 @@ elif [[ $mode == aggdiag ]]; then
 ' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
     ja=$(sub "" --ntasks=${AGG_TASKS:-8} --time=${AGG_TIME:-01:30:00} --export=ALL,CONFIG=$C sbatch/aggregation_diag.sh          --years 1960 2010)
     echo "aggregation_diag $ja" | tee logs/conus_aggdiag_jobs.txt
+elif [[ $mode == builtcell ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    BASE=Dasy_CONUS_RF_v3_u070  # v5.6
+    C0=configs/conus_rf_v3_u070.yaml
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    OUT=results/validation/conus/builtcell
+    miss=()  # everything is checked before anything is submitted
+    for y in 1960 2010; do
+        for f in $D/$BASE/predictions/pop_$y.tif $D/$BASE/Y$y/features/county_features.csv \
+                 $D/$BASE/Y$y/model/oof_predictions.csv $D/$BASE/Y$y/model/test_predictions.csv \
+                 $CUT/zones/zones_$y.tif $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $DATA_ROOT/processed/tract/tracts_$y.gpkg results/validation/conus/$BASE/tract_errors_$y.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for l in BUI BUPL BUPR BUA Land_Use/RO; do
+            [[ -f $CUT/layers/$l/${y}_${l#Land_Use/}.tif ]] || miss+=("$CUT/layers/$l/${y}_${l#Land_Use/}.tif")
+        done
+    done
+    for f in $CUT/layers/DEM/DEM.tif $DATA_ROOT/processed/census_conus/counties_2010.gpkg \
+             results/hisdac_uncertainty/excluded_counties_t070.csv configs/conus_split.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    echo "PRECHECK: $(( ${#miss[@]} )) missing (v5.6 1960 / 2010 outputs, cutout, tracts, exclusions)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    # v5.6 itself is not rerun; only its cells are measured again (empty-cell share next to the variants)
+    jb=$(sub "" --ntasks=${AGG_TASKS:-8} --time=${AGG_TIME:-01:30:00} --export=ALL,CONFIG=$C0 sbatch/aggregation_diag.sh \
+         --years 1960 2010 --out $OUT/diag/base)
+    ids="v5.6 aggregation_diag $jb" after="$jb"
+    for v in bc3 bc5 bc9; do  # each = v5.6 features with built-cell county means + built_local (k x k), 1960 / 2010
+        C=configs/conus_rf_v3_u070_$v.yaml
+        f=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-00:45:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+        t=$(sub "$f" --ntasks=16 --time=${TRAIN_TIME:-02:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+        p=$(sub "$t" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+        q=$(sub "$p" --ntasks=8 --time=${VALIDATE_TIME:-01:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+            --version ${BASE}_$v --years 1960 2010 $VAL --gap-version $BASE)
+        a=$(sub "$p" --ntasks=${AGG_TASKS:-8} --time=${AGG_TIME:-01:30:00} --export=ALL,CONFIG=$C \
+            sbatch/aggregation_diag.sh --years 1960 2010 --out $OUT/diag/$v)
+        ids="$ids | $v features $f train $t predict $p validate $q aggregation_diag $a"
+        after="$after $q $a"
+    done
+    jc=$(sub "$after" sbatch/builtcell_compare.sh)
+    echo "$ids | builtcell_compare $jc" | tee logs/conus_builtcell_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

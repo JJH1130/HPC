@@ -47,10 +47,15 @@ PLACE_DIST = ["d_10k", "d_20k", "d_50k", "d_100k", "d_250k"]
 LAYER_FEATURES.update({f: f"PLACEDIST/{f}" for f in PLACE_DIST})
 DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share",
                     "elev", "slope",  # v4: elev, slope from the static DEM layer (docs/dasymetric_v4.md)
-                    "plural"}  # PLURAL grid test (docs/conus_plan.md "PLURAL grid test"): see plural_spec()
+                    "plural",  # PLURAL grid test (docs/conus_plan.md "PLURAL grid test"): see plural_spec()
+                    "built_local"}  # built-cell aggregation test: see built_local_setup()
 PLURAL_LAYERS = ("PLURAL", "PLURALC")  # cutout layers: 900 m PLURAL grid, bilinear / cubic (clipped to 0-1)
 PLURAL_BREAKS = ("quantile", "equal")
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
+# County aggregation of a cell feature (`aggregation:` block of the model config; built-cell aggregation test,
+# docs/conus_plan.md "Built-cell aggregation test"): mean = over all unmasked cells of the county (default, every
+# version before), built_mean = over the unmasked cells with BUI > 0 (0 for a county without one).
+AGGREGATIONS = ("mean", "built_mean")
 LAND_USE = ["A", "C", "GV", "I", "RC", "RI", "RO", "VL"]  # cutout layers/Land_Use/{CLASS}/{YEAR}_{CLASS}.tif
 WATER_LAYER = "water_frac"  # cutout layers/water_frac/water_frac.tif (static) or {YEAR}_water_frac.tif (v4)
 DEM_LAYER = "DEM"  # cutout layers/DEM/DEM.tif (static; GMTED2010 mean elevation averaged to 250 m, metres)
@@ -115,7 +120,29 @@ def load_config(path: Path) -> dict:
     if cfg["model"] not in cfg["models"]:
         sys.exit(f"ERROR: {path}: model {cfg['model']!r} has no entry under models: {sorted(cfg['models'])}")
     cfg["plural"] = check_plural(cfg.get("plural"), "plural" in used, path)
+    cfg["aggregation"], cfg["built_local"] = check_aggregation(cfg.get("aggregation"), used, path)
     return cfg
+
+
+def check_aggregation(spec, used, path: Path):
+    """The `aggregation:` block: {feature: mean | built_mean, built_local: {window: k}} -> ({feature: method} for the
+    features not aggregated by the default mean, {"window": k} or None). Without the block every feature is a mean (as
+    every version before). built_local (a cell's local built share, k x k window, k odd >= 3) needs its window and is
+    a mean."""
+    spec = dict(spec or {})
+    bl = spec.pop("built_local", None)
+    if "built_local" in used:
+        k = bl.get("window") if isinstance(bl, dict) else None
+        if not isinstance(k, int) or k < 3 or k % 2 == 0:
+            sys.exit(f"ERROR: {path}: feature built_local needs `aggregation: {{built_local: {{window: k}}}}` with an odd "
+                     f"k >= 3, got {bl!r}")
+        bl = {"window": k}
+    elif bl is not None:
+        sys.exit(f"ERROR: {path}: aggregation.built_local given but the feature built_local is not used")
+    bad = {f: m for f, m in spec.items() if f not in used or m not in AGGREGATIONS or f == "built_local"}
+    if bad:
+        sys.exit(f"ERROR: {path}: aggregation needs used features with a method in {AGGREGATIONS}, got {bad}")
+    return {f: m for f, m in spec.items() if m != "mean"}, bl
 
 
 def check_plural(spec, used: bool, path: Path):
@@ -389,12 +416,57 @@ def plural_classes(values: np.ndarray, inner: np.ndarray) -> np.ndarray:
     return (np.digitize(values, inner) + 1).astype("float64")
 
 
+def built_local_setup(cfg: dict, zones: np.ndarray, ids) -> dict | None:
+    """What built_local needs besides the cutout (None if the config has no built_local): the window size, the year's
+    zone grid + used zone ids and the water-mask mode, so the strips can rebuild the study mask over their halo rows."""
+    if not cfg.get("built_local"):
+        return None
+    return {"window": cfg["built_local"]["window"], "zones": zones, "ids": np.asarray(ids),
+            "water_mask": cfg.get("water_mask")}
+
+
+def box_sum(a: np.ndarray, h: int) -> np.ndarray:
+    """Exact sum of the integer array a over the (2h + 1) x (2h + 1) window around each cell (cells outside a = 0),
+    by a summed-area table."""
+    p = np.pad(a.astype(np.int64), h)
+    c = np.zeros((p.shape[0] + 1, p.shape[1] + 1), np.int64)
+    c[1:, 1:] = p.cumsum(0).cumsum(1)
+    k = 2 * h + 1
+    H, W = a.shape
+    return c[k:k + H, k:k + W] - c[:H, k:k + W] - c[k:k + H, :W] + c[:H, :W]
+
+
+def built_local_rows(cutout: Path, year: int, grid: dict, spec: dict, rows: slice | None = None) -> np.ndarray:
+    """built_local of every cell of the window or of the row strip `rows` (built-cell aggregation test): among the
+    study cells in the k x k window around the cell, the share with BUI > 0. Study cell = a cell of a used county that
+    the water mask keeps (water_frac == 1 and BUI == 0 = masked; as county_features.py). Cells outside the study cells
+    (sea, outside the US, masked water, unused counties) count neither as built nor in the denominator; study cells of
+    the neighbouring county count. A strip is read with (k - 1) / 2 halo rows each side, so strips = whole window.
+    Cells with no study cell in their window (only non-study cells themselves) get 0."""
+    h = spec["window"] // 2
+    H = grid["shape"][0]
+    r0, r1 = (0, H) if rows is None else (max(rows.start - h, 0), min(rows.stop + h, H))
+    hal = slice(r0, r1)
+    study = used_mask(spec["zones"][hal], spec["ids"])
+    bui, bad, _ = read_layer_full(cutout, "BUI", year, grid, hal)
+    built = (bui > 0) & ~bad
+    if spec["water_mask"]:
+        yearly = str(spec["water_mask"]).lower() == "yearly"
+        wf, wbad, _ = read_layer_full(cutout, WATER_LAYER, year if yearly else None, grid, hal)
+        study &= ~((wf >= 1) & ~wbad & ~built)
+    num, den = box_sum(study & built, h), box_sum(study, h)
+    out = np.divide(num, den, out=np.zeros(num.shape), where=den > 0)
+    keep = slice(0, r1 - r0) if rows is None else slice(rows.start - r0, rows.stop - r0)
+    return out[keep]
+
+
 def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, rows: slice | None = None,
-                  full: dict | None = None, plural: dict | None = None) -> pd.DataFrame:
+                  full: dict | None = None, plural: dict | None = None, blocal: dict | None = None) -> pd.DataFrame:
     """Cell features (docs/dasymetric_v1.md, v2) for the masked cells, columns in `names` order. With `rows`,
     only that strip of the window is read (mask has the strip's shape). dist_built needs the whole window: it is
     computed once and kept in `full` (one dict per year, shared by its strips). elev / slope are read per strip
-    (slope with one halo row each side, `terrain`). plural = the year's plural_setup() (needed for feature plural)."""
+    (slope with one halo row each side, `terrain`). plural = the year's plural_setup() (needed for feature plural);
+    blocal = built_local_setup() (needed for feature built_local)."""
     cache = {}
     full = {} if full is None else full
 
@@ -439,6 +511,10 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, 
                 sys.exit("ERROR: feature plural without plural_setup() (the config's plural: block)")
             v = layer(plural["layer"])
             out[f] = v if plural["inner"] is None else plural_classes(v, plural["inner"])
+        elif f == "built_local":  # local built share of the study cells around the cell (k x k)
+            if blocal is None:
+                sys.exit("ERROR: feature built_local without built_local_setup() (the config's aggregation block)")
+            out[f] = built_local_rows(cutout, year, grid, blocal, rows)[mask]
         elif f == "year":
             out[f] = np.full(int(mask.sum()), float(year))
     return pd.DataFrame(out, columns=list(names))

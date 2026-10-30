@@ -1,0 +1,74 @@
+# Dasy_CONUS_RF_v3_u070_bc3 (built-cell aggregation test; request 2026-10-31, docs/handoff/builtcell_aggregation_request.md;
+# docs/conus_plan.md "Built-cell aggregation test"): v5.6 (= Dasy_CONUS_RF_v3_u070: same split, folds, excluded counties,
+# statuses, water mask, strips, search space and 60 candidates) with the county features split into two parts:
+#   - bui, bldg_size, mu_ratio, res_share, rent_share: county value = mean over the built cells (BUI > 0) only (0 for a
+#     county without one); cell value unchanged
+#   - built_local (new): cell value = share of built cells among the study cells (used counties, water mask kept) in the
+#     3 x 3 window around the cell; county value = mean of the cell values
+#   - dist_built, elev, slope: mean over all unmasked cells, as before
+# Years 1960 / 2010; compare_with v5.6 (its eras of the same years). The window k (3 / 5 / 9) is chosen by county CV
+# RMSE (src/validation/builtcell_compare.py, rule fixed before the results).
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_u070_bc3/
+version: Dasy_CONUS_RF_v3_u070_bc3
+
+study_area: configs/conus_study_area.yaml
+years: [1960, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3_u070
+
+split: configs/conus_split.csv
+exclude_counties: results/hisdac_uncertainty/excluded_counties_t070.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+aggregation:
+  bui: built_mean
+  bldg_size: built_mean
+  mu_ratio: built_mean
+  res_share: built_mean
+  rent_share: built_mean
+  built_local: {window: 3}
+
+eras:
+  Y1960:
+    years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, built_local]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, built_local]
+
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Built local: [built_local]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+
+maps:
+  years: [2010]
+  compare_years: [2010]   # side by side with v5.6
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 60   # as v5.6
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:        # sklearn.ensemble.RandomForestRegressor
+    fixed: {random_state: 42}
+    space:
+      n_estimators: {dist: randint, low: 200, high: 1000}
+      max_depth: [null, 5, 10, 15, 20, 30]
+      min_samples_leaf: {dist: randint, low: 1, high: 10}
+      max_features: [sqrt, 0.33, 0.5, 0.75, 1.0]

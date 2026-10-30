@@ -111,7 +111,7 @@ def tract_rows(args, year: int, versions: dict, excl: set) -> list[dict]:
 
 # ---------------------------------------------------------------- county level
 
-def county_rows(args, year: int, versions: dict) -> list[dict]:
+def county_rows(args, year: int, versions: dict, rank_features=("plural",)) -> list[dict]:
     root = args.results_root / "dasymetric" / args.name
     rows, test_sets = [], {}
     for var, v in versions.items():
@@ -134,7 +134,7 @@ def county_rows(args, year: int, versions: dict) -> list[dict]:
              "mape_n": int((obs >= args.mape_min).sum()), "cv_rmse": met.get("cv_rmse_mean"),
              "cv_r2": met.get("cv_r2_mean"), "test_rmse": met.get("test_rmse"), "test_r2": met.get("test_r2")}
         if var != "base":
-            r.update(rank_row(d, ["plural"]))
+            r.update(rank_row(d, list(rank_features)))
         rows.append(r)
     if "base" in test_sets:
         for var, s in test_sets.items():
@@ -154,7 +154,11 @@ def best_classed(cmp: pd.DataFrame, variants, years) -> str | None:
     return None if means.empty else str(means.idxmin())
 
 
-def plot(cmp: pd.DataFrame, variants, years, path: Path):
+PLOT_TITLE = ("v5.6 + PLURAL grid: continuous (plc bilinear, plcc cubic) and classes (q = quantile, e = equal breaks; "
+              "3 / 5)")
+
+
+def plot(cmp: pd.DataFrame, variants, years, path: Path, title: str = PLOT_TITLE):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dasymetric"))
     import plots  # noqa: E402  (palette + style of the pipeline figures)
     plt = plots.plt
@@ -185,8 +189,7 @@ def plot(cmp: pd.DataFrame, variants, years, path: Path):
         ax.grid(axis="y", color=plots.GRID, lw=0.6)
         plots._style(ax)
     axes[0][0].set_ylabel("tract MdAPE, all tracts (%)", fontsize=9, color=plots.INK2)
-    fig.suptitle("v5.6 + PLURAL grid: continuous (plc bilinear, plcc cubic) and classes (q = quantile, e = equal "
-                 "breaks; 3 / 5)", fontsize=9, color=plots.INK2)
+    fig.suptitle(title, fontsize=9, color=plots.INK2)
     plots._save(fig, path)
 
 

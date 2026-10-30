@@ -26,6 +26,8 @@ BUI gap counties (CONUS model comparison, docs/conus_plan.md "Model family"): a 
 person, county mean bui x (n_cells - n_masked) / pop from the version's <era>/features/county_features.csv, is below
 --gap-share (CONUS: 0.05) x that year's median over the counties is a likely gap in the source records; parts `no_gap` (all
 evaluated tracts outside them) and `gap` (inside) are added, and a `gap` column in tract_errors_{YEAR}.csv.
+--gap-version takes the gap counties from another version's county_features.csv (built-cell aggregation test: there
+bui is a built-cell mean, not the floor area per cell, so the variants use v5.6's gap counties).
 """
 from __future__ import annotations
 
@@ -79,6 +81,8 @@ def parse_args(argv=None):
     p.add_argument("--gap-share", type=float, default=0.0,
                    help="BUI gap county: floor area per person below this share of the year's median, e.g. 0.05 "
                         "(CONUS; parts no_gap / gap; default 0 = off; needs county_features.csv with bui)")
+    p.add_argument("--gap-version", help="take the gap counties from this version's county features (default: "
+                                         "--version; bui must be the all-cell mean there)")
     return p.parse_args(argv)
 
 
@@ -228,7 +232,8 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
         t["zone_gisjoin"] = zone_gj
         t["part"] = t["zone_gisjoin"].map(args.split_parts)
         cols = TRACT_COLS + SPLIT_COLS
-    gaps, gap_info = gap_counties(pred_dir, year, args.gap_share)
+    gaps, gap_info = gap_counties(pred_dir if not args.gap_version else args.dasym_root / args.name / args.gap_version,
+                                  year, args.gap_share)
     if gaps is not None:
         t["gap"] = zone_gj.isin(gaps) & (t["flag"] == "ok")
         cols = cols + ["gap"]

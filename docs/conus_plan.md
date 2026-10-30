@@ -884,6 +884,28 @@ v5.6, 1960 / 2010, no training. Files: `results/aggregation/conus/`. Ranges = mi
   same quantity as a built-cell mean) and a local built share (share of built cells in a small window, e.g. 5 x 5 =
   1.25 km) in place of the county built share. 1960 / 2010 first, against v5.6 on the same tracts.
 
+## Built-cell aggregation test (request 2026-10-31, `docs/handoff/builtcell_aggregation_request.md`; run steps `docs/runbooks/Running_CONUS.md`, section 16)
+
+From the diagnosis above: the county means of bui / bldg_size / mu_ratio / res_share / rent_share are mostly the built
+share (Spearman 0.86-0.95) and mean something else than the cell value (county 1,000, cell 10,000). This variant splits
+the two parts: built-cell means for those features + a new feature built_local. Definitions agreed with the user;
+every feature keeps "county value = mean of a cell value" where the rule allows it.
+
+| Topic | Decision |
+|---|---|
+| built_local (new) | cell value = share of built cells (BUI > 0) among the study cells in the k x k window around the cell; study cell = the cells county_features uses that year (used counties, yearly water mask). Cells outside them (sea, outside the US, masked water, unused counties) count neither in the numerator nor the denominator; study cells of the neighbouring county count. County value = mean of the cell values over the county's study cells (not built cells / cells). Exact counts by a summed-area table (`common.box_sum`); strips read (k - 1) / 2 halo rows each side (strips = whole window); the same function in county_features, predict and aggregation_diag. A cell with no study cell in its window (only possible for a masked cell itself) gets 0 |
+| bui, bldg_size, mu_ratio, res_share, rent_share | cell value unchanged; county value = mean over the built cells (BUI > 0) only; a county without a built cell gets 0 (kept in training; the count is logged per year) |
+| dist_built, elev, slope | unchanged (mean over all unmasked cells) |
+| Empty cells (BUI = 0) | not changed (left to the model); the share of people allocated to them is reported next to v5.6 |
+| Config | `aggregation:` block of the model config, `{<feature>: mean | built_mean, built_local: {window: k}}` (k odd >= 3; `common.check_aggregation`); without it every feature is the all-cell mean and the outputs are byte for byte as before (tested). Feature group `Built local` |
+| Versions | `Dasy_CONUS_RF_v3_u070_bc3` / `_bc5` / `_bc9` (`configs/conus_rf_v3_u070_bc{3,5,9}.yaml`): v5.6's features (same names) + built_local, 1960 / 2010; split, folds, t = 0.7 exclusions, statuses, water mask, search space, 60 candidates as v5.6; `compare_with` v5.6 |
+| Window choice (fixed 2026-10-31, before the results) | the k with the lowest mean county CV RMSE over 1960 + 2010; any k within 0.005 of it -> the smallest such k. Tracts are not used for the choice (all three are in the table). `builtcell_choice.txt`, `RULE RESULT` line in the log |
+| Gap counties | the tract gap parts use v5.6's gap counties (`tract_validate.py --gap-version`): the floor area per person is computed from the all-cell mean of bui, which the variants no longer have |
+| Evaluation | `src/validation/builtcell_compare.py` (reuses `plural_compare.py`'s tract / county rows and figure): tract MdAPE / MAPE (>= 10 people) for all, kept / excluded t070, gap / no_gap, the four density classes, areal weighting (same tracts); county CV RMSE / R2, TEST MdAPE (before allocation) / R2 on the same TEST counties (checked); built_local rank by permutation / SHAP + all ranks (`builtcell_feature_ranks.csv`); from `aggregation_diag.py` run per version (v5.6 again, so the new `pop_share_of_total` column exists): people on empty cells (`pop_on_empty`), people on built cells outside the min-max range of each feature's training county values (`built_oor_<f>`) and inside on every feature (`built_inside_all`); county maps 2010 of Chelan WA, Reno KS, Fremont CO, Macoupin IL, v5.6 vs the chosen k |
+| Outputs | `results/validation/conus/builtcell/`: `builtcell_comparison.csv`, `builtcell_comparison.png`, `builtcell_feature_ranks.csv`, `builtcell_choice.txt`, `county_maps/`, `diag/{base,bc3,bc5,bc9}/` (aggregation_diag files) |
+| Run | `bash sbatch/submit_conus.sh builtcell`: pre-check; aggregation_diag of v5.6; per k features -> train -> predict -> validate + aggregation_diag (three chains side by side) -> `builtcell_compare.sh` |
+| Tests | `tests/test_builtcell.py` (built_local by hand: corner, edge, other / unused county, outside, masked water, water with BUI; strips = whole window; default aggregation byte for byte; county built_local = mean of cell values and built-cell means by hand; train + predict mass preserved; aggregation_diag on the variant; compare rows + rule) |
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is

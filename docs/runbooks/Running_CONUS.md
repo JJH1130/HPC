@@ -1398,6 +1398,84 @@ What to look for in the log: `recomputed means = county_features.csv` (both year
 the kept cells vs census: max rel. diff`, the median = 0 lines per feature, the tables `outside the training range`,
 `every feature inside the range`, `Spearman with y`, `Spearman among ...`, `county tract MdAPE vs aggregates`.
 
+## 16. Built-cell aggregation test: bc3 / bc5 / bc9, 1960 / 2010 (2026-10-31)
+
+v5.6 with built-cell county means of bui / bldg_size / mu_ratio / res_share / rent_share and the new feature
+built_local (k x k window, k = 3 / 5 / 9), against v5.6 on the same tracts and counties (`docs/conus_plan.md`,
+"Built-cell aggregation test"). Needs v5.6's 1960 / 2010 outputs on scratch (sections 12 / 14) and the CONUS cutout.
+Submitted once; every job waits for the ones it needs.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| aggregation_diag v5.6 | 8 cores, 1:30 | v5.6's cells again (people on empty cells) -> `builtcell/diag/base/` | ~20 min |
+| features (x 3) | 6 cores, 45 min | 1960 / 2010 with built_local | ~5 min |
+| train (x 3) | 16 cores, 2 h | 2 eras, 60 candidates, comparison with v5.6 | ~15 min |
+| predict (x 3) | 32 cores, 1 h | allocation 1960 / 2010 | ~10 min |
+| validate (x 3) | 8 cores, 1 h | tracts 1960 / 2010 (gap counties from v5.6) | ~5 min |
+| aggregation_diag (x 3) | 8 cores, 1:30 | the variant's cells -> `builtcell/diag/bc<k>/` | ~20 min |
+| builtcell_compare | 4 cores, 45 min | table, figure, ranks, window rule, county maps 2010 | ~3 min |
+
+17 jobs; ~1.5 h after the first ones start (estimates). Override: `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`,
+`VALIDATE_TIME`, `AGG_TIME`, `AGG_TASKS`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh builtcell
+squeue -u $USER
+echo "== end of block 1"
+```
+
+Good: `PRECHECK: 0 missing (...)`, one line `v5.6 aggregation_diag N | bc3 features N train N ... | builtcell_compare N`
+(also in `logs/conus_builtcell_jobs.txt`), 17 jobs in `squeue`, `== end of block 1`. `MISSING ...` + `ERROR: nothing
+submitted`: send the output to Claude.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_builtcell_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+grep -h "built-cell means of" $(ls -t logs/dasymetric_features.*.out | head -3) 2>/dev/null | tail -6
+echo "== end of block 2"
+```
+
+Good: states `PENDING` / `RUNNING` / `COMPLETED`; once the features jobs ran, `built-cell means of [...]; N counties
+without a built cell` per year and variant; `== end of block 2`. A `FAILED` job: the jobs after it stay `PENDING
+(DependencyNeverSatisfied)`; `scancel` them and send the log.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_builtcell_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_builtcell_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_builtcell_seff.txt
+cat logs/conus_builtcell_sacct.txt
+grep -h "RULE RESULT" $(ls -t logs/builtcell_compare.*.out | head -1)
+ls results/validation/conus/builtcell/ results/validation/conus/builtcell/diag/
+git add logs/ results/
+git commit -m "run: built-cell aggregation test bc3 / bc5 / bc9, 1960 / 2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3"
+```
+
+Good: every job `COMPLETED`, one `RULE RESULT: k = ...` line, `builtcell_comparison.csv` / `.png`,
+`builtcell_feature_ranks.csv`, `builtcell_choice.txt`, `county_maps` and `diag/` with `base bc3 bc5 bc9` listed, `git
+push` ends with `main -> main`, `== end of block 3`. Failed jobs: commit anyway (same block) and tell Claude.
+
+What to look for in the logs: `dasymetric_features` (`built-cell means of ...; N counties without a built cell`),
+`dasymetric_train` (CV vs v5.6 per era, built_local in the importance lines), `dasymetric_predict` (mass check),
+`aggregation_diag` (`recomputed means = county_features.csv`, `allocated people on empty cells`), `builtcell_compare`
+(tables, `RULE RESULT`).
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1434,6 +1512,9 @@ the kept cells vs census: max rel. diff`, the median = 0 lines per feature, the 
 | v56all: a job failed overnight | the later ones stay `PENDING (DependencyNeverSatisfied)`: `scancel` them, send the log. Reruns are safe: `--years` touches only the 7 new years; validation and the summaries are deterministic |
 | aggdiag: `recomputed county means differ from .../county_features.csv` | the cells differ from the features job (cutout, water mask or code changed since): the job stops; send the log |
 | aggdiag: `missing inputs` / `MISSING .../predictions/pop_<YEAR>.tif` | v5.6's scratch outputs were purged (90 days) or never made: send the list (rerunning v5.6 predict for those years is a separate request) |
+| builtcell: features `feature built_local needs ...` / `aggregation needs ...` | the config on the cluster is old or edited: `git pull`; send the log |
+| builtcell: a job failed | the later ones of that variant (and `builtcell_compare`) stay `PENDING (DependencyNeverSatisfied)`: `scancel` them, send the log. A rerun of one variant's chain is safe (its own outputs only) |
+| builtcell: `builtcell_compare` stops with `TEST counties differ` | a variant ran with another split or exclusion set: send the log |
 | aggdiag: `OUT_OF_MEMORY` | resubmit with more cores: `AGG_TASKS=16 bash sbatch/submit_conus.sh aggdiag`; send `seff` |
 | v56all: `v5.6 OLD YEARS` not 0 | commit anyway and tell Claude: something changed an old year's file (the run only adds 7 years) |
 | uncertainty: log ends `DONE (NobuiltYear value distribution only)` | not a failure: NobuiltYear is a 0/1 flag and contemp is missing, so no ratio exists; commit as block 3 and tell Claude (the next step waits for contemp from Stefan) |

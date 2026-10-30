@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -102,6 +102,12 @@ Last updated: 2026-10-30 (county feature aggregation diagnosis written as code, 
 
 ### Meeting with Stefan, 2026-10-28 (to do; details to be settled)
 
+- **Status (2026-10-31, item 5 follow-up, request `docs/handoff/builtcell_aggregation_request.md`):** built-cell
+  aggregation test written as code, not run (`docs/conus_plan.md` "Built-cell aggregation test", runbook section 16,
+  `bash sbatch/submit_conus.sh builtcell`): `Dasy_CONUS_RF_v3_u070_bc3 / bc5 / bc9` = v5.6 with built-cell county means
+  of bui / bldg_size / mu_ratio / res_share / rent_share + built_local (k x k local built share), 1960 / 2010. Window k
+  by county CV RMSE (rule fixed before the results); tracts reported for all three. **Open (user):** keep or drop from
+  the results.
 - **Status (2026-10-30, item 5, request `docs/handoff/aggregation_diagnosis_request.md`):** diagnosis written as code,
   not run (`docs/conus_plan.md` "County feature aggregation: diagnosis", `docs/runbooks/Running_CONUS.md` section 15,
   `bash sbatch/submit_conus.sh aggdiag`): v5.6 1960 / 2010, cells outside the training county range (cells and
@@ -455,6 +461,7 @@ Last updated: 2026-10-30 (county feature aggregation diagnosis written as code, 
 | 2026-10-27 | CONUS v3 (+ elev, slope) best on tracts (2010 MdAPE 29.2 vs 29.8 %, every density class) and becomes the CONUS base; v4 (+ distances + terrain) ~ v2: distances dropped. BUI unit = sq ft (README); cells > 3e7 sq ft are record errors (10 / 119 / 298 cells in 1920 / 1960 / 2010), treatment to decide. |
 | 2026-10-27 | BUI outliers: cells with BUI > 3e7 sq ft are replaced by their 3 x 3 neighbour median in the CONUS cutout (every year; BUPL/BUPR/Land_Use unchanged; raw files untouched; logged + QA CSV). Then v3 is rerun for 1920/1960/2010 as the CONUS base before the full 1900-2010 run. |
 | 2026-10-27 | Hyperparameters: county CV only (tracts never in the search). Model family chosen before the all-years run: RF / LightGBM / XGBoost / CatBoost on v3_bui features, 1920 / 1960 / 2010, picked by tract validation + county TEST R2. Gap counties (BUI per person < 5 % of the median): 533 / 479 / 416 in 1920 / 1960 / 2010; kept, flagged, validation reported with and without. |
+| 2026-10-31 | Built-cell aggregation test (with the user): county value of bui / bldg_size / mu_ratio / res_share / rent_share = mean over built cells (0 without one), cell value unchanged; new feature built_local = share of built cells among the study cells in a k x k window (cells outside the study mask left out of both counts, neighbouring counties' study cells counted), county value = mean of the cell values; dist_built / elev / slope unchanged; empty cells not changed. k = 3 / 5 / 9, chosen by the lowest mean county CV RMSE over 1960 + 2010 (within 0.005 the smaller k), not by tracts. Gap parts from v5.6's gap counties. |
 | 2026-10-30 | Order (with the user): PLURAL 900 m grid test first (v5.6 + plural, 1940 / 1980 / 2010; continuous bilinear / cubic, classes 3 / 5 by quantile / equal interval); if useful, build PLURAL for 1900-2020 and then run all years; else v5.6 all years. Questions to Stefan (BUPR_contemp, NobuiltYear even values) not needed for now. Request `docs/handoff/plural_grid_request.md`. |
 | 2026-10-30 | Uncertainty filter: **t = 0.7 chosen** (with the user). The pre-set rule was ill-posed: criterion (b) scores county totals before allocation, which the census replaces, so it says nothing about the product; the allocation is judged on tracts. Choosing among 4 candidates on tract validation is stated openly and all thresholds are reported as a sensitivity. 0.7 ~ 0.5 on tracts (2010 23.8 vs 23.7 %) and keeps more counties (pop 91 vs 80 %). Next: u070 for all years 1900-2020. |
 | 2026-10-30 | Uncertainty filter result (all jobs COMPLETED): t = 0.9 / 0.7 / 0.5 exclude 538 / 1,020 / 1,776 counties (pop kept 2010: 94 / 91 / 80 %). Rule (fixed beforehand) picks v5.4 (no filter): common TEST counties improve slightly with filters (2010 23.8 -> 21.9 %), but county totals of the excluded counties are predicted much worse (2010 51 -> 89-94 %). Tract MdAPE improves with filters: 2010 all 26.6 -> 23.7 (0.5) / 23.8 (0.7) / 26.1 (0.9); 1960 37.9 -> 34.9 / 36.0 / 37.8; even tracts of excluded counties 41.8 -> 33 %. Gap-county tracts slightly worse (72 -> 75-78 %). Note: criterion (b) measures county totals before allocation, which the census fixes anyway; the allocation inside counties is what the tracts show. Decision pending with the user. |

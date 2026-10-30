@@ -40,9 +40,9 @@ from affine import Affine
 
 import plots
 from models import set_threads
-from common import (NODATA_OUT, add_common_args, cell_features, county_selection, dist_built, era_of, load_config,
-                    log, log_args, out_dir, plural_setup, read_zones, setup_logging, strips, used_mask, water_mask,
-                    write_tif)
+from common import (NODATA_OUT, add_common_args, built_local_setup, cell_features, county_selection, dist_built,
+                    era_of, load_config, log, log_args, out_dir, plural_setup, read_zones, setup_logging, strips,
+                    used_mask, water_mask, write_tif)
 
 MASS_TOL = 1e-6
 BREAK_TOL = 1e-9  # plural class breaks: recomputed here = the ones county_features.py wrote
@@ -94,6 +94,7 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
     full = {}  # whole-window features (dist_built), computed once for the year
     plural = plural_setup(cutout, year, grid, zones, ids, cfg["plural"] if "plural" in bundle["features"] else None,
                           cfg.get("block_rows"))
+    blocal = built_local_setup(cfg, zones, ids) if "built_local" in bundle["features"] else None
     if plural and plural["inner"] is not None:
         check_breaks(plural, out / (bundle.get("era") or "") / "features" / "plural_breaks.csv", year)
     if not whole and "dist_built" in bundle["features"]:  # timed on its own (whole-window distance transform)
@@ -111,7 +112,7 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
             W.append(np.zeros(0)), Z.append(np.zeros(0, zones.dtype)), M.append(np.zeros(0, bool))
             continue
         t1 = time.perf_counter()
-        X = cell_features(cutout, year, grid, mask, bundle["features"], None if whole else rws, full, plural)
+        X = cell_features(cutout, year, grid, mask, bundle["features"], None if whole else rws, full, plural, blocal)
         t2 = time.perf_counter()
         y_hat = bundle["model"].predict(X)
         del X

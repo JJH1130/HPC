@@ -70,7 +70,13 @@ year's study cells -> `<era>/features/plural_breaks.csv`, checked again by `pred
 1960 / 2010 as `county_features.py` does (mean must equal `county_features.csv`, else stop) + its `pop_{YEAR}.tif` ->
 cells / allocated people outside the training county range per feature, built-cell mean / median, all-cell median,
 built share, top 10 % BUI share, Gini, Spearman, tract MdAPE per county (>= 5 tracts) by concentration ->
-`results/aggregation/conus/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+`results/aggregation/conus/`. Built-cell aggregation test (`docs/conus_plan.md` "Built-cell aggregation test", runbook
+section 16): model-config block `aggregation: {<feature>: mean | built_mean, built_local: {window: k}}` (default = all-cell
+mean, outputs unchanged; `common.check_aggregation`), feature `built_local` (share of built cells among the study cells
+in a k x k window, `common.built_local_rows`, halo rows per strip), configs `conus_rf_v3_u070_bc{3,5,9}.yaml` (v5.6 +
+built_local + built-cell means, 1960 / 2010), `tract_validate.py --gap-version` (gap counties of another version),
+`src/validation/builtcell_compare.py` (`sbatch/builtcell_compare.sh`; window k by county CV RMSE, + county maps) ->
+`results/validation/conus/builtcell/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -108,7 +114,7 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
 `filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
 2020 added to `Dasy_CONUS_RF_v3_all` as era Y2020 with `--years 2020`, after `sbatch/y2020_precheck.sh`; with `--years`,
 `county_features` / `train` / `predict` keep the other years' rows of `water_mask_by_year.csv` / `cv_summary.csv` /
@@ -144,7 +150,9 @@ cubic clip, plural_qa deficit, breaks / classes / strips, predict breaks check, 
 era byte for byte, plural_compare by hand + figure; `test_v56all`: kept / excluded t070 MdAPE by hand on a copy of the
 tracked v5.6 / v5.4 results, `--compare-with`), `python tests/test_aggregation_diag.py` (synthetic cutout through features / train / predict:
 aggregates, out-of-range shares, quantiles, Spearman, tract table = brute force; strips = whole window; a changed
-`county_features.csv` or a missing prediction stops it), `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
+`county_features.csv` or a missing prediction stops it), `python tests/test_builtcell.py` (built_local by hand,
+strips = whole window, default aggregation byte for byte, built-cell means, predict mass preserved, compare + window rule),
+`python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
 When more code is added, update this file with:

@@ -31,6 +31,7 @@ in a temporary folder, a split table with make_split.py, and checks:
 """
 from __future__ import annotations
 
+import io
 import json
 import shutil
 import sys
@@ -353,7 +354,11 @@ def test_pipeline():
         predict.main(["--config", str(cfgs["blocks"]), "--cutout-root", str(tmp / "cutouts"), "--years",
                       str(YEARS[-1])] + common)
         for f in files:  # deterministic reruns: the whole file is the same again (old rows kept, new rows equal)
-            assert f.read_text() == before[f], f
+            if f.name == "cv_summary.csv":  # train_seconds is wall time (0.1 s): every other column byte for byte
+                a, b = (pd.read_csv(io.StringIO(x), dtype=str).drop(columns="train_seconds") for x in (f.read_text(), before[f]))
+                pd.testing.assert_frame_equal(a, b)
+            else:
+                assert f.read_text() == before[f], f
         print("ok --years: water_mask_by_year / cv_summary / reallocation_qa keep the other years' rows unchanged")
 
         # 4. tract validation with the split

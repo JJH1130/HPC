@@ -19,6 +19,11 @@ unmasked cell. Features are raw values; nothing is rescaled by water.
 
 CONUS (docs/conus_plan.md): the window is read in strips of `block_rows` rows; `unusable: skip` drops counties
 with no unmasked cell instead of stopping; the rows hold train AND test counties (train.py splits them).
+
+`aggregation:` (built-cell aggregation test, docs/conus_plan.md "Built-cell aggregation test"): a feature with
+built_mean is the mean over the county's unmasked cells with BUI > 0 instead (0 for a county without one, counted in
+the log); built_local is a cell feature (common.built_local_rows) averaged like every other. Without the block the
+output is the same as before.
 """
 from __future__ import annotations
 
@@ -29,9 +34,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common import (CELL_KM, add_common_args, cell_features, county_selection, era_of, load_config, log,
-                    log_args, out_dir, plural_setup, read_zones, setup_logging, strips, used_mask, water_mask,
-                    year_filter)
+from common import (CELL_KM, add_common_args, built_local_setup, cell_features, county_selection, era_of,
+                    load_config, log, log_args, out_dir, plural_setup, read_layer, read_zones, setup_logging, strips,
+                    used_mask, water_mask, year_filter)
 
 
 def parse_args(argv=None):
@@ -54,16 +59,20 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
     n = np.zeros(nz, dtype=np.int64)  # unmasked cells per zone
     n_masked = np.zeros(nz, dtype=np.int64)
     sums = {f: np.zeros(nz) for f in features}
+    bmean = [f for f in features if cfg.get("aggregation", {}).get(f) == "built_mean"]
+    n_built = np.zeros(nz, dtype=np.int64)  # unmasked cells with BUI > 0 (built_mean features only)
     n_study = n_water_built = 0
     full = {}  # whole-window features (dist_built), computed once for the year
     plural = plural_setup(cutout, year, grid, zones, ids, cfg["plural"] if "plural" in features else None,
                           cfg.get("block_rows"))
+    blocal = built_local_setup(cfg, zones, ids) if "built_local" in features else None
     parts = strips(zones.shape, cfg.get("block_rows"))
     for k, rws in enumerate(parts):
         mask = used_mask(zones[rws], ids)
         if not mask.any():
             continue
-        feats = cell_features(cutout, year, grid, mask, features, None if len(parts) == 1 else rws, full, plural)
+        feats = cell_features(cutout, year, grid, mask, features, None if len(parts) == 1 else rws, full, plural,
+                              blocal)
         z = zones[rws][mask]
         keep = np.ones(len(z), bool)
         if cfg.get("water_mask"):
@@ -74,8 +83,13 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
             n_water_built += nwb
         n_study += len(z)
         n += np.bincount(z[keep], minlength=nz)
+        sel = keep
+        if bmean:  # built_mean features are summed over the built cells only
+            sel = keep & (read_layer(cutout, "BUI", year, grid, mask, None if len(parts) == 1 else rws) > 0)
+            n_built += np.bincount(z[sel], minlength=nz)
         for f in features:
-            sums[f] += np.bincount(z[keep], weights=feats[f].to_numpy()[keep], minlength=nz)
+            w = sel if f in bmean else keep
+            sums[f] += np.bincount(z[w], weights=feats[f].to_numpy()[w], minlength=nz)
         if len(parts) > 1 and ((k + 1) % 5 == 0 or k + 1 == len(parts)):
             log.info("    %d: strip %d/%d (rows %d-%d)", year, k + 1, len(parts), rws.start, rws.stop)
     rows = used[["zone_id", "GISJOIN", "state", "name", "status", "n_cells"]].copy()
@@ -97,7 +111,14 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
     elif empty.any():
         sys.exit(f"ERROR: {year}: counties with no unmasked cell:\n{rows[empty].to_string()}")
     for f in features:
-        rows[f] = sums[f][zid] / n[zid]
+        if f in bmean:
+            rows[f] = np.divide(sums[f][zid], n_built[zid], out=np.zeros(len(zid)), where=n_built[zid] > 0)
+        else:
+            rows[f] = sums[f][zid] / n[zid]
+    if bmean:
+        nob = n_built[zid] == 0
+        log.info("  %d: built-cell means of %s; %d counties without a built cell (value 0, kept): %s", year, bmean,
+                 int(nob.sum()), rows.loc[nob, "GISJOIN"].tolist()[:30])
     rows["pop"] = used["pop"].to_numpy()
     if cfg.get("water_mask"):
         rows.insert(rows.columns.get_loc("n_masked") + 1, "area_km2_polygon", used["area_km2"].to_numpy())
