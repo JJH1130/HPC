@@ -1013,7 +1013,11 @@ Tract MdAPE / MAPE (>= 10 people), %, on each product's tracts:
   only 17 of 856 Chicago 1 km blocks are gap blocks (v5.6 / GHS < 0.25, GHS >= 1,000 per km2; GHS 143 k people, v5.6
   18 k), mostly downtown (Loop). There 57 % of cells have BUI > 0 (dense non-gap blocks 91 %) and 39 % have BUI = 0
   but NobuiltYear > 0 (non-gap 6 %): buildings in HISDAC without a built year, missed by the 2010 time-series layers.
-  NobuiltYear > 0 alone (95 % vs 96 %) does not separate them. 2010 1 km Spearman with GHS-POP / WorldPop: Boston
+  NobuiltYear > 0 alone (95 % vs 96 %) does not separate them. Same fixed rule for all cities / years (2026-11-03,
+  `gap_blocks.csv`): gap blocks Boston 6 / 4, Denver 8 / 64, Chicago 17 / 15 (2010 / 1980); share of their cells with
+  undated records only (BUI = 0, NobuiltYear > 0) 24-77 % vs 4-10 % in the other dense blocks, every city and year
+  (Denver 1980: 64 blocks, 77 % vs 10 %, GHS 96 k vs v5.6 8 k people). So the v5.6 << GHS blocks are mainly HISDAC
+  buildings without a built year, not GHS back-casting. 2010 1 km Spearman with GHS-POP / WorldPop: Boston
   0.94 / 0.93, Denver 0.89 / 0.89, Chicago 0.85 / 0.85.
 - Display bug found 2026-11-03 (fixed in `external_city_maps.for_imshow`; the PNGs of this run are not redrawn): the
   LogNorm masked cells with 0 people, so 0-people cells inside our mask were drawn grey like masked cells (water, no
