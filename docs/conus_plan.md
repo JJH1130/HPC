@@ -931,6 +931,8 @@ All 17 jobs COMPLETED. Files: `results/validation/conus/builtcell/`. Same tracts
   the design as open) dominates. Not adopted as is. Options (user decides): (a) allocate only to built cells where a
   county has records (empty cells 0; gap / no-record counties keep v5.6), a predict-time rule, no retraining; (b) keep
   v5.6.
+- **Decision (user, 2026-11-03): keep v5.6.** Item 5 closed for now; NobuiltYear (per-cell undated records) noted for
+  the meeting as the likely next lever (`docs/open_items.md`).
 
 ## BUI outliers (bui_qa, job 34921582)
 

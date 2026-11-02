@@ -10,10 +10,15 @@ Last updated: 2026-10-31 (built-cell aggregation test written as code, not run);
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
-- **Status (2026-11-03, built-cell aggregation test, run):** `docs/conus_plan.md` "Built-cell aggregation test result".
+- **Status (2026-11-03, built-cell aggregation test, closed):** `docs/conus_plan.md` "Built-cell aggregation test result".
   County CV / TEST better (RMSE -0.045, TEST R2 +0.02-0.03), tracts worse (2010 23.8 -> 28.2-28.9 %) because the
-  population on empty cells rises from 5 to 17-22 % (built_local non-zero next to buildings). Not adopted as is.
-  **Open (user):** allocate only to built cells (predict-time rule, gap counties as v5.6) or keep v5.6.
+  population on empty cells rises from 5 to 17-22 % (built_local non-zero next to buildings). **Decision (user,
+  2026-11-03): keep v5.6.** "Allocate only to built cells" not used: HISDAC completeness cannot be judged per cell
+  (records without a built year are measurable via NobuiltYear; buildings missing from ZTRAX are not), and v5.6's small
+  share on empty cells absorbs part of that. **For the meeting slides:** summarise item 5 (diagnosis -> built-cell test ->
+  not adopted, why) and the NobuiltYear point: per-cell count of records without a built year = where buildings of
+  unknown year exist; possible later uses = a cell feature to tell "empty but with undated buildings" cells apart, and
+  a county completeness check against census housing-unit counts (records missing from ZTRAX entirely; not tried).
 
 - **Status (2026-10-31, aggregation diagnosis, run):** `docs/conus_plan.md` "County feature aggregation: diagnosis
   result". Empty cells are all out of range (5-21 % of the population on them); county means of bui / bldg_size /
