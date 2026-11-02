@@ -1,5 +1,5 @@
 JobID                         JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
 ------------ ------------------------ ---------- ---------- ---------- -------- ---------- 
-35200677        external_city_meeting  COMPLETED   00:00:41                   2  00:10.980 
-35200677.ba+                    batch  COMPLETED   00:00:41    380680K        2  00:10.979 
-35200677.ex+                   extern  COMPLETED   00:00:41       288K        2  00:00.001 
+35202962        external_city_meeting  COMPLETED   00:00:42                   2  00:16.075 
+35202962.ba+                    batch  COMPLETED   00:00:42    315620K        2  00:16.074 
+35202962.ex+                   extern  COMPLETED   00:00:42          0        2  00:00.001 
