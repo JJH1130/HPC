@@ -87,7 +87,7 @@ city_maps:
 
 # Meeting figures (src/validation/external_city_meeting.py; docs/handoff/city_maps_meeting_request.md +
 # city_maps_meeting_fix_request.md): the boxes, move to our cells, mask and 1 km blocks of city_maps above; v5.6 next to
-# the year's products (maps + 1 km block scatter plots), no F&J. Gap blocks of the gap city and year: v5.6 / <product> <
+# the year's products (maps + 1 km block scatter plots), no F&J. Gap blocks of every city and year: v5.6 / <product> <
 # ratio_max and <product> >= min_density people per km2 (fixed before the run), checked against HISDAC BUI / NobuiltYear.
 city_meeting:
   years:
@@ -95,4 +95,4 @@ city_meeting:
     1980: [ghs_pop]          # WorldPop starts in 2000
   cities: [boston, denver, chicago]
   labels: {ghs_pop: GHS-POP, worldpop: WorldPop}   # short names on the figures
-  gap: {city: chicago, year: 2010, product: ghs_pop, ratio_max: 0.25, min_density: 1000}
+  gap: {product: ghs_pop, ratio_max: 0.25, min_density: 1000}   # every city and year

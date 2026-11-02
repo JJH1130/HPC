@@ -1,36 +1,40 @@
 """Meeting city maps (2010, 1980): v5.6 next to GHS-POP / WorldPop with 1 km block scatter plots (docs/conus_plan.md
-"Meeting city maps"; requests docs/handoff/city_maps_meeting_request.md, city_maps_meeting_fix_request.md). Message: GHS-POP /
-WorldPop use block-level census input in the US, so a tract check is not a fair contest; what is compared here is
-the spatial pattern (rank agreement, not accuracy). No Fang & Jawitz panel.
+"Meeting city maps"; requests docs/handoff/city_maps_meeting_request.md and city_maps_meeting_fix{,2,3}_request.md).
+Message: GHS-POP / WorldPop use block-level census input in the US, so a tract check is not a fair contest; what is
+compared here is the spatial pattern (rank agreement, not accuracy). No Fang & Jawitz panel.
 
 Reuses src/validation/external_city_maps.py unchanged: the same box (`city_maps` block of
 configs/external_grids.yaml: centre, box_km), the same move of a product to our 250 m cells (population kept), the
 same mask (cells with a v5.6 prediction; grey outside) and the same 1 km blocks (4 x 4 cells, only blocks fully inside
 the mask) as its Spearman. The `city_meeting` block of the same config picks the years (each with its products: 2010
-GHS-POP + WorldPop, 1980 GHS-POP only), cities, short labels and the gap rule (city, year).
+GHS-POP + WorldPop, 1980 GHS-POP only), cities, short labels and the gap rule.
 
-Per city and year, one figure:
-  top row     maps v5.6 | the year's products, people per km2, one log scale, masked cells grey, 0 people white, a
+Per city and year, one figure, all of the same size and layout (FIGSIZE; a product without a grid that year leaves an
+empty, labelled slot):
+  top row     maps v5.6 | GHS-POP | WorldPop, people per km2, one log scale, masked cells grey, 0 people white, a
               10 km scale bar on a white box on every map; same size and spacing (maps and scatter plots are two
               sub-figures)
-  bottom row  1 km block density, x = v5.6, y = product, log axes with 0.01 / 0.1 / 1 / 10 ... ticks (blocks with 0
-              people on a band "0 (n blocks)" below / left of the axes, apart from the lowest tick, vertical on x;
-              no band without them; at most 7 ticks, every k-th decade), 1:1 line, Spearman
-              rho + number of blocks in the title; a text panel with the totals
-Gap city and year (Chicago 2010): 1 km blocks where v5.6 is far below GHS-POP (fixed rule: v5.6 / GHS < ratio_max and GHS >=
-min_density people per km2) are outlined on the maps and coloured in the scatter plots; their HISDAC state goes to
-<gap_city>_gap_blocks.csv, next to the other dense blocks (GHS >= min_density, not gap): blocks, people (GHS-POP,
+  bottom row  1 km block density, x = v5.6, y = product, one fixed square range in every figure (0.01 .. 30,000 per
+              km2 on both axes, ticks 0.01 / 0.1 / 1 / 10 / 100 / 1,000 / 10,000); blocks with 0 people on a band
+              "0 (n)" left / below (same width on x and y, vertical label on x, apart from the 0.01 tick; no band
+              without them); 0 < v < 0.01 on the axis edge as triangles, "< 0.01 (n)" in the legend (> 30,000 the
+              same, if any); 1:1 line, Spearman rho + number of blocks in the title; a text panel with the totals
+Gap blocks, every city and year: 1 km blocks where v5.6 is far below GHS-POP (fixed rule: v5.6 / GHS < ratio_max and GHS
+>= min_density people per km2) are outlined on the maps and coloured in the scatter plots; their HISDAC state goes to
+gap_blocks.csv (city, year, group), next to the other dense blocks (GHS >= min_density, not gap): blocks, people (GHS-POP,
 WorldPop, v5.6), share of their cells with BUI > 0 (the cutout's BUI of the year) and with NobuiltYear > 0 (records
-without a built year; the cutout's NobuiltYear layer if it has one, else HISDAC's FBUY/NobuiltYear.tif read onto the
-box; if neither exists those columns are NA and the log says so). The text panel puts gap and other dense blocks side
-by side (BUI > 0; BUI = 0 but NobuiltYear > 0 = undated records only; no record), from the same rows.
+without a built year, one present-day layer for every year; the cutout's NobuiltYear layer if it has one, else HISDAC's
+FBUY/NobuiltYear.tif read onto the box; if neither exists those columns are NA and the log says so). The text panel
+puts gap and other dense blocks side by side (BUI > 0; BUI = 0 but NobuiltYear > 0 = undated records only; no
+record), from the same rows; "gap blocks: 0" when there are none.
 
 The display may change, the numbers may not: before writing, rho / blocks / box totals are compared with the previous
-meeting_summary.csv in the out dir and the `--compare-with` tables (city maps summary: the 1980 rows), the gap table
-with the previous one; a difference stops the run with nothing written.
+meeting_summary.csv in the out dir and the `--compare-with` tables (city maps summary), the gap table with the
+previous gap_blocks.csv and the older chicago_gap_blocks.csv (Chicago 2010 only; removed once matched); a difference
+stops the run with nothing written.
 
 Outputs (<out-dir>): {city}_{year}.png, meeting_summary.csv (city x panel: rho, blocks, people in the box),
-<gap_city>_gap_blocks.csv. `--check` only lists the inputs (exit 1 if one is missing; NobuiltYear is optional).
+gap_blocks.csv. `--check` only lists the inputs (exit 1 if one is missing; NobuiltYear is optional).
 """
 from __future__ import annotations
 
@@ -52,6 +56,8 @@ import external_city_maps as ecm  # noqa: E402
 from external_compare import load_config, resolve  # noqa: E402
 
 log = logging.getLogger("external_city_meeting")
+GAP_CSV = "gap_blocks.csv"                 # every city and year (city, year, group)
+LEGACY_GAP_CSV = "chicago_gap_blocks.csv"  # Chicago 2010 only (runs of 2026-11-03); compared, then removed
 HEADER = ("Spearman of 1 km block densities (rank agreement, not accuracy); GHS-POP / WorldPop use block-level census "
           "input in the US")
 
@@ -145,38 +151,32 @@ def tick_label(t: float) -> str:
     return f"{t:,.0f}" if t >= 1 else f"{t:g}"
 
 
-MAX_TICKS = 7  # decade ticks per axis (every k-th decade when the axis spans more)
+SC_LO, SC_HI = 0.01, 30_000.0          # scatter range of every figure, people per km2 (both axes)
+SC_TICKS = [0.01, 0.1, 1.0, 10.0, 100.0, 1_000.0, 10_000.0]
+ZERO_BAND = (10 ** -3.55, 10 ** -3.2, 10 ** -2.85)   # band low, centre, high for 0-people blocks (same on x and y)
+SC_LOW_LIMIT = 10 ** -3.75             # axis low limit (below the band)
 
 
-def zero_band(lo: float, hi: float):
-    """(band low, band centre, band high, axis low limit) for the 0-people blocks below lo: the gap to lo grows with
-    the decades the axis spans (at least half a decade), so the band label never touches the lowest tick."""
-    g = max(0.5, (np.log10(hi * 2) - np.log10(lo)) / 7)
-    c = lo / 10 ** (1.25 * g)
-    return c / 10 ** (0.35 * g), c, c * 10 ** (0.35 * g), c / 10 ** (0.6 * g)
+def clamp(v: np.ndarray):
+    """(plotted value, edge flag): 0 -> the zero band centre; 0 < v < SC_LO -> SC_LO and v > SC_HI -> SC_HI (axis
+    edges, flagged); the rest unchanged."""
+    below, above = (v > 0) & (v < SC_LO), v > SC_HI
+    out = np.where(v == 0, ZERO_BAND[1], np.clip(v, SC_LO, SC_HI))
+    return out, below, above
 
 
-def decade_ticks(lo: float, top: float) -> list:
-    """Decade ticks from lo to top, every k-th decade so that there are at most MAX_TICKS (1 kept when in range)."""
-    e = np.arange(np.ceil(np.log10(lo) - 1e-9), np.floor(np.log10(top) + 1e-9) + 1).astype(int)
-    k = max(1, int(np.ceil(len(e) / MAX_TICKS)))
-    keep = e[(e % k) == 0] if k > 1 else e
-    return list(10.0 ** keep)
-
-
-def _log_axis(ax, which: str, lo: float, hi: float, low_limit: float, n0: int):
-    """Log axis from low_limit to hi x 2 with decade ticks; with n0 > 0 blocks of 0 people a band (zero_band)
-    labelled "0 (n0 blocks)" at its centre (vertical on the x axis), without them no band."""
+def _log_axis(ax, which: str, n0: int):
+    """Fixed log axis SC_LOW_LIMIT .. SC_HI, ticks SC_TICKS; with n0 > 0 blocks of 0 people the zero band labelled
+    "0 (n0)" (vertical on the x axis), without them no band."""
     from matplotlib.ticker import NullLocator
     (ax.set_xscale if which == "x" else ax.set_yscale)("log")
-    (ax.set_xlim if which == "x" else ax.set_ylim)(low_limit, hi * 2)
+    (ax.set_xlim if which == "x" else ax.set_ylim)(SC_LOW_LIMIT, SC_HI)
     axis = ax.xaxis if which == "x" else ax.yaxis
-    ticks = decade_ticks(lo, hi * 2)
-    labels = [tick_label(t) for t in ticks]
+    ticks, labels = list(SC_TICKS), [tick_label(t) for t in SC_TICKS]
     if n0:
-        b0, c, b1, _ = zero_band(lo, hi)
-        (ax.axvspan if which == "x" else ax.axhspan)(b0, b1, color=ecm._plots().GRID, lw=0, zorder=0)
-        ticks, labels = [c] + ticks, [f"0 ({n0} block{'s' if n0 > 1 else ''})"] + labels
+        (ax.axvspan if which == "x" else ax.axhspan)(ZERO_BAND[0], ZERO_BAND[2], color=ecm._plots().GRID, lw=0,
+                                                     zorder=0)
+        ticks, labels = [ZERO_BAND[1]] + ticks, [f"0 ({n0})"] + labels
     axis.set_ticks(ticks)
     axis.set_ticklabels(labels)
     axis.set_minor_locator(NullLocator())
@@ -187,29 +187,33 @@ def _log_axis(ax, which: str, lo: float, hi: float, low_limit: float, n0: int):
 
 
 def scatter(ax, x: np.ndarray, y: np.ndarray, gap: np.ndarray | None, title: str, xlab: str, ylab: str):
-    """Block densities, log axes (same range on both), zeros on a band, 1:1 line; gap blocks coloured."""
+    """Block densities on the fixed square range (0.01 .. 30,000 on both axes, same ticks in every figure): zeros on
+    a band, 0 < v < 0.01 (and v > 30,000) on the axis edge as triangles, counted in the legend; 1:1 line; gap blocks
+    orange."""
     plots = ecm._plots()
-    pos = np.concatenate([x[x > 0], y[y > 0]])
-    lo = 10.0 ** np.floor(np.log10(pos.min())) if pos.size else 1.0
-    hi = float(pos.max()) if pos.size else 10.0
-    nx0, ny0 = int((x == 0).sum()), int((y == 0).sum())
-    zc = zero_band(lo, hi)[1]
-    low_limit = zero_band(lo, hi)[3] if nx0 or ny0 else lo / 1.5
-    xs, ys = np.where(x > 0, x, zc), np.where(y > 0, y, zc)
+    xs, xb, xa = clamp(x)
+    ys, yb, ya = clamp(y)
+    edge = xb | yb | xa | ya
     g = np.zeros(len(x), bool) if gap is None else gap
-    ax.scatter(xs[~g], ys[~g], s=8, color=plots.SERIES[0], alpha=0.45, lw=0, label="1 km block")
-    if g.any():
-        ax.scatter(xs[g], ys[g], s=10, color=plots.SERIES[1], alpha=0.85, lw=0, label=f"gap block ({int(g.sum())})")
-    _log_axis(ax, "x", lo, hi, low_limit, nx0)
-    _log_axis(ax, "y", lo, hi, low_limit, ny0)
-    ax.plot([lo, hi * 2], [lo, hi * 2], color=plots.INK2, lw=1, ls="--", label="1:1")
+    for sel, col, a, size, lab in ((~g, plots.SERIES[0], 0.45, 8, "1 km block"),
+                                   (g, plots.SERIES[1], 0.85, 10, f"gap block ({int(g.sum())})")):
+        if sel is g and not g.any():
+            continue
+        ax.scatter(xs[sel & ~edge], ys[sel & ~edge], s=size, color=col, alpha=a, lw=0, label=lab)
+        ax.scatter(xs[sel & edge], ys[sel & edge], s=size + 8, color=col, alpha=a, lw=0, marker="^")
+    for n_edge, sign, v in ((int((xb | yb).sum()), "<", SC_LO), (int((xa | ya).sum()), ">", SC_HI)):
+        if n_edge:  # legend entry only (one grey triangle)
+            ax.plot([], [], ls="none", marker="^", ms=5, color=plots.INK2, label=f"{sign} {tick_label(v)} ({n_edge})")
+    _log_axis(ax, "x", int((x == 0).sum()))
+    _log_axis(ax, "y", int((y == 0).sum()))
+    ax.plot([SC_LO, SC_HI], [SC_LO, SC_HI], color=plots.INK2, lw=1, ls="--", label="1:1")
     ax.set_aspect("equal")
     ax.set_xlabel(xlab, fontsize=8, color=plots.INK2)
     ax.set_ylabel(ylab, fontsize=8, color=plots.INK2)
     ax.set_title(title, fontsize=8.5, color=plots.INK)
     ax.tick_params(labelsize=7, colors=plots.INK2)
-    for s in ax.spines.values():
-        s.set_color(plots.AXIS)
+    for sp in ax.spines.values():
+        sp.set_color(plots.AXIS)
     ax.legend(fontsize=7, frameon=False, loc="upper left")
 
 
@@ -230,11 +234,28 @@ def scale_bar(ax, half: float):
     ax.set_ylim(-half, half)
 
 
+FIGSIZE = (14.0, 10.4)  # every meeting figure: same size, 3 map slots + 2 scatter slots + the text panel
+MARGIN_IN = 0.3         # white margin added on every side when saving (same for every figure)
+SLOTS = 3
+
+
+def placeholder(ax, text: str):
+    """An empty slot (a product without a grid that year), so every figure keeps the same layout."""
+    plots = ecm._plots()
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for sp in ax.spines.values():
+        sp.set_color(plots.GRID)
+    ax.set_aspect("equal")
+    ax.text(0.5, 0.5, text, ha="center", va="center", fontsize=8.5, color=plots.MUTED, transform=ax.transAxes)
+
+
 def draw(path: Path, title: str, maps: list, mask: np.ndarray, box_km: float, block_km: float,
-         gap: np.ndarray | None, full: np.ndarray, scatters: list, text: str):
+         gap: np.ndarray | None, full: np.ndarray, scatters: list, text: str, missing: tuple = ()):
     """maps: [(title, pop on our cells)]; scatters: [(title, x density, y density, ylabel)] over the `full` blocks
-    (row-major); gap: block flags (or None). Maps and scatter plots in two sub-figures, so the maps keep one size and
-    one spacing whatever the scatter labels need."""
+    (row-major); gap: block flags (or None); missing: texts of the empty map / scatter slots. Maps and scatter plots
+    in two sub-figures (the maps keep one size and spacing), always SLOTS map slots and SLOTS - 1 scatter slots in a
+    figure of FIGSIZE, saved without cropping (the constrained layout keeps every label inside)."""
     from matplotlib.colors import LogNorm
     from matplotlib.patches import Rectangle
     plots = ecm._plots()
@@ -247,10 +268,14 @@ def draw(path: Path, title: str, maps: list, mask: np.ndarray, box_km: float, bl
     norm = LogNorm(vmin=vmin, vmax=max(vmax, vmin * 10), clip=False)
     cmap = ecm.colormap()
     half = box_km / 2
-    n = len(maps)
-    fig = plt.figure(figsize=(4.3 * n + 1.0, 9.6), dpi=150, layout="constrained")
+    if len(maps) + len(missing) != SLOTS or len(scatters) + len(missing) != SLOTS - 1:
+        sys.exit(f"ERROR: {path.name}: {len(maps)} maps, {len(scatters)} scatter plots, {len(missing)} empty slots")
+    fig = plt.figure(figsize=FIGSIZE, dpi=150, layout="constrained")
+    fig.get_layout_engine().set(w_pad=0.08, h_pad=0.08)
     sub_top, sub_bot = fig.subfigures(2, 1, height_ratios=[1.0, 1.08])
-    top = sub_top.subplots(1, n, squeeze=False)[0]
+    top = sub_top.subplots(1, SLOTS, squeeze=False)[0]
+    for ax, t in zip(top[len(maps):], missing):
+        placeholder(ax, t)
     for ax, (t, _), d in zip(top, maps, dens):
         im = ax.imshow(ecm.for_imshow(d, norm.vmin), cmap=cmap, norm=norm, extent=[-half, half, -half, half],
                        interpolation="nearest")
@@ -264,19 +289,23 @@ def draw(path: Path, title: str, maps: list, mask: np.ndarray, box_km: float, bl
         for s in ax.spines.values():
             s.set_color(plots.AXIS)
         ax.set_title(t, fontsize=8.5, color=plots.INK)
-    cb = sub_top.colorbar(im, ax=list(top), shrink=0.8, extend="both")
+    cb = sub_top.colorbar(im, ax=list(top), shrink=0.8, extend="both")  # all slots: same map size in every figure
     cb.set_label("people per km2 (log)", fontsize=7.5, color=plots.INK2)
     cb.ax.tick_params(which="both", labelsize=7, colors=plots.INK2)
-    bot = sub_bot.subplots(1, len(scatters) + 1, squeeze=False)[0]
+    bot = sub_bot.subplots(1, SLOTS, squeeze=False)[0]
     for ax, (t, x, y, ylab) in zip(bot, scatters):
         scatter(ax, x, y, gap[full] if gap is not None else None, t, "v5.6, people per km2 (1 km block)", ylab)
+    for ax, t in zip(bot[len(scatters):-1], missing):
+        placeholder(ax, t)
     tx = bot[-1]
     tx.axis("off")
     tx.text(0.0, 1.0, text, va="top", ha="left", fontsize=8, color=plots.INK, family="monospace",
             transform=tx.transAxes)
     fig.suptitle(f"{title}\n{HEADER}", fontsize=9.5, color=plots.INK)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, facecolor="white", bbox_inches="tight", pad_inches=0.15)  # nothing cut at the edges
+    from matplotlib.transforms import Bbox
+    w, h = FIGSIZE  # fixed box = the figure + MARGIN_IN on every side: same size for every figure, nothing cut
+    fig.savefig(path, facecolor="white", bbox_inches=Bbox([[-MARGIN_IN, -MARGIN_IN], [w + MARGIN_IN, h + MARGIN_IN]]))
     plt.close(fig)
     log.info("  wrote %s", path)
 
@@ -286,10 +315,14 @@ def pct(v: float) -> str:
 
 
 def gap_text(gap_rows: list, glab: str, vlab: str, gc: dict) -> list:
-    """Text-panel lines of the gap city: gap vs the other dense blocks, side by side (values of the gap table)."""
+    """Text-panel lines of one city and year: gap vs the other dense blocks, side by side (values of the gap
+    table); "gap blocks: 0" when there are none."""
     g, d = (next(r for r in gap_rows if r["group"] == k) for k in ("gap", "dense_not_gap"))
-    return ["", f"gap blocks (orange): {vlab} / {glab} < {gc['ratio_max']}",
-            f"  and {glab} >= {gc['min_density']:,.0f} per km2",
+    head = ["", f"gap blocks (orange): {vlab} / {glab} < {gc['ratio_max']}",
+            f"  and {glab} >= {gc['min_density']:,.0f} per km2"]
+    if g["n_blocks"] == 0:
+        return head + ["gap blocks: 0", f"  (other dense blocks: {d['n_blocks']})"]
+    return head + [
             f"gap vs other dense blocks ({glab} >= {gc['min_density']:,.0f}):",
             f"  blocks: {g['n_blocks']} vs {d['n_blocks']}",
             f"  people {glab}: {g['pop_' + gc['product']] / 1e3:,.0f}k vs {d['pop_' + gc['product']] / 1e3:,.0f}k",
@@ -373,7 +406,7 @@ def run_city(args, cfg, cm, mt, key, year, nb_path, nb_how):
     text += [f"  {labels.get(r['product'], r['label'])[:14]:<14} {r['total_pop_box'] / 1e6:6.2f} M" for r in rows]
     gap, gap_rows = None, []
     gc = mt.get("gap", {})
-    if key == gc.get("city") and year == int(gc.get("year", year)):
+    if gc and gc["product"] in grids:      # every city and year with the gap product
         gb = blocks(grids[gc["product"]], vpop, mask, f)[0]
         vb = blocks(vpop, vpop, mask, f)[0]
         gap = gap_blocks(vb, gb, full, bkm2, gc["ratio_max"], gc["min_density"])
@@ -399,9 +432,11 @@ def run_city(args, cfg, cm, mt, key, year, nb_path, nb_how):
         glab = labels.get(gc["product"], cfg["products"][gc["product"]]["label"])
         text += gap_text(gap_rows, glab, vlab, gc)
     prods = [labels.get(p, cfg["products"][p]["label"]) for p in mt["years"][year]]
+    missing = tuple(f"{labels.get(p, cfg['products'][p]['label'])}: no {year} grid\n"
+                    f"(from {min(cfg['products'][p]['years'])})" for p in mt["products"] if p not in mt["years"][year])
     draw_args = (args.out_dir / f"{key}_{year}.png", f"{city['label']}, {year}: {vlab} vs {' / '.join(prods)} on our "
                  f"250 m grid ({cm['box_km']:.0f} x {cm['box_km']:.0f} km)", maps, mask, cm["box_km"], block_km, gap,
-                 full, scat, "\n".join(text))
+                 full, scat, "\n".join(text), missing)
     return rows, gap_rows, draw_args
 
 
@@ -437,6 +472,7 @@ def main(argv=None):
     cfg = load_config(args.config)
     cm, mt = cfg["city_maps"], cfg["city_meeting"]
     mt["years"] = {int(y): p for y, p in mt["years"].items()}
+    mt["products"] = list(dict.fromkeys(p for ps in mt["years"].values() for p in ps))   # slot order
     bad = [c for c in mt["cities"] if c not in cm["cities"]] + [p for ps in mt["years"].values() for p in ps
                                                                if p not in cfg["products"]]
     if bad:
@@ -465,14 +501,14 @@ def main(argv=None):
             draws.append(d)
     out = pd.DataFrame(rows)
     gp = pd.DataFrame(gap_rows)
-    gap_csv = args.out_dir / f"{mt['gap']['city']}_gap_blocks.csv" if gap_rows else None
+    gap_csv = args.out_dir / GAP_CSV if gap_rows else None
     # numbers must not change with the display: compare with the previous outputs before writing anything
     log.info("check against the previous outputs:")
     check_previous(out, [args.out_dir / "meeting_summary.csv"] + (args.compare_with or []),
                    ["city", "year", "product"], ["spearman_1km_vs_version", "n_blocks_1km", "total_pop_box"])
     if gap_csv is not None:
         num = [c for c in gp.columns if c.startswith(("n_", "pop_", "share_"))]
-        check_previous(gp, [gap_csv], ["city", "year", "group"], num)
+        check_previous(gp, [gap_csv, args.out_dir / LEGACY_GAP_CSV], ["city", "year", "group"], num)
     for d in draws:
         draw(*d)
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -482,8 +518,12 @@ def main(argv=None):
                                       "total_pop_box"]].round(3).to_string(index=False))
         if gap_csv is not None:
             gp.to_csv(gap_csv, index=False)
-            log.info("gap blocks:\n%s", gp.drop(columns=["rule"]).round(3).to_string(index=False))
+            log.info("gap blocks:\n%s", gp.drop(columns=["rule", "nobuilt_source"]).round(3).to_string(index=False))
             log.info("wrote %s", gap_csv)
+            legacy = args.out_dir / LEGACY_GAP_CSV
+            if legacy.exists():   # its Chicago 2010 rows matched above and are in gap_blocks.csv
+                legacy.unlink()
+                log.info("removed %s (Chicago 2010 only; now part of %s)", legacy, GAP_CSV)
     log.info("wrote %s", args.out_dir / "meeting_summary.csv")
     log.info("DONE")
 

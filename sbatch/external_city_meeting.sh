@@ -1,6 +1,6 @@
 #!/bin/bash
 # Meeting city maps, 2010 (v5.6 | GHS-POP | WorldPop) and 1980 (v5.6 | GHS-POP) on our 250 m grid + 1 km block
-# scatter plots for Boston, Denver, Chicago (+ Chicago 2010 gap blocks vs HISDAC BUI / NobuiltYear)
+# scatter plots for Boston, Denver, Chicago (+ gap blocks of every city and year vs HISDAC BUI / NobuiltYear)
 # (src/validation/external_city_meeting.py; city_maps and city_meeting blocks of configs/external_grids.yaml; requests
 # docs/handoff/city_maps_meeting_request.md + city_maps_meeting_fix_request.md). Rank agreement, not accuracy. The
 # numbers must equal the previous meeting_summary.csv / gap table and the city maps summary (--compare-with), else the

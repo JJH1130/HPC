@@ -1030,7 +1030,10 @@ GHS >= 1,000 people per km2; share of cells with BUI > 0 and NobuiltYear > 0, vs
 spatial patterns instead (rank agreement, not accuracy). Code written 2026-11-03, run 2026-11-03.
 Display fixes + 1980 (request `docs/handoff/city_maps_meeting_fix_request.md`, runbook section 18b, code written, not
 run): readable scale bar, equal map spacing, log ticks 0.01 / 0.1 / 1 ..., Chicago panel gap vs other dense blocks side
-by side, 1980 maps v5.6 | GHS-POP; the run checks that rho / totals / gap table equal the earlier outputs. The F&J city
+by side, 1980 maps v5.6 | GHS-POP; the run checks that rho / totals / gap table equal the earlier outputs. Fix 3
+(runbook 18c, code written, not run): one square scatter range 0.01 - 30,000 per km2 with fixed ticks in all six
+figures (0 < v < 0.01 as edge triangles, counted), gap blocks for every city and year (`gap_blocks.csv`, Chicago
+2010 rows = the older `chicago_gap_blocks.csv`), one figure size and layout with a fixed white margin. The F&J city
 maps of section "External comparison with v5.6: result" moved to `results/validation/conus/external/city_maps_internal_with_fj/` (internal,
 not for the meeting; drawn before the display fix).
 

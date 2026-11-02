@@ -4,12 +4,16 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-11-03, meeting city maps fix 3, request `docs/handoff/city_maps_meeting_fix3_request.md`):** code
+  written, not run (runbook section 18c). Decision: gap blocks (same fixed rule) shown for every city and year, one
+  table `gap_blocks.csv` replaces `chicago_gap_blocks.csv` (its rows checked equal in the run); scatter axes fixed
+  to 0.01 - 30,000 per km2 in every figure.
 - **Status (2026-11-03, meeting city maps fixes, request `docs/handoff/city_maps_meeting_fix_request.md`):** display
   fixes + 1980 maps (v5.6 | GHS-POP) written as code, not run (runbook section 18b); numbers checked against the
   earlier outputs in the run. Decision: F&J is not shown in this meeting; the F&J city maps moved to `city_maps_internal_with_fj/`

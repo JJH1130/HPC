@@ -25,7 +25,7 @@ the laptop, no job needed), section 10 (2020 added to v3_all: pre-check, then `s
 Section 10 ran 2026-10-29 (jobs 35053415-35053424). Section 11 block 1 ran 2026-10-29: `BUPR_contemp.tif` is not in the
 Dataverse archive; the job runs without it (NobuiltYear only; job 35056349, 2026-10-29). Written 2026-10-30, not run
 yet: section 12 (uncertainty filter, `submit_conus.sh uncfilter`).
-Written 2026-11-03, not run yet: section 18b (meeting city maps rerun: display fixes + 1980, `submit_conus.sh citymeeting`).
+Written 2026-11-03, not run yet: section 18c (meeting city maps rerun: common scatter axes, gap blocks for every city / year, `submit_conus.sh citymeeting`).
 
 ## Inputs / outputs
 
@@ -1684,6 +1684,60 @@ Good: `COMPLETED`; three `MATCH` lines (previous `meeting_summary.csv`: 9 rows, 
 `chicago_2010.png`, `chicago_gap_blocks.csv`, `denver_1980.png`, `denver_2010.png`, `meeting_summary.csv`; `git push`
 ends with `main -> main`; `== end of block 2`. `ERROR: ... differs from ...` (state `FAILED`, nothing written in the
 results folder): commit the logs anyway (same block) and send the line to Claude.
+
+### 18c. Rerun: common scatter axes, gap blocks for every city / year (2026-11-03)
+
+Request `docs/handoff/city_maps_meeting_fix3_request.md`. Same mode, same job, numbers unchanged (checked in the run):
+- every scatter plot on one square range, 0.01 - 30,000 people per km2 on both axes, ticks 0.01 / 0.1 / 1 / 10 / 100 /
+  1,000 / 10,000 in all six figures; blocks with 0 < v < 0.01 as triangles on the axis edge, "< 0.01 (n)" in the
+  legend; 0 blocks on the band "0 (n)" (same width on x and y);
+- gap blocks (v5.6 / GHS-POP < 0.25, GHS-POP >= 1,000 per km2) outlined / orange in every city and year, the text
+  panel gap vs other dense blocks in every figure ("gap blocks: 0" when none); one table `gap_blocks.csv` (city, year,
+  group). Its Chicago 2010 rows are compared with the committed `chicago_gap_blocks.csv`, which the job then removes
+  (log line `removed ...`); the `git add` below records the removal. NobuiltYear is one present-day layer, the same
+  for 1980 and 2010;
+- every figure the same size and layout (an empty, labelled WorldPop slot in 1980), saved with a fixed 0.3 inch white
+  margin on every side, so nothing is cut.
+
+Block 1, submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh citymeeting
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK: 7 inputs for 3 cities x 2 years; NobuiltYear hisdac, one 'city_meeting N' line)"
+```
+
+Good: `CHECK OK: 7 inputs for 3 cities x 2 years; NobuiltYear hisdac`, one line `city_meeting N`, one job in `squeue`,
+`== end of block 1`.
+
+Block 2, logs + results (after the job left `squeue`; a few minutes):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_citymeeting_jobs.txt)
+sacct -j "$j" --format=JobID,JobName%24,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_citymeeting_sacct.txt
+seff "$j" > logs/conus_citymeeting_seff.txt
+cat logs/conus_citymeeting_sacct.txt
+grep -hE "MATCH|differs|removed|DONE" logs/external_city_meeting.$j.out
+ls results/validation/conus/external/city_maps_meeting/
+git add -A logs/ results/validation/conus/external/city_maps_meeting
+git commit -m "run: meeting city maps, common scatter axes + gap blocks for every city / year (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, 3 MATCH lines, removed chicago_gap_blocks.csv, DONE, 8 files, push main -> main)"
+```
+
+Good: `COMPLETED`; three `MATCH` lines (`meeting_summary.csv` 15 rows, `city_maps_summary.csv` 15 rows,
+`chicago_gap_blocks.csv` 2 rows), `removed .../chicago_gap_blocks.csv`, `DONE`; files `boston_1980.png`,
+`boston_2010.png`, `chicago_1980.png`, `chicago_2010.png`, `denver_1980.png`, `denver_2010.png`, `gap_blocks.csv`,
+`meeting_summary.csv`; `git push` ends with `main -> main`; `== end of block 2`. `ERROR: ... differs from ...`:
+nothing was written; commit the logs anyway (same block) and send the line to Claude.
 
 ## If it fails
 

@@ -6,8 +6,12 @@ scatter plots, gap blocks vs HISDAC BUI / NobuiltYear):
 Checks (a) the scatter blocks are the Spearman blocks of external_city_maps.panel_stats (same blocks, same rho);
 (b) the gap rule (v5.6 / GHS < ratio_max, GHS >= min_density per km2, full blocks only) and the cell shares = by hand
 block by block; (c) NobuiltYear: the cutout layer before HISDAC's FBUY/NobuiltYear.tif, none = NA; a raster on our
-cells is read as a window, a shifted one through WarpedVRT (nearest); (d) end to end: PNGs, meeting_summary.csv (rho
-and totals = external_city_maps), the gap table = by hand, without NobuiltYear its columns NA, `--check`.
+cells is read as a window, a shifted one through WarpedVRT (nearest); (d) scatter axes: one square range 0.01 .. 30,000
+with fixed ticks, the 0 band "0 (n)" apart from every tick label and as wide on x as on y, 0 < v < 0.01 on the edge
+counted in the legend; (e) end to end, 2010 + 1980: one figure size and layout (empty slot for WorldPop 1980), white
+PNG margins, meeting_summary.csv (rho and totals = external_city_maps), gap_blocks.csv of every city and year and the
+text panels = by hand ("gap blocks: 0" when none), the older chicago_gap_blocks.csv compared then removed, a changed
+previous number stops the rerun, without NobuiltYear its columns NA, `--check`.
 """
 from __future__ import annotations
 
@@ -104,47 +108,68 @@ def test_nobuilt_inputs(tmp: Path):
 
 def test_scatter_axes():
     plt = ecm._plots().plt
-    assert [mt.tick_label(t) for t in (0.01, 0.1, 1.0, 10.0, 1000.0, 10000.0)] == \
-        ["0.01", "0.1", "1", "10", "1,000", "10,000"]
-    x = np.array([0.0, 0.0, 0.05, 0.3, 2.0, 40.0, 900.0, 5000.0])
-    y = np.array([0.02, 0.4, 0.1, 3.0, 20.0, 50.0, 800.0, 6000.0])
-    fig, (a1, a2) = plt.subplots(1, 2)
-    mt.scatter(a1, x, y, None, "t", "x", "y")                           # 2 zeros on x, none on y
-    mt.scatter(a2, x + 0.01, y, None, "t", "x", "y")                    # no zeros at all
-    fig.canvas.draw()
-    xl = [t.get_text() for t in a1.get_xticklabels()]
-    yl = [t.get_text() for t in a1.get_yticklabels()]
-    assert xl[0] == "0 (2 blocks)" and sum(t.startswith("0 (") for t in xl) == 1, xl
-    assert not any(t.startswith("0 (") for t in yl) and "0.01" in yl and "0.1" in yl and "1,000" in yl, yl
-    assert "0" not in xl + yl                                           # no integer-formatted 0.01 / 0.1
-    assert len(a1.patches) == 1                                         # one band (x), none for y
-    l2 = [t.get_text() for t in a2.get_xticklabels() + a2.get_yticklabels()]
-    assert len(a2.patches) == 0 and not any(t.startswith("0 (") for t in l2), l2
-    plt.close(fig)
+    assert [mt.tick_label(t) for t in mt.SC_TICKS] == ["0.01", "0.1", "1", "10", "100", "1,000", "10,000"]
     # Denver 1980 shape: 1 zero block on x, 169 on y, positive blocks from 0.0001 to ~10,000 per km2
     rng = np.random.default_rng(1)
     x = 10.0 ** rng.uniform(-3.3, 3.9, 1581)
     y = 10.0 ** rng.uniform(-3.2, 3.9, 1581)
     x[5], y[:169] = 0.0, 0.0
     x[7] = 0.00012
-    for size in ((9.6, 9.6), (13.0, 9.6)):                # the 1980 and 2010 figure sizes
-        fig = plt.figure(figsize=size, dpi=150, layout="constrained")
+    x[9] = 50_000.0                                        # above the range: edge, counted
+    n_below = int((((x > 0) & (x < 0.01)) | ((y > 0) & (y < 0.01))).sum())
+    shapes = []
+    for xx, yy, n0 in ((x, y, (1, 169)), (np.minimum(x + 0.5, 20_000.0), y + 0.5, (0, 0))):
+        fig = plt.figure(figsize=mt.FIGSIZE, dpi=150, layout="constrained")
         ax = fig.subfigures(2, 1)[1].subplots(1, 3)[0]
-        mt.scatter(ax, x, y, None, "t", "v5.6, people per km2 (1 km block)", "y")
+        mt.scatter(ax, xx, yy, None, "t", "v5.6, people per km2 (1 km block)", "y")
         fig.canvas.draw()
         r = fig.canvas.get_renderer()
-        for which, labs in (("x", ax.get_xticklabels()), ("y", ax.get_yticklabels())):
+        assert ax.get_xlim() == ax.get_ylim() == (mt.SC_LOW_LIMIT, mt.SC_HI)
+        for which, labs, n in (("x", ax.get_xticklabels(), n0[0]), ("y", ax.get_yticklabels(), n0[1])):
             texts = [t.get_text() for t in labs]
-            assert texts[0] == ("0 (1 block)" if which == "x" else "0 (169 blocks)"), texts
-            assert len(texts) - 1 <= mt.MAX_TICKS and "1" in texts, texts
-            z, nxt = labs[0].get_window_extent(r), labs[1].get_window_extent(r)
-            assert not z.overlaps(nxt), (which, texts[:2], z, nxt)
-            assert all(not z.overlaps(t.get_window_extent(r)) for t in labs[1:])
+            want = (["0 (%d)" % n] if n else []) + ["0.01", "0.1", "1", "10", "100", "1,000", "10,000"]
+            assert texts == want, (which, texts)
+            if n:
+                z = labs[0].get_window_extent(r)
+                assert all(not z.overlaps(t.get_window_extent(r)) for t in labs[1:]), (which, texts)
+        bands = [p_.get_extents() for p_ in ax.patches]
+        assert len(bands) == (n0[0] > 0) + (n0[1] > 0)
+        legend = [t.get_text() for t in ax.get_legend().get_texts()]
+        if n0[0]:
+            assert f"< 0.01 ({n_below})" in legend and "> 30,000 (1)" in legend, legend
+            pos = ax.transData.transform([[mt.ZERO_BAND[0], mt.ZERO_BAND[0]], [mt.ZERO_BAND[2], mt.ZERO_BAND[2]]])
+            assert abs((pos[1, 0] - pos[0, 0]) - (pos[1, 1] - pos[0, 1])) < 0.5   # band: same width on x and y
+        else:
+            assert not any(t.startswith(("<", ">")) for t in legend), legend
+        shapes.append(ax.get_window_extent(r).size)
         plt.close(fig)
-    assert mt.decade_ticks(1e-4, 2e4) == [1e-4, 1e-2, 1.0, 1e2, 1e4]  # 9 decades -> every 2nd, 1 kept
-    assert mt.decade_ticks(0.01, 2e4) == [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]
-    print("ok: log ticks 0.01 / 0.1 / 1 / 10 ... (at most 7), one '0 (n blocks)' band only where there are 0 blocks, "
-          "its label apart from every tick label")
+    assert all(abs(w - h) < 1.0 for w, h in shapes), shapes   # square
+    xs, xb, xa = mt.clamp(np.array([0.0, 0.004, 0.01, 5.0, 40_000.0]))
+    assert xs.tolist() == [mt.ZERO_BAND[1], 0.01, 0.01, 5.0, 30_000.0]
+    assert xb.tolist() == [False, True, False, False, False] and xa.tolist() == [False] * 4 + [True]
+    print("ok: one square range 0.01 .. 30,000 with fixed ticks, 0 band '0 (n)' apart from the ticks and the same "
+          "width on x / y, 0 < v < 0.01 on the edge counted in the legend")
+
+
+def by_hand_gap(pop, bui, nby, ghs_path, gt, dasym_year_path, cx, cy):
+    """{group: block slices} and the source arrays of one city box, by hand (12 km box, 4-cell blocks)."""
+    win = ecm.box_window(gt, cx, cy, 12)
+    r0, c0, mm = int(win.row_off), int(win.col_off), 48
+    vb = pop[r0:r0 + mm, c0:c0 + mm].astype("float32").astype("float64")
+    mask = vb != -9999.0
+    with rasterio.open(dasym_year_path) as src:
+        bt = src.window_transform(win)
+    g, _ = ecm.to_grid(ghs_path, bt, (mm, mm), OUR, 25.0)
+    rows = {"gap": [], "dense_not_gap": []}
+    for bi in range(12):
+        for bj in range(12):
+            sl = (slice(4 * bi, 4 * bi + 4), slice(4 * bj, 4 * bj + 4))
+            if not mask[sl].all():
+                continue
+            gd, vd = g[sl].sum(), vb[sl].sum()
+            if gd >= 1000:
+                rows["gap" if vd < 0.25 * gd else "dense_not_gap"].append(sl)
+    return rows, g, vb, bui[r0:r0 + mm, c0:c0 + mm], nby[r0:r0 + mm, c0:c0 + mm]
 
 
 def test_end_to_end(tmp: Path):
@@ -161,16 +186,21 @@ def test_end_to_end(tmp: Path):
     bui = rng.integers(0, 4, (n, n)).astype(float)
     bui[116:132, 116:132] = 0.0                          # no HISDAC record there
     nby = rng.integers(0, 3, (n, n)).astype(float)
+    pop80 = np.where(pop >= 0, pop * 0.6, pop)
+    pop80[104:136, 104:136] = 900.0                      # 1980: v5.6 dense in the whole core -> no gap blocks
+    bui80 = np.maximum(bui - 1, 0)
     dasym, cut, data, hisdac = tmp / "dasym", tmp / "cut", tmp / "data", tmp / "hisdac"
-    write(dasym / "conus" / "V56" / "predictions" / "pop_2010.tif", pop, gt, OUR, -9999.0)
-    write(dasym / "conus" / "V56" / "predictions" / "pop_1980.tif", np.where(pop >= 0, pop * 0.6, pop), gt, OUR,
-          -9999.0)
+    pred = dasym / "conus" / "V56" / "predictions"
+    write(pred / "pop_2010.tif", pop, gt, OUR, -9999.0)
+    write(pred / "pop_1980.tif", pop80, gt, OUR, -9999.0)
     write(cut / "conus" / "layers" / "BUI" / "2010_BUI.tif", bui, gt, OUR, -1.0)
-    write(cut / "conus" / "layers" / "BUI" / "1980_BUI.tif", np.maximum(bui - 1, 0), gt, OUR, -1.0)
+    write(cut / "conus" / "layers" / "BUI" / "1980_BUI.tif", bui80, gt, OUR, -1.0)
     write(hisdac / "FBUY" / "NobuiltYear.tif", nby, gt, OUR, None)
     mx, my = Transformer.from_crs(OUR, "ESRI:54009", always_xy=True).transform(cx, cy)
     ghs = rng.uniform(0, 3, (300, 300))
     ghs[120:180, 120:180] = 40.0                         # dense core: 4,000 per km2
+    ghs[92:117, :] = 0.0                                 # empty 2.5 km strip in the box: 0-people blocks (band)
+    ghs[125:175, 90:115] = 0.00004                       # < 0.01 per km2 blocks, west of the core (edge triangles)
     for y, fct in ((2010, 1.0), (1980, 0.7)):
         write(data / "ghs" / f"ghs_{y}.tif", ghs * fct, from_origin(mx - 15_000, my + 15_000, 100.0, 100.0),
               "ESRI:54009", -200.0)
@@ -181,7 +211,7 @@ def test_end_to_end(tmp: Path):
             "input_unit_source": "https://example.org"}
     cfg = {"reference": "V56", "products": {
         "ghs_pop": {**prod, "label": "GHS test (100 m)", "path": "ghs/ghs_{YEAR}.tif"},
-        "worldpop": {**prod, "label": "WP test (100 m)", "path": "wp/wp_{YEAR}.tif", "years": [2010]},
+        "worldpop": {**prod, "label": "WP test (100 m)", "path": "wp/wp_{YEAR}.tif", "years": [2000, 2010]},
         "fj_m5": {**prod, "label": "FJ test", "path": "fj/none_{YEAR}.tif", "input_unit_class": "county"}},
            "city_maps": {"version": "V56", "version_label": "v5.6", "box_km": 12, "block_km": 1, "subpixel_m": 25,
                          "years": {2010: ["ghs_pop", "worldpop"], 1980: ["ghs_pop"]},   # fj_m5 (no file) unused
@@ -189,8 +219,7 @@ def test_end_to_end(tmp: Path):
                                     "boston": {"label": "Boston, MA", "lon": lon + 0.01, "lat": lat}}},
            "city_meeting": {"years": {2010: ["ghs_pop", "worldpop"], 1980: ["ghs_pop"]},
                             "cities": ["boston", "chicago"], "labels": {"ghs_pop": "GHS", "worldpop": "WP"},
-                            "gap": {"city": "chicago", "year": 2010, "product": "ghs_pop", "ratio_max": 0.25,
-                                    "min_density": 1000}}}
+                            "gap": {"product": "ghs_pop", "ratio_max": 0.25, "min_density": 1000}}}
     cp = tmp / "ext.yaml"
     cp.write_text(yaml.safe_dump(cfg, sort_keys=False))   # keep 2010 before 1980
     out = tmp / "meet"
@@ -207,77 +236,96 @@ def test_end_to_end(tmp: Path):
         drawn[a[0].name] = a
         real_draw(*a)
 
+    run = common + ["--hisdac-dir", str(hisdac), "--compare-with", str(tmp / "maps" / "city_maps_summary.csv")]
     mt.draw = spy
     try:
-        run = common + ["--hisdac-dir", str(hisdac), "--compare-with", str(tmp / "maps" / "city_maps_summary.csv")]
         mt.main(run)
     finally:
         mt.draw = real_draw
     assert sorted(drawn) == ["boston_1980.png", "boston_2010.png", "chicago_1980.png", "chicago_2010.png"]
-    assert all((out / k).exists() for k in drawn)
     import matplotlib.image as mpimg
-    for k in drawn:                                      # nothing cut: a white margin on every side of the PNG
-        im = mpimg.imread(out / k)[..., :3]
-        for edge in (im[:6], im[-6:], im[:, :6], im[:, -6:]):
+    sizes = set()
+    for k, a in drawn.items():                           # (path, title, maps, mask, box, block, gap, full, scat, text,
+        im = mpimg.imread(out / k)[..., :3]              #  missing)
+        sizes.add(im.shape)
+        for edge in (im[:6], im[-6:], im[:, :6], im[:, -6:]):   # nothing cut: white margin on every side
             assert edge.min() > 0.97, (k, float(edge.min()))
-    for k, a in drawn.items():                           # (path, title, maps, mask, box, block, gap, full, scat, text)
         n_maps, n_scat = (2, 1) if "1980" in k else (3, 2)
         assert len(a[2]) == n_maps and len(a[8]) == n_scat, (k, len(a[2]), len(a[8]))
-        assert (a[6] is not None) == (k == "chicago_2010.png")       # gap blocks: Chicago 2010 only
+        assert len(a[10]) == 3 - n_maps and (not a[10] or a[10][0] == "WP: no 1980 grid\n(from 2000)"), a[10]
+        assert a[6] is not None                          # gap blocks in every city and year
         assert "white = 0 people" in a[9]
+        x0_, y0_ = a[8][0][1], a[8][0][2]                # the GHS scatter has 0 and < 0.01 blocks
+        assert (y0_ == 0).any() and ((y0_ > 0) & (y0_ < 0.01)).any(), k
+    assert len(sizes) == 1, sizes                        # every figure the same size
     s = pd.read_csv(out / "meeting_summary.csv")
     assert len(s) == 10 and set(s.loc[s["year"] == 1980, "product"]) == {"V56", "ghs_pop"}
     assert list(s["year"].unique()) == [2010, 1980]      # 2010 rows first, 1980 added
-    # rho and totals = the city maps module on the same box, both years
     m = s.merge(old, on=["city", "year", "product"], suffixes=("", "_old"))
     assert len(m) == 10
     assert np.allclose(m["spearman_1km_vs_version"], m["spearman_1km_vs_version_old"], rtol=0, atol=1e-12)
     assert np.allclose(m["total_pop_box"], m["total_pop_box_old"], rtol=1e-9)
     assert (m["n_blocks_1km"] == m["n_blocks_1km_old"]).all()
-    # gap table by hand
-    win = ecm.box_window(gt, cx, cy, 12)
-    r0, c0, mm = int(win.row_off), int(win.col_off), 48
-    vb = pop[r0:r0 + mm, c0:c0 + mm].astype("float32").astype("float64")
-    mask = vb != -9999.0
-    with rasterio.open(dasym / "conus" / "V56" / "predictions" / "pop_2010.tif") as src:
-        bt = src.window_transform(win)
-    g, _ = ecm.to_grid(data / "ghs" / "ghs_2010.tif", bt, (mm, mm), OUR, 25.0)
-    bb, nb = bui[r0:r0 + mm, c0:c0 + mm], nby[r0:r0 + mm, c0:c0 + mm]
-    rows = {"gap": [], "dense_not_gap": []}
-    for bi in range(12):
-        for bj in range(12):
-            sl = (slice(4 * bi, 4 * bi + 4), slice(4 * bj, 4 * bj + 4))
-            if not mask[sl].all():
+    # one gap table, every city and year, by hand
+    gp = pd.read_csv(out / "gap_blocks.csv").set_index(["city", "year", "group"])
+    assert len(gp) == 8 and not (out / "chicago_gap_blocks.csv").exists()
+    boxes = {"chicago": (cx, cy)}
+    boxes["boston"] = Transformer.from_crs("EPSG:4326", OUR, always_xy=True).transform(lon + 0.01, lat)
+    n_gap = {}
+    for (city, year), (pp, bu) in ((k, v) for k in [(c, y) for c in boxes for y in (2010, 1980)]
+                                   for v in [(pop, bui) if k[1] == 2010 else (pop80, bui80)]):
+        rows, g, vb, bb, nb = by_hand_gap(pp, bu, nby, data / "ghs" / f"ghs_{year}.tif", gt,
+                                          pred / f"pop_{year}.tif", *boxes[city])
+        n_gap[(city, year)] = len(rows["gap"])
+        for grp, sls in rows.items():
+            r = gp.loc[(city, year, grp)]
+            assert r["n_blocks"] == len(sls) and r["n_cells"] == 16 * len(sls), (city, year, grp)
+            assert abs(r["pop_ghs_pop"] - sum(g[sl].sum() for sl in sls)) < 1e-6 * max(1.0, r["pop_ghs_pop"])
+            assert abs(r["pop_v56"] - sum(vb[sl].sum() for sl in sls)) < 1e-6 * max(1.0, r["pop_v56"])
+            if not sls:
+                assert np.isnan(r["share_cells_bui_gt0"])
                 continue
-            gd, vd = g[sl].sum(), vb[sl].sum()
-            if gd >= 1000:
-                rows["gap" if vd < 0.25 * gd else "dense_not_gap"].append(sl)
-    gp = pd.read_csv(out / "chicago_gap_blocks.csv").set_index("group")
-    assert len(gp) == 2 and (gp["year"] == 2010).all()
-    assert len(rows["gap"]) >= 4 and len(rows["dense_not_gap"]) >= 1
-    for grp, sls in rows.items():
-        r = gp.loc[grp]
-        assert r["n_blocks"] == len(sls) and r["n_cells"] == 16 * len(sls)
-        assert abs(r["pop_ghs_pop"] - sum(g[sl].sum() for sl in sls)) < 1e-6 * max(1.0, r["pop_ghs_pop"])
-        assert abs(r["pop_v56"] - sum(vb[sl].sum() for sl in sls)) < 1e-6 * max(1.0, r["pop_v56"])
-        n = 16 * len(sls)
-        assert abs(r["share_cells_bui_gt0"] - sum((bb[sl] > 0).sum() for sl in sls) / n) < 1e-12
-        assert abs(r["share_cells_nobuilt_gt0"] - sum((nb[sl] > 0).sum() for sl in sls) / n) < 1e-12
-        assert abs(r["share_cells_nobuilt_gt0_bui0"] - sum(((nb[sl] > 0) & (bb[sl] == 0)).sum() for sl in sls) / n) \
-            < 1e-12
-        assert abs(r["share_cells_no_record"] - sum(((nb[sl] == 0) & (bb[sl] == 0)).sum() for sl in sls) / n) < 1e-12
-    assert gp.loc["gap", "share_cells_bui_gt0"] < 0.5 < gp.loc["dense_not_gap", "share_cells_bui_gt0"]
-    # the Chicago text panel = the gap table, gap vs other dense side by side
-    text = drawn["chicago_2010.png"][9]
-    gg, dd = gp.loc["gap"], gp.loc["dense_not_gap"]
-    for lab, col in (("  BUI > 0: ", "share_cells_bui_gt0"),
-                     ("   (undated records only): ", "share_cells_nobuilt_gt0_bui0"),
-                     ("  no record: ", "share_cells_no_record")):
-        line = f"{lab}{100 * gg[col]:.0f} % vs {100 * dd[col]:.0f} %"
-        assert line in text.split("\n"), (line, text)
-    assert f"  blocks: {gg['n_blocks']} vs {dd['n_blocks']}" in text.split("\n")
-    # a rerun on the same out dir matches the previous outputs; a changed previous number stops it, nothing written
+            nn = 16 * len(sls)
+            assert abs(r["share_cells_bui_gt0"] - sum((bb[sl] > 0).sum() for sl in sls) / nn) < 1e-12
+            assert abs(r["share_cells_nobuilt_gt0"] - sum((nb[sl] > 0).sum() for sl in sls) / nn) < 1e-12
+            assert abs(r["share_cells_nobuilt_gt0_bui0"] - sum(((nb[sl] > 0) & (bb[sl] == 0)).sum() for sl in sls)
+                       / nn) < 1e-12
+            assert abs(r["share_cells_no_record"] - sum(((nb[sl] == 0) & (bb[sl] == 0)).sum() for sl in sls) / nn) \
+                < 1e-12
+    assert n_gap[("chicago", 2010)] >= 4 and 0 in n_gap.values()     # one city-year without gap blocks
+    assert gp.loc[("chicago", 2010, "gap"), "share_cells_bui_gt0"] < 0.5 < \
+        gp.loc[("chicago", 2010, "dense_not_gap"), "share_cells_bui_gt0"]
+    # text panels = the gap table; 0 gap blocks -> "gap blocks: 0"
+    for (city, year) in n_gap:
+        text = drawn[f"{city}_{year}.png"][9].split("\n")
+        gg, dd = gp.loc[(city, year, "gap")], gp.loc[(city, year, "dense_not_gap")]
+        if n_gap[(city, year)] == 0:
+            assert "gap blocks: 0" in text and f"  (other dense blocks: {dd['n_blocks']})" in text, text
+            continue
+        for lab, col in (("  BUI > 0: ", "share_cells_bui_gt0"),
+                         ("   (undated records only): ", "share_cells_nobuilt_gt0_bui0"),
+                         ("  no record: ", "share_cells_no_record")):
+            assert f"{lab}{100 * gg[col]:.0f} % vs {100 * dd[col]:.0f} %" in text, (city, year, lab, text)
+        assert f"  blocks: {gg['n_blocks']} vs {dd['n_blocks']}" in text
+    # the older Chicago-only table: its rows must come out the same, then it is removed
+    gpf = pd.read_csv(out / "gap_blocks.csv")
+    legacy = gpf[(gpf["city"] == "chicago") & (gpf["year"] == 2010)]
+    legacy.to_csv(out / "chicago_gap_blocks.csv", index=False)
+    (out / "gap_blocks.csv").unlink()
     mt.main(run)
+    assert (out / "gap_blocks.csv").exists() and not (out / "chicago_gap_blocks.csv").exists()
+    bad = legacy.copy()
+    bad.loc[bad.index[0], "share_cells_no_record"] += 0.01
+    bad.to_csv(out / "chicago_gap_blocks.csv", index=False)
+    try:
+        mt.main(run)
+    except SystemExit as e:
+        assert "share_cells_no_record differs" in str(e) and "chicago_gap_blocks.csv" in str(e), e
+    else:
+        raise AssertionError("a changed Chicago 2010 row did not stop the run")
+    assert (out / "chicago_gap_blocks.csv").exists()     # nothing written / removed
+    (out / "chicago_gap_blocks.csv").unlink()
+    # a changed previous rho stops the rerun, nothing written
     t = pd.read_csv(out / "meeting_summary.csv")
     t.loc[3, "spearman_1km_vs_version"] += 0.01
     t.to_csv(out / "meeting_summary.csv", index=False)
@@ -289,21 +337,10 @@ def test_end_to_end(tmp: Path):
     else:
         raise AssertionError("a changed rho did not stop the run")
     assert (out / "chicago_2010.png").stat().st_mtime_ns == png_time
-    assert pd.read_csv(out / "meeting_summary.csv").loc[3, "spearman_1km_vs_version"] == t.loc[3, "spearman_1km_vs_version"]
-    s.to_csv(out / "meeting_summary.csv", index=False)
-    gt_ = pd.read_csv(out / "chicago_gap_blocks.csv")
-    gt_.loc[0, "share_cells_no_record"] += 0.01
-    gt_.to_csv(out / "chicago_gap_blocks.csv", index=False)
-    try:
-        mt.main(run)
-    except SystemExit as e:
-        assert "share_cells_no_record differs" in str(e), e
-    else:
-        raise AssertionError("a changed gap table did not stop the run")
     # without NobuiltYear: those columns NA, the rest the same
     out2 = tmp / "meet2"
     mt.main(common[:-1] + [str(out2)])
-    gp2 = pd.read_csv(out2 / "chicago_gap_blocks.csv").set_index("group")
+    gp2 = pd.read_csv(out2 / "gap_blocks.csv").set_index(["city", "year", "group"])
     assert gp2["share_cells_nobuilt_gt0"].isna().all() and gp2["nobuilt_source"].str.startswith("NA").all()
     assert (gp2["n_blocks"] == gp["n_blocks"]).all()
     # a missing product file stops --check
@@ -314,8 +351,8 @@ def test_end_to_end(tmp: Path):
         assert "inputs missing" in str(e)
     else:
         raise AssertionError("--check did not stop on a missing file")
-    print("ok: end to end (2010 + 1980 panels, rho / totals = city maps, gap table + text panel by hand, rerun "
-          "compared with the previous outputs, NobuiltYear NA, --check)")
+    print("ok: end to end (one size and layout for 2010 / 1980, rho / totals = city maps, gap table of every city and "
+          "year + text panels by hand, Chicago 2010 = the older table, rerun compared, NobuiltYear NA, --check)")
 
 
 def test_real_config():
@@ -323,12 +360,12 @@ def test_real_config():
     c = cfg["city_meeting"]
     assert c["years"] == {2010: ["ghs_pop", "worldpop"], 1980: ["ghs_pop"]}
     assert c["cities"] == ["boston", "denver", "chicago"] and "fj_m5" not in str(c["years"])
-    assert c["gap"] == {"city": "chicago", "year": 2010, "product": "ghs_pop", "ratio_max": 0.25, "min_density": 1000}
+    assert c["gap"] == {"product": "ghs_pop", "ratio_max": 0.25, "min_density": 1000}
     assert all(y in cfg["products"][p]["years"] for y, ps in c["years"].items() for p in ps)
     sh = (REPO / "sbatch" / "external_city_meeting.sh").read_text()
     assert "city_maps_internal_with_fj/city_maps_summary.csv" in sh
     assert "city_maps_internal_with_fj" in (REPO / "sbatch" / "external_city_maps.sh").read_text()
-    print("ok: real config (2010 GHS + WorldPop, 1980 GHS, gap Chicago 2010) and paths")
+    print("ok: real config (2010 GHS + WorldPop, 1980 GHS, gap rule for every city and year) and paths")
 
 
 if __name__ == "__main__":
