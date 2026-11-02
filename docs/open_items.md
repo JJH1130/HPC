@@ -10,6 +10,17 @@ Last updated: 2026-10-31 (built-cell aggregation test written as code, not run);
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-11-03, external comparison with v5.6, request `docs/handoff/external_v56_request.md`):** v5.6 is the
+  best version so far, **not declared final** (user, 2026-11-03). Stefan wants a GHS comparison; GHS-POP / WorldPop use
+  block-level US input, so a tract comparison is not fair (2010 MdAPE ~1 %). Agreed (user): (1) redo the tract numbers
+  with v5.6 (+ MAPE >= 10, as Noi et al.) and label block-input products as a reference, not a competitor; (2) city map
+  comparison (Denver, Salt Lake City as in Noi et al. Fig. 10, + Chicago, Boston; 1980 / 2010; v5.6 | GHS-POP | F&J).
+  **For the meeting only (not run):** a fair quantitative GHS test = same county-input dasymetric with GHS-BUILT
+  (1975-2020) instead of HISDAC as the ancillary layer, compared on tracts (1980-2020); asks "which ancillary layer is
+  better", Stefan's call. Noi et al. (draft) compared with GHS-POP only at county totals (log r 0.99-1.00; they note it
+  is not independent) and by eye on 1980 maps of Denver / Salt Lake City; their tract MAPE ~30 % (2010) uses tract
+  totals in preallocation and 2,466 screened counties, so it is not comparable with ours (v5.6 2010 MAPE >= 10: 47.4 %).
+
 - **Status (2026-11-03, built-cell aggregation test, closed):** `docs/conus_plan.md` "Built-cell aggregation test result".
   County CV / TEST better (RMSE -0.045, TEST R2 +0.02-0.03), tracts worse (2010 23.8 -> 28.2-28.9 %) because the
   population on empty cells rises from 5 to 17-22 % (built_local non-zero next to buildings). **Decision (user,

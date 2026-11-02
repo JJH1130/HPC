@@ -23,7 +23,7 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | v5.3 | `Dasy_CONUS_RF_v4` | + distances + terrain | 40.3 / 39.8 % | dropped |
 | v5.4 | `Dasy_CONUS_RF_v3_all` | v5.2 on BUI-fixed input, RF (vs LightGBM / XGBoost / CatBoost), 60 candidates, 1900-2020 | 37.9 / 26.6 % (2020: 26.1) | base |
 | v5.5 | `Dasy_CONUS_RF_v3_ntl` / `_ntlv` | + night lights (DMSP / VIIRS-like), 2000 / 2010 | 2010: 31.0 / 36.2 % | dropped (helps only gap counties) |
-| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen, final**, all 13 years 1900-2020 |
+| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen** (best so far, not declared final), all 13 years 1900-2020 |
 | v5.7 (test) | `Dasy_CONUS_RF_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}` | v5.6 + Siqiao's 900 m PLURAL grid (continuous / 3 or 5 classes), 1940 / 1980 / 2010 | 2010: 24.1-28.2 % (v5.6 23.8) | worse on tracts; drop proposed (user decides) |
 
 County metrics of v5.6 on **all** TEST counties (kept + 199 excluded, imputed; computed 2026-11-03 from
