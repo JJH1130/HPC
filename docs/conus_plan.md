@@ -906,6 +906,32 @@ every feature keeps "county value = mean of a cell value" where the rule allows 
 | Run | `bash sbatch/submit_conus.sh builtcell`: pre-check; aggregation_diag of v5.6; per k features -> train -> predict -> validate + aggregation_diag (three chains side by side) -> `builtcell_compare.sh` |
 | Tests | `tests/test_builtcell.py` (built_local by hand: corner, edge, other / unused county, outside, masked water, water with BUI; strips = whole window; default aggregation byte for byte; county built_local = mean of cell values and built-cell means by hand; train + predict mass preserved; aggregation_diag on the variant; compare rows + rule) |
 
+## Built-cell aggregation test result (jobs 35100909-35100925, code 268a383, run 2026-11-02 MT)
+
+All 17 jobs COMPLETED. Files: `results/validation/conus/builtcell/`. Same tracts / split / folds / excluded counties as v5.6.
+
+| | v5.6 | bc3 | bc5 | bc9 |
+|---|---|---|---|---|
+| County CV RMSE 1960 / 2010 | 0.482 / 0.415 | 0.437 / 0.368 | 0.437 / 0.366 | 0.437 / 0.365 |
+| County TEST R2 1960 / 2010 | 0.908 / 0.919 | 0.925 / 0.951 | 0.928 / 0.951 | 0.928 / 0.951 |
+| County TEST MdAPE 1960 / 2010 (%) | 28.0 / 23.0 | 22.7 / 22.2 | 23.2 / 20.9 | 23.3 / 20.7 |
+| Tract MdAPE all 1960 / 2010 (%) | **36.0 / 23.8** | 43.9 / 28.9 | 40.9 / 28.2 | 40.3 / 28.3 |
+| Population on BUI = 0 cells 1960 / 2010 | 21.1 / 5.0 % | 32.4 / 16.5 % | 36.1 / 19.3 % | 39.3 / 21.9 % |
+| Built-cell people outside the res_share range 1960 / 2010 | 69.7 / 67.9 % | 45.7 / 50.0 % | 43.0 / 49.2 % | 42.3 / 48.9 % |
+
+- Fixed rule: k = 3 (CV RMSE within 0.005 of the best, smallest k). Tracts not used for the choice.
+- **County level clearly better** (CV RMSE -0.045, TEST R2 +0.02-0.03): the split into built share and built-cell
+  intensity helps the county model. built_local is the first feature (permutation and SHAP) in every variant.
+- **Tracts clearly worse** (+4-8 pp all tracts, every density class; gap counties mixed). Cause: the population on
+  empty cells (BUI = 0) triples to quadruples (2010: 5 -> 17-22 %; maps: Chelan 3.7 -> 23.4 %, Reno 2.1 -> 26.4 %,
+  Fremont 3.8 -> 32.4 %, Macoupin 55 -> 96 %). built_local is non-zero on empty cells next to buildings, and the model
+  never saw bui = 0 at county level (built-cell means are always > 0), so an empty cell in a built-up window looks like a
+  built county. In v5.6 the all-cell means taught the model "low bui -> low density", which kept empty cells low.
+- The fix worked for the built cells (res_share out-of-range people 68 -> 49 %) but the empty-cell problem (named in
+  the design as open) dominates. Not adopted as is. Options (user decides): (a) allocate only to built cells where a
+  county has records (empty cells 0; gap / no-record counties keep v5.6), a predict-time rule, no retraining; (b) keep
+  v5.6.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is

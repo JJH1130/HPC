@@ -10,6 +10,11 @@ Last updated: 2026-10-31 (built-cell aggregation test written as code, not run);
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-11-03, built-cell aggregation test, run):** `docs/conus_plan.md` "Built-cell aggregation test result".
+  County CV / TEST better (RMSE -0.045, TEST R2 +0.02-0.03), tracts worse (2010 23.8 -> 28.2-28.9 %) because the
+  population on empty cells rises from 5 to 17-22 % (built_local non-zero next to buildings). Not adopted as is.
+  **Open (user):** allocate only to built cells (predict-time rule, gap counties as v5.6) or keep v5.6.
+
 - **Status (2026-10-31, aggregation diagnosis, run):** `docs/conus_plan.md` "County feature aggregation: diagnosis
   result". Empty cells are all out of range (5-21 % of the population on them); county means of bui / bldg_size /
   mu_ratio = built share; mu_ratio / res_share differ in meaning between county and cell. **Open (user):** test the
