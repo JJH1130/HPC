@@ -1,0 +1,160 @@
+== job 35100925 (builtcell_compare) on c3cpu-e2-u8 at 2026-10-30T11:07:14-06:00
+== cores=4 gpus=none restart=0
+== git 268a383
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== base Dasy_CONUS_RF_v3_u070  out results/validation/conus/builtcell  extra args (builtcell_compare): 
+11:07:18 INFO arg base = Dasy_CONUS_RF_v3_u070
+11:07:18 INFO arg variants = ['bc3', 'bc5', 'bc9']
+11:07:18 INFO arg years = [1960, 2010]
+11:07:18 INFO arg name = conus
+11:07:18 INFO arg results_root = results
+11:07:18 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+11:07:18 INFO arg mape_min = 10
+11:07:18 INFO arg tol = 0.005
+11:07:18 INFO arg out_dir = results/validation/conus/builtcell
+11:07:18 INFO arg diag_root = None
+11:07:18 INFO RULE (fixed before the results, 2026-10-31): window k = lowest mean county CV RMSE over [1960, 2010] among ['bc3', 'bc5', 'bc9']; within 0.005 of it the smallest k; tracts not used
+11:07:21 INFO tract MdAPE (%) by set, year and variant:
+variant               base     bc3     bc5     bc9  areal_weighting
+set            year                                                
+all            1960  36.00   43.86   40.89   40.25            82.67
+               2010  23.80   28.94   28.23   28.30            74.52
+kept_t070      1960  35.12   43.05   39.98   39.39            82.25
+               2010  22.45   27.60   26.80   26.83            74.62
+excluded_t070  1960  88.38   88.48   88.22   88.37            92.94
+               2010  51.24   51.69   54.05   55.05            73.15
+no_gap         1960  35.29   43.13   40.15   39.52            82.35
+               2010  22.67   27.81   27.08   27.14            74.49
+gap            1960  90.52   91.03   91.11   91.58            92.15
+               2010  77.46   74.81   78.17   80.44            75.63
+dens_0_50      1960  98.58  158.19  129.24  105.57           424.53
+               2010  18.32   32.69   30.31   30.41            73.58
+dens_50_500    1960  52.94   70.08   62.94   63.58            69.71
+               2010  23.42   27.02   25.68   25.97            67.63
+dens_500_2000  1960  28.01   34.45   31.30   30.73            79.96
+               2010  21.48   24.81   24.40   24.67            73.56
+dens_2000_plus 1960  34.20   42.41   39.47   38.60            83.04
+               2010  31.20   34.54   34.29   33.68            78.72
+11:07:21 INFO tract MAPE (%, tracts >= 10 people):
+variant                base     bc3     bc5     bc9  areal_weighting
+set            year                                                 
+all            1960   58.54   73.09   69.12   68.25           166.02
+               2010   47.38   54.27   53.59   55.00           273.59
+kept_t070      1960   56.93   72.11   67.95   67.02           166.56
+               2010   44.28   52.06   51.11   52.59           293.02
+excluded_t070  1960  113.60  106.77  108.99  110.31           147.67
+               2010   75.12   74.01   75.79   76.59            99.62
+no_gap         1960   57.04   71.92   67.84   66.93           166.75
+               2010   44.38   51.87   51.03   52.44           283.28
+gap            1960  128.70  127.83  128.70  129.84           131.70
+               2010  101.73   97.71   99.94  101.43            97.71
+dens_0_50      1960  184.37  249.84  222.63  206.87          1268.19
+               2010   94.44  120.66  113.96  121.16          1156.63
+dens_50_500    1960   98.11  138.60  128.79  130.29           221.09
+               2010   44.13   47.85   46.96   46.95           103.34
+dens_500_2000  1960   46.94   55.37   54.82   55.23            92.27
+               2010   32.93   35.28   37.07   37.57            68.79
+dens_2000_plus 1960   41.53   47.41   45.63   45.08            76.16
+               2010   36.24   38.32   38.78   38.55            72.77
+11:07:21 INFO TEST counties (before allocation) + CV / TEST + rank of built_local (1 = most important):
+variant  year     n   mdape    mape  cv_rmse  cv_r2  test_rmse  test_r2  built_local_perm_rank  built_local_shap_rank  n_features
+   base  1960 419.0 28.0438 37.6440   0.4819 0.8861     0.4475   0.9076                    NaN                    NaN         NaN
+    bc3  1960 419.0 22.7108 32.7236   0.4372 0.9070     0.4028   0.9251                    1.0                    1.0         9.0
+    bc5  1960 419.0 23.1805 32.4352   0.4366 0.9071     0.3956   0.9278                    1.0                    1.0         9.0
+    bc9  1960 419.0 23.3470 32.3449   0.4371 0.9068     0.3944   0.9282                    1.0                    1.0         9.0
+   base  2010 423.0 23.0270 35.8797   0.4151 0.9273     0.4449   0.9189                    NaN                    NaN         NaN
+    bc3  2010 423.0 22.2326 27.8623   0.3676 0.9432     0.3455   0.9511                    1.0                    1.0         9.0
+    bc5  2010 423.0 20.9067 27.5083   0.3665 0.9436     0.3444   0.9514                    1.0                    1.0         9.0
+    bc9  2010 423.0 20.6915 27.5248   0.3651 0.9440     0.3454   0.9511                    1.0                    1.0         9.0
+11:07:21 INFO population shares on cells (pop_on_empty = on BUI = 0 cells; built_oor_<f> = built-cell people outside the training range of f):
+variant                       base     bc3     bc5     bc9
+set                   year                                
+pop_on_empty          1960  0.2114  0.3242  0.3610  0.3928
+                      2010  0.0504  0.1651  0.1925  0.2193
+built_inside_all      1960  0.0000  0.0000  0.0000  0.0000
+                      2010  0.2511  0.1268  0.2502  0.3114
+built_oor_bui         1960  0.0073  0.0529  0.0397  0.0356
+                      2010  0.0039  0.0367  0.0266  0.0246
+built_oor_bldg_size   1960  0.0095  0.0376  0.0280  0.0254
+                      2010  0.0107  0.0339  0.0282  0.0274
+built_oor_mu_ratio    1960  0.0124  0.0147  0.0137  0.0138
+                      2010  0.0132  0.0134  0.0142  0.0143
+built_oor_dist_built  1960  1.0000  1.0000  1.0000  1.0000
+                      2010  0.0000  0.0000  0.0000  0.0000
+built_oor_res_share   1960  0.6972  0.4570  0.4299  0.4228
+                      2010  0.6786  0.5000  0.4917  0.4889
+built_oor_rent_share  1960  0.0933  0.0757  0.0819  0.0831
+                      2010  0.0649  0.0529  0.0521  0.0536
+built_oor_elev        1960  0.0081  0.0086  0.0089  0.0090
+                      2010  0.0083  0.0086  0.0088  0.0086
+built_oor_slope       1960  0.0765  0.0775  0.0802  0.0817
+                      2010  0.0756  0.0774  0.0785  0.0793
+built_oor_built_local 1960     NaN  0.4785  0.2644  0.1852
+                      2010     NaN  0.5923  0.3218  0.1916
+11:07:21 INFO feature ranks (permutation / SHAP):
+                 perm_rank                shap_rank               
+variant               base  bc3  bc5  bc9      base  bc3  bc5  bc9
+year feature                                                      
+1960 bui               1.0  2.0  2.0  2.0       1.0  2.0  2.0  2.0
+     elev              2.0  3.0  3.0  3.0       3.0  3.0  3.0  3.0
+     bldg_size         3.0  4.0  6.0  6.0       2.0  7.0  8.0  9.0
+     rent_share        4.0  5.0  4.0  4.0       4.0  4.0  4.0  4.0
+     res_share         5.0  6.0  8.0  8.0       5.0  5.0  6.0  6.0
+     mu_ratio          6.0  7.0  7.0  7.0       7.0  6.0  7.0  7.0
+     dist_built        7.0  8.0  5.0  5.0       6.0  8.0  5.0  5.0
+     slope             8.0  9.0  9.0  9.0       8.0  9.0  9.0  8.0
+     built_local       NaN  1.0  1.0  1.0       NaN  1.0  1.0  1.0
+2010 bui               1.0  2.0  2.0  2.0       1.0  2.0  2.0  2.0
+     elev              4.0  4.0  7.0  7.0       4.0  6.0  7.0  7.0
+     bldg_size         2.0  7.0  5.0  4.0       2.0  8.0  6.0  6.0
+     rent_share        3.0  3.0  3.0  3.0       3.0  3.0  4.0  4.0
+     res_share         5.0  5.0  4.0  5.0       6.0  5.0  3.0  3.0
+     mu_ratio          7.0  8.0  6.0  6.0       7.0  7.0  5.0  5.0
+     dist_built        6.0  6.0  8.0  8.0       5.0  4.0  9.0  9.0
+     slope             8.0  9.0  9.0  9.0       8.0  9.0  8.0  8.0
+     built_local       NaN  1.0  1.0  1.0       NaN  1.0  1.0  1.0
+11:07:21 INFO RULE RESULT: k = 3 (Dasy_CONUS_RF_v3_u070_bc3): mean CV RMSE 0.4024 | bc3 0.4024, bc5 0.4015, bc9 0.4011 | v5.6 0.4485 | mean tract MdAPE (not used for the choice) bc3 36.40 %, bc5 34.56 %, bc9 34.27 %, v5.6 29.90 % | the user decides
+11:07:22 INFO   plot results/validation/conus/builtcell/builtcell_comparison.png
+11:07:22 INFO wrote results/validation/conus/builtcell
+11:07:22 INFO DONE
+== county maps 2010: Dasy_CONUS_RF_v3_u070 Dasy_CONUS_RF_v3_u070_bc3
+11:07:24 INFO arg study_config = configs/conus_study_area.yaml
+11:07:24 INFO arg counties = ['G5300070', 'G2001550', 'G0800430', 'G1701170']
+11:07:24 INFO arg versions = ['Dasy_CONUS_RF_v3_u070', 'Dasy_CONUS_RF_v3_u070_bc3']
+11:07:24 INFO arg year = 2010
+11:07:24 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+11:07:24 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:07:24 INFO arg counties_gpkg = /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+11:07:24 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+11:07:24 INFO arg validation_root = results/validation
+11:07:24 INFO arg out_dir = results/validation/conus/builtcell/county_maps
+11:07:24 INFO arg margin_km = 5.0
+11:07:24 INFO arg metro_pop = 250000
+11:07:34 INFO CSV /projects/jaju1407/data/raw/plural/plural_2023/PLURAL_CSV/PLURAL_CSV/place_level_remoteness_all_scaled_across_years.csv: 31768 places, PLURAL years [2010]
+11:07:35 INFO shapefile CRS USA_Contiguous_Albers_Equal_Area_Conic -> cutout CRS ESRI:102039
+11:07:35 INFO   2010: plural_indices_scaled_across_years_2010.shp: 28724 points (28724 placeids not seen in earlier years)
+11:07:35 INFO metros: 72 PLURAL places with >= 250000 people in 2010
+11:07:35 INFO   G5300070 Dasy_CONUS_RF_v3_u070 pop 72453 | on BUI = 0 cells 3.7 % | people-weighted km to Seattle city 149.9
+11:07:35 INFO   G5300070 Dasy_CONUS_RF_v3_u070_bc3 pop 72453 | on BUI = 0 cells 23.4 % | people-weighted km to Seattle city 149.8
+11:07:45 INFO   plot results/validation/conus/builtcell/county_maps/county_G5300070_2010.png
+11:07:46 INFO   G2001550 Dasy_CONUS_RF_v3_u070 pop 64511 | on BUI = 0 cells 2.1 % | people-weighted km to Wichita city 66.6
+11:07:46 INFO   G2001550 Dasy_CONUS_RF_v3_u070_bc3 pop 64511 | on BUI = 0 cells 26.4 % | people-weighted km to Wichita city 66.8
+11:07:53 INFO   plot results/validation/conus/builtcell/county_maps/county_G2001550_2010.png
+11:07:55 INFO   G0800430 Dasy_CONUS_RF_v3_u070 pop 46824 | on BUI = 0 cells 3.8 % | people-weighted km to Colorado Springs city 58.8
+11:07:55 INFO   G0800430 Dasy_CONUS_RF_v3_u070_bc3 pop 46824 | on BUI = 0 cells 32.4 % | people-weighted km to Colorado Springs city 62.1
+11:08:02 INFO   plot results/validation/conus/builtcell/county_maps/county_G0800430_2010.png
+11:08:03 INFO   G1701170 Dasy_CONUS_RF_v3_u070 pop 47765 | on BUI = 0 cells 55.3 % | people-weighted km to St. Louis city 74.3
+11:08:03 INFO   G1701170 Dasy_CONUS_RF_v3_u070_bc3 pop 47765 | on BUI = 0 cells 95.9 % | people-weighted km to St. Louis city 74.0
+11:08:11 INFO   plot results/validation/conus/builtcell/county_maps/county_G1701170_2010.png
+11:08:11 INFO summary:
+ GISJOIN                    county                   version  cells     pop  share_on_bui0                 metro  metro_km_from_county  pop_weighted_metro_km
+G5300070 Chelan County, Washington     Dasy_CONUS_RF_v3_u070 124063 72453.0          0.037          Seattle city               135.324                149.891
+G5300070 Chelan County, Washington Dasy_CONUS_RF_v3_u070_bc3 124063 72453.0          0.234          Seattle city               135.324                149.808
+G2001550       Reno County, Kansas     Dasy_CONUS_RF_v3_u070  52706 64511.0          0.021          Wichita city                71.650                 66.581
+G2001550       Reno County, Kansas Dasy_CONUS_RF_v3_u070_bc3  52706 64511.0          0.264          Wichita city                71.650                 66.790
+G0800430  Fremont County, Colorado     Dasy_CONUS_RF_v3_u070  63566 46824.0          0.038 Colorado Springs city                69.197                 58.809
+G0800430  Fremont County, Colorado Dasy_CONUS_RF_v3_u070_bc3  63566 46824.0          0.324 Colorado Springs city                69.197                 62.107
+G1701170 Macoupin County, Illinois     Dasy_CONUS_RF_v3_u070  35957 47765.0          0.553        St. Louis city                74.875                 74.349
+G1701170 Macoupin County, Illinois Dasy_CONUS_RF_v3_u070_bc3  35957 47765.0          0.959        St. Louis city                74.875                 73.983
+11:08:11 INFO DONE
+== done 2026-10-30T11:08:11-06:00

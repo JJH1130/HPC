@@ -1,0 +1,53 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+35100909           aggregation_diag  COMPLETED   00:12:09                   8  04:56.655 
+35100909.ba+                  batch  COMPLETED   00:12:09  12438228K        8  04:56.654 
+35100909.ex+                 extern  COMPLETED   00:12:09       284K        8  00:00.001 
+35100910        dasymetric_features  COMPLETED   00:05:01                   6  02:07.062 
+35100910.ba+                  batch  COMPLETED   00:05:01  10248008K        6  02:07.060 
+35100910.ex+                 extern  COMPLETED   00:05:01       260K        6  00:00.001 
+35100911           dasymetric_train  COMPLETED   00:13:51                  16  37:41.809 
+35100911.ba+                  batch  COMPLETED   00:13:51   6269220K       16  37:41.807 
+35100911.ex+                 extern  COMPLETED   00:13:51       256K       16  00:00.001 
+35100912         dasymetric_predict  COMPLETED   00:12:50                  32  59:03.855 
+35100912.ba+                  batch  COMPLETED   00:12:50  13567888K       32  59:03.854 
+35100912.ex+                 extern  COMPLETED   00:12:50          0       32   00:00:00 
+35100913             validate_tract  COMPLETED   00:04:24                   8  03:29.882 
+35100913.ba+                  batch  COMPLETED   00:04:24  16153448K        8  03:29.881 
+35100913.ex+                 extern  COMPLETED   00:04:24          0        8  00:00.001 
+35100914           aggregation_diag  COMPLETED   00:07:27                   8  04:16.914 
+35100914.ba+                  batch  COMPLETED   00:07:27  12589060K        8  04:16.913 
+35100914.ex+                 extern  COMPLETED   00:07:27       256K        8  00:00.001 
+35100915        dasymetric_features  COMPLETED   00:07:51                   6  01:58.962 
+35100915.ba+                  batch  COMPLETED   00:07:51  10145952K        6  01:58.961 
+35100915.ex+                 extern  COMPLETED   00:07:51          0        6  00:00.001 
+35100916           dasymetric_train  COMPLETED   00:08:41                  16  22:12.715 
+35100916.ba+                  batch  COMPLETED   00:08:41   5714480K       16  22:12.713 
+35100916.ex+                 extern  COMPLETED   00:08:41          0       16  00:00.001 
+35100917         dasymetric_predict  COMPLETED   00:09:32                  32   01:15:46 
+35100917.ba+                  batch  COMPLETED   00:09:32  13204412K       32   01:15:46 
+35100917.ex+                 extern  COMPLETED   00:09:32       256K       32  00:00.001 
+35100918             validate_tract  COMPLETED   00:04:08                   8  03:30.003 
+35100918.ba+                  batch  COMPLETED   00:04:08  16264116K        8  03:30.001 
+35100918.ex+                 extern  COMPLETED   00:04:08          0        8  00:00.001 
+35100919           aggregation_diag  COMPLETED   00:06:54                   8  05:06.660 
+35100919.ba+                  batch  COMPLETED   00:06:54  13262348K        8  05:06.659 
+35100919.ex+                 extern  COMPLETED   00:06:55          0        8  00:00.001 
+35100920        dasymetric_features  COMPLETED   00:07:51                   6  01:59.569 
+35100920.ba+                  batch  COMPLETED   00:07:51  10119312K        6  01:59.568 
+35100920.ex+                 extern  COMPLETED   00:07:51          0        6  00:00.001 
+35100921           dasymetric_train  COMPLETED   00:11:12                  16  29:06.565 
+35100921.ba+                  batch  COMPLETED   00:11:12   5915936K       16  29:06.564 
+35100921.ex+                 extern  COMPLETED   00:11:12       256K       16  00:00.001 
+35100922         dasymetric_predict  COMPLETED   00:08:35                  32   01:05:14 
+35100922.ba+                  batch  COMPLETED   00:08:35  13205328K       32   01:05:14 
+35100922.ex+                 extern  COMPLETED   00:08:35          0       32  00:00.001 
+35100923             validate_tract  COMPLETED   00:03:29                   8  02:44.022 
+35100923.ba+                  batch  COMPLETED   00:03:29  16261672K        8  02:44.021 
+35100923.ex+                 extern  COMPLETED   00:03:29          0        8   00:00:00 
+35100924           aggregation_diag  COMPLETED   00:07:31                   8  03:58.828 
+35100924.ba+                  batch  COMPLETED   00:07:31  13035960K        8  03:58.827 
+35100924.ex+                 extern  COMPLETED   00:07:31          0        8  00:00.001 
+35100925          builtcell_compare  COMPLETED   00:01:00                   4  00:41.699 
+35100925.ba+                  batch  COMPLETED   00:01:00   5603948K        4  00:41.698 
+35100925.ex+                 extern  COMPLETED   00:01:00          0        4  00:00.001 
