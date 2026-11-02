@@ -1,0 +1,50 @@
+== job 35200677 (external_city_meeting) on c3cpu-e2-u1 at 2026-11-02T13:03:12-07:00
+== cores=2 gpus=none restart=0
+== git 6d9e3b0
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: 
+13:03:22 INFO arg config = configs/external_grids.yaml
+13:03:22 INFO arg data_root = /projects/jaju1407/data/raw/external
+13:03:22 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+13:03:22 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+13:03:22 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+13:03:22 INFO arg name = conus
+13:03:22 INFO arg out_dir = results/validation/conus/external/city_maps_meeting
+13:03:22 INFO arg check = False
+13:03:22 INFO   input version  Dasy_CONUS_RF_v3_u070  /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_2010.tif
+13:03:22 INFO   input bui      BUI                    /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+13:03:22 INFO   input product  ghs_pop                /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+13:03:22 INFO   input product  worldpop               /projects/jaju1407/data/raw/external/worldpop/usa_ppp_2010.tif
+13:03:22 INFO   input nobuilt  NobuiltYear            /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+13:03:26 INFO ===== Boston, MA 2010: centre (2017889, 2417509), window Window(col_off=17417, row_off=2941, width=160, height=160), 19376 of 25600 cells in our mask
+13:03:28 INFO   ghs_pop   k = 4: 2198068 people in the box | Spearman 1 km vs v5.6 0.935 on 1140 blocks
+13:03:30 INFO   worldpop  k = 4: 2180912 people in the box | Spearman 1 km vs v5.6 0.932 on 1140 blocks
+13:03:31 INFO   wrote results/validation/conus/external/city_maps_meeting/boston_2010.png
+13:03:37 INFO ===== Denver, CO 2010: centre (-762409, 1893843), window Window(col_off=6295, row_off=5036, width=160, height=160), 25600 of 25600 cells in our mask
+13:03:38 INFO   ghs_pop   k = 4: 1939729 people in the box | Spearman 1 km vs v5.6 0.891 on 1600 blocks
+13:03:40 INFO   worldpop  k = 4: 1924358 people in the box | Spearman 1 km vs v5.6 0.886 on 1600 blocks
+13:03:41 INFO   wrote results/validation/conus/external/city_maps_meeting/denver_2010.png
+13:03:44 INFO ===== Chicago, IL 2010: centre (688894, 2127633), window Window(col_off=12101, row_off=4101, width=160, height=160), 14078 of 25600 cells in our mask
+13:03:45 INFO   ghs_pop   k = 4: 3463954 people in the box | Spearman 1 km vs v5.6 0.849 on 856 blocks
+13:03:46 INFO   worldpop  k = 4: 3436381 people in the box | Spearman 1 km vs v5.6 0.851 on 856 blocks
+13:03:47 INFO   gap             17 blocks, ghs_pop 143327, v5.6 18260 people; cells BUI > 0 0.570, NobuiltYear > 0 0.949
+13:03:47 INFO   dense_not_gap  715 blocks, ghs_pop 3127984, v5.6 2791347 people; cells BUI > 0 0.906, NobuiltYear > 0 0.958
+13:03:47 INFO   wrote results/validation/conus/external/city_maps_meeting/chicago_2010.png
+13:03:48 INFO summary:
+   city               product  spearman_1km_vs_version  n_blocks_1km  total_pop_box
+ boston Dasy_CONUS_RF_v3_u070                    1.000          1140    1849812.713
+ boston               ghs_pop                    0.935          1140    2198067.989
+ boston              worldpop                    0.932          1140    2180911.920
+ denver Dasy_CONUS_RF_v3_u070                    1.000          1600    1857829.266
+ denver               ghs_pop                    0.891          1600    1939729.023
+ denver              worldpop                    0.886          1600    1924358.425
+chicago Dasy_CONUS_RF_v3_u070                    1.000           856    2906090.912
+chicago               ghs_pop                    0.849           856    3463953.936
+chicago              worldpop                    0.851           856    3436380.812
+13:03:48 INFO gap blocks:
+   city  year         group  n_blocks  n_cells     pop_v56  pop_ghs_pop  pop_worldpop  share_cells_bui_gt0  share_cells_nobuilt_gt0  share_cells_nobuilt_gt0_bui0  share_cells_no_record                                             nobuilt_source
+chicago  2010           gap        17      272   18260.379   143327.422    141612.735                0.570                    0.949                         0.390                   0.04 /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+chicago  2010 dense_not_gap       715    11440 2791346.867  3127984.080   3101521.582                0.906                    0.958                         0.064                   0.03 /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+13:03:48 INFO wrote results/validation/conus/external/city_maps_meeting/chicago_gap_blocks.csv
+13:03:48 INFO wrote results/validation/conus/external/city_maps_meeting/meeting_summary.csv
+13:03:48 INFO DONE
+== done 2026-11-02T13:03:48-07:00
