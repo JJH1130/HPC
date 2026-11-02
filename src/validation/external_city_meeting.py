@@ -14,7 +14,8 @@ Per city and year, one figure:
               10 km scale bar on a white box on every map; same size and spacing (maps and scatter plots are two
               sub-figures)
   bottom row  1 km block density, x = v5.6, y = product, log axes with 0.01 / 0.1 / 1 / 10 ... ticks (blocks with 0
-              people on a band "0 (n blocks)" below / left of the axes; no band without them), 1:1 line, Spearman
+              people on a band "0 (n blocks)" below / left of the axes, apart from the lowest tick, vertical on x;
+              no band without them; at most 7 ticks, every k-th decade), 1:1 line, Spearman
               rho + number of blocks in the title; a text panel with the totals
 Gap city and year (Chicago 2010): 1 km blocks where v5.6 is far below GHS-POP (fixed rule: v5.6 / GHS < ratio_max and GHS >=
 min_density people per km2) are outlined on the maps and coloured in the scatter plots; their HISDAC state goes to
@@ -144,21 +145,45 @@ def tick_label(t: float) -> str:
     return f"{t:,.0f}" if t >= 1 else f"{t:g}"
 
 
+MAX_TICKS = 7  # decade ticks per axis (every k-th decade when the axis spans more)
+
+
+def zero_band(lo: float, hi: float):
+    """(band low, band centre, band high, axis low limit) for the 0-people blocks below lo: the gap to lo grows with
+    the decades the axis spans (at least half a decade), so the band label never touches the lowest tick."""
+    g = max(0.5, (np.log10(hi * 2) - np.log10(lo)) / 7)
+    c = lo / 10 ** (1.25 * g)
+    return c / 10 ** (0.35 * g), c, c * 10 ** (0.35 * g), c / 10 ** (0.6 * g)
+
+
+def decade_ticks(lo: float, top: float) -> list:
+    """Decade ticks from lo to top, every k-th decade so that there are at most MAX_TICKS (1 kept when in range)."""
+    e = np.arange(np.ceil(np.log10(lo) - 1e-9), np.floor(np.log10(top) + 1e-9) + 1).astype(int)
+    k = max(1, int(np.ceil(len(e) / MAX_TICKS)))
+    keep = e[(e % k) == 0] if k > 1 else e
+    return list(10.0 ** keep)
+
+
 def _log_axis(ax, which: str, lo: float, hi: float, low_limit: float, n0: int):
-    """Log axis from low_limit to hi x 2, decade ticks; with n0 > 0 blocks of 0 people a band at lo / 3 labelled
-    "0 (n0 blocks)", without them no band."""
+    """Log axis from low_limit to hi x 2 with decade ticks; with n0 > 0 blocks of 0 people a band (zero_band)
+    labelled "0 (n0 blocks)" at its centre (vertical on the x axis), without them no band."""
     from matplotlib.ticker import NullLocator
     (ax.set_xscale if which == "x" else ax.set_yscale)("log")
     (ax.set_xlim if which == "x" else ax.set_ylim)(low_limit, hi * 2)
     axis = ax.xaxis if which == "x" else ax.yaxis
-    ticks = list(10.0 ** np.arange(np.ceil(np.log10(lo) - 1e-9), np.floor(np.log10(hi * 2)) + 1))
+    ticks = decade_ticks(lo, hi * 2)
     labels = [tick_label(t) for t in ticks]
     if n0:
-        (ax.axvspan if which == "x" else ax.axhspan)(lo / 6, lo / 1.6, color=ecm._plots().GRID, lw=0, zorder=0)
-        ticks, labels = [lo / 3] + ticks, [f"0 ({n0} blocks)"] + labels
+        b0, c, b1, _ = zero_band(lo, hi)
+        (ax.axvspan if which == "x" else ax.axhspan)(b0, b1, color=ecm._plots().GRID, lw=0, zorder=0)
+        ticks, labels = [c] + ticks, [f"0 ({n0} block{'s' if n0 > 1 else ''})"] + labels
     axis.set_ticks(ticks)
     axis.set_ticklabels(labels)
     axis.set_minor_locator(NullLocator())
+    if n0 and which == "x":
+        lab = axis.get_ticklabels()[0]
+        lab.set_rotation(90)
+        lab.set_verticalalignment("top")
 
 
 def scatter(ax, x: np.ndarray, y: np.ndarray, gap: np.ndarray | None, title: str, xlab: str, ylab: str):
@@ -168,8 +193,9 @@ def scatter(ax, x: np.ndarray, y: np.ndarray, gap: np.ndarray | None, title: str
     lo = 10.0 ** np.floor(np.log10(pos.min())) if pos.size else 1.0
     hi = float(pos.max()) if pos.size else 10.0
     nx0, ny0 = int((x == 0).sum()), int((y == 0).sum())
-    low_limit = lo / 6 if nx0 or ny0 else lo / 1.5
-    xs, ys = np.where(x > 0, x, lo / 3), np.where(y > 0, y, lo / 3)
+    zc = zero_band(lo, hi)[1]
+    low_limit = zero_band(lo, hi)[3] if nx0 or ny0 else lo / 1.5
+    xs, ys = np.where(x > 0, x, zc), np.where(y > 0, y, zc)
     g = np.zeros(len(x), bool) if gap is None else gap
     ax.scatter(xs[~g], ys[~g], s=8, color=plots.SERIES[0], alpha=0.45, lw=0, label="1 km block")
     if g.any():
@@ -250,7 +276,7 @@ def draw(path: Path, title: str, maps: list, mask: np.ndarray, box_km: float, bl
             transform=tx.transAxes)
     fig.suptitle(f"{title}\n{HEADER}", fontsize=9.5, color=plots.INK)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, facecolor="white")
+    fig.savefig(path, facecolor="white", bbox_inches="tight", pad_inches=0.15)  # nothing cut at the edges
     plt.close(fig)
     log.info("  wrote %s", path)
 

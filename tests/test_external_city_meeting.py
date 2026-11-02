@@ -121,7 +121,30 @@ def test_scatter_axes():
     l2 = [t.get_text() for t in a2.get_xticklabels() + a2.get_yticklabels()]
     assert len(a2.patches) == 0 and not any(t.startswith("0 (") for t in l2), l2
     plt.close(fig)
-    print("ok: log ticks 0.01 / 0.1 / 1 / 10 ..., one '0 (n blocks)' band only where there are 0 blocks")
+    # Denver 1980 shape: 1 zero block on x, 169 on y, positive blocks from 0.0001 to ~10,000 per km2
+    rng = np.random.default_rng(1)
+    x = 10.0 ** rng.uniform(-3.3, 3.9, 1581)
+    y = 10.0 ** rng.uniform(-3.2, 3.9, 1581)
+    x[5], y[:169] = 0.0, 0.0
+    x[7] = 0.00012
+    for size in ((9.6, 9.6), (13.0, 9.6)):                # the 1980 and 2010 figure sizes
+        fig = plt.figure(figsize=size, dpi=150, layout="constrained")
+        ax = fig.subfigures(2, 1)[1].subplots(1, 3)[0]
+        mt.scatter(ax, x, y, None, "t", "v5.6, people per km2 (1 km block)", "y")
+        fig.canvas.draw()
+        r = fig.canvas.get_renderer()
+        for which, labs in (("x", ax.get_xticklabels()), ("y", ax.get_yticklabels())):
+            texts = [t.get_text() for t in labs]
+            assert texts[0] == ("0 (1 block)" if which == "x" else "0 (169 blocks)"), texts
+            assert len(texts) - 1 <= mt.MAX_TICKS and "1" in texts, texts
+            z, nxt = labs[0].get_window_extent(r), labs[1].get_window_extent(r)
+            assert not z.overlaps(nxt), (which, texts[:2], z, nxt)
+            assert all(not z.overlaps(t.get_window_extent(r)) for t in labs[1:])
+        plt.close(fig)
+    assert mt.decade_ticks(1e-4, 2e4) == [1e-4, 1e-2, 1.0, 1e2, 1e4]  # 9 decades -> every 2nd, 1 kept
+    assert mt.decade_ticks(0.01, 2e4) == [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]
+    print("ok: log ticks 0.01 / 0.1 / 1 / 10 ... (at most 7), one '0 (n blocks)' band only where there are 0 blocks, "
+          "its label apart from every tick label")
 
 
 def test_end_to_end(tmp: Path):
@@ -192,6 +215,11 @@ def test_end_to_end(tmp: Path):
         mt.draw = real_draw
     assert sorted(drawn) == ["boston_1980.png", "boston_2010.png", "chicago_1980.png", "chicago_2010.png"]
     assert all((out / k).exists() for k in drawn)
+    import matplotlib.image as mpimg
+    for k in drawn:                                      # nothing cut: a white margin on every side of the PNG
+        im = mpimg.imread(out / k)[..., :3]
+        for edge in (im[:6], im[-6:], im[:, :6], im[:, -6:]):
+            assert edge.min() > 0.97, (k, float(edge.min()))
     for k, a in drawn.items():                           # (path, title, maps, mask, box, block, gap, full, scat, text)
         n_maps, n_scat = (2, 1) if "1980" in k else (3, 2)
         assert len(a[2]) == n_maps and len(a[8]) == n_scat, (k, len(a[2]), len(a[8]))

@@ -154,7 +154,7 @@ one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_
 pixel intersection, nodata / outside tracts left out, extract -> evaluate: product, v5.4 and areal weighting metrics on
 the kept subset = by hand, a missing product = `missing` row, path resolution; a compare version + MAPE by hand,
 `--strict-sums`), `python tests/test_external_city_maps.py` (population kept on the move to our cells, nested grids exact,
-1 km blocks / Spearman / shares by hand, mask grey, 0 white, end to end + `--check`), `python tests/test_external_city_meeting.py` (scatter blocks = Spearman blocks, gap rule and cell shares by hand, log tick labels + 0 band only with 0 blocks, 2010 / 1980 panel counts, Chicago text = gap table, a changed previous number stops the rerun,
+1 km blocks / Spearman / shares by hand, mask grey, 0 white, end to end + `--check`), `python tests/test_external_city_meeting.py` (scatter blocks = Spearman blocks, gap rule and cell shares by hand, log tick labels (at most 7) + 0 band only with 0 blocks, its label apart from every tick (bbox), PNG margins, 2010 / 1980 panel counts, Chicago text = gap table, a changed previous number stops the rerun,
 NobuiltYear source order + window / WarpedVRT reads, end to end: rho / totals = city maps, gap table by hand, NA
 without NobuiltYear, `--check`), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county ratio_A_contemp /
 ratio_A_nby / ratio_B, A compare, cell checks, thresholds, gap overlap, strips = one strip; contemp + 0/1 NobuiltYear;

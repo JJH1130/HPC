@@ -1638,6 +1638,12 @@ with the committed `meeting_summary.csv` (2010) and `city_maps_internal_with_fj/
 (`ERROR: ... differs from ...`). Section 17's maps moved to `city_maps_internal_with_fj/` (README.txt: not for the
 meeting; drawn before the display fix).
 
+Rerun 2026-11-03 for `docs/handoff/city_maps_meeting_fix2_request.md` (1980 figures: the "0 (n blocks)" band
+label overlapped the lowest tick, the x-axis title was cut): the same two blocks. The 0 band now sits apart from the
+lowest tick (gap grows with the decades the axis spans; vertical label on x), at most 7 decade ticks, PNGs saved with
+a tight bounding box. The run again compares with the previous outputs (now 2010 + 1980 rows: `meeting_summary.csv`
+15 rows).
+
 Block 1, submit (login node):
 
 ```bash
@@ -1673,7 +1679,7 @@ git log --oneline -1
 echo "== end of block 2 (success = COMPLETED, 3 MATCH lines, DONE, 8 files listed, push ends with main -> main)"
 ```
 
-Good: `COMPLETED`; three `MATCH` lines (previous `meeting_summary.csv`: 9 rows; `city_maps_summary.csv`: 15 rows;
+Good: `COMPLETED`; three `MATCH` lines (previous `meeting_summary.csv`: 9 rows, 15 after the 1980 run; `city_maps_summary.csv`: 15 rows;
 `chicago_gap_blocks.csv`: 2 rows) and `DONE`; `boston_1980.png`, `boston_2010.png`, `chicago_1980.png`,
 `chicago_2010.png`, `chicago_gap_blocks.csv`, `denver_1980.png`, `denver_2010.png`, `meeting_summary.csv`; `git push`
 ends with `main -> main`; `== end of block 2`. `ERROR: ... differs from ...` (state `FAILED`, nothing written in the
