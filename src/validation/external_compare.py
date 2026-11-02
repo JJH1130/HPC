@@ -1,6 +1,7 @@
-"""External gridded population products vs CONUS v5.4 on the same census tracts (docs/conus_plan.md "External
-comparison"; request docs/handoff/external_grids_request.md; products and paths in configs/external_grids.yaml,
-data registered in docs/data_sources.md).
+"""External gridded population products vs our CONUS versions on the same census tracts (docs/conus_plan.md
+"External comparison" (v5.4) and "External comparison with v5.6"; requests docs/handoff/external_grids_request.md,
+external_v56_request.md; products and paths in configs/external_grids.yaml, data registered in docs/data_sources.md).
+The config's `reference` (v5.6) chooses the tracts; `compare_versions` (v5.4) are scored on the same tracts.
 
 Three steps (sbatch/external_compare.sh; chain by `bash sbatch/submit_conus.sh external`):
 
@@ -17,12 +18,17 @@ Three steps (sbatch/external_compare.sh; chain by `bash sbatch/submit_conus.sh e
              <work-dir>/sums/<product>_<year>.csv.
   evaluate   per year and product: the tracts the product covers without nodata (cells_all = cells_poly, nodata
              share <= --max-nodata-share, default 0, no negative pixel) and on that same subset the product, the
-             reference version (pop_model of its tract_errors) and areal weighting (pop_baseline): MdAPE, MAPE
+             reference version (pop_model of its tract_errors), each of `compare_versions` (pop_model of theirs; their
+             evaluated tracts must be the reference's) and areal weighting (pop_baseline): MdAPE, MAPE
              (tracts >= 10 people), p90 APE, total ratio, MdAPE per observed density class (people per km2 of the
              tract's 250 m cells, as tract_validate.py), MdAPE in / outside BUI gap counties, tract count and share of
-             the evaluated tracts and their population. Rows `all_tracts` = the reference and areal weighting on all
-             evaluated tracts. A product or year without sums is a row with status `missing` (logged, not an error).
-             -> <out> + figure (tract MdAPE by year).
+             the evaluated tracts and their population. Rows `all_tracts` = the versions and areal weighting on all
+             evaluated tracts. Column input_unit_class: the product's class from the config (block = finer census
+             input than tracts: a reference line, not a competitor) or county (our versions, areal weighting). A
+             product or year without sums is a row with status `missing` (logged, not an error); with
+             `--strict-sums` it stops the run instead, as does a tract without sums (sums reused from an earlier
+             extract must cover every evaluated tract). -> <out> + figure (tract MdAPE and MAPE by year; block-input
+             products dashed).
 """
 from __future__ import annotations
 
@@ -46,7 +52,8 @@ from tract_validate import CELL_KM2, DENSITY_CLASSES, density_label, mdape  # no
 COVER_TOL = 1e-4  # cells_all >= cells_poly x (1 - tol): the tract lies inside the raster
 MAPE_MIN_POP = 10
 SUM_COLS = ["GISJOIN", "pop", "cells", "cells_all", "cells_poly", "vmin"]
-OUT_COLS = ["year", "product", "label", "method", "status", "input_unit", "input_unit_source", "n_tracts",
+OUT_COLS = ["year", "product", "label", "method", "status", "input_unit_class", "input_unit", "input_unit_source",
+            "n_tracts",
             "n_eval", "tract_share", "pop_share", "n_outside", "n_nodata", "mdape", "mape", "p90_ape", "total_ratio"] \
     + [f"mdape_{density_label(lo, hi)}" for lo, hi in DENSITY_CLASSES] + ["mdape_no_gap", "mdape_gap", "n_gap"]
 
@@ -69,6 +76,8 @@ def parse_args(argv=None):
     p.add_argument("--chunks-per-worker", type=int, default=8)
     p.add_argument("--max-nodata-share", type=float, default=0.0,
                    help="evaluate: largest share of a tract's pixel coverage that may be nodata (default 0)")
+    p.add_argument("--strict-sums", action="store_true",
+                   help="evaluate: stop if a product year has no sums or a sums file lacks an evaluated tract")
     p.add_argument("--available", action="store_true", help="inventory: print the products with all files, nothing else")
     p.add_argument("--out", type=Path, help="inventory / evaluate CSV")
     p.add_argument("--plot", type=Path, help="evaluate: figure of tract MdAPE by year")
@@ -78,7 +87,7 @@ def parse_args(argv=None):
 def load_config(path: Path) -> dict:
     cfg = yaml.safe_load(path.read_text())
     for name, spec in cfg["products"].items():
-        missing = {"label", "path", "years", "input_unit", "input_unit_source"} - set(spec)
+        missing = {"label", "path", "years", "input_unit", "input_unit_class", "input_unit_source"} - set(spec)
         if missing:
             sys.exit(f"ERROR: {path}: product {name} lacks {sorted(missing)}")
     return cfg
@@ -297,10 +306,31 @@ def keep_mask(s: pd.DataFrame, max_nodata_share: float):
     return ~outside & ~nodata, outside, nodata
 
 
-def evaluate_year(year, te, products, cfg, args):
+def version_tracts(args, cfg: dict, year: int) -> pd.DataFrame:
+    """The reference's evaluated tracts + one column `pop_model__<version>` per version (compare versions: same
+    tracts and observed pop as the reference, else stop)."""
     ref = cfg["reference"]
+    te = reference_tracts(args, ref, year)
+    te[f"pop_model__{ref}"] = te["pop_model"]
+    for v in cfg.get("compare_versions") or {}:
+        tv = reference_tracts(args, v, year)
+        a, b = set(te["GISJOIN"]), set(tv["GISJOIN"])
+        if a != b:
+            sys.exit(f"ERROR: {year}: the evaluated tracts of {v} differ from {ref}'s ({len(a - b)} only in {ref}, "
+                     f"{len(b - a)} only in {v}): not the same tracts")
+        o = te[["GISJOIN", "pop_obs"]].merge(tv[["GISJOIN", "pop_obs"]], on="GISJOIN")
+        if not np.allclose(o["pop_obs_x"], o["pop_obs_y"]):
+            sys.exit(f"ERROR: {year}: observed tract pop of {v} differs from {ref}'s")
+        te = te.merge(tv[["GISJOIN", "pop_model"]].rename(columns={"pop_model": f"pop_model__{v}"}), on="GISJOIN",
+                      validate="one_to_one")
+    return te
+
+
+def evaluate_year(year, te, products, cfg, args):
+    versions = [cfg["reference"]] + list(cfg.get("compare_versions") or {})
     n_eval, pop_eval = len(te), te["pop_obs"].sum()
     rows = []
+    county = {"input_unit_class": "county"}
 
     def row(product, label, method, sub, pred, status="ok", **extra):
         r = {"year": year, "product": product, "label": label, "method": method, "status": status,
@@ -310,14 +340,19 @@ def evaluate_year(year, te, products, cfg, args):
             r.update(subset_metrics(sub, pred))
         rows.append(r)
 
-    row("all_tracts", "all evaluated tracts", ref, te, te["pop_model"].to_numpy(float))
-    row("all_tracts", "all evaluated tracts", "areal_weighting", te, te["pop_baseline"].to_numpy(float))
+    for v in versions:
+        row("all_tracts", "all evaluated tracts", v, te, te[f"pop_model__{v}"].to_numpy(float), **county)
+    row("all_tracts", "all evaluated tracts", "areal_weighting", te, te["pop_baseline"].to_numpy(float), **county)
     for name, spec in products.items():
         if year not in spec["years"]:
             continue
-        unit = {"input_unit": spec["input_unit"], "input_unit_source": spec["input_unit_source"]}
+        unit = {"input_unit_class": spec["input_unit_class"], "input_unit": spec["input_unit"],
+                "input_unit_source": spec["input_unit_source"]}
         path = args.work_dir / "sums" / f"{name}_{year}.csv"
         if not path.exists():
+            if args.strict_sums:
+                sys.exit(f"ERROR: {name} {year}: no tract sums {path} (--strict-sums: the extract is not rerun; "
+                         f"scratch purged?)")
             log.warning("  %-9s %d: no tract sums (%s): skipped (product not downloaded or its extract job failed)",
                         name, year, path)
             row(name, spec["label"], name, te.iloc[:0], np.array([]), status="missing", **unit)
@@ -325,6 +360,9 @@ def evaluate_year(year, te, products, cfg, args):
         s = pd.read_csv(path)
         m = te.merge(s, on="GISJOIN", how="left", validate="one_to_one")
         lost = m["cells_all"].isna()
+        if args.strict_sums and lost.any():
+            sys.exit(f"ERROR: {name} {year}: {int(lost.sum())} evaluated tracts are not in {path} (sums made for "
+                     f"other tracts: rerun its extract)")
         m.loc[lost, ["cells", "cells_all", "pop"]] = 0.0  # tract not in the sums (no geometry): outside
         m.loc[lost, "cells_poly"] = 1.0
         kept, outside, nodata = keep_mask(m, args.max_nodata_share)
@@ -335,8 +373,9 @@ def evaluate_year(year, te, products, cfg, args):
                  100 * sub["pop_obs"].sum() / pop_eval, cnt["n_outside"], cnt["n_nodata"],
                  100 * m.loc[nodata, "pop_obs"].sum() / pop_eval)
         row(name, spec["label"], name, sub, sub["pop"].to_numpy(float), **unit, **cnt)
-        row(name, spec["label"], ref, sub, sub["pop_model"].to_numpy(float), **cnt)
-        row(name, spec["label"], "areal_weighting", sub, sub["pop_baseline"].to_numpy(float), **cnt)
+        for v in versions:
+            row(name, spec["label"], v, sub, sub[f"pop_model__{v}"].to_numpy(float), **county, **cnt)
+        row(name, spec["label"], "areal_weighting", sub, sub["pop_baseline"].to_numpy(float), **county, **cnt)
     return rows
 
 
@@ -346,22 +385,27 @@ def evaluate(args, cfg):
     rows = []
     for year in years:
         log.info("===== %d", year)
-        rows += evaluate_year(year, reference_tracts(args, cfg["reference"], year), products, cfg, args)
+        rows += evaluate_year(year, version_tracts(args, cfg, year), products, cfg, args)
     df = pd.DataFrame(rows).reindex(columns=OUT_COLS)
     out = args.out or args.results_root / "validation" / args.name / "external" / "external_comparison.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out, index=False)
     ref = cfg["reference"]
+    versions = [ref] + list(cfg.get("compare_versions") or {})
     ok = df[df["status"] == "ok"]
     with pd.option_context("display.width", 250, "display.max_columns", 30, "display.max_colwidth", 40):
-        piv = ok.pivot_table(index=["year", "product"], columns="method", values="mdape", sort=False)
-        cols = [c for c in piv.columns if c not in (ref, "areal_weighting")] + [ref, "areal_weighting"]
-        piv = piv[[c for c in cols if c in piv]]
-        piv["product_mdape"] = [ok[(ok["year"] == y) & (ok["product"] == p) & (ok["method"] == p)]["mdape"].max()
-                                for y, p in piv.index]
-        piv = piv.join(ok[ok["method"] == ref].set_index(["year", "product"])[["n_tracts", "tract_share"]])
-        log.info("tract MdAPE (%%) on each product's tracts (%s and areal weighting on the same tracts):\n%s", ref,
-                 piv[["product_mdape", ref, "areal_weighting", "n_tracts", "tract_share"]].round(3).to_string())
+        for metric in ("mdape", "mape"):
+            piv = ok.pivot_table(index=["year", "product"], columns="method", values=metric, sort=False)
+            piv["product_value"] = [ok[(ok["year"] == y) & (ok["product"] == p) & (ok["method"] == p)][metric].max()
+                                    for y, p in piv.index]
+            piv["class"] = [ok[(ok["year"] == y) & (ok["product"] == p) & (ok["method"] == p)]["input_unit_class"]
+                            .max() if p != "all_tracts" else "-" for y, p in piv.index]
+            piv = piv.join(ok[ok["method"] == ref].set_index(["year", "product"])[["n_tracts", "tract_share"]])
+            log.info("tract %s (%%) on each product's tracts (%s and areal weighting on the same tracts; MAPE: "
+                     "tracts >= %d people; class block = finer input than tracts, a reference, not a competitor):\n%s",
+                     metric.upper(), ", ".join(versions), MAPE_MIN_POP,
+                     piv[["class", "product_value"] + versions + ["areal_weighting", "n_tracts", "tract_share"]]
+                     .round(3).to_string())
         ext = ok[ok["method"] == ok["product"]]
         log.info("products: MAPE (tracts >= %d people), p90 APE, total ratio, gap / no_gap, density classes:\n%s",
                  MAPE_MIN_POP, ext[["year", "product", "mape", "p90_ape", "total_ratio", "mdape_no_gap", "mdape_gap"]
@@ -371,38 +415,50 @@ def evaluate(args, cfg):
             log.warning("missing (skipped): %s", ", ".join(f"{p} {y}" for p, y in zip(miss["product"], miss["year"])))
     log.info("wrote %s", out)
     if args.plot:
-        plot_years(df, args.plot, ref, cfg.get("reference_label", ref))
+        labels = {ref: cfg.get("reference_label", ref), **(cfg.get("compare_versions") or {})}
+        plot_years(df, args.plot, labels)
 
 
-def plot_years(df: pd.DataFrame, path: Path, ref: str, ref_label: str):
-    """Tract MdAPE by year: the reference and areal weighting on all evaluated tracts (lines), each product on the
-    tracts it covers (markers + lines)."""
+def plot_years(df: pd.DataFrame, path: Path, labels: dict):
+    """Tract MdAPE and MAPE by year (two panels): our versions (labels: method -> label, first = reference) and areal
+    weighting on all evaluated tracts (lines), each product on the tracts it covers (markers + lines; block-input
+    products dashed: finer input than tracts, a reference, not a competitor)."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
     ok = df[df["status"] == "ok"]
     allt = ok[ok["product"] == "all_tracts"].sort_values("year")
-    fig, ax = plt.subplots(figsize=(9, 5.5))
-    for method, label, color, ls in ((ref, ref_label + ", all evaluated tracts", "#0b0b0b", "-"),
-                                     ("areal_weighting", "areal weighting, all evaluated tracts", "#898781", "--")):
-        d = allt[allt["method"] == method]
-        ax.plot(d["year"], d["mdape"], ls, color=color, lw=2.2, marker="o", ms=5, label=label, zorder=3)
+    ext = ok[(ok["method"] == ok["product"])]
     colors = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
     markers = ["s", "^", "D", "v", "P", "X", "o", "*"]
-    ext = ok[(ok["method"] == ok["product"])]
-    for i, (name, d) in enumerate(ext.groupby("product", sort=False)):
-        d = d.sort_values("year")
-        ax.plot(d["year"], d["mdape"], "-", color=colors[i % 8], lw=1.4, marker=markers[i % 8], ms=7,
-                label=d["label"].iloc[0])
-    ax.set_ylabel("tract MdAPE (%)")
-    ax.set_xlabel("census year")
-    ax.set_ylim(bottom=0)
-    ax.set_xticks(sorted(ok["year"].unique()))
-    ax.grid(axis="y", color="#e1e0d9", lw=0.6)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title("Tract MdAPE by year: products on the tracts each covers without nodata\n"
-                 f"({ref} on each product's tracts: external_comparison.csv)", fontsize=10)
-    ax.legend(frameon=False, fontsize=8, loc="upper left", bbox_to_anchor=(1.01, 1))
+    ours = [(m, lab, c, ls) for (m, lab), c, ls in zip(labels.items(), ["#0b0b0b", "#52514e", "#898781"],
+                                                         ["-", "-.", "-."])]
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5.5), sharex=True)
+    for ax, metric, name in ((axes[0], "mdape", "MdAPE"), (axes[1], "mape", f"MAPE (tracts >= {MAPE_MIN_POP} people)")):
+        for method, label, color, ls in ours + [("areal_weighting", "areal weighting", "#898781", ":")]:
+            d = allt[allt["method"] == method]
+            ax.plot(d["year"], d[metric], ls, color=color, lw=2.2 if method in labels else 1.8, marker="o", ms=5,
+                    label=label + ", all evaluated tracts", zorder=3)
+        for i, (prod, d) in enumerate(ext.groupby("product", sort=False)):
+            d = d.sort_values("year")
+            block = d["input_unit_class"].iloc[0] == "block"
+            ax.plot(d["year"], d[metric], "--" if block else "-", color=colors[i % 8], lw=1.4, marker=markers[i % 8],
+                    ms=7, label=d["label"].iloc[0] + f" [{d['input_unit_class'].iloc[0]} input]")
+        ax.set_ylabel(f"tract {name} (%)")
+        ax.set_xlabel("census year")
+        ax.set_ylim(bottom=0)
+        ax.set_xticks(sorted(ok["year"].unique()))
+        ax.tick_params(axis="x", labelsize=8)
+        ax.grid(axis="y", color="#e1e0d9", lw=0.6)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.set_title(f"tract {name} by year", fontsize=10)
+    h, lab = axes[0].get_legend_handles_labels()
+    h.append(Line2D([], [], ls="--", color="#898781", lw=1.4))
+    lab.append("dashed = finer input (blocks): reference, not a competitor")
+    fig.legend(h, lab, frameon=False, fontsize=8, loc="upper left", bbox_to_anchor=(1.0, 0.92))
+    fig.suptitle("Tract error by year: products on the tracts each covers without nodata, our versions on all "
+                 "evaluated tracts\n(every method on each product's own tracts: the CSV)", fontsize=10)
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight")

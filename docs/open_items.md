@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -20,6 +20,10 @@ Last updated: 2026-10-31 (built-cell aggregation test written as code, not run);
   better", Stefan's call. Noi et al. (draft) compared with GHS-POP only at county totals (log r 0.99-1.00; they note it
   is not independent) and by eye on 1980 maps of Denver / Salt Lake City; their tract MAPE ~30 % (2010) uses tract
   totals in preallocation and 2,466 screened counties, so it is not comparable with ours (v5.6 2010 MAPE >= 10: 47.4 %).
+  **Code written 2026-11-03, not run:** `docs/conus_plan.md` "External comparison with v5.6", runbook section 17
+  (`bash sbatch/submit_conus.sh externalv56`; reuses the scratch tract sums of 2026-10-30, stops if purged). Outputs
+  `external_comparison_v56.csv` / `external_mdape_by_year_v56.png` + `city_maps/`. Open after the run: read the city
+  maps with the user before any text for Stefan; the GHS-BUILT test stays a meeting question.
 
 - **Status (2026-11-03, built-cell aggregation test, closed):** `docs/conus_plan.md` "Built-cell aggregation test result".
   County CV / TEST better (RMSE -0.045, TEST R2 +0.02-0.03), tracts worse (2010 23.8 -> 28.2-28.9 %) because the

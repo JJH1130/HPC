@@ -29,8 +29,15 @@ and an areal-weighting baseline (+ totals QA; metrics for all / small / non-smal
 input units in `configs/external_grids.yaml`; data fetched by `sbatch/external_download.sh` on a login node into
 `$DATA_ROOT/raw/external/`) sums external population grids (GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz M3 / M5)
 per tract in each grid's own CRS with exactextract (`extract`, one job per product, sums on scratch) and compares them with
-v5.4 (= `Dasy_CONUS_RF_v3_all`) and areal weighting on the same tracts (`evaluate`: tracts the product covers without
-nodata; v5.4 rows from its `tract_errors_{YEAR}.csv`) -> `results/validation/conus/external/external_comparison.csv` + figure;
+our versions and areal weighting on the same tracts (`evaluate`: tracts the product covers without nodata; config
+`reference` = v5.6 picks the tracts, `compare_versions` = v5.4 on the same tracts, rows from their `tract_errors_{YEAR}.csv`;
+MdAPE + MAPE; column `input_unit_class` block / county / unverified, block products dashed = reference, not a competitor;
+`--strict-sums` stops on missing sums) -> `results/validation/conus/external/external_comparison_v56.csv` + figure (the v5.4
+`external_comparison.csv` of 2026-10-30 kept); `src/validation/external_city_maps.py` (`sbatch/external_city_maps.sh`,
+`city_maps:` block of the same config; `--check` = inputs only) draws 40 x 40 km boxes of v5.6 next to GHS-POP / F&J M5
+(+ WorldPop 2010) for Denver / Salt Lake City / Chicago / Boston, 1980 / 2010, products moved to our 250 m cells with
+population kept (k x k sub-points per pixel), masked cells grey, + totals / 1 km Spearman / BUI = 0 share ("agreement,
+not accuracy") -> `results/validation/conus/external/city_maps/`;
 `src/validation/compare_models.py` (`sbatch/compare_models.sh`) tabulates CV / TEST / tract metrics of several versions
 (`model_comparison.csv`; for one version over years `--out summary_by_year.csv --plot ... --repro-with <version>`;
 `--years` filters, `--rank-features ntl ntlv` adds a feature's permutation / SHAP rank; logs tract MdAPE by part side by side);
@@ -114,8 +121,8 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
-`filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
+`filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `externalv56` = pre-check of the reused tract sums + map inputs, then evaluate and city maps side by side; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
 2020 added to `Dasy_CONUS_RF_v3_all` as era Y2020 with `--years 2020`, after `sbatch/y2020_precheck.sh`; with `--years`,
 `county_features` / `train` / `predict` keep the other years' rows of `water_mask_by_year.csv` / `cv_summary.csv` /
 `reallocation_qa.csv`; stage scripts take `CONFIG=`,
@@ -140,7 +147,9 @@ without, NTL nodata, `ntl_qa.py` against brute force, `compare_models --years --
 county ntlv, `ntl_qa.py` NTL + NTLV); stubs `shap` and `plots`;
 one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_conus_dasymetric as t; t.test_ntl()"`), `python tests/test_external_compare.py` (tract sums of a projected and a lon / lat raster = brute-force polygon x
 pixel intersection, nodata / outside tracts left out, extract -> evaluate: product, v5.4 and areal weighting metrics on
-the kept subset = by hand, a missing product = `missing` row, path resolution), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county ratio_A_contemp /
+the kept subset = by hand, a missing product = `missing` row, path resolution; a compare version + MAPE by hand,
+`--strict-sums`), `python tests/test_external_city_maps.py` (population kept on the move to our cells, nested grids exact,
+1 km blocks / Spearman / shares by hand, mask grey, end to end + `--check`), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county ratio_A_contemp /
 ratio_A_nby / ratio_B, A compare, cell checks, thresholds, gap overlap, strips = one strip; contemp + 0/1 NobuiltYear;
 no contemp + NobuiltYear counts = same NobuiltYear ratios; no contemp + 0/1 = value distribution only, exit 0),
 `python tests/test_uncertainty_filter.py` (exclusion sets: BUI sums, fixed rules, nested sets, reasons, summary, strips;

@@ -54,6 +54,10 @@
 #   bash sbatch/submit_conus.sh aggdiag # county feature aggregation diagnosis of v5.6, 1960 / 2010 (one job, no
 #                                       # training / prediction): pre-check of v5.6's predictions + features ->
 #                                       # aggregation_diag.sh -> results/aggregation/conus/
+#   bash sbatch/submit_conus.sh externalv56  # external comparison with v5.6 (no download, no extract): pre-check of the
+#                                       # tract sums on scratch + the city-map inputs, then evaluate (v5.6 + v5.4 on
+#                                       # each product's tracts, --strict-sums) and the city maps (two jobs, side by
+#                                       # side) -> results/validation/conus/external/*_v56.* + city_maps/
 #   bash sbatch/submit_conus.sh builtcell  # built-cell aggregation test, 1960 / 2010: v5.6 + built-cell county means +
 #                                       # built_local (bc3 / bc5 / bc9) features / train / predict / validate (gap
 #                                       # counties from v5.6) + aggregation_diag per variant, side by side; aggregation_diag
@@ -94,10 +98,12 @@
 # builtcell: per variant as one plural variant (2-3 years: features ~4 min, train ~15 min, predict ~8 min, validate
 # ~4 min) + built_local per strip (a box sum over BUI / water / zones of the strip + halo: small); aggregation_diag as
 # aggdiag (job 35099133); wall times ~3-4 x (estimates).
+# externalv56: evaluate took minutes (job 35052319); city maps: 8 maps, window reads of 40 km boxes (estimate
+# minutes, 2 cores, 45 min wall).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -354,6 +360,33 @@ elif [[ $mode == external ]]; then
          --job-name=external_evaluate sbatch/external_compare.sh evaluate)
     echo "${line}evaluate $je" | tee logs/conus_external_jobs.txt
     echo "== not downloaded (skipped): $(for p in ghs_pop worldpop gpw4 grump1 fj_m3 fj_m5; do [[ " $avail " == *" $p "* ]] || printf '%s ' $p; done)"
+elif [[ $mode == externalv56 ]]; then
+    PRODS="ghs_pop worldpop fj_m3 fj_m5"  # the downloaded products (GPW / GRUMP were never fetched: no Earthdata login)
+    declare -A YRS=([ghs_pop]="1980 1990 2000 2010" [worldpop]="2000 2010"
+                    [fj_m3]="1910 1920 1930 1940 1950 1970 1980 1990 2000 2010"
+                    [fj_m5]="1910 1920 1930 1940 1950 1970 1980 1990 2000 2010")
+    miss=()
+    for p in $PRODS; do
+        for y in ${YRS[$p]}; do  # tract sums of the 2026-10-30 extract (v5.4's tracts = v5.6's), reused, not redone
+            f=$HISDAC_SCRATCH/external/conus/sums/${p}_$y.csv
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    for y in 1910 1920 1930 1940 1950 1970 1980 1990 2000 2010; do
+        for v in Dasy_CONUS_RF_v3_u070 Dasy_CONUS_RF_v3_all; do
+            f=results/validation/conus/$v/tract_errors_$y.csv
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    echo "PRECHECK sums + tract errors: $(( ${#miss[@]} )) missing"
+    bash sbatch/external_city_maps.sh --check > logs/conus_externalv56_check.txt 2>&1 \
+        || miss+=("city-map inputs (see logs/conus_externalv56_check.txt: grep MISSING)")
+    grep -E "CHECK OK|MISSING|ERROR" logs/conus_externalv56_check.txt || true
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    je=$(sub "" --ntasks=2 --time=${EVAL_TIME:-00:30:00} --job-name=external_evaluate sbatch/external_compare.sh \
+         evaluate --products $PRODS --strict-sums)
+    jm=$(sub "" --time=${MAPS_TIME:-00:45:00} sbatch/external_city_maps.sh)
+    echo "evaluate $je | city_maps $jm" | tee logs/conus_externalv56_jobs.txt
 elif [[ $mode == y2020 ]]; then
     VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
     C=configs/conus_rf_v3_all.yaml

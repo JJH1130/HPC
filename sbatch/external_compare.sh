@@ -1,13 +1,15 @@
 #!/bin/bash
-# External gridded population products vs v5.4 on the same tracts (src/validation/external_compare.py;
+# External gridded population products vs v5.6 (+ v5.4) on the same tracts (src/validation/external_compare.py;
 # configs/external_grids.yaml; docs/conus_plan.md "External comparison"). First arg = the step, the rest go to Python.
 #   bash sbatch/external_compare.sh inventory              # login node, not a job: headers only, seconds
 #   sbatch sbatch/external_compare.sh extract --product fj_m3   # tract sums of one product (cores: --ntasks)
 #   sbatch sbatch/external_compare.sh evaluate             # metrics + figure from the sums that are there
 # Usually submitted by: bash sbatch/submit_conus.sh external (one extract job per downloaded product, then evaluate
-# after all of them, whether they ended well or not).
+# after all of them, whether they ended well or not) or externalv56 (evaluate only, on the sums already on scratch,
+# with --strict-sums). evaluate writes the _v56 files since the config's reference is v5.6 (2026-11-03); the v5.4
+# files of 2026-10-30 (external_comparison.csv, external_mdape_by_year.png) are kept as they are.
 # Inputs: $DATA_ROOT/raw/external (sbatch/external_download.sh), $DATA_ROOT/processed/tract/tracts_{YEAR}.gpkg,
-# results/validation/conus/Dasy_CONUS_RF_v3_all/tract_errors_{YEAR}.csv. Tract sums (scratch):
+# results/validation/conus/{Dasy_CONUS_RF_v3_u070,Dasy_CONUS_RF_v3_all}/tract_errors_{YEAR}.csv. Tract sums (scratch):
 # $HISDAC_SCRATCH/external/conus/sums/<product>_<year>.csv. Results (git): results/validation/conus/external/.
 #SBATCH --job-name=external_compare
 #SBATCH --partition=acpu
@@ -37,8 +39,8 @@ case $step in
     extract)   python -u src/validation/external_compare.py extract "${common[@]}" \
                    --tract-dir "$DATA_ROOT/processed/tract" --work-dir "$HISDAC_SCRATCH/external/conus" "$@" ;;
     evaluate)  python -u src/validation/external_compare.py evaluate "${common[@]}" \
-                   --work-dir "$HISDAC_SCRATCH/external/conus" --out $OUT/external_comparison.csv \
-                   --plot $OUT/external_mdape_by_year.png "$@" ;;
+                   --work-dir "$HISDAC_SCRATCH/external/conus" --out $OUT/external_comparison_v56.csv \
+                   --plot $OUT/external_mdape_by_year_v56.png "$@" ;;
     *) echo "ERROR: unknown step $step"; exit 1 ;;
 esac
 

@@ -1,4 +1,4 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty, the uncertainty filter, the PLURAL grid test and v5.6 for all years
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty, the uncertainty filter, the PLURAL grid test, v5.6 for all years and the external comparison with v5.6
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
 layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), `configs/external_grids.yaml`
@@ -25,6 +25,7 @@ the laptop, no job needed), section 10 (2020 added to v3_all: pre-check, then `s
 Section 10 ran 2026-10-29 (jobs 35053415-35053424). Section 11 block 1 ran 2026-10-29: `BUPR_contemp.tif` is not in the
 Dataverse archive; the job runs without it (NobuiltYear only; job 35056349, 2026-10-29). Written 2026-10-30, not run
 yet: section 12 (uncertainty filter, `submit_conus.sh uncfilter`).
+Written 2026-11-03, not run yet: section 17 (external comparison with v5.6 + city maps, `submit_conus.sh externalv56`).
 
 ## Inputs / outputs
 
@@ -1476,6 +1477,80 @@ What to look for in the logs: `dasymetric_features` (`built-cell means of ...; N
 `aggregation_diag` (`recomputed means = county_features.csv`, `allocated people on empty cells`), `builtcell_compare`
 (tables, `RULE RESULT`).
 
+## 17. External comparison with v5.6: tract numbers + city maps (2026-11-03)
+
+The external comparison of section 8 again with v5.6 (`Dasy_CONUS_RF_v3_u070`; v5.4 as a second column, MAPE next to
+MdAPE, input class block / county) and city maps of v5.6 next to GHS-POP / Fang & Jawitz M5 (+ WorldPop in 2010) for
+Denver, Salt Lake City, Chicago and Boston, 1980 / 2010 (`docs/conus_plan.md`, "External comparison with v5.6";
+request `docs/handoff/external_v56_request.md`). No download and no extract: the tract sums of section 8 on scratch
+(`$HISDAC_SCRATCH/external/conus/sums/`) are reused. If they were purged, the pre-check says so and nothing is submitted
+(the extract would then be a separate request). Needs v5.6's `pop_1980.tif` / `pop_2010.tif` and the cutout's BUI on
+scratch.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| pre-check | login node | 26 sums files, 20 tract error files, city-map inputs (`external_city_maps.sh --check`) | seconds |
+| evaluate | 2 cores, 30 min | v5.6 / v5.4 / areal weighting / product on each product's tracts (`--strict-sums`) -> `external_comparison_v56.csv` + `external_mdape_by_year_v56.png` | minutes |
+| city maps | 2 cores, 45 min | 8 maps (4 cities x 2 years) -> `city_maps/{city}_{year}.png` + `city_maps_summary.csv` | minutes (estimate) |
+
+Override: `EVAL_TIME`, `MAPS_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh externalv56
+squeue -u $USER
+echo "== end of block 1 (success = PRECHECK ... 0 missing, CHECK OK, one 'evaluate N | city_maps N' line)"
+```
+
+Good: `PRECHECK sums + tract errors: 0 missing`, `CHECK OK: 9 inputs for 4 cities x 2 years`, one line
+`evaluate N | city_maps N` (also in `logs/conus_externalv56_jobs.txt`), two jobs in `squeue`, `== end of block 1`.
+`MISSING ...` + `ERROR: nothing submitted`: send the output (and `logs/conus_externalv56_check.txt`) to Claude.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_externalv56_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+for j in ${ids//,/ }; do f=$(ls logs/*.$j.out 2>/dev/null) && grep -hE "=====|wrote|DONE|ERROR" $f | tail -4; done
+echo "== end of block 2 (success = states listed; DONE in both logs once finished)"
+```
+
+Good: `PENDING` / `RUNNING` / `COMPLETED`; the city maps log shows `===== <city> <year>` and `wrote .../<city>_<year>.png`
+per map; both logs end with `DONE` once finished; `== end of block 2`.
+
+Block 3, close the loop (after both jobs left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_externalv56_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_externalv56_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_externalv56_seff.txt
+cat logs/conus_externalv56_sacct.txt
+ls results/validation/conus/external/ results/validation/conus/external/city_maps/
+git add logs/ results/validation/conus/external
+git commit -m "run: external comparison with v5.6 (tract numbers + city maps; logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = both COMPLETED, files listed, push ends with main -> main)"
+```
+
+Good: both jobs `COMPLETED`; `external_comparison_v56.csv`, `external_mdape_by_year_v56.png` (next to the old v5.4
+files) and in `city_maps/` 8 PNGs + `city_maps_summary.csv`; `git push` ends with `main -> main`; `== end of block 3`.
+A `FAILED` job: commit anyway (same block) and tell Claude.
+
+What to look for in the logs: evaluate: per product and year `kept / left out`, the MdAPE and MAPE tables (class,
+product, v5.6, v5.4, areal weighting), `DONE`; city maps: the inputs, per map the centre / window / cells in the mask,
+per product `k = ..., people in the box (... on masked cells), ... in the read window` and the Spearman, the summary
+table, `DONE`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1536,6 +1611,10 @@ What to look for in the logs: `dasymetric_features` (`built-cell means of ...; N
 | external: `WARNING: ... size changed since 2026-10-28` | the file was replaced at the source: the new size is used; send the log (record it in `docs/data_sources.md`) |
 | external: inventory `MISSING: N matches for ...` | the zip / archive holds more files than the config path expects: send the inventory log (fix in `configs/external_grids.yaml`) |
 | external: an extract job `CANCELLED ... DUE TO TIME LIMIT` / `OUT_OF_MEMORY` | that product is `missing` in the table; send `seff` + log. Rerun it alone, then evaluate again: `sbatch --ntasks=16 --time=10:00:00 --job-name=external_ghs_pop sbatch/external_compare.sh extract --product ghs_pop`, then `sbatch --ntasks=2 --time=00:30:00 --job-name=external_evaluate sbatch/external_compare.sh evaluate` |
+| externalv56: `MISSING .../external/conus/sums/<product>_<year>.csv` | the tract sums on scratch were purged (90 days): nothing was submitted; send the list (redoing the extract is a separate request: section 8 block 2 would rerun every product) |
+| externalv56: evaluate `the evaluated tracts of ... differ` / `evaluated tracts are not in` | a tract validation file changed since the sums were made: send the log |
+| externalv56: `CHECK` lists `MISSING .../predictions/pop_<YEAR>.tif` or `.../BUI/<YEAR>_BUI.tif` | v5.6 or cutout files purged from scratch: send the list (nothing was submitted) |
+| externalv56: city maps `OUT_OF_MEMORY` / `TIMEOUT` | resubmit alone: `sbatch --ntasks=4 --time=02:00:00 sbatch/external_city_maps.sh`; send `seff` |
 | external: evaluate `ERROR: .../tract_errors_<YEAR>.csv not found` | the v5.4 tract validation files are missing on the cluster: `git pull` |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |

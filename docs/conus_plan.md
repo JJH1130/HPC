@@ -35,7 +35,8 @@ from the census and the product is the within-county allocation.
 
 Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no variant beats v5.6 on tracts; PLURAL
 dropped. v5.6 run for all census years 1900-2020 (section "v5.6 all years result"). Next: Stefan item 5 (county
-feature aggregation).
+feature aggregation). Item 5 closed 2026-11-03 (v5.6 kept). Next (2026-11-03): external comparison with v5.6 +
+city maps (section "External comparison with v5.6", code written, not run).
 Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
 GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
 (gap counties = counties without built years).
@@ -594,6 +595,46 @@ Tract MdAPE (%), product vs v5.4 on the same tracts:
 - In BUI gap counties F&J is better (2010: 31-32 % vs 73 %): it does not depend on HISDAC records.
 - Coverage: WorldPop leaves out 32 % of the population (tracts with nodata pixels, coast); F&J 6-13 %.
 
+## External comparison with v5.6 (request 2026-11-03; run steps `docs/runbooks/Running_CONUS.md`, section 17)
+
+Request: `docs/handoff/external_v56_request.md`. Stefan wants a GHS comparison. v5.6 (`Dasy_CONUS_RF_v3_u070`) is the
+best version so far (not declared final). No new download and no new extract: the tract sums of the 2026-10-30
+extract are reused (they were made on v5.4's evaluated tracts, which are the same set as v5.6's in every year 1910-2010,
+same observed pop; checked 2026-11-03, and `evaluate` stops if not).
+
+**Part 1, tract numbers** (`src/validation/external_compare.py evaluate`, config `configs/external_grids.yaml`):
+
+| Topic | Decision |
+|---|---|
+| Versions | `reference: Dasy_CONUS_RF_v3_u070` (v5.6), `compare_versions: {Dasy_CONUS_RF_v3_all: v5.4}`: both scored on each product's tracts and on all tracts, from their tracked `tract_errors_{YEAR}.csv` |
+| Products | the downloaded ones: GHS-POP, WorldPop, F&J M3 / M5 (`--products`; GPW / GRUMP were never fetched) |
+| Metrics | tract MdAPE and MAPE (tracts >= 10 people; Noi et al. use MAPE) for product / v5.6 / v5.4 / areal weighting on the tracts each product covers without nodata; the other columns as before |
+| Input class | column `input_unit_class`: block (GHS-POP, WorldPop, GPW: finer census input than tracts in the US) / county (F&J, v5.6, v5.4, areal weighting) / unverified (GRUMP). Block products are a **reference line, not a competitor**: dashed in the figure, legend "finer input (blocks): reference, not a competitor" |
+| Sums | `--strict-sums`: a missing sums file or an evaluated tract not in the sums stops the run (scratch purge would show here) |
+| Outputs | `results/validation/conus/external/external_comparison_v56.csv`, `external_mdape_by_year_v56.png` (two panels: MdAPE, MAPE). The v5.4 files of 2026-10-30 stay as they are |
+
+**Part 2, city maps** (`src/validation/external_city_maps.py`, `city_maps` block of the same config; Noi et al.
+draft, Figure 10). Qualitative: **the numbers are agreement with v5.6, not accuracy** (said in the CSV `note` column
+and on every figure).
+
+| Topic | Decision |
+|---|---|
+| Cities | Denver CO, Salt Lake City UT (as Noi et al.), Chicago IL, Boston MA; centre lon / lat in the config |
+| Box | 40 x 40 km around the centre on our grid (ESRI:102039 Albers equal area, the v5.6 prediction grid; 160 x 160 cells of 250 m, snapped to whole cells) |
+| Years / panels | 1980: v5.6, GHS-POP, F&J M5; 2010: + WorldPop |
+| To our grid | each product pixel split into k x k sub-points (k = pixel size / 25 m rounded up: 4 for the 100 m / 3 arc-sec grids, 40 for F&J 1 km), each with 1 / k^2 of the pixel's people, projected to our CRS and binned into our cells: population kept, area-weighted sum for 100 m, area-proportional split for 1 km (exact when grids nest; tested). Nodata / negative pixels = 0 people |
+| Display | people per km2, one log colour range per city x year shared by all panels (2nd-99.9th percentile of the positive cells); cells outside our mask (no v5.6 prediction: water, no used county) grey on every panel, not 0 |
+| Numbers per map (title + CSV) | people in the box per product (+ share on our masked cells); Spearman of the 1 km block density (4 x 4 cells, blocks fully inside the mask) of each product vs v5.6 (rank based, = log density); share of people on BUI = 0 cells (asked for v5.6, given for all) |
+| Outputs | `results/validation/conus/external/city_maps/{city}_{year}.png` + `city_maps_summary.csv` |
+
+Run: `bash sbatch/submit_conus.sh externalv56` (pre-check of sums, tract errors and map inputs; then two jobs side
+by side: evaluate, city maps). Tests: `tests/test_external_compare.py` (compare version + MAPE by hand, strict sums),
+`tests/test_external_city_maps.py` (population kept, nested grids exact, 1 km blocks / Spearman / shares by hand, mask
+grey, end to end). Not run yet.
+
+**For the meeting only (not run):** a fair quantitative GHS test = the same county-input dasymetric with GHS-BUILT
+(1975-2020) as the ancillary layer instead of HISDAC, compared on tracts 1980-2020 (`docs/open_items.md`).
+
 ## Metrics over time (request 2026-10-30, part A; run steps `docs/runbooks/Running_CONUS.md`, section 9)
 
 Stefan (meeting 2026-10-28): report R2 and MdAPE together, county MdAPE for the TEST counties, and tract error on a
@@ -1035,3 +1076,5 @@ Made while implementing; each is the simplest option consistent with the decisio
    Ran 2026-10-28 ("VIIRS-like NTL test result"): night light left out of the base model.
 10. External comparison: v5.4 vs GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz (M3, M5) on the same tracts.
    Code 2026-10-28 ("External comparison"; `bash sbatch/external_download.sh`, `bash sbatch/submit_conus.sh external`).
+   Redone with v5.6 (+ v5.4 column, MAPE, input class) + city maps: code 2026-11-03 ("External comparison with v5.6";
+   `bash sbatch/submit_conus.sh externalv56`), not run yet.

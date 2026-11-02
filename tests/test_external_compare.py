@@ -9,7 +9,9 @@ intersection area x value, in the raster's own CRS), one process and several chu
 one partly outside are left out, the not-evaluated one is never read; (c) on the kept subset the product, the
 reference (pop_model) and areal weighting (pop_baseline) metrics = the same metrics computed by hand on that subset;
 (d) a product without files is a `missing` row and `inventory --available` leaves it out; (e) path resolution: the
-case-insensitive fallback, `exclude`, an ambiguous glob.
+case-insensitive fallback, `exclude`, an ambiguous glob; (f) a compare version (v5.4 next to v5.6) on the same tracts:
+its MdAPE / MAPE = by hand, input_unit_class per row; different tracts, or `--strict-sums` with a missing sums file
+or a tract not in the sums, stop the run.
 """
 from __future__ import annotations
 
@@ -141,11 +143,17 @@ def test_extract_evaluate(tmp: Path):
     ref = "Dasy_REF"
     (res / "validation" / "conus" / ref).mkdir(parents=True)
     te.to_csv(res / "validation" / "conus" / ref / f"tract_errors_{YEAR}.csv", index=False)
-    cfg = {"reference": ref, "reference_label": "v5.4 (test)",
+    cmp = "Dasy_CMP"  # compare version: same tracts, other predictions
+    te_c = te.assign(pop_model=obs * rng.uniform(0.3, 2.0, n))
+    (res / "validation" / "conus" / cmp).mkdir(parents=True)
+    te_c.to_csv(res / "validation" / "conus" / cmp / f"tract_errors_{YEAR}.csv", index=False)
+    cfg = {"reference": ref, "reference_label": "v5.6 (test)", "compare_versions": {cmp: "v5.4 (test)"},
            "products": {"prod": {"label": "Product", "path": "prod/pop_{YEAR}.tif", "years": [YEAR],
-                                 "input_unit": "block", "input_unit_source": "https://example.org/a"},
+                                 "input_unit": "block", "input_unit_class": "block",
+                                 "input_unit_source": "https://example.org/a"},
                         "gone": {"label": "Missing", "path": "gone/*{YY}.tif", "years": [YEAR],
-                                 "input_unit": "county", "input_unit_source": "https://example.org/b"}}}
+                                 "input_unit": "county", "input_unit_class": "county",
+                                 "input_unit_source": "https://example.org/b"}}}
     cp = tmp / "external.yaml"
     cp.write_text(yaml.safe_dump(cfg))
     common = ["--config", str(cp), "--data-root", str(data), "--results-root", str(res), "--work-dir", str(work)]
@@ -163,17 +171,20 @@ def test_extract_evaluate(tmp: Path):
     df = pd.read_csv(out)
     assert (tmp / "ext.png").exists()
 
-    ev = te[te["flag"] == "ok"].merge(s, on="GISJOIN")
+    ev = te[te["flag"] == "ok"].merge(s, on="GISJOIN").merge(
+        te_c[["GISJOIN", "pop_model"]].rename(columns={"pop_model": "pop_cmp"}), on="GISJOIN")
     sub = ev[~ev["GISJOIN"].isin(["GND", "GOUT"])]
     assert len(sub) == 64
     rows = df[(df["year"] == YEAR) & (df["product"] == "prod")].set_index("method")
-    assert set(rows.index) == {"prod", ref, "areal_weighting"}
+    assert set(rows.index) == {"prod", ref, cmp, "areal_weighting"}
+    assert rows["input_unit_class"].to_dict() == {"prod": "block", ref: "county", cmp: "county",
+                                                  "areal_weighting": "county"}
     assert int(rows.loc["prod", "n_outside"]) == 1 and int(rows.loc["prod", "n_nodata"]) == 1
     assert int(rows.loc[ref, "n_tracts"]) == 64 and int(rows.loc[ref, "n_eval"]) == n - 1
     assert abs(rows.loc[ref, "tract_share"] - 64 / (n - 1)) < 1e-12
     assert abs(rows.loc[ref, "pop_share"] - sub["pop_obs"].sum() / ev["pop_obs"].sum()) < 1e-12
     o = sub["pop_obs"].to_numpy()
-    for method, col in (("prod", "pop"), (ref, "pop_model"), ("areal_weighting", "pop_baseline")):
+    for method, col in (("prod", "pop"), (ref, "pop_model"), (cmp, "pop_cmp"), ("areal_weighting", "pop_baseline")):
         p = sub[col].to_numpy()
         pos, big = o > 0, o >= 10
         assert abs(rows.loc[method, "mdape"] - mdape(o, p)) < 1e-9, method
@@ -193,9 +204,30 @@ def test_extract_evaluate(tmp: Path):
     # all evaluated tracts: the reference and areal weighting on everything flagged ok
     allt = df[(df["year"] == YEAR) & (df["product"] == "all_tracts")].set_index("method")
     assert abs(allt.loc[ref, "mdape"] - mdape(ev["pop_obs"].to_numpy(), ev["pop_model"].to_numpy())) < 1e-9
+    o, pc = ev["pop_obs"].to_numpy(), ev["pop_cmp"].to_numpy()
+    assert abs(allt.loc[cmp, "mdape"] - mdape(o, pc)) < 1e-9
+    big = o >= 10
+    assert abs(allt.loc[cmp, "mape"] - np.mean(np.abs(pc[big] - o[big]) / o[big]) * 100) < 1e-9
     # missing product: a row per year, status missing
     miss = df[df["product"] == "gone"]
     assert miss["status"].tolist() == ["missing"] and miss["n_tracts"].tolist() == [0]
+
+    def stops(argv, text):
+        try:
+            ec.main(argv)
+        except SystemExit as e:
+            assert text in str(e), e
+        else:
+            raise AssertionError(f"no stop: {text}")
+
+    ev_args = ["evaluate", "--out", str(tmp / "ext2.csv")] + common
+    stops(ev_args + ["--strict-sums"], "no tract sums")                     # "gone" has no sums
+    ev_args += ["--products", "prod"]
+    ec.main(ev_args + ["--strict-sums"])                                    # every evaluated tract in the sums
+    s.iloc[1:].to_csv(work / "sums" / f"prod_{YEAR}.csv", index=False)
+    stops(ev_args + ["--strict-sums"], "evaluated tracts are not in")
+    te_c.iloc[1:].to_csv(res / "validation" / "conus" / cmp / f"tract_errors_{YEAR}.csv", index=False)
+    stops(ev_args, "differ from")
     print("ok: extract -> evaluate: kept subset, product / reference / areal weighting metrics = by hand, missing row")
 
 
@@ -220,7 +252,16 @@ def test_resolve(tmp: Path):
 
 def test_real_config():
     cfg = ec.load_config(REPO / "configs" / "external_grids.yaml")
-    assert cfg["reference"] == "Dasy_CONUS_RF_v3_all"
+    assert cfg["reference"] == "Dasy_CONUS_RF_v3_u070"
+    assert list(cfg["compare_versions"]) == ["Dasy_CONUS_RF_v3_all"]
+    assert {k: v["input_unit_class"] for k, v in cfg["products"].items()} == {
+        "ghs_pop": "block", "worldpop": "block", "gpw4": "block", "grump1": "unverified", "fj_m3": "county",
+        "fj_m5": "county"}
+    c = cfg["city_maps"]
+    assert c["version"] == cfg["reference"] and c["box_km"] == 40
+    assert set(c["cities"]) == {"denver", "salt_lake_city", "chicago", "boston"}
+    assert c["years"] == {1980: ["ghs_pop", "fj_m5"], 2010: ["ghs_pop", "fj_m5", "worldpop"]}
+    assert all(y in cfg["products"][p]["years"] for y, ps in c["years"].items() for p in ps)
     assert set(cfg["products"]) == {"ghs_pop", "worldpop", "gpw4", "grump1", "fj_m3", "fj_m5"}
     yrs = {k: v["years"] for k, v in cfg["products"].items()}
     assert yrs["ghs_pop"] == [1980, 1990, 2000, 2010] and yrs["grump1"] == [1990, 2000]
