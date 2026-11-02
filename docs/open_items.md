@@ -10,6 +10,10 @@ Last updated: 2026-11-03 (external comparison with v5.6 + city maps written as c
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-11-03, external comparison with v5.6, run):** `docs/conus_plan.md` "External comparison with v5.6:
+  result". v5.6 beats F&J every year; GHS-POP 1980 only 3 pp better than v5.6 despite finer input; city maps agree with
+  GHS-POP (1 km rho 0.79-0.94); Chicago shows HISDAC record gaps inside the city (v5.6 near-empty cells).
+
 - **Status (2026-11-03, external comparison with v5.6, request `docs/handoff/external_v56_request.md`):** v5.6 is the
   best version so far, **not declared final** (user, 2026-11-03). Stefan wants a GHS comparison; GHS-POP / WorldPop use
   block-level US input, so a tract comparison is not fair (2010 MdAPE ~1 %). Agreed (user): (1) redo the tract numbers

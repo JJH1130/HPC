@@ -982,6 +982,32 @@ All 17 jobs COMPLETED. Files: `results/validation/conus/builtcell/`. Same tracts
 - **Decision (user, 2026-11-03): keep v5.6.** Item 5 closed for now; NobuiltYear (per-cell undated records) noted for
   the meeting as the likely next lever (`docs/open_items.md`).
 
+## External comparison with v5.6: result (jobs 35194158-35194159, code 699c891, run 2026-11-02 MT)
+
+Both jobs COMPLETED. `results/validation/conus/external/external_comparison_v56.csv` + `external_mdape_by_year_v56.png`,
+`city_maps/` (8 maps + `city_maps_summary.csv`). Reused tract sums of 2026-10-30 (same tracts for v5.4 / v5.6).
+
+Tract MdAPE / MAPE (>= 10 people), %, on each product's tracts:
+
+| Year | GHS-POP (block input, reference) | WorldPop (block) | F&J M5 (county) | v5.6 | v5.4 | Areal weighting |
+|---|---|---|---|---|---|---|
+| 1910 | - | - | 81.3 / 360 | 52.9 / 360 | 53.1 / 361 | 83.4 |
+| 1940 | - | - | 81.1 / 192 | 41.9 / 86 | 42.3 / 87 | 87.1 |
+| 1970 | - | - | 60.2 / 121 | 31.5 / 64 | 33.8 / 67 | 81.4 |
+| 1980 | 23.8 / 46 | - | 51.8 / 100 | 26.5-26.8 / 53-60 | 32.1-32.3 | 79.9 |
+| 1990 | 15.2 / 30 | - | 46.2 / 84 | 24.1-24.5 / 49-55 | 28.2-28.5 | 76.9 |
+| 2000 | 7.9 / 19 | 8.7 / 20 | 39.0 / 68 | 26.1-27.4 / 51-56 | 26.9-27.2 | 75.9 |
+| 2010 | 1.0 / 2.5 | 0.8 / 2.4 | 38.2 / 88 | 23.5-24.9 / 44-47 | 26.2-26.6 | 74.6 |
+
+- v5.6 beats the only county-input product (F&J) in every year by 14-38 pp MdAPE and halves its MAPE from 1940 on.
+- GHS-POP 1980 (23.8 %) is only 3 pp better than v5.6 (26.8 %) on the same tracts, although GHS uses finer (block-based,
+  back-extrapolated GPWv4) input; the gap widens as GHS's input approaches the census year (1990 9 pp, 2010 23 pp).
+- City maps (agreement with v5.6, not accuracy): 1 km Spearman with GHS-POP 0.79-0.94 (Boston 0.94, Chicago 0.85-0.87,
+  Denver / Salt Lake City 0.79-0.89), WorldPop 0.75-0.93; F&J 0.63-0.80, Chicago 0.02-0.05 (F&J near-uniform there).
+  Population on HISDAC BUI = 0 cells: v5.6 0-0.2 %, GHS-POP 1.6-20 % (Denver / Salt Lake City 1980 ~20 %), F&J 17-29 %.
+  v5.6 leaves dense parts of Chicago almost empty where HISDAC has no records (records missing in the city itself);
+  its box total is 2.9 M vs GHS 3.5 M (people moved to recorded cells elsewhere in Cook County).
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
