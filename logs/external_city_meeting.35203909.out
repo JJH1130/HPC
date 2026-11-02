@@ -1,0 +1,73 @@
+== job 35203909 (external_city_meeting) on c3cpu-e2-u1 at 2026-11-02T14:32:11-07:00
+== cores=2 gpus=none restart=0
+== git 99d5cb0 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: 
+14:32:16 INFO arg config = configs/external_grids.yaml
+14:32:16 INFO arg data_root = /projects/jaju1407/data/raw/external
+14:32:16 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+14:32:16 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+14:32:16 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+14:32:16 INFO arg name = conus
+14:32:16 INFO arg out_dir = results/validation/conus/external/city_maps_meeting
+14:32:16 INFO arg compare_with = [PosixPath('results/validation/conus/external/city_maps_internal_with_fj/city_maps_summary.csv')]
+14:32:16 INFO arg check = False
+14:32:16 INFO   input 2010 version  Dasy_CONUS_RF_v3_u070  /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_2010.tif
+14:32:16 INFO   input 2010 bui      BUI                    /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+14:32:16 INFO   input 2010 product  ghs_pop                /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+14:32:16 INFO   input 2010 product  worldpop               /projects/jaju1407/data/raw/external/worldpop/usa_ppp_2010.tif
+14:32:16 INFO   input 1980 version  Dasy_CONUS_RF_v3_u070  /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_1980.tif
+14:32:16 INFO   input 1980 bui      BUI                    /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+14:32:16 INFO   input 1980 product  ghs_pop                /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+14:32:16 INFO   input nobuilt  NobuiltYear            /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+14:32:17 INFO ===== Boston, MA 2010: centre (2017889, 2417509), window Window(col_off=17417, row_off=2941, width=160, height=160), 19376 of 25600 cells in our mask
+14:32:18 INFO   ghs_pop   k = 4: 2198068 people in the box | Spearman 1 km vs v5.6 0.935 on 1140 blocks
+14:32:20 INFO   worldpop  k = 4: 2180912 people in the box | Spearman 1 km vs v5.6 0.932 on 1140 blocks
+14:32:20 INFO ===== Denver, CO 2010: centre (-762409, 1893843), window Window(col_off=6295, row_off=5036, width=160, height=160), 25600 of 25600 cells in our mask
+14:32:21 INFO   ghs_pop   k = 4: 1939729 people in the box | Spearman 1 km vs v5.6 0.891 on 1600 blocks
+14:32:23 INFO   worldpop  k = 4: 1924358 people in the box | Spearman 1 km vs v5.6 0.886 on 1600 blocks
+14:32:23 INFO ===== Chicago, IL 2010: centre (688894, 2127633), window Window(col_off=12101, row_off=4101, width=160, height=160), 14078 of 25600 cells in our mask
+14:32:24 INFO   ghs_pop   k = 4: 3463954 people in the box | Spearman 1 km vs v5.6 0.849 on 856 blocks
+14:32:25 INFO   worldpop  k = 4: 3436381 people in the box | Spearman 1 km vs v5.6 0.851 on 856 blocks
+14:32:25 INFO   gap             17 blocks, ghs_pop 143327, v5.6 18260 people; cells BUI > 0 0.570, NobuiltYear > 0 0.949
+14:32:25 INFO   dense_not_gap  715 blocks, ghs_pop 3127984, v5.6 2791347 people; cells BUI > 0 0.906, NobuiltYear > 0 0.958
+14:32:25 INFO ===== Boston, MA 1980: centre (2017889, 2417509), window Window(col_off=17417, row_off=2941, width=160, height=160), 19376 of 25600 cells in our mask
+14:32:26 INFO   ghs_pop   k = 4: 1755617 people in the box | Spearman 1 km vs v5.6 0.943 on 1140 blocks
+14:32:27 INFO ===== Denver, CO 1980: centre (-762409, 1893843), window Window(col_off=6295, row_off=5036, width=160, height=160), 25445 of 25600 cells in our mask
+14:32:27 INFO   ghs_pop   k = 4: 1248773 people in the box | Spearman 1 km vs v5.6 0.796 on 1581 blocks
+14:32:27 INFO ===== Chicago, IL 1980: centre (688894, 2127633), window Window(col_off=12101, row_off=4101, width=160, height=160), 14078 of 25600 cells in our mask
+14:32:28 INFO   ghs_pop   k = 4: 3225842 people in the box | Spearman 1 km vs v5.6 0.865 on 856 blocks
+14:32:28 INFO check against the previous outputs:
+14:32:28 INFO   MATCH results/validation/conus/external/city_maps_meeting/meeting_summary.csv: 15 rows (spearman_1km_vs_version, n_blocks_1km, total_pop_box)
+14:32:28 INFO   MATCH results/validation/conus/external/city_maps_internal_with_fj/city_maps_summary.csv: 15 rows (spearman_1km_vs_version, n_blocks_1km, total_pop_box)
+14:32:28 INFO   MATCH results/validation/conus/external/city_maps_meeting/chicago_gap_blocks.csv: 2 rows (n_blocks, n_cells, pop_v56, pop_ghs_pop, pop_worldpop, share_cells_bui_gt0, share_cells_nobuilt_gt0, share_cells_nobuilt_gt0_bui0, share_cells_no_record)
+14:32:29 INFO   wrote results/validation/conus/external/city_maps_meeting/boston_2010.png
+14:32:30 INFO   wrote results/validation/conus/external/city_maps_meeting/denver_2010.png
+14:32:31 INFO   wrote results/validation/conus/external/city_maps_meeting/chicago_2010.png
+14:32:31 INFO   wrote results/validation/conus/external/city_maps_meeting/boston_1980.png
+14:32:32 INFO   wrote results/validation/conus/external/city_maps_meeting/denver_1980.png
+14:32:32 INFO   wrote results/validation/conus/external/city_maps_meeting/chicago_1980.png
+14:32:32 INFO summary:
+   city  year               product  spearman_1km_vs_version  n_blocks_1km  total_pop_box
+ boston  2010 Dasy_CONUS_RF_v3_u070                    1.000          1140    1849812.713
+ boston  2010               ghs_pop                    0.935          1140    2198067.989
+ boston  2010              worldpop                    0.932          1140    2180911.920
+ denver  2010 Dasy_CONUS_RF_v3_u070                    1.000          1600    1857829.266
+ denver  2010               ghs_pop                    0.891          1600    1939729.023
+ denver  2010              worldpop                    0.886          1600    1924358.425
+chicago  2010 Dasy_CONUS_RF_v3_u070                    1.000           856    2906090.912
+chicago  2010               ghs_pop                    0.849           856    3463953.936
+chicago  2010              worldpop                    0.851           856    3436380.812
+ boston  1980 Dasy_CONUS_RF_v3_u070                    1.000          1140    1785453.363
+ boston  1980               ghs_pop                    0.943          1140    1755616.700
+ denver  1980 Dasy_CONUS_RF_v3_u070                    1.000          1581    1306386.355
+ denver  1980               ghs_pop                    0.796          1581    1248773.018
+chicago  1980 Dasy_CONUS_RF_v3_u070                    1.000           856    3194312.344
+chicago  1980               ghs_pop                    0.865           856    3225842.283
+14:32:32 INFO gap blocks:
+   city  year         group  n_blocks  n_cells     pop_v56  pop_ghs_pop  pop_worldpop  share_cells_bui_gt0  share_cells_nobuilt_gt0  share_cells_nobuilt_gt0_bui0  share_cells_no_record                                             nobuilt_source
+chicago  2010           gap        17      272   18260.379   143327.422    141612.735                0.570                    0.949                         0.390                   0.04 /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+chicago  2010 dense_not_gap       715    11440 2791346.867  3127984.080   3101521.582                0.906                    0.958                         0.064                   0.03 /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+14:32:32 INFO wrote results/validation/conus/external/city_maps_meeting/chicago_gap_blocks.csv
+14:32:32 INFO wrote results/validation/conus/external/city_maps_meeting/meeting_summary.csv
+14:32:32 INFO DONE
+== done 2026-11-02T14:32:33-07:00
