@@ -1,0 +1,24 @@
+== job local () on login-ci5 at 2026-11-02T10:42:59-07:00
+== cores=1 gpus=none restart=0
+== git 699c891
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: --check
+10:44:54 INFO arg config = configs/external_grids.yaml
+10:44:54 INFO arg data_root = /projects/jaju1407/data/raw/external
+10:44:54 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+10:44:54 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+10:44:54 INFO arg name = conus
+10:44:54 INFO arg out_dir = results/validation/conus/external/city_maps
+10:44:54 INFO arg cities = None
+10:44:54 INFO arg years = None
+10:44:54 INFO arg check = True
+10:44:58 INFO   input 1980 version  Dasy_CONUS_RF_v3_u070  /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_1980.tif
+10:44:58 INFO   input 1980 bui      BUI                    /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+10:44:58 INFO   input 1980 product  ghs_pop                /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+10:44:58 INFO   input 1980 product  fj_m5                  /projects/jaju1407/data/raw/external/fang_jawitz/grids/USA_HistoricalPopulationDataset/pop_m5_1980
+10:44:58 INFO   input 2010 version  Dasy_CONUS_RF_v3_u070  /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_2010.tif
+10:44:58 INFO   input 2010 bui      BUI                    /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+10:44:58 INFO   input 2010 product  ghs_pop                /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+10:44:58 INFO   input 2010 product  fj_m5                  /projects/jaju1407/data/raw/external/fang_jawitz/grids/USA_HistoricalPopulationDataset/pop_m5_2010
+10:44:58 INFO   input 2010 product  worldpop               /projects/jaju1407/data/raw/external/worldpop/usa_ppp_2010.tif
+10:44:58 INFO CHECK OK: 9 inputs for 4 cities x 2 years
+== done 2026-11-02T10:44:59-07:00
