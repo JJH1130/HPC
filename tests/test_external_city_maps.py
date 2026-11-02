@@ -6,7 +6,7 @@ Checks (a) population kept by the move to our cells: a 100 m Mollweide raster an
 inside the box give back their whole sum; (b) grids that nest are exact: a 125 m raster on our CRS = the 2 x 2 pixel
 sums per cell, a 1 km raster = 1 / 16 of the pixel per cell (area-proportional split); (c) the 1 km block sums,
 Spearman, the masked / BUI = 0 shares = by hand; (d) masked cells are NaN in the density (drawn grey: the colour map's
-`bad` colour), zero cells inside the mask stay 0; (e) end to end on a synthetic prediction / BUI / product: box from
+`bad` colour), zero cells inside the mask stay 0 and are drawn white, not grey; (e) end to end on a synthetic prediction / BUI / product: box from
 lon / lat, PNG + summary CSV, product totals = what lands in the box, `--check` with a missing file stops.
 """
 from __future__ import annotations
@@ -130,6 +130,11 @@ def test_stats_and_mask():
     cmap = cm.colormap()
     assert np.allclose(cmap(np.ma.masked_invalid([np.nan]))[0], to_rgba(cm.MASK_GREY))
     assert np.allclose(cmap.get_under(), to_rgba("#ffffff"))
+    from matplotlib.colors import LogNorm
+    norm = LogNorm(vmin=1.0, vmax=1000.0)
+    rgba = cmap(norm(cm.for_imshow(d, norm.vmin)))
+    assert np.allclose(rgba[2, 2], to_rgba("#ffffff"))      # 0 inside the mask: white, not grey
+    assert np.allclose(rgba[0, 0], to_rgba(cm.MASK_GREY))   # outside the mask: grey
     print("ok: 1 km blocks, Spearman, masked / BUI = 0 shares = by hand; mask NaN -> grey, 0 stays 0")
 
 

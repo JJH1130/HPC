@@ -1,4 +1,4 @@
-# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty, the uncertainty filter, the PLURAL grid test, v5.6 for all years and the external comparison with v5.6
+# Running the CONUS dasymetric models (Dasy_CONUS_RF_v1 - v4, v1_bui, v3_bui, model family n60, v3_all + 2020, v3_ntl, v3_ntlv), the external comparison, metrics over time, the HISDAC record uncertainty, the uncertainty filter, the PLURAL grid test, v5.6 for all years, the external comparison with v5.6 and the meeting city maps
 
 Plan, decisions and the scale table: `docs/conus_plan.md`. Configs: `configs/conus_study_area.yaml` (window, years,
 layers, water, distances), `configs/conus_rf_v1.yaml` ... `configs/conus_rf_v4.yaml`, `conus_rf_v1_bui.yaml`, `conus_rf_v3_bui.yaml`, `conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `conus_rf_v3_all.yaml`, `conus_rf_v3_ntl.yaml`, `conus_rf_v3_ntlv.yaml` (models), `configs/external_grids.yaml`
@@ -25,7 +25,7 @@ the laptop, no job needed), section 10 (2020 added to v3_all: pre-check, then `s
 Section 10 ran 2026-10-29 (jobs 35053415-35053424). Section 11 block 1 ran 2026-10-29: `BUPR_contemp.tif` is not in the
 Dataverse archive; the job runs without it (NobuiltYear only; job 35056349, 2026-10-29). Written 2026-10-30, not run
 yet: section 12 (uncertainty filter, `submit_conus.sh uncfilter`).
-Written 2026-11-03, not run yet: section 17 (external comparison with v5.6 + city maps, `submit_conus.sh externalv56`).
+Written 2026-11-03, not run yet: section 18 (meeting city maps 2010, `submit_conus.sh citymeeting`).
 
 ## Inputs / outputs
 
@@ -1551,6 +1551,81 @@ product, v5.6, v5.4, areal weighting), `DONE`; city maps: the inputs, per map th
 per product `k = ..., people in the box (... on masked cells), ... in the read window` and the Spearman, the summary
 table, `DONE`.
 
+## 18. Meeting city maps, 2010: v5.6 vs GHS-POP / WorldPop + 1 km scatter (2026-11-03)
+
+One figure per city (Boston, Denver, Chicago; 2010) for the meeting with Stefan: maps v5.6 | GHS-POP | WorldPop (no F&J)
+and 1 km block scatter plots v5.6 vs each product with Spearman rho; for Chicago the 1 km blocks where v5.6 is far below
+GHS-POP (v5.6 / GHS < 0.25 and GHS >= 1,000 people per km2, fixed before the run) are outlined and checked against
+HISDAC (BUI > 0, NobuiltYear > 0). Same boxes, move to our cells, mask and 1 km blocks as section 17 (the rho must equal
+section 17's: Boston GHS 0.935 / WorldPop 0.932, Denver 0.891 / 0.886, Chicago 0.849 / 0.851). Request
+`docs/handoff/city_maps_meeting_request.md`; code `src/validation/external_city_meeting.py` (`city_meeting` block of
+`configs/external_grids.yaml`). No download. NobuiltYear: the CONUS cutout has none, so `$HISDAC_DIR/FBUY/NobuiltYear.tif`
+is read onto the box (read only; same grid as the cutout per `results/hisdac_uncertainty/grid_check.csv`); without it
+the NobuiltYear columns are NA and the log says so. Section 17's `city_maps/` stays as it is.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| pre-check | login node | v5.6 `pop_2010.tif`, cutout `2010_BUI.tif`, GHS-POP / WorldPop 2010, NobuiltYear (`external_city_meeting.sh --check`) | seconds |
+| maps | 2 cores, 30 min | 3 figures -> `city_maps_meeting/{boston,denver,chicago}_2010.png` + `meeting_summary.csv` + `chicago_gap_blocks.csv` | ~1 min (section 17's 8 maps took 49 s) |
+
+Override: `MEET_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh citymeeting
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK ... NobuiltYear hisdac, one 'city_meeting N' line)"
+```
+
+Good: `CHECK OK: 4 inputs for 3 cities, 2010; NobuiltYear hisdac`, one line `city_meeting N` (also in
+`logs/conus_citymeeting_jobs.txt`), one job in `squeue`, `== end of block 1`. `NobuiltYear ... -> NA` instead of
+`hisdac`: the job still runs (NobuiltYear columns NA); say so to Claude. `ERROR: nothing submitted`: send the output and
+`logs/conus_citymeeting_check.txt`.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+j=$(grep -oE '[0-9]{6,}' logs/conus_citymeeting_jobs.txt)
+sacct -j "$j" -X --format=JobID,JobName%24,State,Elapsed,ReqCPUS
+grep -hE "=====|wrote|DONE|ERROR" logs/external_city_meeting.$j.out 2>/dev/null | tail -5
+echo "== end of block 2 (success = state listed; DONE once finished)"
+```
+
+Good: `PENDING` / `RUNNING` / `COMPLETED`; `===== <city> 2010` and `wrote .../<city>_2010.png` per city; `DONE` at the
+end; `== end of block 2`.
+
+Block 3, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_citymeeting_jobs.txt)
+sacct -j "$j" --format=JobID,JobName%24,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_citymeeting_sacct.txt
+seff "$j" > logs/conus_citymeeting_seff.txt
+cat logs/conus_citymeeting_sacct.txt
+ls results/validation/conus/external/city_maps_meeting/
+git add logs/ results/validation/conus/external/city_maps_meeting
+git commit -m "run: meeting city maps 2010 (v5.6 vs GHS-POP / WorldPop, Chicago gap blocks; logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = COMPLETED, 5 files listed, push ends with main -> main)"
+```
+
+Good: `COMPLETED`; `boston_2010.png`, `chicago_2010.png`, `denver_2010.png`, `meeting_summary.csv`,
+`chicago_gap_blocks.csv`; `git push` ends with `main -> main`; `== end of block 3`. `FAILED`: commit anyway (same block)
+and tell Claude.
+
+What to look for in the log: the inputs (NobuiltYear path and `hisdac`), per city the window, per product `k = 4`,
+people in the box and the Spearman (= section 17), for Chicago the `gap` / `dense_not_gap` lines (blocks, people, cell
+shares BUI > 0 / NobuiltYear > 0), the summary and gap tables, `DONE`.
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1614,6 +1689,8 @@ table, `DONE`.
 | externalv56: `MISSING .../external/conus/sums/<product>_<year>.csv` | the tract sums on scratch were purged (90 days): nothing was submitted; send the list (redoing the extract is a separate request: section 8 block 2 would rerun every product) |
 | externalv56: evaluate `the evaluated tracts of ... differ` / `evaluated tracts are not in` | a tract validation file changed since the sums were made: send the log |
 | externalv56: `CHECK` lists `MISSING .../predictions/pop_<YEAR>.tif` or `.../BUI/<YEAR>_BUI.tif` | v5.6 or cutout files purged from scratch: send the list (nothing was submitted) |
+| citymeeting: `ERROR: scatter blocks differ from the Spearman blocks` | a code bug (must not happen): send the log |
+| citymeeting: `several NobuiltYear files in .../layers/NobuiltYear` | more than one tif in that cutout folder: send its `ls` |
 | externalv56: city maps `OUT_OF_MEMORY` / `TIMEOUT` | resubmit alone: `sbatch --ntasks=4 --time=02:00:00 sbatch/external_city_maps.sh`; send `seff` |
 | external: evaluate `ERROR: .../tract_errors_<YEAR>.csv not found` | the v5.4 tract validation files are missing on the cluster: `git pull` |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |

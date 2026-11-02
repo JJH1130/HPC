@@ -58,6 +58,9 @@
 #                                       # tract sums on scratch + the city-map inputs, then evaluate (v5.6 + v5.4 on
 #                                       # each product's tracts, --strict-sums) and the city maps (two jobs, side by
 #                                       # side) -> results/validation/conus/external/*_v56.* + city_maps/
+#   bash sbatch/submit_conus.sh citymeeting  # meeting city maps 2010 (Boston / Denver / Chicago: v5.6 | GHS-POP |
+#                                       # WorldPop + 1 km scatter, Chicago gap blocks vs HISDAC): pre-check of the
+#                                       # inputs, one job -> results/validation/conus/external/city_maps_meeting/
 #   bash sbatch/submit_conus.sh builtcell  # built-cell aggregation test, 1960 / 2010: v5.6 + built-cell county means +
 #                                       # built_local (bc3 / bc5 / bc9) features / train / predict / validate (gap
 #                                       # counties from v5.6) + aggregation_diag per variant, side by side; aggregation_diag
@@ -100,10 +103,12 @@
 # aggdiag (job 35099133); wall times ~3-4 x (estimates).
 # externalv56: evaluate took minutes (job 35052319); city maps: 8 maps, window reads of 40 km boxes (estimate
 # minutes, 2 cores, 45 min wall).
+# citymeeting: the city maps job of externalv56 took 49 s for 8 maps, 0.4 GB (job 35194159); 3 maps + scatter plots:
+# 2 cores, 30 min wall (MEET_TIME).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -387,6 +392,15 @@ elif [[ $mode == externalv56 ]]; then
          evaluate --products $PRODS --strict-sums)
     jm=$(sub "" --time=${MAPS_TIME:-00:45:00} sbatch/external_city_maps.sh)
     echo "evaluate $je | city_maps $jm" | tee logs/conus_externalv56_jobs.txt
+elif [[ $mode == citymeeting ]]; then
+    # inputs: v5.6 pop_2010, the cutout's 2010 BUI, GHS-POP / WorldPop 2010; NobuiltYear optional (NA without it)
+    if ! bash sbatch/external_city_meeting.sh --check > logs/conus_citymeeting_check.txt 2>&1; then
+        grep -E "MISSING|ERROR" logs/conus_citymeeting_check.txt || true
+        echo "ERROR: nothing submitted (see logs/conus_citymeeting_check.txt)"; exit 1
+    fi
+    grep -E "CHECK OK|NobuiltYear" logs/conus_citymeeting_check.txt || true
+    jc=$(sub "" --time=${MEET_TIME:-00:30:00} sbatch/external_city_meeting.sh)
+    echo "city_meeting $jc" | tee logs/conus_citymeeting_jobs.txt
 elif [[ $mode == y2020 ]]; then
     VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
     C=configs/conus_rf_v3_all.yaml

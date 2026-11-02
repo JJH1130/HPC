@@ -36,7 +36,9 @@ from the census and the product is the within-county allocation.
 Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no variant beats v5.6 on tracts; PLURAL
 dropped. v5.6 run for all census years 1900-2020 (section "v5.6 all years result"). Next: Stefan item 5 (county
 feature aggregation). Item 5 closed 2026-11-03 (v5.6 kept). Next (2026-11-03): external comparison with v5.6 +
-city maps (section "External comparison with v5.6", code written, not run).
+city maps (section "External comparison with v5.6", code written, not run). Run 2026-11-02 (section "External
+comparison with v5.6: result"). Next (2026-11-03): meeting city maps 2010 (section "Meeting city maps", code written,
+not run).
 Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
 GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
 (gap counties = counties without built years).
@@ -1007,6 +1009,19 @@ Tract MdAPE / MAPE (>= 10 people), %, on each product's tracts:
   Population on HISDAC BUI = 0 cells: v5.6 0-0.2 %, GHS-POP 1.6-20 % (Denver / Salt Lake City 1980 ~20 %), F&J 17-29 %.
   v5.6 leaves dense parts of Chicago almost empty where HISDAC has no records (records missing in the city itself);
   its box total is 2.9 M vs GHS 3.5 M (people moved to recorded cells elsewhere in Cook County).
+- Display bug found 2026-11-03 (fixed in `external_city_maps.for_imshow`; the PNGs of this run are not redrawn): the
+  LogNorm masked cells with 0 people, so 0-people cells inside our mask were drawn grey like masked cells (water, no
+  county) instead of white. The numbers are not affected; "almost empty" parts of Chicago in v5.6 may be grey 0 cells.
+
+## Meeting city maps (request 2026-11-03, `docs/handoff/city_maps_meeting_request.md`; runbook section 18)
+
+One figure per city, 2010, Boston / Denver / Chicago: v5.6 | GHS-POP | WorldPop (no F&J for this meeting) + 1 km block
+scatter plots with Spearman rho (blocks = the 1 km Spearman blocks of the city maps; same box, move, mask) and, for
+Chicago, the HISDAC state of the blocks where v5.6 is far below GHS-POP (rule fixed before the run: v5.6 / GHS < 0.25,
+GHS >= 1,000 people per km2; share of cells with BUI > 0 and NobuiltYear > 0, vs the other dense blocks) ->
+`results/validation/conus/external/city_maps_meeting/` (`src/validation/external_city_meeting.py`,
+`bash sbatch/submit_conus.sh citymeeting`). Message: block-input products are not a fair tract-level contest; compare
+spatial patterns instead (rank agreement, not accuracy). Code written 2026-11-03, not run.
 
 ## BUI outliers (bui_qa, job 34921582)
 

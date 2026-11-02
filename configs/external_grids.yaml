@@ -84,3 +84,13 @@ city_maps:
     salt_lake_city: {label: "Salt Lake City, UT", lon: -111.8910, lat: 40.7608}
     chicago:        {label: "Chicago, IL",        lon: -87.6298,  lat: 41.8781}
     boston:         {label: "Boston, MA",         lon: -71.0589,  lat: 42.3601}
+
+# Meeting figures (2010; src/validation/external_city_meeting.py, docs/handoff/city_maps_meeting_request.md): the
+# boxes, move to our cells, mask and 1 km blocks of city_maps above; v5.6 | GHS-POP | WorldPop maps + 1 km block
+# scatter plots, no F&J. Gap blocks of the gap city: v5.6 / <product> < ratio_max and <product> >= min_density people
+# per km2 (fixed before the run), checked against HISDAC BUI / NobuiltYear.
+city_meeting:
+  year: 2010
+  cities: [boston, denver, chicago]
+  products: [ghs_pop, worldpop]
+  gap: {city: chicago, product: ghs_pop, ratio_max: 0.25, min_density: 1000}

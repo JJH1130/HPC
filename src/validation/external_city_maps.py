@@ -188,6 +188,12 @@ def density(pop: np.ndarray, mask: np.ndarray) -> np.ndarray:
     return np.where(mask, np.nan_to_num(pop, nan=0.0), np.nan) / CELL_KM2
 
 
+def for_imshow(d: np.ndarray, vmin: float):
+    """Density ready for a LogNorm image: 0 -> below vmin (drawn with the `under` colour, white), NaN stays NaN
+    (grey). LogNorm itself masks 0 (log 0), which would draw empty cells inside the mask grey like masked ones."""
+    return np.ma.masked_invalid(np.where(d == 0, vmin / 10, d))
+
+
 def _plots():
     import matplotlib
     matplotlib.use("Agg")
@@ -221,7 +227,7 @@ def draw(path: Path, city_label: str, year: int, panels: list, mask: np.ndarray,
     half = box_km / 2
     fig, axes = plt.subplots(1, n, figsize=(4.0 * n, 4.9), dpi=150, layout="constrained", squeeze=False)
     for ax, (title, _), d in zip(axes[0], panels, dens):
-        im = ax.imshow(np.ma.masked_invalid(d), cmap=cmap, norm=norm, extent=[-half, half, -half, half],
+        im = ax.imshow(for_imshow(d, norm.vmin), cmap=cmap, norm=norm, extent=[-half, half, -half, half],
                        interpolation="nearest")
         ax.set_xticks([])
         ax.set_yticks([])

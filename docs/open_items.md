@@ -4,12 +4,19 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-11-03, meeting city maps, request `docs/handoff/city_maps_meeting_request.md`):** code written, not
+  run (runbook section 18, `bash sbatch/submit_conus.sh citymeeting`; `docs/conus_plan.md` "Meeting city maps"). For
+  the Stefan meeting only GHS-POP / WorldPop are shown (no F&J): block input makes the tract check unfair, so the
+  spatial pattern is compared (1 km Spearman, scatter). Chicago gap rule fixed before the run (v5.6 / GHS < 0.25, GHS
+  >= 1,000 per km2) -> do v5.6's empty blocks lack HISDAC records, and do they hold records without a built year? Also
+  found: the city map PNGs of 2026-11-02 drew 0-people cells inside the mask grey (as masked); fixed in code, those
+  PNGs not redrawn.
 - **Status (2026-11-03, external comparison with v5.6, run):** `docs/conus_plan.md` "External comparison with v5.6:
   result". v5.6 beats F&J every year; GHS-POP 1980 only 3 pp better than v5.6 despite finer input; city maps agree with
   GHS-POP (1 km rho 0.79-0.94); Chicago shows HISDAC record gaps inside the city (v5.6 near-empty cells).
