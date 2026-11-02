@@ -26,6 +26,13 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen, final**, all 13 years 1900-2020 |
 | v5.7 (test) | `Dasy_CONUS_RF_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}` | v5.6 + Siqiao's 900 m PLURAL grid (continuous / 3 or 5 classes), 1940 / 1980 / 2010 | 2010: 24.1-28.2 % (v5.6 23.8) | worse on tracts; drop proposed (user decides) |
 
+County metrics of v5.6 on **all** TEST counties (kept + 199 excluded, imputed; computed 2026-11-03 from
+`test_predictions.csv` + `excluded_predictions.csv`): TEST R2 1960 / 2010 = 0.823 / 0.522 (v5.4 0.861 / 0.878), MdAPE
+33.9 / 32.7 % (v5.4 30.5 / 28.4 %); excluded TEST counties alone R2 0.529 / -0.663, MdAPE 48.9 / 62.8 %. The v5.6
+county numbers elsewhere (419-423 kept TEST counties) flatter it; report the all-counties numbers too. Tracts are on
+all counties: v5.6 better (2010 26.6 -> 23.8 %, excluded counties' tracts 55.7 -> 51.2 %) because county totals come
+from the census and the product is the within-county allocation.
+
 Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no variant beats v5.6 on tracts; PLURAL
 dropped. v5.6 run for all census years 1900-2020 (section "v5.6 all years result"). Next: Stefan item 5 (county
 feature aggregation).
