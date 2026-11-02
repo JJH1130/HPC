@@ -4,14 +4,18 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
-- **Status (2026-11-03, meeting city maps, request `docs/handoff/city_maps_meeting_request.md`):** code written, not
-  run (runbook section 18, `bash sbatch/submit_conus.sh citymeeting`; `docs/conus_plan.md` "Meeting city maps"). For
+- **Status (2026-11-03, meeting city maps fixes, request `docs/handoff/city_maps_meeting_fix_request.md`):** display
+  fixes + 1980 maps (v5.6 | GHS-POP) written as code, not run (runbook section 18b); numbers checked against the
+  earlier outputs in the run. Decision: F&J is not shown in this meeting; the F&J city maps moved to `city_maps_internal_with_fj/`
+  (internal, README.txt).
+- **Status (2026-11-03, meeting city maps, request `docs/handoff/city_maps_meeting_request.md`):** code written, run
+  2026-11-03 (job 35200677) (runbook section 18, `bash sbatch/submit_conus.sh citymeeting`; `docs/conus_plan.md` "Meeting city maps"). For
   the Stefan meeting only GHS-POP / WorldPop are shown (no F&J): block input makes the tract check unfair, so the
   spatial pattern is compared (1 km Spearman, scatter). Chicago gap rule fixed before the run (v5.6 / GHS < 0.25, GHS
   >= 1,000 per km2) -> do v5.6's empty blocks lack HISDAC records, and do they hold records without a built year? Also
@@ -33,7 +37,7 @@ Last updated: 2026-11-03 (meeting city maps 2010 written as code, not run; city 
   totals in preallocation and 2,466 screened counties, so it is not comparable with ours (v5.6 2010 MAPE >= 10: 47.4 %).
   **Code written 2026-11-03, not run:** `docs/conus_plan.md` "External comparison with v5.6", runbook section 17
   (`bash sbatch/submit_conus.sh externalv56`; reuses the scratch tract sums of 2026-10-30, stops if purged). Outputs
-  `external_comparison_v56.csv` / `external_mdape_by_year_v56.png` + `city_maps/`. Open after the run: read the city
+  `external_comparison_v56.csv` / `external_mdape_by_year_v56.png` + `city_maps/` (now `city_maps_internal_with_fj/`). Open after the run: read the city
   maps with the user before any text for Stefan; the GHS-BUILT test stays a meeting question.
 
 - **Status (2026-11-03, built-cell aggregation test, closed):** `docs/conus_plan.md` "Built-cell aggregation test result".

@@ -37,11 +37,12 @@ MdAPE + MAPE; column `input_unit_class` block / county / unverified, block produ
 `city_maps:` block of the same config; `--check` = inputs only) draws 40 x 40 km boxes of v5.6 next to GHS-POP / F&J M5
 (+ WorldPop 2010) for Denver / Salt Lake City / Chicago / Boston, 1980 / 2010, products moved to our 250 m cells with
 population kept (k x k sub-points per pixel), masked cells grey, + totals / 1 km Spearman / BUI = 0 share ("agreement,
-not accuracy"; 0-people cells white, masked grey: `for_imshow`) -> `results/validation/conus/external/city_maps/`;
+not accuracy"; 0-people cells white, masked grey: `for_imshow`) -> `results/validation/conus/external/city_maps_internal_with_fj/` (renamed from `city_maps/`: internal, not for the meeting);
 `src/validation/external_city_meeting.py` (`sbatch/external_city_meeting.sh`, `city_meeting:` block) reuses it for the
-meeting figures, 2010, Boston / Denver / Chicago: v5.6 | GHS-POP | WorldPop maps + 1 km block scatter (= the Spearman
+meeting figures, Boston / Denver / Chicago, 2010: v5.6 | GHS-POP | WorldPop, 1980: v5.6 | GHS-POP; maps + 1 km block scatter (= the Spearman
 blocks; checked in the run), Chicago gap blocks (v5.6 / GHS < 0.25, GHS >= 1,000 per km2) vs HISDAC BUI / NobuiltYear
-(`$HISDAC_DIR/FBUY/NobuiltYear.tif`, NA without it) -> `results/validation/conus/external/city_maps_meeting/`;
+(`$HISDAC_DIR/FBUY/NobuiltYear.tif`, NA without it); rho / totals / gap table compared with the previous outputs
+(+ `--compare-with` the city maps summary) before writing, a difference stops -> `results/validation/conus/external/city_maps_meeting/`;
 `src/validation/compare_models.py` (`sbatch/compare_models.sh`) tabulates CV / TEST / tract metrics of several versions
 (`model_comparison.csv`; for one version over years `--out summary_by_year.csv --plot ... --repro-with <version>`;
 `--years` filters, `--rank-features ntl ntlv` adds a feature's permutation / SHAP rank; logs tract MdAPE by part side by side);
@@ -153,7 +154,7 @@ one function alone: `python -c "import sys; sys.path[:0]=['tests']; import test_
 pixel intersection, nodata / outside tracts left out, extract -> evaluate: product, v5.4 and areal weighting metrics on
 the kept subset = by hand, a missing product = `missing` row, path resolution; a compare version + MAPE by hand,
 `--strict-sums`), `python tests/test_external_city_maps.py` (population kept on the move to our cells, nested grids exact,
-1 km blocks / Spearman / shares by hand, mask grey, 0 white, end to end + `--check`), `python tests/test_external_city_meeting.py` (scatter blocks = Spearman blocks, gap rule and cell shares by hand,
+1 km blocks / Spearman / shares by hand, mask grey, 0 white, end to end + `--check`), `python tests/test_external_city_meeting.py` (scatter blocks = Spearman blocks, gap rule and cell shares by hand, log tick labels + 0 band only with 0 blocks, 2010 / 1980 panel counts, Chicago text = gap table, a changed previous number stops the rerun,
 NobuiltYear source order + window / WarpedVRT reads, end to end: rho / totals = city maps, gap table by hand, NA
 without NobuiltYear, `--check`), `python tests/test_record_uncertainty.py` (shifted contemp grid aligned by WarpedVRT, county ratio_A_contemp /
 ratio_A_nby / ratio_B, A compare, cell checks, thresholds, gap overlap, strips = one strip; contemp + 0/1 NobuiltYear;

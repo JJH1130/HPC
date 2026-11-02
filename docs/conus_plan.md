@@ -37,8 +37,8 @@ Next (2026-10-30): PLURAL grid test done (section "PLURAL grid test result"): no
 dropped. v5.6 run for all census years 1900-2020 (section "v5.6 all years result"). Next: Stefan item 5 (county
 feature aggregation). Item 5 closed 2026-11-03 (v5.6 kept). Next (2026-11-03): external comparison with v5.6 +
 city maps (section "External comparison with v5.6", code written, not run). Run 2026-11-02 (section "External
-comparison with v5.6: result"). Next (2026-11-03): meeting city maps 2010 (section "Meeting city maps", code written,
-not run).
+comparison with v5.6: result"). Next (2026-11-03): meeting city maps 2010 (section "Meeting city maps", run 2026-11-03);
+display fixes + 1980 maps written as code, not run (same section).
 Supporting results: model family (RF best on tracts), external comparison (v5.4 beats Fang & Jawitz in every year;
 GHS-POP / WorldPop use sub-tract inputs), county TEST MdAPE 27-33 % in every year, fixed tract sets, record uncertainty
 (gap counties = counties without built years).
@@ -627,7 +627,7 @@ and on every figure).
 | To our grid | each product pixel split into k x k sub-points (k = pixel size / 25 m rounded up: 4 for the 100 m / 3 arc-sec grids, 40 for F&J 1 km), each with 1 / k^2 of the pixel's people, projected to our CRS and binned into our cells: population kept, area-weighted sum for 100 m, area-proportional split for 1 km (exact when grids nest; tested). Nodata / negative pixels = 0 people |
 | Display | people per km2, one log colour range per city x year shared by all panels (2nd-99.9th percentile of the positive cells); cells outside our mask (no v5.6 prediction: water, no used county) grey on every panel, not 0 |
 | Numbers per map (title + CSV) | people in the box per product (+ share on our masked cells); Spearman of the 1 km block density (4 x 4 cells, blocks fully inside the mask) of each product vs v5.6 (rank based, = log density); share of people on BUI = 0 cells (asked for v5.6, given for all) |
-| Outputs | `results/validation/conus/external/city_maps/{city}_{year}.png` + `city_maps_summary.csv` |
+| Outputs | `results/validation/conus/external/city_maps/{city}_{year}.png` + `city_maps_summary.csv` (moved to `city_maps_internal_with_fj/` 2026-11-03) |
 
 Run: `bash sbatch/submit_conus.sh externalv56` (pre-check of sums, tract errors and map inputs; then two jobs side
 by side: evaluate, city maps). Tests: `tests/test_external_compare.py` (compare version + MAPE by hand, strict sums),
@@ -987,7 +987,7 @@ All 17 jobs COMPLETED. Files: `results/validation/conus/builtcell/`. Same tracts
 ## External comparison with v5.6: result (jobs 35194158-35194159, code 699c891, run 2026-11-02 MT)
 
 Both jobs COMPLETED. `results/validation/conus/external/external_comparison_v56.csv` + `external_mdape_by_year_v56.png`,
-`city_maps/` (8 maps + `city_maps_summary.csv`). Reused tract sums of 2026-10-30 (same tracts for v5.4 / v5.6).
+`city_maps/` (8 maps + `city_maps_summary.csv`; now `city_maps_internal_with_fj/`, internal only). Reused tract sums of 2026-10-30 (same tracts for v5.4 / v5.6).
 
 Tract MdAPE / MAPE (>= 10 people), %, on each product's tracts:
 
@@ -1027,7 +1027,12 @@ Chicago, the HISDAC state of the blocks where v5.6 is far below GHS-POP (rule fi
 GHS >= 1,000 people per km2; share of cells with BUI > 0 and NobuiltYear > 0, vs the other dense blocks) ->
 `results/validation/conus/external/city_maps_meeting/` (`src/validation/external_city_meeting.py`,
 `bash sbatch/submit_conus.sh citymeeting`). Message: block-input products are not a fair tract-level contest; compare
-spatial patterns instead (rank agreement, not accuracy). Code written 2026-11-03, not run.
+spatial patterns instead (rank agreement, not accuracy). Code written 2026-11-03, run 2026-11-03.
+Display fixes + 1980 (request `docs/handoff/city_maps_meeting_fix_request.md`, runbook section 18b, code written, not
+run): readable scale bar, equal map spacing, log ticks 0.01 / 0.1 / 1 ..., Chicago panel gap vs other dense blocks side
+by side, 1980 maps v5.6 | GHS-POP; the run checks that rho / totals / gap table equal the earlier outputs. The F&J city
+maps of section "External comparison with v5.6: result" moved to `results/validation/conus/external/city_maps_internal_with_fj/` (internal,
+not for the meeting; drawn before the display fix).
 
 ## BUI outliers (bui_qa, job 34921582)
 

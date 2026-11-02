@@ -3,7 +3,8 @@
 # Denver, Salt Lake City, Chicago, Boston, 1980 / 2010 (src/validation/external_city_maps.py; city_maps block of
 # configs/external_grids.yaml; docs/conus_plan.md "External comparison with v5.6"). Agreement, not accuracy.
 # Reads $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_{YEAR}.tif, the cutout's BUI and the
-# products under $DATA_ROOT/raw/external; writes results/validation/conus/external/city_maps/.
+# products under $DATA_ROOT/raw/external; writes results/validation/conus/external/city_maps_internal_with_fj/
+# (internal check, not for the meeting; renamed from city_maps/ 2026-11-03).
 # Usually submitted by: bash sbatch/submit_conus.sh externalv56. Alone (repo root, logs/ must exist):
 #   sbatch sbatch/external_city_maps.sh                 # all cities and years of the config
 #   bash sbatch/external_city_maps.sh --check           # login node: list the inputs only (seconds)
@@ -31,7 +32,7 @@ python -u src/validation/external_city_maps.py \
     --dasym-root "$HISDAC_SCRATCH/dasymetric" \
     --cutout-root "$HISDAC_SCRATCH/cutouts" \
     --name conus \
-    --out-dir results/validation/conus/external/city_maps \
+    --out-dir results/validation/conus/external/city_maps_internal_with_fj \
     "$@"
 
 echo "== done $(date -Is)"

@@ -57,9 +57,9 @@
 #   bash sbatch/submit_conus.sh externalv56  # external comparison with v5.6 (no download, no extract): pre-check of the
 #                                       # tract sums on scratch + the city-map inputs, then evaluate (v5.6 + v5.4 on
 #                                       # each product's tracts, --strict-sums) and the city maps (two jobs, side by
-#                                       # side) -> results/validation/conus/external/*_v56.* + city_maps/
-#   bash sbatch/submit_conus.sh citymeeting  # meeting city maps 2010 (Boston / Denver / Chicago: v5.6 | GHS-POP |
-#                                       # WorldPop + 1 km scatter, Chicago gap blocks vs HISDAC): pre-check of the
+#                                       # side) -> results/validation/conus/external/*_v56.* + city_maps_internal_with_fj/
+#   bash sbatch/submit_conus.sh citymeeting  # meeting city maps 2010 + 1980 (Boston / Denver / Chicago: v5.6 |
+#                                       # GHS-POP (| WorldPop 2010) + 1 km scatter, Chicago gap blocks vs HISDAC): pre-check of the
 #                                       # inputs, one job -> results/validation/conus/external/city_maps_meeting/
 #   bash sbatch/submit_conus.sh builtcell  # built-cell aggregation test, 1960 / 2010: v5.6 + built-cell county means +
 #                                       # built_local (bc3 / bc5 / bc9) features / train / predict / validate (gap

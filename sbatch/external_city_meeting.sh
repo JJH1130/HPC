@@ -1,8 +1,10 @@
 #!/bin/bash
-# Meeting city maps, 2010: v5.6 | GHS-POP | WorldPop on our 250 m grid + 1 km block scatter plots for Boston, Denver,
-# Chicago (+ Chicago gap blocks vs HISDAC BUI / NobuiltYear) (src/validation/external_city_meeting.py; city_maps and
-# city_meeting blocks of configs/external_grids.yaml; request docs/handoff/city_maps_meeting_request.md). Rank
-# agreement, not accuracy. Reads v5.6's pop_2010.tif, the cutout's BUI, $HISDAC_DIR/FBUY/NobuiltYear.tif (read only;
+# Meeting city maps, 2010 (v5.6 | GHS-POP | WorldPop) and 1980 (v5.6 | GHS-POP) on our 250 m grid + 1 km block
+# scatter plots for Boston, Denver, Chicago (+ Chicago 2010 gap blocks vs HISDAC BUI / NobuiltYear)
+# (src/validation/external_city_meeting.py; city_maps and city_meeting blocks of configs/external_grids.yaml; requests
+# docs/handoff/city_maps_meeting_request.md + city_maps_meeting_fix_request.md). Rank agreement, not accuracy. The
+# numbers must equal the previous meeting_summary.csv / gap table and the city maps summary (--compare-with), else the
+# run stops before writing. Reads v5.6's pop_{2010,1980}.tif, the cutout's BUI, $HISDAC_DIR/FBUY/NobuiltYear.tif (read only;
 # optional) and GHS-POP / WorldPop under $DATA_ROOT/raw/external; writes results/validation/conus/external/city_maps_meeting/.
 # Usually submitted by: bash sbatch/submit_conus.sh citymeeting. Alone (repo root, logs/ must exist):
 #   sbatch sbatch/external_city_meeting.sh
@@ -34,6 +36,7 @@ python -u src/validation/external_city_meeting.py \
     --hisdac-dir "$HISDAC_DIR" \
     --name conus \
     --out-dir results/validation/conus/external/city_maps_meeting \
+    --compare-with results/validation/conus/external/city_maps_internal_with_fj/city_maps_summary.csv \
     "$@"
 
 echo "== done $(date -Is)"

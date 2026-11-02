@@ -25,7 +25,7 @@ the laptop, no job needed), section 10 (2020 added to v3_all: pre-check, then `s
 Section 10 ran 2026-10-29 (jobs 35053415-35053424). Section 11 block 1 ran 2026-10-29: `BUPR_contemp.tif` is not in the
 Dataverse archive; the job runs without it (NobuiltYear only; job 35056349, 2026-10-29). Written 2026-10-30, not run
 yet: section 12 (uncertainty filter, `submit_conus.sh uncfilter`).
-Written 2026-11-03, not run yet: section 18 (meeting city maps 2010, `submit_conus.sh citymeeting`).
+Written 2026-11-03, not run yet: section 18b (meeting city maps rerun: display fixes + 1980, `submit_conus.sh citymeeting`).
 
 ## Inputs / outputs
 
@@ -1491,7 +1491,7 @@ scratch.
 |---|---|---|---|
 | pre-check | login node | 26 sums files, 20 tract error files, city-map inputs (`external_city_maps.sh --check`) | seconds |
 | evaluate | 2 cores, 30 min | v5.6 / v5.4 / areal weighting / product on each product's tracts (`--strict-sums`) -> `external_comparison_v56.csv` + `external_mdape_by_year_v56.png` | minutes |
-| city maps | 2 cores, 45 min | 8 maps (4 cities x 2 years) -> `city_maps/{city}_{year}.png` + `city_maps_summary.csv` | minutes (estimate) |
+| city maps | 2 cores, 45 min | 8 maps (4 cities x 2 years) -> `city_maps/{city}_{year}.png` + `city_maps_summary.csv` (now `city_maps_internal_with_fj/`) | minutes (estimate) |
 
 Override: `EVAL_TIME`, `MAPS_TIME`.
 
@@ -1533,7 +1533,7 @@ ids=$(grep -oE '[0-9]{6,}' logs/conus_externalv56_jobs.txt | paste -sd,)
 sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_externalv56_sacct.txt
 for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_externalv56_seff.txt
 cat logs/conus_externalv56_sacct.txt
-ls results/validation/conus/external/ results/validation/conus/external/city_maps/
+ls results/validation/conus/external/ results/validation/conus/external/city_maps_internal_with_fj/
 git add logs/ results/validation/conus/external
 git commit -m "run: external comparison with v5.6 (tract numbers + city maps; logs + results)"
 git pull --rebase
@@ -1543,7 +1543,7 @@ echo "== end of block 3 (success = both COMPLETED, files listed, push ends with 
 ```
 
 Good: both jobs `COMPLETED`; `external_comparison_v56.csv`, `external_mdape_by_year_v56.png` (next to the old v5.4
-files) and in `city_maps/` 8 PNGs + `city_maps_summary.csv`; `git push` ends with `main -> main`; `== end of block 3`.
+files) and in `city_maps_internal_with_fj/` (was `city_maps/` until 2026-11-03) 8 PNGs + `city_maps_summary.csv`; `git push` ends with `main -> main`; `== end of block 3`.
 A `FAILED` job: commit anyway (same block) and tell Claude.
 
 What to look for in the logs: evaluate: per product and year `kept / left out`, the MdAPE and MAPE tables (class,
@@ -1561,7 +1561,7 @@ section 17's: Boston GHS 0.935 / WorldPop 0.932, Denver 0.891 / 0.886, Chicago 0
 `docs/handoff/city_maps_meeting_request.md`; code `src/validation/external_city_meeting.py` (`city_meeting` block of
 `configs/external_grids.yaml`). No download. NobuiltYear: the CONUS cutout has none, so `$HISDAC_DIR/FBUY/NobuiltYear.tif`
 is read onto the box (read only; same grid as the cutout per `results/hisdac_uncertainty/grid_check.csv`); without it
-the NobuiltYear columns are NA and the log says so. Section 17's `city_maps/` stays as it is.
+the NobuiltYear columns are NA and the log says so. Section 17's maps stay as they are (now `city_maps_internal_with_fj/`).
 
 | Step | Job | What | Estimate |
 |---|---|---|---|
@@ -1625,6 +1625,59 @@ and tell Claude.
 What to look for in the log: the inputs (NobuiltYear path and `hisdac`), per city the window, per product `k = 4`,
 people in the box and the Spearman (= section 17), for Chicago the `gap` / `dense_not_gap` lines (blocks, people, cell
 shares BUI > 0 / NobuiltYear > 0), the summary and gap tables, `DONE`.
+
+### 18b. Rerun after the display fixes + 1980 (2026-11-03)
+
+Request `docs/handoff/city_maps_meeting_fix_request.md`. Same mode, same job; display only, the numbers may not change:
+scale bar on a white box on every map, the three maps one size and spacing (maps and scatter plots in two
+sub-figures), log ticks 0.01 / 0.1 / 1 / 10 ..., one "0 (n blocks)" band only where there are 0 blocks, the Chicago
+panel gap vs other dense blocks side by side; + 1980 (v5.6 | GHS-POP, one scatter plot; WorldPop starts in 2000):
+`{city}_1980.png` and 1980 rows in `meeting_summary.csv`. Before writing, the job compares rho / blocks / box totals
+with the committed `meeting_summary.csv` (2010) and `city_maps_internal_with_fj/city_maps_summary.csv` (1980 and
+2010), and the gap table with the committed `chicago_gap_blocks.csv`; a difference stops it with nothing written
+(`ERROR: ... differs from ...`). Section 17's maps moved to `city_maps_internal_with_fj/` (README.txt: not for the
+meeting; drawn before the display fix).
+
+Block 1, submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh citymeeting
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK: 7 inputs for 3 cities x 2 years; NobuiltYear hisdac, one 'city_meeting N' line)"
+```
+
+Good: `CHECK OK: 7 inputs for 3 cities x 2 years; NobuiltYear hisdac`, one line `city_meeting N`, one job in `squeue`,
+`== end of block 1`. `ERROR: nothing submitted`: send the output and `logs/conus_citymeeting_check.txt` (a missing
+`pop_1980.tif` / `1980_BUI.tif` / GHS-POP 1980 = purged from scratch).
+
+Block 2, logs + results (after the job left `squeue`; a few minutes):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_citymeeting_jobs.txt)
+sacct -j "$j" --format=JobID,JobName%24,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_citymeeting_sacct.txt
+seff "$j" > logs/conus_citymeeting_seff.txt
+cat logs/conus_citymeeting_sacct.txt
+grep -hE "MATCH|differs|DONE" logs/external_city_meeting.$j.out
+ls results/validation/conus/external/city_maps_meeting/
+git add logs/ results/validation/conus/external/city_maps_meeting
+git commit -m "run: meeting city maps, display fixes + 1980 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, 3 MATCH lines, DONE, 8 files listed, push ends with main -> main)"
+```
+
+Good: `COMPLETED`; three `MATCH` lines (previous `meeting_summary.csv`: 9 rows; `city_maps_summary.csv`: 15 rows;
+`chicago_gap_blocks.csv`: 2 rows) and `DONE`; `boston_1980.png`, `boston_2010.png`, `chicago_1980.png`,
+`chicago_2010.png`, `chicago_gap_blocks.csv`, `denver_1980.png`, `denver_2010.png`, `meeting_summary.csv`; `git push`
+ends with `main -> main`; `== end of block 2`. `ERROR: ... differs from ...` (state `FAILED`, nothing written in the
+results folder): commit the logs anyway (same block) and send the line to Claude.
 
 ## If it fails
 
@@ -1690,6 +1743,7 @@ shares BUI > 0 / NobuiltYear > 0), the summary and gap tables, `DONE`.
 | externalv56: evaluate `the evaluated tracts of ... differ` / `evaluated tracts are not in` | a tract validation file changed since the sums were made: send the log |
 | externalv56: `CHECK` lists `MISSING .../predictions/pop_<YEAR>.tif` or `.../BUI/<YEAR>_BUI.tif` | v5.6 or cutout files purged from scratch: send the list (nothing was submitted) |
 | citymeeting: `ERROR: scatter blocks differ from the Spearman blocks` | a code bug (must not happen): send the log |
+| citymeeting: `ERROR: <column> differs from <previous csv>` | a number changed with the display rerun (must not happen): nothing was written; send the line and the log |
 | citymeeting: `several NobuiltYear files in .../layers/NobuiltYear` | more than one tif in that cutout folder: send its `ls` |
 | externalv56: city maps `OUT_OF_MEMORY` / `TIMEOUT` | resubmit alone: `sbatch --ntasks=4 --time=02:00:00 sbatch/external_city_maps.sh`; send `seff` |
 | external: evaluate `ERROR: .../tract_errors_<YEAR>.csv not found` | the v5.4 tract validation files are missing on the cluster: `git pull` |
