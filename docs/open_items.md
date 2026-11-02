@@ -19,7 +19,7 @@ Last updated: 2026-11-03 (meeting city maps 2010 written as code, not run; city 
   PNGs not redrawn.
 - **Status (2026-11-03, external comparison with v5.6, run):** `docs/conus_plan.md` "External comparison with v5.6:
   result". v5.6 beats F&J every year; GHS-POP 1980 only 3 pp better than v5.6 despite finer input; city maps agree with
-  GHS-POP (1 km rho 0.79-0.94); Chicago shows HISDAC record gaps inside the city (v5.6 near-empty cells).
+  GHS-POP (1 km rho 0.79-0.94); Chicago: 17 of 856 1 km blocks (downtown) far below GHS; 39 % of their cells have undated records only (NobuiltYear > 0, BUI = 0) vs 6 % elsewhere -> meeting example for the NobuiltYear point.
 
 - **Status (2026-11-03, external comparison with v5.6, request `docs/handoff/external_v56_request.md`):** v5.6 is the
   best version so far, **not declared final** (user, 2026-11-03). Stefan wants a GHS comparison; GHS-POP / WorldPop use

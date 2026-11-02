@@ -1009,7 +1009,12 @@ Tract MdAPE / MAPE (>= 10 people), %, on each product's tracts:
   Population on HISDAC BUI = 0 cells: v5.6 0-0.2 %, GHS-POP 1.6-20 % (Denver / Salt Lake City 1980 ~20 %), F&J 17-29 %.
   Chicago box total: v5.6 2.9 M vs GHS 3.5 M. The reading "v5.6 leaves parts of Chicago almost empty where HISDAC
   has no records" is **unconfirmed**: the 2026-11-02 PNGs drew zero-population cells inside the mask grey like masked
-  cells (display bug, fixed 6d9e3b0; numbers unaffected). To be settled by `chicago_gap_blocks.csv` (meeting maps).
+  cells (display bug, fixed 6d9e3b0; numbers unaffected). Settled by the meeting maps (2026-11-02 run, `city_maps_meeting/`):
+  only 17 of 856 Chicago 1 km blocks are gap blocks (v5.6 / GHS < 0.25, GHS >= 1,000 per km2; GHS 143 k people, v5.6
+  18 k), mostly downtown (Loop). There 57 % of cells have BUI > 0 (dense non-gap blocks 91 %) and 39 % have BUI = 0
+  but NobuiltYear > 0 (non-gap 6 %): buildings in HISDAC without a built year, missed by the 2010 time-series layers.
+  NobuiltYear > 0 alone (95 % vs 96 %) does not separate them. 2010 1 km Spearman with GHS-POP / WorldPop: Boston
+  0.94 / 0.93, Denver 0.89 / 0.89, Chicago 0.85 / 0.85.
 - Display bug found 2026-11-03 (fixed in `external_city_maps.for_imshow`; the PNGs of this run are not redrawn): the
   LogNorm masked cells with 0 people, so 0-people cells inside our mask were drawn grey like masked cells (water, no
   county) instead of white. The numbers are not affected; "almost empty" parts of Chicago in v5.6 may be grey 0 cells.
