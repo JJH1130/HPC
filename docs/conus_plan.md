@@ -1007,8 +1007,9 @@ Tract MdAPE / MAPE (>= 10 people), %, on each product's tracts:
 - City maps (agreement with v5.6, not accuracy): 1 km Spearman with GHS-POP 0.79-0.94 (Boston 0.94, Chicago 0.85-0.87,
   Denver / Salt Lake City 0.79-0.89), WorldPop 0.75-0.93; F&J 0.63-0.80, Chicago 0.02-0.05 (F&J near-uniform there).
   Population on HISDAC BUI = 0 cells: v5.6 0-0.2 %, GHS-POP 1.6-20 % (Denver / Salt Lake City 1980 ~20 %), F&J 17-29 %.
-  v5.6 leaves dense parts of Chicago almost empty where HISDAC has no records (records missing in the city itself);
-  its box total is 2.9 M vs GHS 3.5 M (people moved to recorded cells elsewhere in Cook County).
+  Chicago box total: v5.6 2.9 M vs GHS 3.5 M. The reading "v5.6 leaves parts of Chicago almost empty where HISDAC
+  has no records" is **unconfirmed**: the 2026-11-02 PNGs drew zero-population cells inside the mask grey like masked
+  cells (display bug, fixed 6d9e3b0; numbers unaffected). To be settled by `chicago_gap_blocks.csv` (meeting maps).
 - Display bug found 2026-11-03 (fixed in `external_city_maps.for_imshow`; the PNGs of this run are not redrawn): the
   LogNorm masked cells with 0 people, so 0-people cells inside our mask were drawn grey like masked cells (water, no
   county) instead of white. The numbers are not affected; "almost empty" parts of Chicago in v5.6 may be grey 0 cells.
