@@ -1088,6 +1088,10 @@ BUPR_year / BUPR_2015. Same tracts / split / folds / t070 exclusions as v5.6.
 | + nby | **50.5** | **40.4** | **34.4** | 27.6 | 24.7 |
 | + nby_age | 52.4 | 41.5 | 34.9 | 28.8 | 24.7 |
 
+- County TEST on **all** TEST counties (kept + excluded, the reporting rule from 2026-11-04), R2 / MdAPE: v5.4 1940 0.858 /
+  31.1 %, 1980 0.861 / 29.6 %, 2010 0.878 / 28.4 %; v5.6 0.830 / 31.0, 0.755 / 33.2, 0.522 / 32.7; + nby 0.866 / 26.6,
+  0.858 / 29.4, 0.600 / 30.2; + nby_age 0.841 / 29.0, 0.770 / 29.0, 0.599 / 30.3 (1910: 0.822 / 0.774 / 0.813 / 0.780).
+  nby brings v5.6's all-county fit back to v5.4's level up to 1980 and beats v5.4's MdAPE 1940-1980; 2010 stays low.
 - County TEST (kept counties) better every year for both (2010 MdAPE 23.0 -> 20.9 / 20.0 %, R2 0.919 -> 0.932);
   nby ranks 2nd-4th (permutation).
 - nby helps tracts in the early years (-1.6 to -2.6 pp, 1910-1960) and strongly in counties with poor records:

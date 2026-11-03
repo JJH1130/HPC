@@ -8,6 +8,9 @@ Last updated: 2026-11-04 (NobuiltYear feature test written as code, not run); 20
 
 ## Open items
 
+- **Reporting rule (user, 2026-11-04):** county-level metrics are always reported on ALL TEST counties (kept + excluded
+  by the filter), never only on the kept ones; a kept-only number may appear next to it, labelled.
+
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
 - **Status (2026-11-04, NobuiltYear feature test, request `docs/handoff/nobuiltyear_feature_request.md`):** code
