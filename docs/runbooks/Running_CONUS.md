@@ -1823,6 +1823,100 @@ What to look for in the logs: `grid_cutout` (the NOBUILT line), `dasymetric_feat
 importance lines), `dasymetric_predict` (nbya: `nby_age factors = ...`, mass check), `nobuilt_compare` (lines `SUMMARY`:
 tract MdAPE / MAPE by set, TEST counties + ranks, people on BUI = 0 cells, city gap blocks, feature ranks).
 
+## 20. v5.4 + NobuiltYear without the filter, 1910 / 1940 / 1960 / 1980 / 2010 (2026-11-04)
+
+Request `docs/handoff/v54_nby_request.md`; design `docs/conus_plan.md` "v5.4 + NobuiltYear (no filter)". Question: if
+`nby` carries the record uncertainty as a feature, is the t070 county filter still needed? One change against v5.4:
+`Dasy_CONUS_RF_v3_all_nby` = v5.4 (no `exclude_counties`) + `nby` (the NOBUILT layer of section 19). v5.4, v5.6 and v5.6
++ nby are not rerun. The comparison reports county metrics on ALL TEST counties (reporting rule of 2026-11-04). Side by
+side, a diagnosis without a model: are the undated records older buildings (FBUY of cells with / without NobuiltYear)?
+No selection rule: the user decides. Needs the CONUS cutout with NOBUILT (section 19), v5.4's era files of the five
+years on scratch (section 9), the predictions of v5.4 / v5.6 / v5.6 + nby on scratch, the NobuiltYear test results in
+git and the meeting-map inputs (section 18).
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| features | 6 cores, 40 min | 5 years, v5.4 features + nby | ~10 min |
+| train | 16 cores, 2 h | 5 eras, 60 candidates, all train counties (~2,350-2,490), comparison with v5.4 | ~45 min |
+| predict | 32 cores, 1 h | allocation of the 5 years | ~20 min |
+| validate | 8 cores, 30 min | tracts of the 5 years (gap counties from v5.6) | ~6 min |
+| v54_nby_compare | 4 cores, 45 min | four versions: all TEST counties, tracts, people on BUI = 0 cells, city gap blocks, ranks | ~6 min |
+| undated_age_diag | 2 cores, 1 h | FBUY of built cells with / without undated records + county Spearman (no dependency) | ~20 min |
+
+6 jobs; ~1.5 h after the first one starts (estimates from the NobuiltYear test's sacct). Override: `FEATURES_TIME`,
+`TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`, `COMPARE_TIME`, `DIAG_TIME`.
+
+**CURC maintenance 2026-11-04 (Wed) 06:30-18:30 MT.** Slurm holds a job whose wall time would not end before the
+window starts until the window is over. The pre-check prints `TIME ...` lines: the minutes left, the chain estimate and
+which jobs would run only after the maintenance (`TIME NOTE: ...`). Submitting is fine either way; the jobs then simply
+start at 18:30 MT. Another window: `MAINT_START="YYYY-MM-DD HH:MM" MAINT_END="..." bash sbatch/submit_conus.sh v54nby`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh v54nby
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK line, PRECHECK: 0 missing, TIME lines, one 'v54_nby features N ... | undated_age_diag N' line, 6 jobs)"
+```
+
+Good: `CHECK OK: ...` (the meeting-map inputs), `PRECHECK: 0 missing of the inputs (...)`, `TIME now ...` + either
+`TIME OK: ...`, `TIME NOTE: ... run AFTER the maintenance ...`, `TIME maintenance in progress ...` or `TIME maintenance
+window is over ...`; one line `v54_nby features N train N predict N validate N | v54_nby_compare N | undated_age_diag N`
+(also in `logs/conus_v54nby_jobs.txt`), 6 jobs in `squeue` (`(ReqNodeNotAvail, Reserved for maintenance)` = waiting for
+the window, expected); `== end of block 1`. `MISSING ...` + `ERROR: nothing submitted`: send the output to Claude.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v54nby_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+squeue -u $USER -o "%.10i %.20j %.8T %.30R"
+grep -hE "SUMMARY|DONE" $(ls -t logs/undated_age_diag.*.out 2>/dev/null | head -1) 2>/dev/null | tail -4
+echo "== end of block 2 (success = states PENDING / RUNNING / COMPLETED, no FAILED)"
+```
+
+Good: states `PENDING` / `RUNNING` / `COMPLETED` (pending reason `Dependency`, or `Reserved for maintenance` during the
+window); once the diagnosis ran, its `SUMMARY` / `DONE` lines; `== end of block 2`. A `FAILED` job: the jobs after it
+stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and send the log.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v54nby_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_v54nby_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_v54nby_seff.txt
+cat logs/conus_v54nby_sacct.txt
+grep -hE "MATCH|DIFFERS|differs|DONE" $(ls -t logs/v54_nby_compare.*.out | head -1)
+grep -h "DONE" $(ls -t logs/undated_age_diag.*.out | head -1)
+ls results/validation/conus/nobuilt/ results/hisdac_uncertainty/undated_age_diag.csv
+git add logs/ results/
+git commit -m "run: v5.4 + nby without the filter + undated-record age diagnosis, 1910-2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = every job COMPLETED, MATCH lines (gap_blocks.csv 6 rows, nobuilt_cells.csv 10 rows, nobuilt_city_gaps.csv 24 rows), no DIFFERS, DONE twice, v54_nby_* CSVs, push main -> main)"
+```
+
+Good: every job `COMPLETED`; `MATCH .../gap_blocks.csv: 6 rows`, `MATCH .../nobuilt_cells.csv: 10 rows` (v5.6 and v5.6 +
+nby x 5 years), `MATCH .../nobuilt_city_gaps.csv: 24 rows` (2 versions x 3 cities x 2 years x 2 sets), no `DIFFERS`
+(the reported TEST R2 recomputed), `DONE` from both jobs; `v54_nby_comparison.csv`, `v54_nby_cells.csv`,
+`v54_nby_city_gaps.csv`, `v54_nby_feature_ranks.csv` next to the unchanged `nobuilt_*` files, and
+`undated_age_diag.csv`; `git push` ends with `main -> main`; `== end of block 3`. Failed jobs: commit anyway (same
+block) and tell Claude.
+
+What to look for in the logs: `dasymetric_train` (CV vs v5.4 per era, nby in the importance lines), `v54_nby_compare`
+(lines `SUMMARY`: county on ALL TEST counties first, then kept / excluded t070 labelled, CV by its own set, tracts,
+cells, city gap blocks, rank of nby; a `WARNING ... cells with a prediction differ from Dasy_CONUS_RF_v3_u070` = v5.4's
+mask differs in a city box, counted in `mask_diff_cells`), `undated_age_diag` (lines `SUMMARY`: FBUY by group, county
+Spearman).
+
 ## If it fails
 
 | Symptom | Fix |
@@ -1891,6 +1985,9 @@ tract MdAPE / MAPE by set, TEST counties + ranks, people on BUI = 0 cells, city 
 | citymeeting: `several NobuiltYear files in .../layers/NobuiltYear` | more than one tif in that cutout folder: send its `ls` |
 | externalv56: city maps `OUT_OF_MEMORY` / `TIMEOUT` | resubmit alone: `sbatch --ntasks=4 --time=02:00:00 sbatch/external_city_maps.sh`; send `seff` |
 | external: evaluate `ERROR: .../tract_errors_<YEAR>.csv not found` | the v5.4 tract validation files are missing on the cluster: `git pull` |
+| v54nby: `ERROR: <column> differs from .../nobuilt_cells.csv` / `nobuilt_city_gaps.csv` | v5.6 or v5.6 + nby on scratch is not what the NobuiltYear test read (rerun or purge?): nothing was written; send the log |
+| v54nby: `all TEST counties of ... differ` | a version ran with another split: send the log |
+| v54nby: `undated_age_diag` `... FBUY.tif not found` | `$HISDAC_DIR/FBUY/` changed: send `ls $HISDAC_DIR/FBUY/`; nothing else depends on it |
 | `oom-kill` / `OUT_OF_MEMORY` in `sacct` | send the log + `seff`; the stage needs more `--ntasks` in `submit_conus.sh` |
 | `N study-county cells have no JRC coverage; missing tiles [...]` | a JRC tile is missing in `jrc_occurrence/`; download it (`docs/data_sources.md`) |
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |

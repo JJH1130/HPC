@@ -1103,6 +1103,49 @@ BUPR_year / BUPR_2015. Same tracts / split / folds / t070 exclusions as v5.6.
 - nby_age (age-scaled) is not better than nby on tracts. Not adopted yet; user decides (e.g. nby only where records
   are poor, or for early years).
 
+## v5.4 + NobuiltYear (no filter)
+
+Request `docs/handoff/v54_nby_request.md` (2026-11-04), after the NobuiltYear test result above: v5.6 + nby improved the
+county CV in all five years and brought the all-TEST-county R2 back to v5.4's level (1980 0.858 vs 0.861). Question: if
+nby carries the record uncertainty as a feature, is the t070 filter (1,020 counties out of search, fit and TEST) still
+needed? Code written 2026-11-04, not run (runbook section 20, `bash sbatch/submit_conus.sh v54nby`).
+
+- **Model:** `configs/conus_rf_v3_all_nby.yaml` (`Dasy_CONUS_RF_v3_all_nby`) = v5.4 (`Dasy_CONUS_RF_v3_all`: split,
+  folds, statuses, water mask, strips, search space, 60 candidates; no `exclude_counties`) + `nby` (the NOBUILT cutout
+  layer and cell definition of the NobuiltYear test). One change: every era = v5.4's era of the year + nby. 1910 /
+  1940 / 1960 / 1980 / 2010; compare_with v5.4. Tract validation with v5.6's gap counties (`--gap-version`).
+- **Comparison** (`src/validation/v54_nby_compare.py`, `sbatch/v54_nby_compare.sh`): v5.4, v5.4 + nby, v5.6, v5.6 + nby
+  on the same years, tracts, TEST counties and cells.
+  - County, before allocation (exp(y_hat) x area_km2 vs census, as `metrics_over_time.py`): MdAPE, MAPE, R2 of log
+    density on **all TEST counties** (set `test_all`: the split's TEST counties; filter versions = `test_predictions.csv`
+    + the TEST part of `excluded_predictions.csv`; the same set in every version, checked) = the main table
+    (reporting rule, `docs/open_items.md`); beside it, labelled, `test_kept_t070` / `test_excluded_t070`. The R2 of the
+    model's own TEST set is checked against `metrics.json`.
+  - County CV RMSE / R2 only in columns named by the CV county set (`cv_*_train_all` without the filter,
+    `cv_*_train_kept_t070` with it; `cv_counties`): the filter versions have no excluded county in their CV, so the two
+    are not comparable; not a selection criterion (CSV column `cv_note`, log).
+  - Tracts as the NobuiltYear test (all, kept / excluded t070, gap / no-gap from v5.6, density classes, areal
+    weighting); `d_mdape` = against v5.4.
+  - People on BUI = 0 cells and of those on NobuiltYear > 0 cells, and the city gap blocks (Boston / Denver / Chicago,
+    1980 / 2010, rule of `external_city_meeting.py`, blocks inside v5.6's mask): the v5.6 / v5.6 + nby rows must equal
+    `nobuilt_cells.csv` / `nobuilt_city_gaps.csv`, else the run stops (v5.6's own gap blocks = `gap_blocks.csv` as
+    before). A v5.4 mask that differs from v5.6's in a city box is logged and counted (`mask_diff_cells`), not stopped.
+  - Rank of nby (permutation / mean |SHAP|).
+  - Output `results/validation/conus/nobuilt/v54_nby_{comparison,cells,city_gaps,feature_ranks}.csv`; the `nobuilt_*`
+    files stay. No selection rule (the user decides); tracts not used for tuning.
+  - Checked locally on the tracked results before the run: v5.4 / v5.6 / v5.6 + nby all-TEST numbers equal the ones
+    above (1980 R2 0.861 / 0.755 / 0.858, MdAPE 29.6 / 33.2 / 29.4 %).
+- **Diagnosis, no model** (`src/grid/undated_age_diag.py`, `sbatch/undated_age_diag.sh`): nby_age did worse than nby, so
+  "undated records have the age distribution of the county's dated records" may be wrong. Cells: over the built study
+  cells (BUPR_2015 > 0 or NobuiltYear > 0), the HISDAC FBUY (first built-up year) of cells with NobuiltYear > 0 vs = 0
+  (and > 0 with dated records), quantiles, decade shares, share <= 1940; cells with NobuiltYear > 0 and BUPR_2015 = 0
+  counted apart. Counties: Spearman(ratio_A_nby, BUPR_1940 / BUPR_2015) + the median early share per ratio_A_nby band.
+  -> `results/hisdac_uncertainty/undated_age_diag.csv`. Nothing goes into a feature or a config. County part already
+  computable from git (local run 2026-11-04: Spearman 0.021 over 3,003 counties with BUPR_2015 > 0, i.e. no link
+  between the undated share and the early share of the dated records at county level; the cell part needs the run).
+- **Timing:** CURC maintenance 2026-11-04 06:30-18:30 MT; the pre-check prints the minutes left, the chain estimate
+  (~1.5 h, from the NobuiltYear test's sacct) and which jobs would only start after the window.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
