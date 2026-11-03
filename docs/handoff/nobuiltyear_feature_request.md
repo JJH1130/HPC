@@ -14,7 +14,8 @@ Denver 1980 77 % vs 10 %). 아이디어: NobuiltYear(연도 없는 기록 수)�
   BUPR_year = 그해 cutout BUPR 레이어; BUPR_2015 = HISDAC 원본 (uncertainty_filter와 같은 방식으로 2010 zone 합). f_c는
   <era>/features/nby_age_factor.csv로 남기고 predict에서 같은 값 사용 (다르면 멈춤).
 - configs/conus_rf_v3_u070_nby.yaml, conus_rf_v3_u070_nbya.yaml: v5.6과 같은 split / fold / exclude_counties (t070) / 탐색 공간 /
-  n_iter 60, 연도 1960 / 1980 / 2010.
+  n_iter 60, 연도 1910 / 1940 / 1960 / 1980 / 2010 (사용자 2026-11-04: 연도 없는 기록 문제가 큰 이른 연도 포함; 1910은 Land_Use 없는
+  v5.6 era 피처 그대로, 검증 tract는 10개 카운티뿐이라 참고용).
 
 [3. 평가 (v5.6과 같은 tract / 카운티; plural_compare / builtcell_compare 재사용)]
 - 카운티: TEST R2 / MdAPE (필터 후 남은 TEST 카운티, 세 버전 같은 집합), CV RMSE.
@@ -22,7 +23,7 @@ Denver 1980 77 % vs 10 %). 아이디어: NobuiltYear(연도 없는 기록 수)�
 - BUI = 0 셀에 배분된 인구 비율 (전체), 그중 NobuiltYear > 0 셀에 간 비율.
 - 피처 순위 (permutation / SHAP)에서 nby / nby_age 순위.
 - 도시 gap 1 km 셀 재측정: external_city_meeting.py의 gap 기준 그대로 (v5.6 / GHS-POP < 0.25, GHS >= 1,000 / km2), Boston / Denver /
-  Chicago 1980 / 2010 (1960은 GHS 없음)에서 각 변형의 gap 셀 수와 그 셀들의 인구 (GHS 대비) -> v5.6과 나란히. 그림은 필요 없음.
+  Chicago 1980 / 2010 (GHS는 1975년부터라 1910 / 1940 / 1960은 없음)에서 각 변형의 gap 셀 수와 그 셀들의 인구 (GHS 대비) -> v5.6과 나란히. 그림은 필요 없음.
 - 출력: results/validation/conus/nobuilt/nobuilt_comparison.csv (+ 위 항목 CSV), 로그에 요약표.
 - 선택 규칙 없음 (두 변형 다 보고, 판단은 사용자). tract로 튜닝하지 않음.
 
