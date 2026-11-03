@@ -16,6 +16,9 @@ Writes to <out-root>/<name>/<version>/:
   maps/pop_{YEAR}_<prev>_vs_<version>.png   side by side with the `compare_with` version for maps.compare_years
 Map years come from `maps:` in configs/model.yaml (default 1810, 1900, 2020 and 1810); the flags override it.
 
+nby_age (NobuiltYear feature test): the county factors are recomputed and must equal <era>/features/nby_age_factor.csv
+(else the job stops before predicting).
+
 Checks (the job fails after writing everything if one fails): |sum pop_cell - pop_c| / pop_c < 1e-6
 for every county-year, no negative or NaN cell values in used counties, and no people on masked cells.
 
@@ -40,9 +43,9 @@ from affine import Affine
 
 import plots
 from models import set_threads
-from common import (NODATA_OUT, add_common_args, built_local_setup, cell_features, county_selection, dist_built,
-                    era_of, load_config, log, log_args, out_dir, plural_setup, read_zones, setup_logging, strips,
-                    used_mask, water_mask, write_tif)
+from common import (NODATA_OUT, add_common_args, built_local_setup, cell_features, check_factors, county_selection,
+                    dist_built, era_of, load_config, log, log_args, nby_age_setup, out_dir, plural_setup, read_zones,
+                    setup_logging, strips, used_mask, water_mask, write_tif)
 
 MASS_TOL = 1e-6
 BREAK_TOL = 1e-9  # plural class breaks: recomputed here = the ones county_features.py wrote
@@ -97,6 +100,10 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
     blocal = built_local_setup(cfg, zones, ids) if "built_local" in bundle["features"] else None
     if plural and plural["inner"] is not None:
         check_breaks(plural, out / (bundle.get("era") or "") / "features" / "plural_breaks.csv", year)
+    nbya = nby_age_setup(cutout, year, grid, zones, used, cfg["nby_age"] if "nby_age" in bundle["features"] else None,
+                         cfg.get("block_rows"))
+    if nbya:  # the factors of the model's county features, else stop
+        check_factors(nbya, out / (bundle.get("era") or "") / "features" / "nby_age_factor.csv", year)
     if not whole and "dist_built" in bundle["features"]:  # timed on its own (whole-window distance transform)
         t = time.perf_counter()
         full["dist_built"] = dist_built(cutout, year, grid)
@@ -112,7 +119,8 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
             W.append(np.zeros(0)), Z.append(np.zeros(0, zones.dtype)), M.append(np.zeros(0, bool))
             continue
         t1 = time.perf_counter()
-        X = cell_features(cutout, year, grid, mask, bundle["features"], None if whole else rws, full, plural, blocal)
+        X = cell_features(cutout, year, grid, mask, bundle["features"], None if whole else rws, full, plural, blocal,
+                          nbya)
         t2 = time.perf_counter()
         y_hat = bundle["model"].predict(X)
         del X

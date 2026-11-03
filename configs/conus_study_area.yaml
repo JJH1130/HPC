@@ -18,7 +18,8 @@ years: {start: 1900, stop: 2020, step: 10}
 grid_reference: BUI
 
 # Only the HISDAC layers the CONUS features use (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share), DEM
-# (elev, slope), NTL (ntl, Dasy_CONUS_RF_v3_ntl) and NTLV (ntlv, Dasy_CONUS_RF_v3_ntlv). FBUY / NobuiltYear (age is dropped) are not cut. Field rules:
+# (elev, slope), NTL (ntl, Dasy_CONUS_RF_v3_ntl) and NTLV (ntlv, Dasy_CONUS_RF_v3_ntlv). FBUY is not cut (age is dropped); NobuiltYear is
+# cut as NOBUILT for the NobuiltYear feature test (2026-11-04). Field rules:
 # configs/study_area.yaml.
 layers:
   # BUI as float32: the 2010 CONUS maximum is 5,447,140,510 (pilot job 34820551), beyond int32. float32 keeps
@@ -58,6 +59,12 @@ layers:
   # border cells: src/grid/plural_qa.py. Added with `grid_cutout.sh --layers PLURAL PLURALC` (sbatch/submit_conus.sh plural).
   - {name: PLURAL,  path: "/projects/jaju1407/data/raw/plural/siqiao_2026/PLURAL_grid_data/index3_{YEAR}_900_US.tif", years: [1940, 1980, 2010], resampling: bilinear, dtype: float32}
   - {name: PLURALC, path: "/projects/jaju1407/data/raw/plural/siqiao_2026/PLURAL_grid_data/index3_{YEAR}_900_US.tif", years: [1940, 1980, 2010], resampling: cubic, dtype: float32, clip: [0, 1]}
+  # HISDAC NobuiltYear (records without a built year per cell; one present-day layer, ~2016) for the NobuiltYear feature
+  # test on v5.6 (request 2026-11-04, docs/handoff/nobuiltyear_feature_request.md; docs/conus_plan.md "NobuiltYear
+  # feature test"): features nby / nby_age. On the HISDAC grid (results/hisdac_uncertainty/grid_check.csv), float64 with
+  # whole counts 0-24,246 and no nodata -> int32 (the default; make_cutout stops on a non-integer value). Static, like
+  # DEM. Added with `grid_cutout.sh --layers NOBUILT` (sbatch/submit_conus.sh nobuilt).
+  - {name: NOBUILT, path: "FBUY/NobuiltYear.tif", years: none, resampling: none, out: "NOBUILT/NOBUILT.tif"}
 
 # PLURAL QA (src/grid/plural_qa.py): coast / border band width, and points where the 900 m source and the 250 m layers
 # are compared (cities near 0, remote places near 1).

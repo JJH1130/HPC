@@ -24,6 +24,10 @@ with no unmasked cell instead of stopping; the rows hold train AND test counties
 built_mean is the mean over the county's unmasked cells with BUI > 0 instead (0 for a county without one, counted in
 the log); built_local is a cell feature (common.built_local_rows) averaged like every other. Without the block the
 output is the same as before.
+
+NobuiltYear feature test (docs/conus_plan.md "NobuiltYear feature test"): nby = the cutout layer NOBUILT (HISDAC
+NobuiltYear, records without a built year), nby_age = nby x the county factor f_c(year) (common.nby_age_setup), both
+averaged over the unmasked cells like every other cell feature; the factors go to <era>/features/nby_age_factor.csv.
 """
 from __future__ import annotations
 
@@ -35,8 +39,8 @@ import numpy as np
 import pandas as pd
 
 from common import (CELL_KM, add_common_args, built_local_setup, cell_features, county_selection, era_of,
-                    load_config, log, log_args, out_dir, plural_setup, read_layer, read_zones, setup_logging, strips,
-                    used_mask, water_mask, year_filter)
+                    load_config, log, log_args, nby_age_setup, out_dir, plural_setup, read_layer, read_zones,
+                    setup_logging, strips, used_mask, water_mask, year_filter)
 
 
 def parse_args(argv=None):
@@ -50,7 +54,7 @@ def parse_args(argv=None):
 
 def year_rows(cutout: Path, year: int, features, cfg: dict):
     """County rows of one year + water-mask QA (None without water_mask) + the table size + the plural breaks row
-    (None unless plural is classed). The window is read in strips of `block_rows` rows (whole window without it);
+    (None unless plural is classed) + the nby_age factor table (None without nby_age). The window is read in strips of `block_rows` rows (whole window without it);
     per-county sums are added up over the strips."""
     zones, table, grid = read_zones(cutout, year)
     used = county_selection(table, zones, cfg["use_status"], year, cfg["unusable"])
@@ -66,13 +70,15 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
     plural = plural_setup(cutout, year, grid, zones, ids, cfg["plural"] if "plural" in features else None,
                           cfg.get("block_rows"))
     blocal = built_local_setup(cfg, zones, ids) if "built_local" in features else None
+    nbya = nby_age_setup(cutout, year, grid, zones, used, cfg["nby_age"] if "nby_age" in features else None,
+                         cfg.get("block_rows"))
     parts = strips(zones.shape, cfg.get("block_rows"))
     for k, rws in enumerate(parts):
         mask = used_mask(zones[rws], ids)
         if not mask.any():
             continue
         feats = cell_features(cutout, year, grid, mask, features, None if len(parts) == 1 else rws, full, plural,
-                              blocal)
+                              blocal, nbya)
         z = zones[rws][mask]
         keep = np.ones(len(z), bool)
         if cfg.get("water_mask"):
@@ -127,7 +133,7 @@ def year_rows(cutout: Path, year: int, features, cfg: dict):
         rows["area_km2"] = used["area_km2"].to_numpy()
     rows["y"] = np.log(rows["pop"] / rows["area_km2"])
     log.info("  %d: %d counties in the table, %d used, %d cells", year, len(table), len(rows), n_study)
-    return rows, qa, len(table), plural["table"] if plural else None
+    return rows, qa, len(table), plural["table"] if plural else None, nbya["table"] if nbya else None
 
 
 def main(argv=None):
@@ -147,12 +153,14 @@ def main(argv=None):
         feats = e["features"]
         log.info("era %s | %d years %d-%d | features %s", era or "(none)", len(e["years"]), e["years"][0],
                  e["years"][-1], feats)
-        parts, breaks = [], []
+        parts, breaks, factors = [], [], []
         for year in e["years"]:
-            rows, qa, n_table, brk = year_rows(cutout, year, feats, cfg)
+            rows, qa, n_table, brk, fac = year_rows(cutout, year, feats, cfg)
             parts.append(rows)
             if brk:
                 breaks.append(brk)
+            if fac is not None:
+                factors.append(fac)
             n_all += n_table
             if qa:
                 mask_qa.append(qa)
@@ -170,6 +178,9 @@ def main(argv=None):
         if breaks:  # classed plural: the breaks predict.py must find again
             pd.DataFrame(breaks).to_csv(path.parent / "plural_breaks.csv", index=False)
             log.info("wrote %s", path.parent / "plural_breaks.csv")
+        if factors:  # nby_age: the county factors predict.py must find again
+            pd.concat(factors, ignore_index=True).to_csv(path.parent / "nby_age_factor.csv", index=False)
+            log.info("wrote %s", path.parent / "nby_age_factor.csv")
 
     if mask_qa:
         path = out_dir(cfg, args.out_root) / "qa" / "water_mask_by_year.csv"

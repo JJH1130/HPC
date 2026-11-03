@@ -48,7 +48,13 @@ LAYER_FEATURES.update({f: f"PLACEDIST/{f}" for f in PLACE_DIST})
 DERIVED_FEATURES = {"bldg_size", "mu_ratio", "age", "dist_built", "year", "res_share", "rent_share",
                     "elev", "slope",  # v4: elev, slope from the static DEM layer (docs/dasymetric_v4.md)
                     "plural",  # PLURAL grid test (docs/conus_plan.md "PLURAL grid test"): see plural_spec()
-                    "built_local"}  # built-cell aggregation test: see built_local_setup()
+                    "built_local",  # built-cell aggregation test: see built_local_setup()
+                    "nby", "nby_age"}  # NobuiltYear feature test: see nby_age_setup()
+# NobuiltYear feature test (docs/conus_plan.md "NobuiltYear feature test"): cutout layer NOBUILT = HISDAC
+# FBUY/NobuiltYear.tif (static, ~2016: records without a built year per cell), layers/NOBUILT/NOBUILT.tif.
+NOBUILT_LAYER = "NOBUILT"
+NBY_REF_YEAR = 2015  # nby_age: f_c(year) = sum BUPR_year / sum BUPR_2015 over the cell's 2010 county
+FACTOR_TOL = 1e-12   # nby_age factors recomputed by predict.py = the ones county_features.py wrote
 PLURAL_LAYERS = ("PLURAL", "PLURALC")  # cutout layers: 900 m PLURAL grid, bilinear / cubic (clipped to 0-1)
 PLURAL_BREAKS = ("quantile", "equal")
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
@@ -121,7 +127,22 @@ def load_config(path: Path) -> dict:
         sys.exit(f"ERROR: {path}: model {cfg['model']!r} has no entry under models: {sorted(cfg['models'])}")
     cfg["plural"] = check_plural(cfg.get("plural"), "plural" in used, path)
     cfg["aggregation"], cfg["built_local"] = check_aggregation(cfg.get("aggregation"), used, path)
+    cfg["nby_age"] = check_nby_age(cfg.get("nby_age"), "nby_age" in used, path)
     return cfg
+
+
+def check_nby_age(spec, used: bool, path: Path):
+    """The `nby_age:` block (NobuiltYear feature test): {bupr_ref: <CSV with GISJOIN, bupr_2015>} = the 2010-county
+    sums of the raw HISDAC BUPR_2015 (src/grid/record_uncertainty.py, county_record_uncertainty.csv; the table the
+    uncertainty filter uses). Needed when the feature nby_age is used."""
+    if not used:
+        if spec is not None:
+            sys.exit(f"ERROR: {path}: nby_age: block given but the feature nby_age is not used")
+        return None
+    ref = resolve_repo_path(spec.get("bupr_ref") if isinstance(spec, dict) else None, path)
+    if ref is None:
+        sys.exit(f"ERROR: {path}: feature nby_age needs `nby_age: {{bupr_ref: <county_record_uncertainty.csv>}}`")
+    return {"bupr_ref": ref}
 
 
 def check_aggregation(spec, used, path: Path):
@@ -460,13 +481,84 @@ def built_local_rows(cutout: Path, year: int, grid: dict, spec: dict, rows: slic
     return out[keep]
 
 
+def nby_age_setup(cutout: Path, year: int, grid: dict, zones: np.ndarray, used: pd.DataFrame, spec: dict | None,
+                  block_rows=None) -> dict | None:
+    """The nby_age factor of every used county in one year (NobuiltYear feature test): f_c = sum of the cutout's BUPR_year
+    over all cells of the county (zones = 2010 counties) / the county's BUPR_2015 sum from spec["bupr_ref"], clipped to
+    0-1; f_c = 1 where BUPR_2015 = 0. Assumption: the undated records of a county have the age distribution of its dated
+    ones. Returns {f: factor per zone id (lookup array), zones, table: one row per county for nby_age_factor.csv}."""
+    if spec is None:
+        return None
+    ref_path = spec["bupr_ref"]
+    if not Path(ref_path).exists():
+        sys.exit(f"ERROR: nby_age: {ref_path} not found (src/grid/record_uncertainty.py writes it)")
+    ref = pd.read_csv(ref_path)
+    col = f"bupr_{NBY_REF_YEAR}"
+    if not {"GISJOIN", col} <= set(ref.columns) or ref["GISJOIN"].duplicated().any():
+        sys.exit(f"ERROR: nby_age: {ref_path} needs one row per GISJOIN with a {col} column")
+    ids = used["zone_id"].to_numpy()
+    nz = int(max(zones.max(), ids.max())) + 1
+    s = np.zeros(nz)
+    for rws in strips(zones.shape, block_rows):
+        m = used_mask(zones[rws], ids)
+        if m.any():
+            s += np.bincount(zones[rws][m], weights=read_layer(cutout, "BUPR", year, grid, m, rws), minlength=nz)
+    t = used[["zone_id", "GISJOIN"]].copy()
+    t.insert(0, "year", year)
+    t[f"bupr_{year}"] = s[ids]
+    t = t.merge(ref[["GISJOIN", col]].rename(columns={col: f"bupr_ref_{NBY_REF_YEAR}"}), on="GISJOIN", how="left")
+    if t[f"bupr_ref_{NBY_REF_YEAR}"].isna().any():
+        miss = t.loc[t[f"bupr_ref_{NBY_REF_YEAR}"].isna(), "GISJOIN"].tolist()
+        sys.exit(f"ERROR: nby_age {year}: {len(miss)} used counties not in {ref_path}: {miss[:20]}")
+    b = t[f"bupr_{year}"].to_numpy(float)
+    r = t[f"bupr_ref_{NBY_REF_YEAR}"].to_numpy(float)
+    zero = r <= 0
+    ratio = np.divide(b, r, out=np.full(len(b), np.nan), where=~zero)
+    t["ratio"] = ratio
+    t["factor"] = np.where(zero, 1.0, np.clip(np.nan_to_num(ratio), 0.0, 1.0))
+    t["rule"] = np.where(zero, "bupr_2015_zero", np.where(ratio > 1, "clipped_1", "ratio"))
+    f = np.zeros(nz)
+    f[t["zone_id"].to_numpy()] = t["factor"].to_numpy()
+    q = np.quantile(t["factor"], [0, 0.1, 0.5, 0.9, 1])
+    log.info("  %d: nby_age factor over %d counties: quantiles 0/10/50/90/100 %% %s | clipped to 1 (BUPR_%d > BUPR_%d) "
+             "%d | BUPR_%d = 0 (factor 1) %d", year, len(t), np.round(q, 4).tolist(), year, NBY_REF_YEAR,
+             int((t["rule"] == "clipped_1").sum()), NBY_REF_YEAR, int(zero.sum()))
+    own = f"bupr_{year}"
+    if own in ref.columns:  # the same sums as record_uncertainty.py from the raw HISDAC BUPR (logged only)
+        d = t[["GISJOIN", own]].merge(ref[["GISJOIN", own]], on="GISJOIN", suffixes=("", "_ref"))
+        diff = (d[own] - d[own + "_ref"]).abs()
+        (log.info if (diff == 0).all() else log.warning)(
+            "  %d: cutout BUPR_%d county sums vs %s: %d of %d equal, max |diff| %.6g", year, year, Path(ref_path).name,
+            int((diff == 0).sum()), len(d), float(diff.max()) if len(d) else 0.0)
+    return {"f": f, "zones": zones, "table": t}
+
+
+def check_factors(nbya: dict, path: Path, year: int):
+    """nby_age: the factors recomputed for prediction must be the ones the county features (and so the model) used, from
+    <era>/features/nby_age_factor.csv; stops on a difference."""
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (county_features.py writes it with nby_age)")
+    old = pd.read_csv(path)
+    old = old[old["year"] == year].set_index("GISJOIN")["factor"]
+    new = nbya["table"].set_index("GISJOIN")["factor"]
+    if set(old.index) != set(new.index):
+        sys.exit(f"ERROR: {year}: nby_age counties differ from {path} ({len(set(old.index) ^ set(new.index))} counties)")
+    d = (new - old.loc[new.index]).abs()
+    if not (d <= FACTOR_TOL).all():
+        sys.exit(f"ERROR: {year}: nby_age factors differ from {path} for {int((d > FACTOR_TOL).sum())} counties "
+                 f"(max |diff| {float(d.max()):.3g}): {d[d > FACTOR_TOL].index.tolist()[:20]}")
+    log.info("  %d: nby_age factors = %s (%d counties)", year, path, len(new))
+
+
 def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, rows: slice | None = None,
-                  full: dict | None = None, plural: dict | None = None, blocal: dict | None = None) -> pd.DataFrame:
+                  full: dict | None = None, plural: dict | None = None, blocal: dict | None = None,
+                  nbya: dict | None = None) -> pd.DataFrame:
     """Cell features (docs/dasymetric_v1.md, v2) for the masked cells, columns in `names` order. With `rows`,
     only that strip of the window is read (mask has the strip's shape). dist_built needs the whole window: it is
     computed once and kept in `full` (one dict per year, shared by its strips). elev / slope are read per strip
     (slope with one halo row each side, `terrain`). plural = the year's plural_setup() (needed for feature plural);
-    blocal = built_local_setup() (needed for feature built_local)."""
+    blocal = built_local_setup() (needed for feature built_local); nbya = nby_age_setup() (needed for feature nby_age;
+    nby is the NOBUILT layer as it is)."""
     cache = {}
     full = {} if full is None else full
 
@@ -515,6 +607,12 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, 
             if blocal is None:
                 sys.exit("ERROR: feature built_local without built_local_setup() (the config's aggregation block)")
             out[f] = built_local_rows(cutout, year, grid, blocal, rows)[mask]
+        elif f == "nby":  # records without a built year in the cell (static, every year the same)
+            out[f] = layer(NOBUILT_LAYER, None)
+        elif f == "nby_age":  # nby x the cell's county factor of the year (nby_age_setup)
+            if nbya is None:
+                sys.exit("ERROR: feature nby_age without nby_age_setup() (the config's nby_age: block)")
+            out[f] = layer(NOBUILT_LAYER, None) * nbya["f"][sub(nbya["zones"])]
         elif f == "year":
             out[f] = np.full(int(mask.sum()), float(year))
     return pd.DataFrame(out, columns=list(names))

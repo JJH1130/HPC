@@ -1739,6 +1739,90 @@ Good: `COMPLETED`; three `MATCH` lines (`meeting_summary.csv` 15 rows, `city_map
 `meeting_summary.csv`; `git push` ends with `main -> main`; `== end of block 2`. `ERROR: ... differs from ...`:
 nothing was written; commit the logs anyway (same block) and send the line to Claude.
 
+## 19. NobuiltYear feature test: v5.6 + nby / + nby_age, 1910 / 1940 / 1960 / 1980 / 2010 (2026-11-04)
+
+Request `docs/handoff/nobuiltyear_feature_request.md`; design `docs/conus_plan.md` "NobuiltYear feature test". One
+change against v5.6: one more cell feature, either `nby` (HISDAC NobuiltYear = records without a built year, the same
+value every year) or `nby_age` (NobuiltYear x the county factor f_c(year) = BUPR_year / BUPR_2015 of the cell's 2010
+county, clipped to 0-1; 1 where BUPR_2015 = 0). Configs `conus_rf_v3_u070_nby.yaml` / `conus_rf_v3_u070_nbya.yaml` (v5.6
+split, folds, t070 exclusions, search space, 60 candidates). v5.6 is not rerun. No selection rule: both variants are
+reported, the user decides. Needs v5.6's outputs of the five years on scratch (sections 12-14), the CONUS cutout, the
+meeting-map inputs (section 18) and `$HISDAC_DIR/FBUY/NobuiltYear.tif`. Submitted once; every job waits for the ones it
+needs.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| cutout | 8 cores, 1 h | `grid_cutout.sh --layers NOBUILT` (static, int32, as DEM) | ~3 min |
+| features (x 2) | 6 cores, 1 h | 5 years, + nby / nby_age (`nby_age_factor.csv` per era) | ~6 min |
+| train (x 2) | 16 cores, 3 h | 5 eras, 60 candidates, comparison with v5.6 | ~30 min |
+| predict (x 2) | 32 cores, 1:30 | allocation of the 5 years (nby_age: factors checked = the features') | ~20 min |
+| validate (x 2) | 8 cores, 1 h | tracts of the 5 years (gap counties from v5.6) | ~10 min |
+| nobuilt_compare | 4 cores, 1 h | tables, people on BUI = 0 cells, city gap blocks, ranks | ~15 min |
+
+10 jobs; ~1.5 h after the first ones start (estimates). Override: `CUTOUT_TIME`, `FEATURES_TIME`, `TRAIN_TIME`,
+`PREDICT_TIME`, `VALIDATE_TIME`, `COMPARE_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh nobuilt
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK line, PRECHECK: 0 missing, one 'nobuilt_cutout N | nby ... | nobuilt_compare N' line, 10 jobs)"
+```
+
+Good: `CHECK OK: 7 inputs for 3 cities x 2 years; ...` (the meeting-map inputs), `PRECHECK: 0 missing of the inputs
+(...)`, one line `nobuilt_cutout N | nby features N train N predict N validate N | nbya ... | nobuilt_compare N` (also in
+`logs/conus_nobuilt_jobs.txt`), 10 jobs in `squeue`, `== end of block 1`. `MISSING ...` + `ERROR: nothing submitted`:
+send the output to Claude (`logs/conus_nobuilt_city_check.txt` holds the city-map check).
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_nobuilt_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+grep -hE "NOBUILT|nby_age factor over|county sums vs" logs/grid_cutout.*.out $(ls -t logs/dasymetric_features.*.out | head -2) 2>/dev/null | tail -12
+echo "== end of block 2 (success = states PENDING / RUNNING / COMPLETED, no FAILED)"
+```
+
+Good: states `PENDING` / `RUNNING` / `COMPLETED`; once the cutout ran, a `NOBUILT` line (min 0, max 24246, nodata
+cells 0); once the features ran, per year of nbya `nby_age factor over N counties: quantiles ...` and `cutout BUPR_<year>
+county sums vs county_record_uncertainty.csv: N of N equal`; `== end of block 2`. A `FAILED` job: the jobs after it stay
+`PENDING (DependencyNeverSatisfied)`; `scancel` them and send the log.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_nobuilt_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_nobuilt_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_nobuilt_seff.txt
+cat logs/conus_nobuilt_sacct.txt
+grep -hE "MATCH|differs|DONE" $(ls -t logs/nobuilt_compare.*.out | head -1)
+ls results/validation/conus/nobuilt/
+git add logs/ results/
+git commit -m "run: NobuiltYear feature test nby / nbya, 1910-2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = every job COMPLETED, MATCH gap_blocks.csv 6 rows, DONE, 4 CSVs, push main -> main)"
+```
+
+Good: every job `COMPLETED`; `MATCH .../gap_blocks.csv: 6 rows (n_blocks, pop_v56, pop_ghs_pop)` (v5.6's own gap blocks =
+the meeting maps'), `DONE`; `nobuilt_cells.csv`, `nobuilt_city_gaps.csv`, `nobuilt_comparison.csv`,
+`nobuilt_feature_ranks.csv`; `git push` ends with `main -> main`; `== end of block 3`. Failed jobs: commit anyway (same
+block) and tell Claude.
+
+What to look for in the logs: `grid_cutout` (the NOBUILT line), `dasymetric_features` (nbya: factor quantiles, clipped
+/ zero counts, `county sums vs ...: N of N equal`), `dasymetric_train` (CV vs v5.6 per era, nby / nby_age in the
+importance lines), `dasymetric_predict` (nbya: `nby_age factors = ...`, mass check), `nobuilt_compare` (lines `SUMMARY`:
+tract MdAPE / MAPE by set, TEST counties + ranks, people on BUI = 0 cells, city gap blocks, feature ranks).
+
 ## If it fails
 
 | Symptom | Fix |

@@ -89,7 +89,14 @@ mean, outputs unchanged; `common.check_aggregation`), feature `built_local` (sha
 in a k x k window, `common.built_local_rows`, halo rows per strip), configs `conus_rf_v3_u070_bc{3,5,9}.yaml` (v5.6 +
 built_local + built-cell means, 1960 / 2010), `tract_validate.py --gap-version` (gap counties of another version),
 `src/validation/builtcell_compare.py` (`sbatch/builtcell_compare.sh`; window k by county CV RMSE, + county maps) ->
-`results/validation/conus/builtcell/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+`results/validation/conus/builtcell/`. NobuiltYear feature test (`docs/conus_plan.md` "NobuiltYear feature test", runbook
+section 19): static cutout layer `NOBUILT` (HISDAC `FBUY/NobuiltYear.tif`, int32), features `nby` (the layer) and `nby_age`
+(nby x f_c(year), f_c = 2010-county sum of BUPR_year / BUPR_2015 from `county_record_uncertainty.csv`, clipped 0-1, 1 where
+BUPR_2015 = 0; model-config block `nby_age: {bupr_ref: ...}`, `common.nby_age_setup`; factors -> `<era>/features/nby_age_factor.csv`,
+checked again by `predict.py`), configs `conus_rf_v3_u070_{nby,nbya}.yaml` (v5.6 + one feature, 1910 / 1940 / 1960 / 1980 / 2010),
+`src/validation/nobuilt_compare.py` (`sbatch/nobuilt_compare.sh`; tract / county rows as plural_compare, people on BUI = 0 /
+NobuiltYear > 0 cells, city gap blocks of the meeting maps per version (v5.6's = `gap_blocks.csv`, else stop), ranks; no
+selection rule; the table part also runs locally) -> `results/validation/conus/nobuilt/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -127,7 +134,7 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting` (`uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt` (`nobuilt` = NOBUILT layer -> nby / nbya features / train / predict / validate side by side -> `nobuilt_compare`; `uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
 `filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `externalv56` = pre-check of the reused tract sums + map inputs, then evaluate and city maps side by side; `citymeeting` = pre-check of the meeting-map inputs, one job; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
 2020 added to `Dasy_CONUS_RF_v3_all` as era Y2020 with `--years 2020`, after `sbatch/y2020_precheck.sh`; with `--years`,
 `county_features` / `train` / `predict` keep the other years' rows of `water_mask_by_year.csv` / `cv_summary.csv` /
@@ -169,6 +176,7 @@ tracked v5.6 / v5.4 results, `--compare-with`), `python tests/test_aggregation_d
 aggregates, out-of-range shares, quantiles, Spearman, tract table = brute force; strips = whole window; a changed
 `county_features.csv` or a missing prediction stops it), `python tests/test_builtcell.py` (built_local by hand,
 strips = whole window, default aggregation byte for byte, built-cell means, predict mass preserved, compare + window rule),
+`python tests/test_nobuilt.py` (nby_age factor by hand: ratio, clip to 1, BUPR_2015 = 0, missing county stops; county nby / nby_age = cell means by hand, strips = whole window, other columns unchanged; predict stops on a changed / missing factor file; cell sums, city gap blocks on the synthetic city world = the meeting table, tables),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 

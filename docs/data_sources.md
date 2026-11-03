@@ -5,13 +5,13 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-11-04 (HISDAC NobuiltYear as a CONUS cutout layer / feature, NobuiltYear feature test); 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
 | Dataset | Version / extract | Local path | Used for | Status |
 |---|---|---|---|---|
-| HISDAC-US (BUI, BUPL, BUPR, BUA, FBUY, NobuiltYear) | v2, 250 m | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/` | Ch1 features, Ch2 patches | In use |
+| HISDAC-US (BUI, BUPL, BUPR, BUA, FBUY, NobuiltYear) | v2, 250 m | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/` | Ch1 features, Ch2 patches; NobuiltYear: record-uncertainty filter, city gap blocks, and (2026-11-04) CONUS cutout layer NOBUILT for the features nby / nby_age (NobuiltYear feature test, `docs/conus_plan.md`) | In use |
 | HISDAC-US BUPR_contemp (all property records, with or without a built year) | v2 BUPR record, Harvard Dataverse doi:10.7910/DVN/45B8IU, `BUPR_contemp.tif` (~2016), 250 m | `/projects/jaju1407/data/raw/hisdac_extra/` | Record-uncertainty diagnosis per county (share of records without a built year; `src/grid/record_uncertainty.py`) | Registered 2026-10-30; **not in the Dataverse BUPR.tar** (download run 2026-10-29, `logs/hisdac_extra_download.txt`); location asked of Stefan. Optional input: without it the diagnosis uses NobuiltYear (`ratio_A_nby`) |
 | HISDAC-US Land Use (class counts) | v2 (Version II), 250 m, 1940–2020 | `/pl/active/Leyk_Lab/data/HISDAC_US_V2/Land_Use/` | Ch1 features (E2, E3) | In use |
 | NHGIS county population | Time series A00, nominal, extract nhgis0001 | `/projects/jaju1407/data/raw/nhgis/` | Ch1 target; CONUS 2020 county input on the 2010 polygons (2026-10-30, `conus_counties.py`) | In use |
@@ -61,7 +61,10 @@ Last updated: 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010)
   `$DATA_ROOT/raw/hisdac_extra/BUPR_contemp.tif` and rerun: `ratio_A_contemp` is added and compared with `ratio_A_nby`.
 - `FBUY/NobuiltYear.tif` (`FBUY_README.txt`): "values indicate the presence of built structures without built year";
   whether it is a count or a 0/1 flag is to be checked from its values (`record_uncertainty.py` writes its value
-  distribution, `results/hisdac_uncertainty/nobuilt_values.csv`).
+  distribution, `results/hisdac_uncertainty/nobuilt_values.csv`). Checked 2026-10-30: a count (max 24,246, whole
+  numbers, `cell_check.csv`). Used 2026-11-04 as the cell feature `nby` (and `nby_age` = nby x BUPR_year / BUPR_2015 of
+  the 2010 county) in the NobuiltYear feature test: cut onto the CONUS cutout as the static int32 layer `NOBUILT`
+  (`configs/conus_study_area.yaml`). It is one present-day layer (~2016), so it is the same in every study year.
 - **BUPR_contemp download (registered 2026-10-30; run 2026-10-29: the archive has no such file, see above):** `bash sbatch/hisdac_extra_download.sh` on a login node
   (tmux). It lists the files of doi:10.7910/DVN/45B8IU through the Dataverse API
   (`https://dataverse.harvard.edu/api/datasets/:persistentId/?persistentId=doi:10.7910/DVN/45B8IU`; the listing is

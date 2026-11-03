@@ -1041,6 +1041,42 @@ figures (0 < v < 0.01 as edge triangles, counted), gap blocks for every city and
 maps of section "External comparison with v5.6: result" moved to `results/validation/conus/external/city_maps_internal_with_fj/` (internal,
 not for the meeting; drawn before the display fix).
 
+## NobuiltYear feature test (request 2026-11-04, `docs/handoff/nobuiltyear_feature_request.md`; runbook section 19)
+
+Why: the city gap blocks (v5.6 << GHS-POP) have 4-9 x more cells with BUI = 0 but NobuiltYear > 0 than the other dense
+blocks (Denver 1980 77 % vs 10 %; section "External comparison with v5.6: result"). Idea: give the model the count of
+records without a built year as a cell feature, so it can tell "BUI = 0 but undated buildings" cells from empty ones.
+One change only: v5.6 + one feature. Code written 2026-11-04, not run.
+
+- Layer: `NOBUILT` = `$HISDAC_DIR/FBUY/NobuiltYear.tif` (static, ~2016, records without a built year per cell; on the
+  HISDAC grid per `results/hisdac_uncertainty/grid_check.csv`; whole counts 0-24,246, no nodata -> int32), added to the
+  CONUS cutout with `grid_cutout.sh --layers NOBUILT` (`layers/NOBUILT/NOBUILT.tif`, like DEM).
+- Two variants (each = v5.6's era features + one; county value = mean over the unmasked cells, as every feature):
+  - `nby` (`Dasy_CONUS_RF_v3_u070_nby`): the cell's NobuiltYear, the same value in every year.
+  - `nby_age` (`Dasy_CONUS_RF_v3_u070_nbya`): NobuiltYear x f_c(year), f_c = sum of the cutout's BUPR_year over the
+    cell's 2010 county / that county's BUPR_2015 sum (raw HISDAC; the 2010-zone sums of `record_uncertainty.py` in
+    `results/hisdac_uncertainty/county_record_uncertainty.csv`, the table the uncertainty filter uses), clipped to 0-1,
+    f_c = 1 where BUPR_2015 = 0. Assumption: a county's undated records have the age distribution of its dated ones
+    (the filter ratio's assumption). `common.nby_age_setup`; f_c per county-year -> `<era>/features/nby_age_factor.csv`,
+    recomputed in `predict.py` and compared (|diff| > 1e-12 or another county set stops the job). The cutout BUPR_year
+    sums are also compared with the table's `bupr_<year>` (logged only).
+- Same split / folds / t070 exclusions / search space / 60 candidates as v5.6; years 1910 / 1940 / 1960 / 1980 / 2010
+  (user 2026-11-04: early years included, where undated records matter most; 1910 = v5.6's era without Land_Use; its
+  tract check covers 10 counties, for reference only). v5.6 itself is not rerun.
+- Evaluation (`src/validation/nobuilt_compare.py`, same tracts / counties as v5.6; tract and county rows by the
+  `plural_compare.py` functions): TEST counties left after the filter (the same set in all three, checked) R2 / MdAPE,
+  CV RMSE; tract MdAPE / MAPE for all, kept / excluded t070, gap / no_gap, the four density classes, areal weighting;
+  people on BUI = 0 cells (all cells with a prediction) and, of those, on NobuiltYear > 0 cells; rank of nby / nby_age by
+  permutation and mean |SHAP|; city gap blocks re-measured with the meeting rule unchanged (v5.6 / GHS-POP < 0.25,
+  GHS-POP >= 1,000 per km2, 1 km blocks in v5.6's mask), Boston / Denver / Chicago 1980 / 2010 (GHS from 1975): per
+  version its own gap blocks and, on v5.6's gap blocks, version people / GHS people; v5.6's own must equal
+  `city_maps_meeting/gap_blocks.csv` (else stop). No figure. -> `results/validation/conus/nobuilt/`
+  (`nobuilt_comparison.csv`, `nobuilt_cells.csv`, `nobuilt_city_gaps.csv`, `nobuilt_feature_ranks.csv`; summary tables
+  in the job log, lines `SUMMARY`).
+- No selection rule: both variants are reported and the user decides; tracts are not used for tuning.
+- Watch: like ntl / PLURAL / built_local, a feature that is non-zero on BUI = 0 cells can move people onto empty cells;
+  the cell rows show whether that happens and whether those people land on cells with undated records.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
