@@ -1077,6 +1077,28 @@ One change only: v5.6 + one feature. Code written 2026-11-04, not run.
 - Watch: like ntl / PLURAL / built_local, a feature that is non-zero on BUI = 0 cells can move people onto empty cells;
   the cell rows show whether that happens and whether those people land on cells with undated records.
 
+## NobuiltYear feature test result (jobs 35233305-35233314, code 42812c1, run 2026-11-03 MT)
+
+All 10 jobs COMPLETED. `results/validation/conus/nobuilt/`. nby = cell NobuiltYear; nbya = NobuiltYear x county
+BUPR_year / BUPR_2015. Same tracts / split / folds / t070 exclusions as v5.6.
+
+| Tract MdAPE (all) | 1910 | 1940 | 1960 | 1980 | 2010 |
+|---|---|---|---|---|---|
+| v5.6 | 53.1 | 42.2 | 36.0 | **26.8** | **23.8** |
+| + nby | **50.5** | **40.4** | **34.4** | 27.6 | 24.7 |
+| + nby_age | 52.4 | 41.5 | 34.9 | 28.8 | 24.7 |
+
+- County TEST (kept counties) better every year for both (2010 MdAPE 23.0 -> 20.9 / 20.0 %, R2 0.919 -> 0.932);
+  nby ranks 2nd-4th (permutation).
+- nby helps tracts in the early years (-1.6 to -2.6 pp, 1910-1960) and strongly in counties with poor records:
+  excluded t070 1980 79.3 -> 69.1 %, gap counties 1980 89.4 -> 81.9 %, 1960 90.5 -> 84.8 %. It hurts kept counties
+  in 1980 / 2010 (+0.8-1.0 pp).
+- People on BUI = 0 cells with NobuiltYear > 0 rise (nby 1960 6.1 -> 13.1 %), but the city gap blocks barely move
+  (Denver 1980 v5.6 / GHS 0.085 -> 0.092; Chicago 1980 0.100 -> 0.129): the extra people go to undated-record cells
+  across the county, not mainly to the dense gap blocks.
+- nby_age (age-scaled) is not better than nby on tracts. Not adopted yet; user decides (e.g. nby only where records
+  are poor, or for early years).
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
