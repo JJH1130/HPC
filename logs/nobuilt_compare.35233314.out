@@ -1,0 +1,249 @@
+== job 35233314 (nobuilt_compare) on c3cpu-e2-u1 at 2026-11-03T12:38:34-07:00
+== cores=4 gpus=none restart=0
+== git 42812c1
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  extra args: 
+12:40:33 INFO arg base = Dasy_CONUS_RF_v3_u070
+12:40:33 INFO arg variants = ['nby', 'nbya']
+12:40:33 INFO arg years = [1910, 1940, 1960, 1980, 2010]
+12:40:33 INFO arg city_years = [1980, 2010]
+12:40:33 INFO arg name = conus
+12:40:33 INFO arg results_root = results
+12:40:33 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+12:40:33 INFO arg mape_min = 10
+12:40:33 INFO arg out_dir = results/validation/conus/nobuilt
+12:40:33 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+12:40:33 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+12:40:33 INFO arg ext_config = configs/external_grids.yaml
+12:40:33 INFO arg data_root = /projects/jaju1407/data/raw/external
+12:40:33 INFO arg gap_csv = results/validation/conus/external/city_maps_meeting/gap_blocks.csv
+12:40:33 INFO versions {'base': 'Dasy_CONUS_RF_v3_u070', 'nby': 'Dasy_CONUS_RF_v3_u070_nby', 'nbya': 'Dasy_CONUS_RF_v3_u070_nbya'} | years [1910, 1940, 1960, 1980, 2010] | no selection rule (both variants reported; the user decides)
+12:40:33 INFO == cells: people on BUI = 0 cells and on NobuiltYear > 0 among them
+12:40:50 INFO   cells 1910 base : people on BUI = 0 cells 0.4057 of 91828969 | of those on NobuiltYear > 0 cells 0.3060
+12:40:59 INFO   cells 1910 nby  : people on BUI = 0 cells 0.4175 of 91828969 | of those on NobuiltYear > 0 cells 0.4242
+12:41:08 INFO   cells 1910 nbya : people on BUI = 0 cells 0.4662 of 91828969 | of those on NobuiltYear > 0 cells 0.2929
+12:41:17 INFO   cells 1940 base : people on BUI = 0 cells 0.2954 of 131530392 | of those on NobuiltYear > 0 cells 0.2976
+12:41:25 INFO   cells 1940 nby  : people on BUI = 0 cells 0.2492 of 131530392 | of those on NobuiltYear > 0 cells 0.7587
+12:41:34 INFO   cells 1940 nbya : people on BUI = 0 cells 0.3394 of 131530392 | of those on NobuiltYear > 0 cells 0.3012
+12:41:43 INFO   cells 1960 base : people on BUI = 0 cells 0.2114 of 178270348 | of those on NobuiltYear > 0 cells 0.2889
+12:41:53 INFO   cells 1960 nby  : people on BUI = 0 cells 0.1670 of 178270348 | of those on NobuiltYear > 0 cells 0.7833
+12:42:02 INFO   cells 1960 nbya : people on BUI = 0 cells 0.2255 of 178270348 | of those on NobuiltYear > 0 cells 0.2686
+12:42:11 INFO   cells 1980 base : people on BUI = 0 cells 0.1165 of 225167058 | of those on NobuiltYear > 0 cells 0.2798
+12:42:20 INFO   cells 1980 nby  : people on BUI = 0 cells 0.1052 of 225167058 | of those on NobuiltYear > 0 cells 0.6253
+12:42:29 INFO   cells 1980 nbya : people on BUI = 0 cells 0.1091 of 225167058 | of those on NobuiltYear > 0 cells 0.3137
+12:42:38 INFO   cells 2010 base : people on BUI = 0 cells 0.0504 of 306675006 | of those on NobuiltYear > 0 cells 0.2893
+12:42:48 INFO   cells 2010 nby  : people on BUI = 0 cells 0.0512 of 306675006 | of those on NobuiltYear > 0 cells 0.3501
+12:42:57 INFO   cells 2010 nbya : people on BUI = 0 cells 0.0512 of 306675006 | of those on NobuiltYear > 0 cells 0.3470
+12:42:58 INFO == city gap blocks (rule of external_city_meeting.py)
+12:43:35 INFO   boston   1980 base : own gap blocks   4 (base / GHS 0.156) | on v5.6's   4 gap blocks base / GHS 0.156
+12:43:35 INFO   boston   1980 nby  : own gap blocks   3 (nby / GHS 0.129) | on v5.6's   4 gap blocks nby / GHS 0.157
+12:43:36 INFO   boston   1980 nbya : own gap blocks   3 (nbya / GHS 0.127) | on v5.6's   4 gap blocks nbya / GHS 0.166
+12:43:37 INFO   denver   1980 base : own gap blocks  64 (base / GHS 0.085) | on v5.6's  64 gap blocks base / GHS 0.085
+12:43:37 INFO   denver   1980 nby  : own gap blocks  62 (nby / GHS 0.087) | on v5.6's  64 gap blocks nby / GHS 0.092
+12:43:38 INFO   denver   1980 nbya : own gap blocks  61 (nbya / GHS 0.084) | on v5.6's  64 gap blocks nbya / GHS 0.094
+12:43:40 INFO   chicago  1980 base : own gap blocks  15 (base / GHS 0.100) | on v5.6's  15 gap blocks base / GHS 0.100
+12:43:40 INFO   chicago  1980 nby  : own gap blocks  14 (nby / GHS 0.126) | on v5.6's  15 gap blocks nby / GHS 0.129
+12:43:40 INFO   chicago  1980 nbya : own gap blocks  14 (nbya / GHS 0.127) | on v5.6's  15 gap blocks nbya / GHS 0.130
+12:43:42 INFO   boston   2010 base : own gap blocks   6 (base / GHS 0.197) | on v5.6's   6 gap blocks base / GHS 0.197
+12:43:42 INFO   boston   2010 nby  : own gap blocks   6 (nby / GHS 0.195) | on v5.6's   6 gap blocks nby / GHS 0.202
+12:43:42 INFO   boston   2010 nbya : own gap blocks   7 (nbya / GHS 0.211) | on v5.6's   6 gap blocks nbya / GHS 0.201
+12:43:44 INFO   denver   2010 base : own gap blocks   8 (base / GHS 0.173) | on v5.6's   8 gap blocks base / GHS 0.173
+12:43:44 INFO   denver   2010 nby  : own gap blocks   6 (nby / GHS 0.133) | on v5.6's   8 gap blocks nby / GHS 0.168
+12:43:44 INFO   denver   2010 nbya : own gap blocks   6 (nbya / GHS 0.133) | on v5.6's   8 gap blocks nbya / GHS 0.168
+12:43:45 INFO   chicago  2010 base : own gap blocks  17 (base / GHS 0.127) | on v5.6's  17 gap blocks base / GHS 0.127
+12:43:45 INFO   chicago  2010 nby  : own gap blocks  16 (nby / GHS 0.148) | on v5.6's  17 gap blocks nby / GHS 0.163
+12:43:45 INFO   chicago  2010 nbya : own gap blocks  16 (nbya / GHS 0.149) | on v5.6's  17 gap blocks nbya / GHS 0.165
+12:43:46 INFO   MATCH results/validation/conus/external/city_maps_meeting/gap_blocks.csv: 6 rows (n_blocks, pop_v56, pop_ghs_pop)
+12:44:02 INFO SUMMARY tract MdAPE (%) by set, year and variant (areal_weighting = area-proportional):
+variant                 base      nby     nbya  areal_weighting
+set            year                                            
+all            1910    53.06    50.54    52.43            82.93
+               1940    42.19    40.36    41.51            86.92
+               1960    36.00    34.36    34.86            82.67
+               1980    26.80    27.56    28.85            79.91
+               2010    23.80    24.66    24.67            74.52
+kept_t070      1910    53.06    50.54    52.43            82.93
+               1940    42.19    40.36    41.51            86.92
+               1960    35.12    33.53    33.99            82.25
+               1980    25.48    26.34    27.53            79.08
+               2010    22.45    23.45    23.47            74.62
+excluded_t070  1960    88.38    82.74    88.67            92.94
+               1980    79.33    69.15    76.86            91.44
+               2010    51.24    49.42    49.42            73.15
+no_gap         1910    53.06    50.54    52.43            82.93
+               1940    42.19    40.36    41.51            86.92
+               1960    35.29    33.71    34.15            82.35
+               1980    25.78    26.59    27.76            79.44
+               2010    22.67    23.57    23.61            74.49
+gap            1960    90.52    84.84    91.23            92.15
+               1980    89.44    81.87    87.66            91.38
+               2010    77.46    75.02    75.06            75.63
+dens_0_50      1910  9058.59  7675.24  6090.93          4864.13
+               1940   278.52   217.14   234.74          3125.02
+               1960    98.58    83.14   102.10           424.53
+               1980    26.84    31.66    36.03           129.54
+               2010    18.32    18.75    18.72            73.58
+dens_50_500    1910   191.09   171.26   200.50           424.60
+               1940   105.64    97.22    91.00           165.68
+               1960    52.94    54.09    50.24            69.71
+               1980    29.01    28.10    29.13            70.60
+               2010    23.42    23.04    23.02            67.63
+dens_500_2000  1910   110.20    97.98    97.33            65.58
+               1940    45.73    45.77    42.47            77.70
+               1960    28.01    26.81    27.84            79.96
+               1980    23.77    25.10    26.21            82.02
+               2010    21.48    23.24    23.30            73.56
+dens_2000_plus 1910    49.77    46.70    48.71            82.32
+               1940    37.51    35.77    38.14            87.27
+               1960    34.20    32.91    33.17            83.04
+               1980    29.18    29.18    30.36            79.36
+               2010    31.20    32.48    32.50            78.72
+12:44:02 INFO SUMMARY tract MAPE (%, tracts >= 10 people):
+variant                  base       nby      nbya  areal_weighting
+set            year                                               
+all            1910    324.84    301.97    312.57           935.11
+               1940     88.03     82.12     80.32           334.76
+               1960     58.54     55.50     57.92           166.02
+               1980     59.50     58.80     61.01           222.85
+               2010     47.38     47.30     47.30           273.59
+kept_t070      1910    324.84    301.97    312.57           935.11
+               1940     88.03     82.12     80.32           334.76
+               1960     56.93     54.22     56.32           166.56
+               1980     57.62     57.45     59.45           229.23
+               2010     44.28     44.49     44.48           293.02
+excluded_t070  1960    113.60     99.20    112.67           147.67
+               1980     87.84     79.13     84.51           126.69
+               2010     75.12     72.45     72.51            99.62
+no_gap         1910    324.84    301.97    312.57           935.11
+               1940     88.03     82.12     80.32           334.76
+               1960     57.04     54.31     56.38           166.75
+               1980     57.74     57.41     59.39           227.59
+               2010     44.38     44.48     44.48           283.28
+gap            1960    128.70    111.05    129.85           131.70
+               1980    103.52     93.53    101.36           104.67
+               2010    101.73     98.46     98.55            97.71
+dens_0_50      1910  74098.08  67884.46  69893.28        254201.71
+               1940   1314.97   1139.79   1037.46         10263.74
+               1960    184.37    150.48    191.17          1268.19
+               1980    172.99    170.63    179.37          1215.08
+               2010     94.44     90.67     90.35          1156.63
+dens_50_500    1910    481.95    462.78    510.85           904.08
+               1940    203.94    187.29    171.60           607.69
+               1960     98.11     97.40     93.52           221.09
+               1980     69.89     68.53     70.34           139.23
+               2010     44.13     43.65     43.62           103.34
+dens_500_2000  1910    205.59    186.84    190.04           252.20
+               1940     76.69     77.19     77.49           104.62
+               1960     46.94     45.33     46.36            92.27
+               1980     36.69     36.77     38.09            78.21
+               2010     32.93     34.19     34.28            68.79
+dens_2000_plus 1910     61.09     60.17     62.60            80.04
+               1940     43.87     42.41     44.44            79.52
+               1960     41.53     40.35     41.13            76.16
+               1980     36.16     35.65     36.71            72.97
+               2010     36.24     37.36     37.49            72.77
+12:44:02 INFO SUMMARY TEST counties (before allocation; same set in every version) + CV / TEST + ranks of nby / nby_age (1 = most important):
+variant  year   n   mdape    mape  cv_rmse  cv_r2  test_rmse  test_r2  nby_perm_rank  nby_shap_rank  nby_age_perm_rank  nby_age_shap_rank  n_features
+   base  1910 408 27.4220 43.2720   0.5022 0.8297     0.5095   0.8460            NaN            NaN                NaN                NaN         NaN
+    nby  1910 408 26.0006 39.1656   0.4722 0.8496     0.4641   0.8722            4.0            5.0                NaN                NaN         7.0
+   nbya  1910 408 26.3634 42.2125   0.4922 0.8365     0.4899   0.8576            NaN            NaN                6.0                6.0         7.0
+   base  1940 417 27.3400 37.8491   0.4753 0.8664     0.4608   0.8848            NaN            NaN                NaN                NaN         NaN
+    nby  1940 417 23.1764 35.2751   0.4416 0.8846     0.4337   0.8980            2.0            3.0                NaN                NaN         9.0
+   nbya  1940 417 24.3798 35.6145   0.4657 0.8715     0.4317   0.8990            NaN            NaN                4.0                6.0         9.0
+   base  1960 419 28.0438 37.6440   0.4819 0.8861     0.4475   0.9076            NaN            NaN                NaN                NaN         NaN
+    nby  1960 419 25.7098 35.9501   0.4497 0.9011     0.4238   0.9171            2.0            3.0                NaN                NaN         9.0
+   nbya  1960 419 25.7188 35.8254   0.4636 0.8947     0.4259   0.9163            NaN            NaN                4.0                4.0         9.0
+   base  1980 423 25.0249 34.8982   0.4432 0.9083     0.4494   0.9110            NaN            NaN                NaN                NaN         NaN
+    nby  1980 423 22.1854 33.3749   0.4188 0.9182     0.4154   0.9240            3.0            4.0                NaN                NaN         9.0
+   nbya  1980 423 21.6802 33.2648   0.4237 0.9162     0.4244   0.9206            NaN            NaN                4.0                4.0         9.0
+   base  2010 423 23.0270 35.8797   0.4151 0.9273     0.4449   0.9189            NaN            NaN                NaN                NaN         NaN
+    nby  2010 423 20.8731 33.2808   0.4005 0.9325     0.4083   0.9317            4.0            4.0                NaN                NaN         9.0
+   nbya  2010 423 19.9768 33.0760   0.4001 0.9326     0.4065   0.9323            NaN            NaN                4.0                4.0         9.0
+12:44:02 INFO SUMMARY people on cells (share_bui0 = on BUI = 0 cells / all; share_nb_of_bui0 = of those, on NobuiltYear > 0 cells; share_bui0_nb = BUI = 0 and NobuiltYear > 0 / all):
+variant                  base     nby    nbya
+set              year                        
+share_bui0       1910  0.4057  0.4175  0.4662
+                 1940  0.2954  0.2492  0.3394
+                 1960  0.2114  0.1670  0.2255
+                 1980  0.1165  0.1052  0.1091
+                 2010  0.0504  0.0512  0.0512
+share_nb_of_bui0 1910  0.3060  0.4242  0.2929
+                 1940  0.2976  0.7587  0.3012
+                 1960  0.2889  0.7833  0.2686
+                 1980  0.2798  0.6253  0.3137
+                 2010  0.2893  0.3501  0.3470
+share_bui0_nb    1910  0.1241  0.1771  0.1365
+                 1940  0.0879  0.1891  0.1022
+                 1960  0.0611  0.1308  0.0606
+                 1980  0.0326  0.0658  0.0342
+                 2010  0.0146  0.0179  0.0177
+12:44:02 INFO SUMMARY city gap blocks (blocks / version people / GHS-POP people per set; gap_v56 = the same blocks for every version):
+                     n_blocks              ratio              
+variant                  base   nby  nbya   base    nby   nbya
+city    year set                                              
+boston  1980 gap_own      4.0   3.0   3.0  0.156  0.129  0.127
+             gap_v56      4.0   4.0   4.0  0.156  0.157  0.166
+        2010 gap_own      6.0   6.0   7.0  0.197  0.195  0.211
+             gap_v56      6.0   6.0   6.0  0.197  0.202  0.201
+denver  1980 gap_own     64.0  62.0  61.0  0.085  0.087  0.084
+             gap_v56     64.0  64.0  64.0  0.085  0.092  0.094
+        2010 gap_own      8.0   6.0   6.0  0.173  0.133  0.133
+             gap_v56      8.0   8.0   8.0  0.173  0.168  0.168
+chicago 1980 gap_own     15.0  14.0  14.0  0.100  0.126  0.127
+             gap_v56     15.0  15.0  15.0  0.100  0.129  0.130
+        2010 gap_own     17.0  16.0  16.0  0.127  0.148  0.149
+             gap_v56     17.0  17.0  17.0  0.127  0.163  0.165
+12:44:02 INFO SUMMARY feature ranks (permutation / SHAP):
+                perm_rank           shap_rank          
+variant              base  nby nbya      base  nby nbya
+year feature                                           
+1910 bui              1.0  1.0  1.0       2.0  1.0  1.0
+     bldg_size        2.0  2.0  2.0       1.0  2.0  2.0
+     elev             3.0  3.0  3.0       3.0  3.0  3.0
+     dist_built       4.0  5.0  4.0       4.0  4.0  4.0
+     mu_ratio         5.0  6.0  5.0       5.0  6.0  5.0
+     slope            6.0  7.0  7.0       6.0  7.0  7.0
+     nby              NaN  4.0  NaN       NaN  5.0  NaN
+     nby_age          NaN  NaN  6.0       NaN  NaN  6.0
+1940 bui              1.0  1.0  1.0       1.0  1.0  1.0
+     bldg_size        3.0  4.0  3.0       2.0  2.0  2.0
+     elev             2.0  3.0  2.0       3.0  4.0  3.0
+     dist_built       6.0  5.0  5.0       7.0  5.0  4.0
+     mu_ratio         5.0  9.0  8.0       4.0  9.0  7.0
+     slope            8.0  8.0  9.0       8.0  8.0  9.0
+     res_share        4.0  6.0  6.0       5.0  7.0  8.0
+     rent_share       7.0  7.0  7.0       6.0  6.0  5.0
+     nby              NaN  2.0  NaN       NaN  3.0  NaN
+     nby_age          NaN  NaN  4.0       NaN  NaN  6.0
+1960 bui              1.0  1.0  1.0       1.0  1.0  1.0
+     bldg_size        3.0  3.0  2.0       2.0  2.0  2.0
+     elev             2.0  4.0  3.0       3.0  4.0  3.0
+     dist_built       7.0  8.0  8.0       6.0  8.0  7.0
+     mu_ratio         6.0  7.0  7.0       7.0  7.0  8.0
+     slope            8.0  9.0  9.0       8.0  9.0  9.0
+     res_share        5.0  6.0  6.0       5.0  6.0  6.0
+     rent_share       4.0  5.0  5.0       4.0  5.0  5.0
+     nby              NaN  2.0  NaN       NaN  3.0  NaN
+     nby_age          NaN  NaN  4.0       NaN  NaN  4.0
+1980 bui              1.0  1.0  1.0       1.0  1.0  1.0
+     bldg_size        2.0  2.0  2.0       2.0  2.0  2.0
+     elev             4.0  5.0  5.0       4.0  5.0  5.0
+     dist_built       7.0  8.0  8.0       6.0  8.0  8.0
+     mu_ratio         6.0  7.0  7.0       7.0  6.0  7.0
+     slope            8.0  9.0  9.0       8.0  9.0  9.0
+     res_share        5.0  6.0  6.0       5.0  7.0  6.0
+     rent_share       3.0  4.0  3.0       3.0  3.0  3.0
+     nby              NaN  3.0  NaN       NaN  4.0  NaN
+     nby_age          NaN  NaN  4.0       NaN  NaN  4.0
+2010 bui              1.0  1.0  1.0       1.0  1.0  1.0
+     bldg_size        2.0  2.0  2.0       2.0  2.0  2.0
+     elev             4.0  5.0  5.0       4.0  5.0  5.0
+     dist_built       6.0  8.0  8.0       5.0  6.0  6.0
+     mu_ratio         7.0  7.0  7.0       7.0  8.0  8.0
+     slope            8.0  9.0  9.0       8.0  9.0  9.0
+     res_share        5.0  6.0  6.0       6.0  7.0  7.0
+     rent_share       3.0  3.0  3.0       3.0  3.0  3.0
+     nby              NaN  4.0  NaN       NaN  4.0  NaN
+     nby_age          NaN  NaN  4.0       NaN  NaN  4.0
+12:44:02 INFO wrote results/validation/conus/nobuilt
+12:44:02 INFO DONE
+== done 2026-11-03T12:44:03-07:00
