@@ -141,8 +141,10 @@ def cell_rows(cells: pd.DataFrame) -> list[dict]:
 
 # ---------------------------------------------------------------- city gap blocks
 
-def city_table(args, versions: dict) -> pd.DataFrame:
-    """Gap blocks per city, year and version (the rule of external_city_meeting.py)."""
+def city_table(args, versions: dict, strict_mask: bool = True) -> pd.DataFrame:
+    """Gap blocks per city, year and version (the rule of external_city_meeting.py). The blocks are those inside the
+    base version's mask. strict_mask: a version whose cells with a prediction differ from the base's stops the run;
+    False = logged as a warning and counted (column mask_diff_cells), the version's people summed on the base's cells."""
     import rasterio
     from pyproj import Transformer
     import external_city_maps as ecm
@@ -183,16 +185,21 @@ def city_table(args, versions: dict) -> pd.DataFrame:
                     log.warning("%s %d %s: %s missing; no city row", key, year, v, vpath)
                     continue
                 vpop, vmask, _ = ecm.read_box(vpath, win, grid_t)
-                if not np.array_equal(vmask, mask):
+                ndiff = int((vmask != mask).sum())
+                if ndiff and strict_mask:
                     sys.exit(f"ERROR: {key} {year}: the cells with a prediction of {v} differ from {args.base} "
-                             f"({int((vmask != mask).sum())} cells)")
+                             f"({ndiff} cells)")
+                if ndiff:
+                    log.warning("%s %d %s: %d cells with a prediction differ from %s (summed on its cells)", key,
+                                year, v, ndiff, args.base)
                 vb = ecmt.blocks(np.where(mask, vpop, np.nan), bpop, mask, f)[0]
                 own = ecmt.gap_blocks(vb, gb, full, bkm2, gc["ratio_max"], gc["min_density"])
                 for s, fl in (("gap_own", own), ("gap_v56", gap0)):
                     pv, pg = float(vb[fl].sum()), float(gb[fl].sum())
                     rows.append({"city": key, "year": year, "version": v, "variant": var, "set": s,
                                  "n_blocks": int(fl.sum()), "pop_version": pv, f"pop_{prod}": pg,
-                                 "ratio": pv / pg if pg else np.nan})
+                                 "ratio": pv / pg if pg else np.nan, **({} if strict_mask else
+                                                                        {"mask_diff_cells": ndiff})})
                 log.info("  %-8s %d %-5s: own gap blocks %3d (%s / GHS %.3f) | on v5.6's %3d gap blocks %s / GHS %.3f",
                          key, year, var, rows[-2]["n_blocks"], var, rows[-2]["ratio"], rows[-1]["n_blocks"], var,
                          rows[-1]["ratio"])

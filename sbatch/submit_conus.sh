@@ -70,6 +70,12 @@
 #                                       # into the cutout (--layers) -> v5.6 + nby / + nby_age features / train /
 #                                       # predict / validate (gap counties from v5.6), side by side -> nobuilt_compare.sh
 #                                       # (tracts, TEST counties, people on BUI = 0 cells, city gap blocks, ranks)
+#   bash sbatch/submit_conus.sh v54nby  # v5.4 + nby without the filter (Dasy_CONUS_RF_v3_all_nby), 1910 / 1940 / 1960
+#                                       # / 1980 / 2010: features / train / predict / validate (gap counties from v5.6)
+#                                       # -> v54_nby_compare.sh (v5.4 / v5.4 + nby / v5.6 / v5.6 + nby on ALL TEST
+#                                       # counties); undated_age_diag.sh (FBUY of cells with / without undated records)
+#                                       # side by side. Pre-check prints the time left before a CURC maintenance window
+#                                       # (MAINT_START / MAINT_END, MT) next to the chain estimate.
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -112,10 +118,14 @@
 # nobuilt: per variant 5 years + one feature, from v5.6's runs (plural / v56all seff): features ~6 min, train ~30 min,
 # predict ~20 min, validate ~10 min; cutout = one static layer (as DEM); wall times ~3-6 x (estimates). nobuilt_compare:
 # 15 whole-window reads in strips + 18 city boxes (COMPARE_TIME, 1 h).
+# v54nby: from nobuilt (jobs 35233306-35233314, sacct): features 10 min, train 25-33 min, predict 14-22 min, validate
+# 5-6 min, nobuilt_compare 6 min; v5.4 trains on ~2,350-2,490 counties instead of ~1,590-1,670 (train ~1.5 x, estimate
+# 45 min). Wall times ~2-4 x: features 40 min, train 2 h, predict 1 h, validate 30 min, compare 45 min; diag 1 h
+# (record_uncertainty read 17 rasters in < 1 h, job 35056349).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -715,6 +725,85 @@ elif [[ $mode == nobuilt ]]; then
     done
     jc=$(sub "${after# }" --time=${COMPARE_TIME:-01:00:00} sbatch/nobuilt_compare.sh)
     echo "$ids | nobuilt_compare $jc" | tee logs/conus_nobuilt_jobs.txt
+elif [[ $mode == v54nby ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    V54=Dasy_CONUS_RF_v3_all V56=Dasy_CONUS_RF_v3_u070 NEW=Dasy_CONUS_RF_v3_all_nby  # v5.4 / v5.6 / v5.6 + nby not rerun
+    YRS="1910 1940 1960 1980 2010"
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    NB=results/validation/conus/nobuilt
+    miss=()  # everything is checked before anything is submitted
+    for y in $YRS; do
+        for f in $CUT/zones/zones_$y.tif $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $D/$V54/Y$y/model/rf.joblib $D/$V54/Y$y/model/oof_predictions.csv $D/$V54/Y$y/model/test_predictions.csv \
+                 $DATA_ROOT/processed/tract/tracts_$y.gpkg; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for v in $V54 $V56 ${V56}_nby; do  # cells / city (scratch) and tract / county rows (results) of the compared
+            for f in $D/$v/predictions/pop_$y.tif results/validation/conus/$v/tract_errors_$y.csv \
+                     results/dasymetric/conus/$v/Y$y/test_predictions.csv results/dasymetric/conus/$v/Y$y/metrics.json; do
+                [[ -f $f ]] || miss+=("$f")
+            done
+        done
+        for l in BUI BUPL BUPR BUA; do
+            [[ -f $CUT/layers/$l/${y}_$l.tif ]] || miss+=("$CUT/layers/$l/${y}_$l.tif")
+        done
+        if (( y >= 1940 )); then [[ -f $CUT/layers/Land_Use/RO/${y}_RO.tif ]] || miss+=("$CUT/layers/Land_Use/RO/${y}_RO.tif"); fi
+    done
+    for f in $CUT/layers/NOBUILT/NOBUILT.tif $CUT/window.json $CUT/layers/DEM/DEM.tif $CUT/zones/zones_2010.tif \
+             $HISDAC_DIR/FBUY/FBUY.tif $HISDAC_DIR/FBUY/NobuiltYear.tif $HISDAC_DIR/BUPR/2015_BUPR.tif \
+             results/hisdac_uncertainty/county_record_uncertainty.csv results/hisdac_uncertainty/excluded_counties_t070.csv \
+             configs/conus_split.csv results/validation/conus/external/city_maps_meeting/gap_blocks.csv \
+             $NB/nobuilt_cells.csv $NB/nobuilt_city_gaps.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    # city gap blocks: v5.6 pop / BUI / GHS-POP of 1980 and 2010 = the meeting maps' inputs
+    if bash sbatch/external_city_meeting.sh --check > logs/conus_v54nby_city_check.txt 2>&1; then
+        grep -E "CHECK OK" logs/conus_v54nby_city_check.txt || true
+    else
+        miss+=("city-map inputs (logs/conus_v54nby_city_check.txt)")
+        grep -E "MISSING|ERROR" logs/conus_v54nby_city_check.txt || true
+    fi
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (cutout incl. NOBUILT $YRS, v5.4 / v5.6 / v5.6 + nby outputs, tracts, FBUY, BUPR_2015, nobuilt results, city maps)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    # CURC maintenance (default 2026-11-04 06:30-18:30 MT): a job whose wall time does not end before the window starts
+    # waits until after it. Chain estimate (nobuilt sacct) vs the minutes left; submitted anyway.
+    FT=${FEATURES_TIME:-00:40:00} TT=${TRAIN_TIME:-02:00:00} PT=${PREDICT_TIME:-01:00:00} QT=${VALIDATE_TIME:-00:30:00}
+    CT=${COMPARE_TIME:-00:45:00} GT=${DIAG_TIME:-01:00:00}
+    MS=${MAINT_START:-2026-11-04 06:30} ME=${MAINT_END:-2026-11-04 18:30}
+    mins() { local h m s; IFS=: read -r h m s <<< "$1"; echo $(( 10#$h * 60 + 10#$m + (10#${s:-0} > 0) )); }
+    now=$(date +%s); ts=$(TZ=America/Denver date -d "$MS" +%s); te=$(TZ=America/Denver date -d "$ME" +%s)
+    echo "TIME now $(TZ=America/Denver date '+%Y-%m-%d %H:%M %Z') | maintenance $MS - $ME MT"
+    if (( now >= te )); then
+        echo "TIME maintenance window is over: no wait (chain estimate ~1.5 h)"
+    elif (( now >= ts )); then
+        echo "TIME maintenance in progress: every job waits until it ends ($ME MT), then runs (chain estimate ~1.5 h)"
+    else
+        left=$(( (ts - now) / 60 )) start=0 late=""
+        for step in "features 10 $(mins $FT)" "train 45 $(mins $TT)" "predict 22 $(mins $PT)" "validate 6 $(mins $QT)" \
+                    "compare 6 $(mins $CT)"; do  # name, estimated minutes, wall minutes; one after the other
+            read -r n est wall <<< "$step"
+            (( start + wall <= left )) || late="$late $n"
+            start=$(( start + est ))
+        done
+        (( $(mins $GT) <= left )) || late="$late diag"
+        echo "TIME $left min until the maintenance | chain estimate ~$start min (features + train + predict + validate + compare; diag side by side) | wall $FT $TT $PT $QT $CT, diag $GT"
+        if [[ -n $late ]]; then
+            echo "TIME NOTE: the wall time of${late} does not end before $MS MT at the estimated start: those jobs run AFTER the maintenance (from $ME MT). Submitted anyway."
+        else
+            echo "TIME OK: every job's wall time ends before the maintenance at the estimated start"
+        fi
+    fi
+    C=configs/conus_rf_v3_all_nby.yaml
+    f=$(sub "" --ntasks=6 --time=$FT --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+    t=$(sub "$f" --ntasks=16 --time=$TT --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+    p=$(sub "$t" --ntasks=32 --time=$PT --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+    q=$(sub "$p" --ntasks=8 --time=$QT --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+        --version $NEW --years $YRS $VAL --gap-version $V56)
+    jc=$(sub "$q" --time=$CT sbatch/v54_nby_compare.sh)
+    jd=$(sub "" --time=$GT sbatch/undated_age_diag.sh)
+    echo "v54_nby features $f train $t predict $p validate $q | v54_nby_compare $jc | undated_age_diag $jd" \
+        | tee logs/conus_v54nby_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()
