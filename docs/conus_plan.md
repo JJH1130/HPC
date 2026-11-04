@@ -230,6 +230,41 @@ Tracts: 2,197 (1920, 9 % of the population), 22,042 (1960, 56 %), 72,243 (2010, 
 | Slope in strips | `common.terrain`: each `block_rows` strip is read with one extra row above and below, so `numpy.gradient` uses the same neighbours as on the whole window; the window's own first / last rows stay one-sided. Strips = whole window exactly (`tests/test_conus_dasymetric.py`, strips of 1, 7 and 512 rows); no whole-window DEM array in memory |
 | Reused | pilot cutout, water (`{YEAR}_water_frac.tif`) and distances (`PLACEDIST`); nothing recomputed |
 
+## v5.7 all years: result (jobs 35245777-35245785, run 2026-11-03 MT, commit a77668b)
+
+All nine jobs COMPLETED (~1.5 h). `KEPT YEARS OK: 120 items` (the five earlier years unchanged); summaries MATCH
+`v54_nby_comparison.csv`; v5.6 meeting-map numbers reproduced.
+
+| year | county R2 all TEST: v5.4 / v5.6 / **v5.7** | county MdAPE all TEST: v5.4 / v5.6 / **v5.7** | tract MdAPE all: v5.4 / v5.6 / **v5.7** |
+|---|---|---|---|
+| 1900 | 0.845 / 0.762 / **0.892** | 32.3 / 35.7 / **27.2** | - |
+| 1910 | 0.822 / 0.774 / **0.861** | 30.4 / 32.7 / **27.6** | 53.2 / 53.1 / **51.8** |
+| 1920 | 0.834 / 0.758 / **0.875** | 31.5 / 32.9 / **27.4** | 53.3 / **52.4** / 54.3 |
+| 1930 | 0.839 / 0.809 / **0.876** | 32.8 / 32.9 / **28.9** | **49.7** / 50.2 / 51.6 |
+| 1940 | 0.858 / 0.830 / **0.886** | 31.1 / 31.0 / **25.3** | 42.6 / 42.2 / **40.1** |
+| 1950 | 0.856 / 0.808 / **0.886** | 30.1 / 34.4 / **25.3** | 41.8 / 41.9 / **40.6** |
+| 1960 | 0.861 / 0.823 / **0.898** | 30.5 / 33.9 / **27.7** | 37.9 / 36.0 / **34.0** |
+| 1970 | 0.863 / 0.830 / **0.904** | 30.4 / 31.3 / **25.9** | 34.0 / **31.7** / 32.0 |
+| 1980 | 0.861 / 0.755 / **0.908** | 29.6 / 33.2 / **26.4** | 32.3 / **26.8** / 26.9 |
+| 1990 | 0.876 / 0.537 / **0.916** | 27.2 / 31.9 / **25.6** | 28.5 / **24.5** / 28.0 |
+| 2000 | 0.875 / 0.544 / **0.916** | 27.2 / 31.5 / **25.6** | 27.2 / 26.4 / **25.5** |
+| 2010 | 0.878 / 0.522 / **0.917** | 28.4 / 32.7 / **25.0** | 26.6 / **23.8** / 24.9 |
+| 2020 | 0.868 / 0.520 / **0.910** | 27.5 / 32.8 / **26.3** | 26.1 / **23.7** / 25.5 |
+
+- County (the selection criterion): v5.7 is the best in all 13 years, on all TEST counties and on the kept / excluded
+  parts (excluded TEST counties R2 0.797-0.834 vs v5.6 down to -0.66).
+- Tracts: v5.7 best in 1910 / 1940-1960 / 2000; v5.6 better in 1970-1990 and 2010-2020 (1990 by 3.5 pp, 2010 1.1, 2020
+  1.8; on kept counties: 1990 26.7 vs 23.0). Excluded counties' tracts: v5.7 far better (1990 46.2 vs 55.0, 2020 37.9
+  vs 54.7). v5.7 vs v5.4: better in 10 of 12 tract years (worse 1920 / 1930, 8 / 24 counties).
+- Fixed tract sets (v5.7 minus v5.4): all tracts better, but the long-tracted counties are worse (1910+ set, 6 big
+  cities: +1.1 to +3.8 pp every year; 1940+ set worse from 1990; 1960+ worse from 1990): in dense, well-recorded urban
+  counties nby moves people toward cells with undated records only.
+- External (tract MdAPE): v5.7 beats F&J M5 every year (2010 24.5 vs 38.2). GHS-POP / WorldPop (block input): 1980
+  23.8 vs v5.7 26.9. Meeting maps v5.7: 1 km Spearman vs GHS-POP / WorldPop same or higher than v5.6 (Chicago 2010
+  0.849 -> 0.885, Denver 1980 0.796 -> 0.816, Boston 0.94 -> 0.94); gap blocks a few fewer.
+- Kept as chosen (user, 2026-11-04). Open: the recent-year urban tract cost (not tuned on tracts; for after the meeting:
+  e.g. a feature that separates cells with only undated records from mixed cells, chosen by county CV).
+
 ## BUI outliers (request 2026-10-27): look first, decide after
 
 Pilot BUI maxima in one 250 m cell (62,500 m2): 306,635,538 (1920), 709,978,539 (1960), 5,447,140,510 (2010). Even a
