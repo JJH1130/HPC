@@ -1146,6 +1146,52 @@ needed? Code written 2026-11-04, not run (runbook section 20, `bash sbatch/submi
 - **Timing:** CURC maintenance 2026-11-04 06:30-18:30 MT; the pre-check prints the minutes left, the chain estimate
   (~1.5 h, from the NobuiltYear test's sacct) and which jobs would only start after the window.
 
+## v5.4 + NobuiltYear (no filter): result (jobs 35240999-35241004, run 2026-11-03 MT, commit 291e789)
+
+All six jobs COMPLETED (features 5 min, train 21 min, predict 14 min, validate 4 min, compare 4 min, diagnosis 25 s).
+v5.6 / v5.6 + nby rows reproduced the `nobuilt_*.csv`.
+
+County, before allocation, **all TEST counties** (595-622 per year; R2 of log density / MdAPE %):
+
+| year | v5.4 | v5.4 + nby | v5.6 | v5.6 + nby |
+|---|---|---|---|---|
+| 1910 | 0.822 / 30.4 | **0.861 / 27.6** | 0.774 / 32.7 | 0.813 / 30.5 |
+| 1940 | 0.858 / 31.1 | **0.886 / 25.3** | 0.830 / 31.0 | 0.866 / 26.6 |
+| 1960 | 0.861 / 30.5 | **0.898 / 27.7** | 0.823 / 33.9 | 0.869 / 29.5 |
+| 1980 | 0.861 / 29.6 | **0.908 / 26.4** | 0.755 / 33.2 | 0.858 / 29.4 |
+| 2010 | 0.878 / 28.4 | **0.917 / 25.0** | 0.522 / 32.7 | 0.600 / 30.2 |
+
+Labelled, kept t070 TEST counties: v5.4 + nby 0.875 / 0.894 / 0.914 / 0.927 / 0.930 vs v5.6 + nby 0.872 / 0.898 / 0.917 /
+0.924 / 0.932 (tie); excluded t070 TEST counties: v5.4 + nby 0.797 / 0.825 / 0.809 / 0.814 / 0.833 vs v5.4 0.727-0.742,
+v5.6 + nby 0.628-0.740 and -0.388 in 2010. County CV RMSE (own CV sets, not comparable across filter / no filter):
+v5.4 -> v5.4 + nby 0.566 -> 0.506, 0.572 -> 0.486, 0.600 -> 0.505, 0.603 -> 0.495, 0.626 -> 0.506 (10-21 %); nby
+permutation rank 2 in every year.
+
+Tract MdAPE (%):
+
+| year | set | v5.4 | v5.4 + nby | v5.6 | v5.6 + nby | AW |
+|---|---|---|---|---|---|---|
+| 1910 | all | 53.2 | 51.8 | 53.1 | **50.5** | 82.9 |
+| 1940 | all | 42.6 | **40.1** | 42.2 | 40.4 | 86.9 |
+| 1960 | all | 37.9 | **34.0** | 36.0 | 34.4 | 82.7 |
+| 1980 | all | 32.3 | 26.9 | **26.8** | 27.6 | 79.9 |
+| 2010 | all | 26.6 | 24.9 | **23.8** | 24.7 | 74.5 |
+| 1980 | kept t070 | 30.9 | 25.8 | **25.5** | 26.3 | 79.1 |
+| 1980 | excluded t070 | 78.6 | **59.6** | 79.3 | 69.1 | 91.4 |
+| 2010 | kept t070 | 25.0 | 23.9 | **22.4** | 23.4 | 74.6 |
+| 2010 | excluded t070 | 55.7 | **37.4** | 51.2 | 49.4 | 73.1 |
+
+- v5.4 + nby is the best on all TEST counties in every year, and on kept counties it ties v5.6 + nby: the filter is not
+  needed for the county model once nby is in. Excluded counties gain most (1980 tract 79.3 -> 59.6 vs v5.6).
+- Tracts: best or within 0.4 pp of the best in 1910-1980; 2010 +1.1 pp vs v5.6 (kept counties 23.9 vs 22.4).
+- People on BUI = 0 cells with NobuiltYear > 0: v5.4 + nby 2010 7.9 % of all people (v5.6 1.5 %); 79 % of the BUI = 0
+  people go to such cells (v5.6 29 %). City gap blocks barely move (Denver 1980 61 blocks vs v5.6 64).
+- Diagnosis: 22.2 M of 26.2 M built cells have NobuiltYear > 0, 14.1 M of them with no dated record (NobuiltYear only,
+  BUPR_2015 = 0, FBUY none). Cells with both: FBUY median 1970, 26 % <= 1940; cells without undated records: median
+  1976, 22 % <= 1940. County Spearman(ratio_A_nby, BUPR_1940 / BUPR_2015) = 0.021. -> At most a slight lean to older
+  stock; the age of the undated records themselves cannot be read from HISDAC. Not a reason for nby_age.
+- Not decided (user): v5.4 + nby (no filter) vs v5.6 for the next base; if chosen, run it for all 13 years.
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is
