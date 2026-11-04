@@ -29,6 +29,13 @@ Three steps (sbatch/external_compare.sh; chain by `bash sbatch/submit_conus.sh e
              `--strict-sums` it stops the run instead, as does a tract without sums (sums reused from an earlier
              extract must cover every evaluated tract). -> <out> + figure (tract MdAPE and MAPE by year; block-input
              products dashed).
+             v5.7 (docs/conus_plan.md "v5.7 all years"): --reference Dasy_CONUS_RF_v3_all_nby --reference-label ...
+             --compare-versions Dasy_CONUS_RF_v3_u070="v5.6 (...)" Dasy_CONUS_RF_v3_all="v5.4 (...)" replace the
+             config's reference / compare_versions for evaluate only (the sums of `extract` were made on the config
+             reference's evaluated tracts: every version's evaluated tracts must be that same set, checked as
+             before; with --strict-sums a tract without sums stops). --check-with external_comparison_v56.csv: the
+             rows (year, product, method) also in that table must have the same n_tracts / MdAPE / MAPE, else stop
+             before writing (the v5.6 / v5.4 / product / areal-weighting numbers do not change with the reference).
 """
 from __future__ import annotations
 
@@ -81,7 +88,53 @@ def parse_args(argv=None):
     p.add_argument("--available", action="store_true", help="inventory: print the products with all files, nothing else")
     p.add_argument("--out", type=Path, help="inventory / evaluate CSV")
     p.add_argument("--plot", type=Path, help="evaluate: figure of tract MdAPE by year")
+    p.add_argument("--reference", help="evaluate: this version instead of the config's reference")
+    p.add_argument("--reference-label", help="evaluate: its label (figure)")
+    p.add_argument("--compare-versions", nargs="+", metavar="VERSION=LABEL",
+                   help="evaluate: these versions instead of the config's compare_versions")
+    p.add_argument("--check-with", type=Path, metavar="CSV",
+                   help="evaluate: an earlier evaluate table whose shared rows must come out the same")
     return p.parse_args(argv)
+
+
+def override_versions(args, cfg: dict) -> dict:
+    """cfg with --reference / --compare-versions applied (evaluate only)."""
+    if not (args.reference or args.compare_versions):
+        return cfg
+    cfg = dict(cfg)
+    if args.reference:
+        cfg["reference"] = args.reference
+        cfg["reference_label"] = args.reference_label or args.reference
+    if args.compare_versions is not None:
+        cv = {}
+        for item in args.compare_versions:
+            v, _, lab = item.partition("=")
+            cv[v] = lab or v
+        cfg["compare_versions"] = cv
+    if cfg["reference"] in (cfg.get("compare_versions") or {}):
+        sys.exit(f"ERROR: {cfg['reference']} is both the reference and a compare version")
+    log.info("versions: reference %s (%s) | compare %s (overrides of the config; sums of the config reference's tracts)",
+             cfg["reference"], cfg["reference_label"], cfg.get("compare_versions"))
+    return cfg
+
+
+def check_with(df: pd.DataFrame, path: Path):
+    """Rows (year, product, method) also in `path` must have the same n_tracts / mdape / mape (stops otherwise)."""
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (--check-with)")
+    keys, cols = ["year", "product", "method"], ["n_tracts", "mdape", "mape"]
+    old = pd.read_csv(path)
+    m = df[df["status"] == "ok"][keys + cols].merge(old[old["status"] == "ok"][keys + cols], on=keys,
+                                                    suffixes=("", "__old"))
+    for c in cols:
+        a, b = m[c].to_numpy(float), m[c + "__old"].to_numpy(float)
+        bad = ~np.isclose(a, b, rtol=1e-9, atol=1e-12, equal_nan=True)
+        if bad.any():
+            sys.exit(f"ERROR: {c} differs from {path} for {m.loc[bad, keys].to_dict('records')[:10]}: "
+                     f"{a[bad].tolist()[:10]} vs {b[bad].tolist()[:10]}")
+    if not len(m):
+        sys.exit(f"ERROR: no row shared with {path}")
+    log.info("MATCH %s: %d rows (%s; methods %s)", path, len(m), ", ".join(cols), sorted(set(m["method"])))
 
 
 def load_config(path: Path) -> dict:
@@ -387,6 +440,8 @@ def evaluate(args, cfg):
         log.info("===== %d", year)
         rows += evaluate_year(year, version_tracts(args, cfg, year), products, cfg, args)
     df = pd.DataFrame(rows).reindex(columns=OUT_COLS)
+    if args.check_with:
+        check_with(df, args.check_with)
     out = args.out or args.results_root / "validation" / args.name / "external" / "external_comparison.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out, index=False)
@@ -483,7 +538,7 @@ def main(argv=None):
     else:
         if not args.work_dir:
             sys.exit("ERROR: evaluate needs --work-dir")
-        evaluate(args, cfg)
+        evaluate(args, override_versions(args, cfg))
     log.info("DONE")
 
 

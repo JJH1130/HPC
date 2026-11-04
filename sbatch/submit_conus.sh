@@ -76,6 +76,13 @@
 #                                       # counties); undated_age_diag.sh (FBUY of cells with / without undated records)
 #                                       # side by side. Pre-check prints the time left before a CURC maintenance window
 #                                       # (MAINT_START / MAINT_END, MT) next to the chain estimate.
+#   bash sbatch/submit_conus.sh v57all  # v5.7 (Dasy_CONUS_RF_v3_all_nby) for all census years: snapshot of the five
+#                                       # kept years -> features / train / predict --years 1900 1920 1930 1950 1970
+#                                       # 1990 2000 2020 -> tract validation of every tract year (gap counties from
+#                                       # v5.6) -> kept_years_check, summary_by_year (next to v5.4 / v5.6, all TEST
+#                                       # counties, kept / excluded t070) + metrics_over_time, both checked against
+#                                       # v54_nby_comparison.csv; meeting maps v5.7 (after predict) and external
+#                                       # evaluate with v5.7 as reference (after validate) side by side; one submit
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -122,10 +129,13 @@
 # 5-6 min, nobuilt_compare 6 min; v5.4 trains on ~2,350-2,490 counties instead of ~1,590-1,670 (train ~1.5 x, estimate
 # 45 min). Wall times ~2-4 x: features 40 min, train 2 h, predict 1 h, validate 30 min, compare 45 min; diag 1 h
 # (record_uncertainty read 17 rasters in < 1 h, job 35056349).
+# v57all: from v54nby (jobs 35240999-35241004; 5 years: features 5 min, train 21 min, predict 14 min, validate 4 min)
+# for 8 years ~1.6 x; validate 12 years as v56all (16 min, 20 GB, job 35090245); city meeting 2 x citymeeting (the
+# v5.6 numbers again); wall times ~3-4 x: features 40 min, train 2:30, predict 1:30, validate 1 h.
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -804,6 +814,99 @@ elif [[ $mode == v54nby ]]; then
     jd=$(sub "" --time=$GT sbatch/undated_age_diag.sh)
     echo "v54_nby features $f train $t predict $p validate $q | v54_nby_compare $jc | undated_age_diag $jd" \
         | tee logs/conus_v54nby_jobs.txt
+elif [[ $mode == v57all ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    V=Dasy_CONUS_RF_v3_all_nby  # v5.7 = v5.4 + nby, no filter (the next base version)
+    C=configs/conus_rf_v3_all_nby.yaml
+    V54=Dasy_CONUS_RF_v3_all V56=Dasy_CONUS_RF_v3_u070  # not rerun
+    NEW="1900 1920 1930 1950 1970 1990 2000 2020"
+    OLD="1910 1940 1960 1980 2010"  # run 2026-11-04; must stay as they are (snapshot -> kept_years_check)
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    TR=$DATA_ROOT/processed/tract
+    EXT=results/validation/conus/external
+    NB=results/validation/conus/nobuilt
+    PRODS="ghs_pop worldpop fj_m3 fj_m5"  # as externalv56 (GPW / GRUMP never fetched)
+    declare -A PY=([ghs_pop]="1980 1990 2000 2010" [worldpop]="2000 2010"
+                   [fj_m3]="1910 1920 1930 1940 1950 1970 1980 1990 2000 2010"
+                   [fj_m5]="1910 1920 1930 1940 1950 1970 1980 1990 2000 2010")
+    miss=()  # everything is checked before anything is submitted
+    for y in $NEW; do
+        for f in $CUT/zones/zones_$y.tif $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $CEN/counties_$y.gpkg $D/$V54/Y$y/model/rf.joblib $D/$V54/Y$y/model/oof_predictions.csv \
+                 $D/$V54/Y$y/model/test_predictions.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for l in BUI BUPL BUPR BUA; do
+            [[ -f $CUT/layers/$l/${y}_$l.tif ]] || miss+=("$CUT/layers/$l/${y}_$l.tif")
+        done
+        if (( y >= 1940 )); then [[ -f $CUT/layers/Land_Use/RO/${y}_RO.tif ]] || miss+=("$CUT/layers/Land_Use/RO/${y}_RO.tif"); fi
+    done
+    for y in $OLD; do  # the eras that are kept as they are
+        for f in $D/$V/Y$y/model/rf.joblib $D/$V/Y$y/model/metrics.json $D/$V/predictions/pop_$y.tif; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    for f in $CUT/window.json $CUT/layers/DEM/DEM.tif $CUT/layers/NOBUILT/NOBUILT.tif $D/$V/cv_summary.csv \
+             $D/$V/qa/reallocation_qa.csv $D/$V/qa/water_mask_by_year.csv \
+             results/hisdac_uncertainty/excluded_counties_t070.csv $NB/v54_nby_comparison.csv \
+             $EXT/city_maps_meeting/meeting_summary.csv $EXT/city_maps_meeting/gap_blocks.csv \
+             $EXT/external_comparison_v56.csv results/validation/conus/$V54/metrics_by_year.csv \
+             results/validation/conus/$V56/metrics_by_year.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    VYRS=""  # tract years: every year with a tract file (1900: none expected); gap counties from v5.6
+    for y in 1900 1910 1920 1930 1940 1950 1960 1970 1980 1990 2000 2010 2020; do
+        if [[ -f $TR/tracts_$y.gpkg ]]; then
+            VYRS="$VYRS $y"
+            [[ -f $D/$V56/Y$y/features/county_features.csv ]] || miss+=("$D/$V56/Y$y/features/county_features.csv")
+        elif [[ $y == 1900 ]]; then echo "SKIP 1900 tract validation: no $TR/tracts_1900.gpkg (as v5.4 / v5.6)"
+        else miss+=("$TR/tracts_$y.gpkg"); fi
+    done
+    for p in $PRODS; do
+        for y in ${PY[$p]}; do  # tract sums of the 2026-10-30 extract (v5.6's tracts), reused, not redone
+            f=$HISDAC_SCRATCH/external/conus/sums/${p}_$y.csv
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    # meeting maps: v5.7 pop 1980 / 2010 (kept years) + v5.6's (recomputed) + BUI / GHS-POP / WorldPop / NobuiltYear
+    MEET="MEET_VERSION=$V,MEET_LABEL=v5.7,MEET_OUT=$EXT/city_maps_meeting_v57"
+    if MEET_VERSION=$V MEET_LABEL=v5.7 MEET_OUT=$EXT/city_maps_meeting_v57 \
+        bash sbatch/external_city_meeting.sh --check > logs/conus_v57all_city_check.txt 2>&1; then
+        grep -E "CHECK OK" logs/conus_v57all_city_check.txt || true
+    else
+        miss+=("city-map inputs (logs/conus_v57all_city_check.txt)")
+        grep -E "MISSING|ERROR" logs/conus_v57all_city_check.txt || true
+    fi
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (cutout $NEW, v5.4 eras, v5.7 eras $OLD, v5.6 gap features, tracts, sums, meeting maps) | tract years:$VYRS"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    # snapshot of the kept years (hashes, rows) before anything runs; kept_years_check compares after the chain
+    SNAP=logs/conus_v57all_kept_years.json
+    ( activate_env hisdac && python -u src/dasymetric/kept_years_check.py snapshot --json $SNAP --version-dir $D/$V \
+        --results-dir results/dasymetric/conus/$V --validation-dir results/validation/conus/$V --years $OLD ) \
+        || { echo "ERROR: snapshot failed, nothing submitted"; exit 1; }
+    # --years: only the new eras are computed; the old eras and the other years' rows of the QA / summary CSVs stay
+    jf=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-00:40:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh --years $NEW)
+    jt=$(sub "$jf" --ntasks=16 --time=${TRAIN_TIME:-02:30:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh --years $NEW)
+    jp=$(sub "$jt" --ntasks=32 --time=${PREDICT_TIME:-01:30:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh --years $NEW)
+    # every tract year again (metrics_by_year.csv holds all years; the old tract_errors_{YEAR}.csv must come out the same)
+    jv=$(sub "$jp" --ntasks=8 --time=${VALIDATE_TIME:-01:00:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+         --version $V --years $VYRS $VAL --gap-version $V56)
+    jk=$(sub "$jv" sbatch/kept_years_check.sh --json $SNAP)
+    R=results/validation/conus/$V
+    js=$(sub "$jv" --time=${SUMMARY_TIME:-00:20:00} sbatch/compare_models.sh --versions $V $V54 $V56 \
+         --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv --out $R/summary_by_year.csv \
+         --plot $R/mdape_by_year.png --check-against $NB/v54_nby_comparison.csv)
+    jm=$(sub "$jv" --time=${SUMMARY_TIME:-00:20:00} sbatch/metrics_over_time.sh --version $V --compare-with $V54 $V56 \
+         --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv --check-against $NB/v54_nby_comparison.csv)
+    # side by side after predict: meeting maps v5.7 (v5.6 recomputed + checked); external evaluate needs v5.7's tracts
+    jc=$(sub "$jp" --time=${MEET_TIME:-00:45:00} --export=ALL,$MEET sbatch/external_city_meeting.sh)
+    je=$(sub "$jv" --ntasks=2 --time=${EVAL_TIME:-00:30:00} --job-name=external_evaluate --export=ALL,EXT_TAG=v57 \
+         sbatch/external_compare.sh evaluate --products $PRODS --strict-sums --reference $V \
+         --reference-label "v5.7 ($V)" --compare-versions "$V56=v5.6 ($V56)" "$V54=v5.4 ($V54)" \
+         --check-with $EXT/external_comparison_v56.csv)
+    echo "features $jf | train $jt | predict $jp | validate $jv | kept_years_check $jk | summary $js | metrics_over_time $jm | city_meeting $jc | external_evaluate $je" \
+        | tee logs/conus_v57all_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

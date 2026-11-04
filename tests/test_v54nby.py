@@ -36,10 +36,11 @@ sys.path[:0] = [str(REPO / "src" / "validation"), str(REPO / "src" / "grid")]
 def test_config():
     base = dcommon.load_config(REPO / "configs" / "conus_rf_v3_all.yaml")
     c = dcommon.load_config(REPO / "configs" / "conus_rf_v3_all_nby.yaml")
-    assert c["version"] == "Dasy_CONUS_RF_v3_all_nby" and c["years"] == YEARS
+    # since 2026-11-04 (v5.7 all years, tests/test_v57all.py) 13 eras 1900-2020; the five of this test unchanged
+    assert c["version"] == "Dasy_CONUS_RF_v3_all_nby" and set(YEARS) <= set(c["years"])
     assert c["compare_with"] == "Dasy_CONUS_RF_v3_all"
     assert c["exclude_counties"] is None and c["nby_age"] is None
-    assert list(c["eras"]) == [f"Y{y}" for y in YEARS]
+    assert {f"Y{y}" for y in YEARS} <= set(c["eras"])
     for e in c["eras"]:
         assert c["eras"][e]["years"] == base["eras"][e]["years"]
         assert c["eras"][e]["features"] == base["eras"][e]["features"] + ["nby"], e
@@ -52,8 +53,8 @@ def test_config():
     assert all("nby" not in e["features"] for e in base["eras"].values())
     # same features as the NobuiltYear test on the shared part: v5.6 + nby has the same era features
     v56n = dcommon.load_config(REPO / "configs" / "conus_rf_v3_u070_nby.yaml")
-    assert {e: v56n["eras"][e]["features"] for e in v56n["eras"]} == {e: c["eras"][e]["features"] for e in c["eras"]}
-    print("ok config: v5.4 + nby = v5.4 eras 1910-2010 + nby, no filter, settings as v5.4; v5.4 unchanged")
+    assert {e: v56n["eras"][e]["features"] for e in v56n["eras"]} == {e: c["eras"][e]["features"] for e in v56n["eras"]}
+    print("ok config: v5.4 + nby = v5.4 eras (1910-2010 of this test) + nby, no filter, settings as v5.4; v5.4 unchanged")
 
 
 # ---------------------------------------------------------------- compare

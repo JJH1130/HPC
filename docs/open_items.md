@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -13,6 +13,14 @@ Last updated: 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-1
 
 ### CONUS Dasy_CONUS_RF_v1 - v4
 
+- **Status (2026-11-04, v5.7 all years, request `docs/handoff/v57_all_years_request.md`):** written as code, NOT run
+  (`docs/conus_plan.md` "v5.7 all years"; runbook section 21, `bash sbatch/submit_conus.sh v57all`): eight eras added
+  to `configs/conus_rf_v3_all_nby.yaml` (the five run eras byte for byte), `--years` of the eight, a snapshot of the
+  five kept years checked after the run (`kept_years_check`), all tract years validated, summaries with all-TEST county
+  columns (`compare_models.py` / `metrics_over_time.py`, stop if the five years differ from `v54_nby_comparison.csv`;
+  checked locally on the tracked files), meeting maps v5.7 (`city_maps_meeting_v57/`, v5.6 recomputed + checked,
+  `meeting_summary_v56_v57.csv`) and external evaluate with v5.7 as reference (`external_comparison_v57.csv`; after
+  validate, since it needs v5.7's tracts). Next: user runs block 1-3; Claude analyses; then the meeting doc.
 - **Status (2026-11-04, v5.4 + nby without the filter):** run 2026-11-03 MT (jobs 35240999-35241004, 291e789; result
   in `docs/conus_plan.md` "v5.4 + NobuiltYear (no filter): result"). v5.4 + nby is the best on ALL TEST counties in
   every year (R2 0.861-0.917), ties v5.6 + nby on kept counties, and is the best on tracts 1940 / 1960 (1980 within

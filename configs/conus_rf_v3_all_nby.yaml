@@ -8,12 +8,17 @@
 # search, fit and TEST) still needed? One change only: v5.4 + one feature; every era = v5.4's era of that year + nby.
 # Years 1910 / 1940 / 1960 / 1980 / 2010 (as the NobuiltYear test). compare_with v5.4. No selection rule: compared
 # with v5.4, v5.6 and v5.6 + nby by src/validation/v54_nby_compare.py on all TEST counties; the user decides; tracts
-# not used for tuning.
+# not used for tuning. Chosen 2026-11-04 as v5.7, the next base version (best on all TEST counties every year;
+# docs/conus_plan.md "Version summary"). All census years 1900-2020 added 2026-11-04 (request
+# docs/handoff/v57_all_years_request.md; docs/conus_plan.md "v5.7 all years"): eras Y1900 / Y1920 / Y1930 / Y1950 /
+# Y1970 / Y1990 / Y2000 / Y2020 = v5.4's era of that year + nby (1900-1930 without Land_Use, as v5.4; 2020 = NHGIS 2020
+# on the 2010 polygons, as v5.4's Y2020), run with --years (sbatch/submit_conus.sh v57all); the five eras run before are
+# unchanged (byte for byte in this file) and are not recomputed.
 # Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/
 version: Dasy_CONUS_RF_v3_all_nby
 
 study_area: configs/conus_study_area.yaml
-years: [1910, 1940, 1960, 1980, 2010]
+years: {start: 1900, stop: 2020, step: 10}
 
 water_mask: yearly
 compare_with: Dasy_CONUS_RF_v3_all
@@ -25,21 +30,46 @@ unusable: skip
 block_rows: 512
 
 eras:
-  # v5.4's era of the year + nby (res_share / rent_share need Land_Use, 1940+).
+  # v5.4's era of the year + nby (res_share / rent_share need Land_Use, 1940+); Y1910 / Y1940 / Y1960 /
+  # Y1980 / Y2010 as run 2026-11-04 (unchanged), the other eight added for all years.
+  Y1900:
+    years: [1900]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, nby]
   Y1910:
     years: [1910]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, nby]
+  Y1920:
+    years: [1920]
+    features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, nby]
+  Y1930:
+    years: [1930]
     features: [bui, bldg_size, mu_ratio, dist_built, elev, slope, nby]
   Y1940:
     years: [1940]
     features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
+  Y1950:
+    years: [1950]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
   Y1960:
     years: [1960]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
+  Y1970:
+    years: [1970]
     features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
   Y1980:
     years: [1980]
     features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
+  Y1990:
+    years: [1990]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
+  Y2000:
+    years: [2000]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
   Y2010:
     years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
+  Y2020:
+    years: [2020]
     features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]
 
 # elev and slope are separate groups, not one Terrain group (decided 2026-10-20).

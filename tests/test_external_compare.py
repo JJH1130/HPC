@@ -224,6 +224,30 @@ def test_extract_evaluate(tmp: Path):
     stops(ev_args + ["--strict-sums"], "no tract sums")                     # "gone" has no sums
     ev_args += ["--products", "prod"]
     ec.main(ev_args + ["--strict-sums"])                                    # every evaluated tract in the sums
+    # v5.7: --reference / --compare-versions override the config for evaluate (sums of the config reference's
+    # tracts, reused); the old versions' rows = the earlier table (--check-with), a changed one stops
+    new = "Dasy_NEW"
+    te_n = te.assign(pop_model=obs * rng.uniform(0.7, 1.3, n))
+    (res / "validation" / "conus" / new).mkdir(parents=True)
+    te_n.to_csv(res / "validation" / "conus" / new / f"tract_errors_{YEAR}.csv", index=False)
+    v57 = ["evaluate", "--products", "prod", "--strict-sums", "--reference", new, "--reference-label", "v5.7 (test)",
+           "--compare-versions", f"{ref}=v5.6 (test)", f"{cmp}=v5.4 (test)"] + common
+    out3 = tmp / "ext3.csv"
+    ec.main(v57 + ["--out", str(out3), "--plot", str(tmp / "ext3.png"), "--check-with", str(tmp / "ext2.csv")])
+    d3 = pd.read_csv(out3)
+    r3 = d3[d3["product"] == "prod"].set_index("method")
+    assert set(r3.index) == {"prod", new, ref, cmp, "areal_weighting"} and (tmp / "ext3.png").exists()
+    pn = sub[["GISJOIN"]].merge(te_n[["GISJOIN", "pop_model"]], on="GISJOIN")["pop_model"].to_numpy()
+    assert abs(r3.loc[new, "mdape"] - mdape(sub["pop_obs"].to_numpy(), pn)) < 1e-9
+    for m in ("prod", ref, cmp, "areal_weighting"):
+        assert np.isclose(r3.loc[m, "mdape"], rows.loc[m, "mdape"], rtol=1e-12), m
+    bad = pd.read_csv(tmp / "ext2.csv")
+    bad.loc[(bad["method"] == ref) & (bad["product"] == "prod"), "mdape"] += 0.5
+    bad.to_csv(tmp / "ext_bad.csv", index=False)
+    stops(v57 + ["--out", str(tmp / "ext4.csv"), "--check-with", str(tmp / "ext_bad.csv")], "mdape differs")
+    assert not (tmp / "ext4.csv").exists()
+    te_n.iloc[2:].to_csv(res / "validation" / "conus" / new / f"tract_errors_{YEAR}.csv", index=False)
+    stops(v57 + ["--out", str(tmp / "ext4.csv")], "differ from")            # other tracts than the sums' reference
     s.iloc[1:].to_csv(work / "sums" / f"prod_{YEAR}.csv", index=False)
     stops(ev_args + ["--strict-sums"], "evaluated tracts are not in")
     te_c.iloc[1:].to_csv(res / "validation" / "conus" / cmp / f"tract_errors_{YEAR}.csv", index=False)

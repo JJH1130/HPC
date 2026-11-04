@@ -34,6 +34,15 @@ Dasy_CONUS_RF_v3_all --exclusions results/hisdac_uncertainty/excluded_counties_t
 or in that exclusion set (columns tract_kept_<t>_* / tract_excluded_<t>_*, <t> from the file name, e.g. t070; from
 tract_errors_{YEAR}.csv, flag ok). The figure draws the first version; every other version's all-tracts MdAPE is a
 dotted line next to it.
+
+v5.7 over all years next to v5.4 and v5.6 (docs/conus_plan.md "v5.7 all years"): --versions Dasy_CONUS_RF_v3_all_nby
+Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_u070 --exclusions ... --check-against results/validation/conus/nobuilt/
+v54_nby_comparison.csv. Every run adds the county columns on ALL TEST counties of the split (reporting rule of
+2026-11-04; metrics_over_time.all_test_predictions: test_predictions.csv + the TEST part of excluded_predictions.csv, the
+definition of v54_nby_compare.py): test_all_n / _r2 / _mdape / _mape, the main county columns (test_r2 = the model's own
+reported TEST set: with a filter only the kept counties); with --exclusions also test_kept_<t>_* / test_excluded_<t>_*
+(labelled). --check-against: the county (test_all / kept / excluded) and all-tracts numbers of every version and year
+also in that table must be the same, else stop before writing.
 """
 from __future__ import annotations
 
@@ -47,13 +56,16 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import metrics_over_time as mot  # noqa: E402
 from metrics_over_time import mdape  # noqa: E402
 
 log = logging.getLogger("compare_models")
 
 PARTS = ["all", "train", "test", "no_gap", "gap"]
 DENS = ["dens_0_50", "dens_50_500", "dens_500_2000", "dens_2000_plus"]
-SUMMARY = ["version", "model", "cv_rmse_mean", "cv_r2_mean", "test_r2", "tract_all_n", "tract_counties",
+MAPE_MIN = mot.MAPE_MIN
+SUMMARY = ["version", "model", "cv_rmse_mean", "cv_r2_mean", "test_r2", "test_all_n", "test_all_r2", "test_all_mdape",
+           "test_all_mape", "tract_all_n", "tract_counties",
            "tract_all_mdape", "tract_test_mdape", "tract_no_gap_mdape", "tract_gap_mdape", "tract_dens_0_50_mdape",
            "baseline_all_mdape",
            "gap_counties", "mass_fail", "train_seconds"]
@@ -74,7 +86,25 @@ def parse_args(argv=None):
                    help="add the permutation / SHAP rank of these features (e.g. ntl)")
     p.add_argument("--exclusions", type=Path, metavar="CSV",
                    help="excluded_counties_t070.csv: add tract MdAPE of kept / excluded counties")
+    p.add_argument("--check-against", type=Path, metavar="CSV",
+                   help="v54_nby_comparison.csv: shared county / all-tracts numbers must be the same, else stop")
     return p.parse_args(argv)
+
+
+def county_test_row(edir: Path, year: int, excl=None) -> dict:
+    """test_all_* (every TEST county of the split, before allocation) and, with excl, test_kept_<t>_* /
+    test_excluded_<t>_* from metrics_over_time.county_rows (the same definition and checks)."""
+    if not all((edir / f).exists() for f in ("county_features.csv", "test_predictions.csv", "oof_predictions.csv",
+                                             "metrics.json")):
+        log.warning("%s: county files missing; test_all columns empty", edir)
+        return {}
+    out = {}
+    for r in mot.county_rows(year, edir, MAPE_MIN, excl):
+        if r["set"].startswith("test_"):
+            out.update({f"{r['set']}_n": r["counties"], f"{r['set']}_r2": r["r2_logdens"],
+                        f"{r['set']}_mdape": r["mdape"], f"{r['set']}_mape": r["mape"]})
+            out["filtered"] = r["filtered"]
+    return out
 
 
 def era_years(vdir: Path) -> dict:
@@ -187,7 +217,8 @@ def version_rows(args, v: str) -> list[dict]:
     for era, year in era_years(vdir).items():
         if args.years and year not in args.years:
             continue
-        row = {"version": v, "year": year, "era": era, **model_row(vdir, era)}
+        row = {"version": v, "year": year, "era": era, **model_row(vdir, era),
+               **county_test_row(vdir / era, year, args.excl)}
         if args.rank_features:
             row.update(rank_row(vdir / era, args.rank_features))
         if met is not None:
@@ -234,11 +265,12 @@ def plot_years(df: pd.DataFrame, path: Path, first: str):
     for colname, label, color, ls, mk in lines:
         if colname in d and d[colname].notna().any():
             a.plot(d["year"], d[colname], ls, color=color, lw=2, marker=mk, ms=6, label=label)
-    for v in dict.fromkeys(df["version"]):  # other versions: all tracts, dotted
-        if v != first and "tract_all_mdape" in df:
+    others = [v for v in dict.fromkeys(df["version"]) if v != first]
+    for k, v in enumerate(others):  # other versions: all tracts, dotted / dash-dot
+        if "tract_all_mdape" in df:
             o = df[df["version"] == v].sort_values("year")
-            a.plot(o["year"], o["tract_all_mdape"], ":", color="#52514e", lw=1.6, marker=".", ms=6,
-                   label=f"{v}, all tracts")
+            a.plot(o["year"], o["tract_all_mdape"], ls=mot.OTHER_LS[k % len(mot.OTHER_LS)], color="#52514e", lw=1.6,
+                   marker=".", ms=6, label=f"{v}, all tracts")
     a.set_ylabel("tract MdAPE (%)")
     a.set_ylim(bottom=0)
     a.legend(frameon=False, fontsize=9)
@@ -281,6 +313,17 @@ def main(argv=None):
     df = pd.DataFrame(rows).sort_values(["year", "version"], kind="stable")
     if args.repro_with:
         df = repro(df, pd.DataFrame(version_rows(args, args.repro_with)), args.repro_with)
+    if args.check_against:  # before anything is written
+        log.info("check against %s:", args.check_against)
+        sets = ["test_all"] + ([f"test_kept_{args.excl[0]}", f"test_excluded_{args.excl[0]}"] if args.excl else [])
+        for v, g in df.groupby("version", sort=False):
+            county = pd.DataFrame([{"year": r["year"], "set": s, "mdape": r.get(f"{s}_mdape"),
+                                    "mape": r.get(f"{s}_mape"), "r2": r.get(f"{s}_r2")}
+                                   for _, r in g.iterrows() for s in sets if pd.notna(r.get(f"{s}_n"))])
+            tract = g[["year", "tract_all_mdape"]].rename(columns={"tract_all_mdape": "mdape"}) \
+                if "tract_all_mdape" in g else None
+            if mot.check_against(args.check_against, v, county, tract) == 0:
+                log.info("  %s: not in %s, nothing compared", v, args.check_against.name)
     out.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out, index=False)
     with pd.option_context("display.width", 250, "display.max_columns", 30):
@@ -289,6 +332,12 @@ def main(argv=None):
                      g[[c for c in SUMMARY if c in g]].round(4).to_string(index=False))
         log.info("chosen hyperparameters:\n%s", df[["year", "version", "best_params"]].to_string(index=False))
         ex = [f"kept_{args.excl[0]}", f"excluded_{args.excl[0]}"] if args.excl else []
+        cs = [s for s in ["test_all"] + [f"test_{e}" for e in ex] if f"{s}_r2" in df]
+        if cs:
+            log.info("county TEST, before allocation (main = test_all, every TEST county of the split; kept / excluded "
+                     "labelled; test_r2 = the model's own reported TEST set):\n%s",
+                     df[["year", "version", "test_r2"] + [f"{s}_{m}" for s in cs for m in ("n", "r2", "mdape", "mape")]]
+                     .round(3).to_string(index=False))
         parts = [c for c in [f"tract_{p}_mdape" for p in ["all", "test", "no_gap", "gap"] + ex] +
                  [f"tract_{d}_mdape" for d in DENS] if c in df]
         if parts:

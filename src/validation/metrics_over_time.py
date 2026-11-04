@@ -23,9 +23,19 @@ Writes to <results-root>/validation/<name>/<version>/:
   fixed_tract_metrics.csv      set (all / from_<S>), year, method (model / baseline), tracts, counties, MdAPE, MAPE
   fixed_tract_counties.csv     set, GISJOIN, state, name: the counties of each fixed set
   mdape_over_time.png          MdAPE by year: all tracts, the fixed sets, county TEST; dashed = areal weighting
-With --compare-with VERSION (v5.6 next to v5.4, docs/conus_plan.md "v5.6 all years"), that version's county TEST and
-tract sets (the same --starts, computed the same way from its own files) are drawn as dotted lines in the figure (model
-only, same colour per set); its CSVs are not written here.
+With --compare-with VERSION [VERSION ...] (v5.6 next to v5.4, docs/conus_plan.md "v5.6 all years"; v5.7 next to v5.4
+and v5.6, "v5.7 all years"), those versions' county TEST and tract sets (the same --starts, computed the same way from
+their own files) are drawn in the figure (model only, same colour per set; dotted, then dash-dot); their CSVs are not
+written here.
+
+All TEST counties (reporting rule of 2026-11-04, docs/open_items.md): set `test` is the model's own TEST set
+(test_predictions.csv; with a county filter only the kept TEST counties), set `test_all` every TEST county of the split
+= test_predictions.csv + the TEST part of excluded_predictions.csv (the fitted model's prediction for the counties the
+filter left out; the same as `test` without a filter), the main county number and the county line of the figure. With
+--exclusions excluded_counties_t070.csv the test_all rows are also split into test_kept_t070 / test_excluded_t070
+(labelled, next to it). --check-against v54_nby_comparison.csv: the county rows (test_all / kept / excluded: MdAPE,
+MAPE, R2) and the all-tracts MdAPE of every version and year also in that table must be the same (1e-9), else stop
+before writing (check_against, also used by compare_models.py).
 Paths come from CLI flags (sbatch/metrics_over_time.sh); runs locally as well (only tracked files).
 """
 from __future__ import annotations
@@ -54,8 +64,22 @@ def parse_args(argv=None):
     p.add_argument("--results-root", type=Path, default=Path("results"))
     p.add_argument("--starts", type=int, nargs="+", default=STARTS, help="start years of the fixed tract sets")
     p.add_argument("--mape-min", type=float, default=MAPE_MIN, help="MAPE only over observed pop >= this")
-    p.add_argument("--compare-with", metavar="VERSION", help="draw this version as dotted lines (e.g. v5.4)")
+    p.add_argument("--compare-with", metavar="VERSION", nargs="+", default=[],
+                   help="draw these versions as dotted / dash-dot lines (e.g. v5.4 v5.6)")
+    p.add_argument("--exclusions", type=Path, metavar="CSV",
+                   help="excluded_counties_t070.csv: split the all-TEST county rows into kept / excluded (labelled)")
+    p.add_argument("--check-against", type=Path, metavar="CSV",
+                   help="v54_nby_comparison.csv: shared county / all-tracts numbers must be the same, else stop")
     return p.parse_args(argv)
+
+
+def exclusion_set(path: Path | None):
+    """(label, GISJOIN set) of excluded_counties_<label>.csv, or None."""
+    if path is None:
+        return None
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (src/grid/uncertainty_filter.py)")
+    return path.stem.replace("excluded_counties_", ""), set(pd.read_csv(path)["GISJOIN"])
 
 
 def mdape(obs: np.ndarray, pred: np.ndarray) -> float:
@@ -85,7 +109,50 @@ def era_dirs(ddir: Path) -> dict[int, Path]:
     return out
 
 
-def county_rows(year: int, edir: Path, mape_min: float) -> list[dict]:
+PRED_COLS = ["GISJOIN", "year", "y", "y_hat"]
+
+
+def all_test_predictions(edir: Path) -> tuple[pd.DataFrame, bool]:
+    """(GISJOIN, year, y, y_hat of every TEST county of the split, filtered?): test_predictions.csv + the TEST part of
+    excluded_predictions.csv (written by train.py with exclude_counties; none without a filter)."""
+    tp = pd.read_csv(edir / "test_predictions.csv")[PRED_COLS]
+    ex_path = edir / "excluded_predictions.csv"
+    if not ex_path.exists():
+        return tp, False
+    ex = pd.read_csv(ex_path)
+    ex = ex.loc[ex["part"] == "test", PRED_COLS]
+    both = set(tp["GISJOIN"]) & set(ex["GISJOIN"])
+    if both:
+        sys.exit(f"ERROR: {edir}: {len(both)} counties both in test_predictions.csv and excluded_predictions.csv")
+    return pd.concat([tp, ex], ignore_index=True), True
+
+
+def _score(year: int, name: str, p: pd.DataFrame, cf: pd.DataFrame, col: str, mape_min: float, rep, reported: str,
+           what: str) -> dict:
+    p = p.merge(cf, on=["GISJOIN", "year"], how="left", suffixes=("", "_features"))
+    if p["pop"].isna().any():
+        sys.exit(f"ERROR: {year} {name}: {int(p['pop'].isna().sum())} predicted counties not in county_features.csv")
+    if not np.allclose(p["y"], p["y_features"], rtol=0, atol=1e-9):
+        sys.exit(f"ERROR: {year} {name}: y of {what} differs from county_features.csv")
+    obs = p["pop"].to_numpy()
+    pred = np.exp(p[col].to_numpy()) * p["area_km2"].to_numpy()
+    back = np.exp(p["y"].to_numpy()) * p["area_km2"].to_numpy()  # exp(y) x area must give the census pop back
+    if not np.allclose(back, obs, rtol=1e-9):
+        sys.exit(f"ERROR: {year} {name}: exp(y) x area_km2 != pop (area definition differs from the target)")
+    r = r2(p["y"].to_numpy(), p[col].to_numpy()) if len(p) > 1 else np.nan
+    row = {"year": year, "set": name, "counties": len(p), "pop": float(obs.sum()), "pop_pred": float(pred.sum()),
+           "mdape": mdape(obs, pred), "mape": mape(obs, pred, mape_min), "mape_n": int((obs >= mape_min).sum()),
+           "r2_logdens": r, "reported_r2": rep,
+           "r2_same": None if rep is None and not reported else bool(rep is not None and abs(r - rep) < R2_TOL)}
+    log.info("  %d %-20s %4d counties | MdAPE %6.2f %% | MAPE %7.2f %% | R2 log density %.4f%s", year, name, len(p),
+             row["mdape"], row["mape"], r, "" if not reported else
+             f" (reported {reported}: {'n/a' if rep is None else f'{rep:.4f}'}{'' if row['r2_same'] else ' DIFFERS'})")
+    return row
+
+
+def county_rows(year: int, edir: Path, mape_min: float, excl=None) -> list[dict]:
+    """Rows test (own TEST set), cv (out of fold), test_all (every TEST county of the split) and, with `excl` =
+    (label, GISJOIN set), test_kept_<label> / test_excluded_<label> (the test_all rows split)."""
     need = [edir / f for f in ("county_features.csv", "test_predictions.csv", "oof_predictions.csv", "metrics.json")]
     missing = [str(f) for f in need if not f.exists()]
     if missing:
@@ -95,27 +162,51 @@ def county_rows(year: int, edir: Path, mape_min: float) -> list[dict]:
     met = json.loads(need[3].read_text())
     rows = []
     for name, path, col, reported in (("test", need[1], "y_hat", "test_r2"), ("cv", need[2], "oof", "oof_pooled_r2")):
-        p = pd.read_csv(path)[["GISJOIN", "year", "y", col]].merge(cf, on=["GISJOIN", "year"], how="left",
-                                                                   suffixes=("", "_features"))
-        if p["pop"].isna().any():
-            sys.exit(f"ERROR: {year} {name}: {int(p['pop'].isna().sum())} predicted counties not in county_features.csv")
-        if not np.allclose(p["y"], p["y_features"], rtol=0, atol=1e-9):
-            sys.exit(f"ERROR: {year} {name}: y of {path.name} differs from county_features.csv")
-        obs = p["pop"].to_numpy()
-        pred = np.exp(p[col].to_numpy()) * p["area_km2"].to_numpy()
-        back = np.exp(p["y"].to_numpy()) * p["area_km2"].to_numpy()  # exp(y) x area must give the census pop back
-        if not np.allclose(back, obs, rtol=1e-9):
-            sys.exit(f"ERROR: {year} {name}: exp(y) x area_km2 != pop (area definition differs from the target)")
-        r = r2(p["y"].to_numpy(), p[col].to_numpy())
-        rep = met.get(reported)
-        rows.append({"year": year, "set": name, "counties": len(p), "pop": float(obs.sum()),
-                     "pop_pred": float(pred.sum()), "mdape": mdape(obs, pred), "mape": mape(obs, pred, mape_min),
-                     "mape_n": int((obs >= mape_min).sum()), "r2_logdens": r, "reported_r2": rep,
-                     "r2_same": bool(rep is not None and abs(r - rep) < R2_TOL)})
-        log.info("  %d %-4s %4d counties | MdAPE %6.2f %% | MAPE %7.2f %% | R2 log density %.4f (reported %s: %s%s)",
-                 year, name, len(p), rows[-1]["mdape"], rows[-1]["mape"], r, reported,
-                 "n/a" if rep is None else f"{rep:.4f}", "" if rows[-1]["r2_same"] else " DIFFERS")
+        p = pd.read_csv(path)[["GISJOIN", "year", "y", col]]
+        rows.append(_score(year, name, p, cf, col, mape_min, met.get(reported), reported, path.name))
+    ta, filtered = all_test_predictions(edir)
+    # without a filter test_all = the reported TEST set (its R2 checked); with one there is no reported value
+    sets = [("test_all", np.ones(len(ta), bool), None if filtered else "test_r2")]
+    if excl is not None:
+        inside = ta["GISJOIN"].isin(excl[1]).to_numpy()
+        sets += [(f"test_kept_{excl[0]}", ~inside, None), (f"test_excluded_{excl[0]}", inside, None)]
+    for name, m, reported in sets:
+        r = _score(year, name, ta[m], cf, "y_hat", mape_min, met.get(reported) if reported else None, reported or "",
+                   "test / excluded predictions")
+        rows.append({**r, "filtered": filtered})
+    for r in rows:
+        r.setdefault("filtered", filtered)
     return rows
+
+
+def check_against(path: Path, version: str, county: pd.DataFrame | None, tract: pd.DataFrame | None) -> int:
+    """The numbers of `version` that are also in `path` (v54_nby_comparison.csv: level county set test_all /
+    test_kept_t070 / test_excluded_t070 -> mdape, mape, r2; level tract set all -> mdape) must be the same (1e-9
+    relative); stops on a difference. county: year, set, mdape, mape, r2; tract: year, mdape (all tracts). Returns the
+    number of rows compared (0 = the version is not in the table)."""
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (--check-against)")
+    ref = pd.read_csv(path)
+    ref = ref[ref["version"] == version]
+    n = 0
+    for level, new, keys, cols in (("county", county, ["year", "set"], ["mdape", "mape", "r2"]),
+                                   ("tract", tract, ["year"], ["mdape"])):
+        if new is None or not len(new):
+            continue
+        old = ref[ref["level"] == level]
+        if level == "tract":
+            old = old[old["set"] == "all"]
+        m = new[keys + cols].merge(old[keys + cols], on=keys, suffixes=("", "__ref"))
+        for c in cols:
+            a, b = m[c].to_numpy(float), m[c + "__ref"].to_numpy(float)
+            bad = ~np.isclose(a, b, rtol=1e-9, atol=1e-12, equal_nan=True)
+            if bad.any():
+                sys.exit(f"ERROR: {version} {level} {c} differs from {path} for {m.loc[bad, keys].to_dict('records')}: "
+                         f"{a[bad].tolist()} vs {b[bad].tolist()}")
+        n += len(m)
+        log.info("  MATCH %s %s %s: %d rows (%s; years %s)", path.name, version, level, len(m), ", ".join(cols),
+                 sorted(set(m["year"])))
+    return n
 
 
 # ---------------------------------------------------------------- A2: fixed tract set
@@ -178,10 +269,20 @@ def county_names(ddir: Path) -> pd.DataFrame:
 
 # ---------------------------------------------------------------- figure
 
-def plot(tr: pd.DataFrame, cm: pd.DataFrame, path: Path, version: str, other=None):
-    """MdAPE by year: solid = model, dashed = areal weighting, one colour per set (fixed order); county TEST MdAPE
-    (model before allocation) as its own line. One y-axis (%). other = (version, tract sets, county metrics) of a
-    second version: its model lines dotted, same colours."""
+OTHER_LS = [":", "-.", (0, (1, 3))]  # compared versions, in --compare-with order
+
+
+def county_line(cm: pd.DataFrame) -> pd.DataFrame:
+    """The county rows of the figure: all TEST counties (test_all; `test` for tables written before it existed)."""
+    s = "test_all" if (cm["set"] == "test_all").any() else "test"
+    return cm[cm["set"] == s].sort_values("year")
+
+
+def plot(tr: pd.DataFrame, cm: pd.DataFrame, path: Path, version: str, others=()):
+    """MdAPE by year: solid = model, dashed = areal weighting, one colour per set (fixed order); county MdAPE on all
+    TEST counties (model before allocation) as its own line. One y-axis (%). others = [(version, tract sets, county
+    metrics)] of compared versions: their model lines dotted / dash-dot, same colours."""
+    others = list(others)
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dasymetric"))
     import plots  # noqa: E402  (palette + style of the pipeline figures)
     plt = plots.plt
@@ -197,21 +298,22 @@ def plot(tr: pd.DataFrame, cm: pd.DataFrame, path: Path, version: str, other=Non
             m = d[d["method"] == method].sort_values("year")
             ax.plot(m["year"], m["mdape"], ls=ls, color=color, lw=2 if method == "model" else 1.2, marker=mk, ms=5,
                     label=label if method == "model" else None)
-        if other is not None:
+        for k, other in enumerate(others):
             o = other[1]
             o = o[(o["set"] == s) & (o["method"] == "model")].sort_values("year")
-            ax.plot(o["year"], o["mdape"], ls=":", color=color, lw=1.6)
-    test = cm[cm["set"] == "test"].sort_values("year")
+            ax.plot(o["year"], o["mdape"], ls=OTHER_LS[k % len(OTHER_LS)], color=color, lw=1.6)
+    test = county_line(cm)
     if len(test):
         # ink, not the next series slot: another scale (counties), and slot 6 is a second green next to slot 3
         ax.plot(test["year"], test["mdape"], ls="-", color=plots.INK, lw=2, marker="s", ms=5,
-                label="counties, TEST (before allocation)")
-    if other is not None:
-        ot = other[2][other[2]["set"] == "test"].sort_values("year")
-        ax.plot(ot["year"], ot["mdape"], ls=":", color=plots.INK, lw=1.6)
+                label="counties, all TEST (before allocation)")
+    for k, other in enumerate(others):
+        ot = county_line(other[2])
+        ax.plot(ot["year"], ot["mdape"], ls=OTHER_LS[k % len(OTHER_LS)], color=plots.INK, lw=1.6)
     ax.plot([], [], ls="--", color=plots.MUTED, lw=1.2, label="dashed: areal weighting (same tracts)")
-    if other is not None:
-        ax.plot([], [], ls=":", color=plots.MUTED, lw=1.6, label=f"dotted: {other[0]} (model)")
+    for k, other in enumerate(others):
+        name = {":": "dotted", "-.": "dash-dot"}.get(OTHER_LS[k % len(OTHER_LS)], "fine dots")
+        ax.plot([], [], ls=OTHER_LS[k % len(OTHER_LS)], color=plots.MUTED, lw=1.6, label=f"{name}: {other[0]} (model)")
     years = sorted(set(tr["year"]) | set(test["year"]))
     ax.set_xticks(years, [str(y) for y in years])
     ax.set_ylim(bottom=0)
@@ -236,16 +338,17 @@ def main(argv=None):
     if not ddir.is_dir() or not vdir.is_dir():
         sys.exit(f"ERROR: {ddir} or {vdir} not found")
 
-    log.info("== A1 county metrics (model before allocation vs census)")
-    cm = pd.DataFrame([r for y, e in era_dirs(ddir).items() for r in county_rows(y, e, args.mape_min)])
+    excl = exclusion_set(args.exclusions)
+    log.info("== A1 county metrics (model before allocation vs census; main = test_all, every TEST county of the split)")
+    cm = pd.DataFrame([r for y, e in era_dirs(ddir).items() for r in county_rows(y, e, args.mape_min, excl)])
     if cm.empty:
         sys.exit(f"ERROR: no era with test / oof predictions under {ddir}")
-    bad = cm[~cm["r2_same"]]
+    bad = cm[cm["r2_same"] == False]  # noqa: E712  (None = no reported value for that set)
     if len(bad):
         log.warning("recomputed R2 differs from the reported one:\n%s", bad.to_string(index=False))
     else:
-        log.info("recomputed R2 = reported TEST R2 / pooled OOF R2 in all %d rows", len(cm))
-    cm.to_csv(vdir / "county_metrics_by_year.csv", index=False)
+        log.info("recomputed R2 = reported TEST R2 / pooled OOF R2 in all %d rows with a reported value",
+                 int(cm["r2_same"].notna().sum()))
     log.info("county metrics:\n%s", cm.pivot(index="year", columns="set", values=["counties", "mdape", "mape",
                                                                                   "r2_logdens"]).round(3).to_string())
 
@@ -255,6 +358,21 @@ def main(argv=None):
         sys.exit(f"ERROR: no tract_errors_*.csv in {vdir}")
     log.info("tract years %s", sorted(tracts))
     tr, members = fixed_sets(tracts, args.starts, args.mape_min, county_names(ddir))
+    others = []
+    for v in args.compare_with:
+        oddir = args.results_root / "dasymetric" / args.name / v
+        ovdir = args.results_root / "validation" / args.name / v
+        ocm = pd.DataFrame([r for y, e in era_dirs(oddir).items() for r in county_rows(y, e, args.mape_min, excl)])
+        otr = fixed_sets(read_tracts(ovdir), args.starts, args.mape_min, county_names(oddir))[0]
+        others.append((v, otr, ocm))
+    if args.check_against:  # before anything is written
+        log.info("check against %s:", args.check_against)
+        for v, t, c in [(args.version, tr, cm)] + others:
+            cc = c[c["set"].str.startswith("test_")].rename(columns={"r2_logdens": "r2"})
+            tt = t[(t["set"] == "all") & (t["method"] == "model")]
+            if check_against(args.check_against, v, cc, tt) == 0:
+                log.info("  %s: not in %s, nothing compared", v, args.check_against.name)
+    cm.to_csv(vdir / "county_metrics_by_year.csv", index=False)
     mby = vdir / "metrics_by_year.csv"  # the all-tracts MdAPE must equal tract_validate.py's
     if mby.exists():
         ref = pd.read_csv(mby)
@@ -269,21 +387,17 @@ def main(argv=None):
         log.info("tract MdAPE / MAPE (tracts >= %g people) by set and year:\n%s", args.mape_min,
                  tr.pivot_table(index=["set", "year"], columns="method", values=["tracts", "counties", "mdape", "mape"],
                                 sort=False).round(2).to_string())
-    other = None
-    if args.compare_with:
-        oddir = args.results_root / "dasymetric" / args.name / args.compare_with
-        ovdir = args.results_root / "validation" / args.name / args.compare_with
-        ocm = pd.DataFrame([r for y, e in era_dirs(oddir).items() for r in county_rows(y, e, args.mape_min)])
-        otr = fixed_sets(read_tracts(ovdir), args.starts, args.mape_min, county_names(oddir))[0]
-        other = (args.compare_with, otr, ocm)
+    for v, otr, ocm in others:
         with pd.option_context("display.width", 200):
             a = tr[tr["method"] == "model"].pivot_table(index="year", columns="set", values="mdape", sort=False)
             b = otr[otr["method"] == "model"].pivot_table(index="year", columns="set", values="mdape", sort=False)
-            log.info("tract MdAPE (%%), %s minus %s (negative = %s better):\n%s", args.version, args.compare_with,
-                     args.version, (a - b).round(2).to_string())
-            ct = cm[cm["set"] == "test"].set_index("year")["mdape"] - ocm[ocm["set"] == "test"].set_index("year")["mdape"]
-            log.info("county TEST MdAPE (%%), %s minus %s:\n%s", args.version, args.compare_with, ct.round(2).to_string())
-    plot(tr, cm, vdir / "mdape_over_time.png", args.version, other)
+            log.info("tract MdAPE (%%), %s minus %s (negative = %s better):\n%s", args.version, v, args.version,
+                     (a - b).round(2).to_string())
+            ct = pd.DataFrame({k: county_line(cm).set_index("year")[k] - county_line(ocm).set_index("year")[k]
+                               for k in ("mdape", "mape", "r2_logdens")})
+            log.info("county TEST MdAPE (%%), %s minus %s (all TEST counties; MAPE %%, R2 of log density):\n%s",
+                     args.version, v, ct.round(3).to_string())
+    plot(tr, cm, vdir / "mdape_over_time.png", args.version, others)
     log.info("wrote %s", vdir)
     log.info("DONE")
 

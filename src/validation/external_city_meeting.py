@@ -35,11 +35,21 @@ stops the run with nothing written.
 
 Outputs (<out-dir>): {city}_{year}.png, meeting_summary.csv (city x panel: rho, blocks, people in the box),
 gap_blocks.csv. `--check` only lists the inputs (exit 1 if one is missing; NobuiltYear is optional).
+
+Another version (v5.7, docs/conus_plan.md "v5.7 all years"): --version Dasy_CONUS_RF_v3_all_nby --version-label v5.7
+--out-dir .../city_maps_meeting_v57 --base-dir .../city_maps_meeting draws the same figures with that version in
+place of the config's (same boxes, fixed scatter range, gap rule; mask and gap blocks = that version's cells; the gap
+table's people column is pop_<label without dots>, pop_v57). With --base-dir the config's version (v5.6) is computed
+again without drawing; its summary and gap rows must equal <base-dir>/meeting_summary.csv and gap_blocks.csv (every
+row, else stop before writing), then meeting_summary_<base>_<new>.csv (e.g. meeting_summary_v56_v57.csv) puts both
+side by side: city, year, table (summary / gap), item (product, `model` = the version itself; gap group), measure,
+<base label>, <new label>, diff (new - base). The base dir is not written.
 """
 from __future__ import annotations
 
 import argparse
 import logging
+import re
 import sys
 from pathlib import Path
 
@@ -77,7 +87,21 @@ def parse_args(argv=None):
                    help="earlier summary tables (city, year, product, spearman_1km_vs_version, n_blocks_1km, "
                         "total_pop_box) whose shared rows must come out the same")
     p.add_argument("--check", action="store_true", help="list the inputs only; exit 1 if one is missing")
-    return p.parse_args(argv)
+    p.add_argument("--version", help="draw this version instead of city_maps.version (e.g. Dasy_CONUS_RF_v3_all_nby)")
+    p.add_argument("--version-label", help="its short label (e.g. v5.7); required with --version")
+    p.add_argument("--base-dir", type=Path,
+                   help="with --version: the config version's meeting outputs; recomputed, must match, side by side")
+    a = p.parse_args(argv)
+    if a.version and not a.version_label:
+        p.error("--version needs --version-label")
+    if a.base_dir and not a.version:
+        p.error("--base-dir needs --version")
+    return a
+
+
+def tag(label: str) -> str:
+    """'v5.6' -> 'v56' (column / file names)."""
+    return re.sub(r"[^0-9a-z]", "", label.lower())
 
 
 # ---------------------------------------------------------------- numbers
@@ -251,7 +275,8 @@ def placeholder(ax, text: str):
 
 
 def draw(path: Path, title: str, maps: list, mask: np.ndarray, box_km: float, block_km: float,
-         gap: np.ndarray | None, full: np.ndarray, scatters: list, text: str, missing: tuple = ()):
+         gap: np.ndarray | None, full: np.ndarray, scatters: list, text: str, missing: tuple = (),
+         vlab: str = "v5.6"):
     """maps: [(title, pop on our cells)]; scatters: [(title, x density, y density, ylabel)] over the `full` blocks
     (row-major); gap: block flags (or None); missing: texts of the empty map / scatter slots. Maps and scatter plots
     in two sub-figures (the maps keep one size and spacing), always SLOTS map slots and SLOTS - 1 scatter slots in a
@@ -294,7 +319,7 @@ def draw(path: Path, title: str, maps: list, mask: np.ndarray, box_km: float, bl
     cb.ax.tick_params(which="both", labelsize=7, colors=plots.INK2)
     bot = sub_bot.subplots(1, SLOTS, squeeze=False)[0]
     for ax, (t, x, y, ylab) in zip(bot, scatters):
-        scatter(ax, x, y, gap[full] if gap is not None else None, t, "v5.6, people per km2 (1 km block)", ylab)
+        scatter(ax, x, y, gap[full] if gap is not None else None, t, f"{vlab}, people per km2 (1 km block)", ylab)
     for ax, t in zip(bot[len(scatters):-1], missing):
         placeholder(ax, t)
     tx = bot[-1]
@@ -314,9 +339,9 @@ def pct(v: float) -> str:
     return "NA" if v is None or not np.isfinite(v) else f"{100 * v:.0f} %"
 
 
-def gap_text(gap_rows: list, glab: str, vlab: str, gc: dict) -> list:
+def gap_text(gap_rows: list, glab: str, vlab: str, gc: dict, vcol: str = "pop_v56") -> list:
     """Text-panel lines of one city and year: gap vs the other dense blocks, side by side (values of the gap
-    table); "gap blocks: 0" when there are none."""
+    table; vcol = the version's people column); "gap blocks: 0" when there are none."""
     g, d = (next(r for r in gap_rows if r["group"] == k) for k in ("gap", "dense_not_gap"))
     head = ["", f"gap blocks (orange): {vlab} / {glab} < {gc['ratio_max']}",
             f"  and {glab} >= {gc['min_density']:,.0f} per km2"]
@@ -326,7 +351,7 @@ def gap_text(gap_rows: list, glab: str, vlab: str, gc: dict) -> list:
             f"gap vs other dense blocks ({glab} >= {gc['min_density']:,.0f}):",
             f"  blocks: {g['n_blocks']} vs {d['n_blocks']}",
             f"  people {glab}: {g['pop_' + gc['product']] / 1e3:,.0f}k vs {d['pop_' + gc['product']] / 1e3:,.0f}k",
-            f"  people {vlab}: {g['pop_v56'] / 1e3:,.0f}k vs {d['pop_v56'] / 1e3:,.0f}k",
+            f"  people {vlab}: {g[vcol] / 1e3:,.0f}k vs {d[vcol] / 1e3:,.0f}k",
             f"  BUI > 0: {pct(g['share_cells_bui_gt0'])} vs {pct(d['share_cells_bui_gt0'])}",
             "  BUI = 0 but NobuiltYear > 0",
             f"   (undated records only): {pct(g['share_cells_nobuilt_gt0_bui0'])} vs "
@@ -355,6 +380,7 @@ def run_city(args, cfg, cm, mt, key, year, nb_path, nb_how):
     """(summary rows, gap rows, draw arguments) of one city and year; drawn by main after the check."""
     city = cm["cities"][key]
     v, vlab = cm["version"], cm.get("version_label", cm["version"])
+    vcol = f"pop_{tag(vlab)}"  # pop_v56 for the config's v5.6 (the column of the earlier gap tables)
     labels = mt.get("labels", {})
     vpath = args.dasym_root / args.name / v / "predictions" / f"pop_{year}.tif"
     with rasterio.open(vpath) as src:
@@ -416,7 +442,7 @@ def run_city(args, cfg, cm, mt, key, year, nb_path, nb_how):
                 f"people per km2, 1 km blocks inside our mask")
         for group, fl in (("gap", gap), ("dense_not_gap", dense)):
             r = {"city": key, "year": year, "group": group, "rule": rule, "n_blocks": int(fl.sum()),
-                 "n_cells": int(fl.sum()) * f * f, "pop_v56": float(vb[fl].sum())}
+                 "n_cells": int(fl.sum()) * f * f, vcol: float(vb[fl].sum())}
             for prod, g in grids.items():
                 r[f"pop_{prod}"] = float(blocks(g, vpop, mask, f)[0][fl].sum())
             r["share_cells_bui_gt0"] = cell_share(fl, bui > 0, f)
@@ -426,17 +452,17 @@ def run_city(args, cfg, cm, mt, key, year, nb_path, nb_how):
             r["nobuilt_source"] = str(nb_path) if nb is not None else "NA: " + nb_how
             gap_rows.append(r)
             log.info("  %-13s %4d blocks, %s %.0f, %s %.0f people; cells BUI > 0 %.3f, NobuiltYear > 0 %s", group,
-                     r["n_blocks"], gc["product"], r[f"pop_{gc['product']}"], vlab, r["pop_v56"],
+                     r["n_blocks"], gc["product"], r[f"pop_{gc['product']}"], vlab, r[vcol],
                      r["share_cells_bui_gt0"],
                      f"{r['share_cells_nobuilt_gt0']:.3f}" if nb is not None else "NA (" + nb_how + ")")
         glab = labels.get(gc["product"], cfg["products"][gc["product"]]["label"])
-        text += gap_text(gap_rows, glab, vlab, gc)
+        text += gap_text(gap_rows, glab, vlab, gc, vcol)
     prods = [labels.get(p, cfg["products"][p]["label"]) for p in mt["years"][year]]
     missing = tuple(f"{labels.get(p, cfg['products'][p]['label'])}: no {year} grid\n"
                     f"(from {min(cfg['products'][p]['years'])})" for p in mt["products"] if p not in mt["years"][year])
     draw_args = (args.out_dir / f"{key}_{year}.png", f"{city['label']}, {year}: {vlab} vs {' / '.join(prods)} on our "
                  f"250 m grid ({cm['box_km']:.0f} x {cm['box_km']:.0f} km)", maps, mask, cm["box_km"], block_km, gap,
-                 full, scat, "\n".join(text), missing)
+                 full, scat, "\n".join(text), missing, vlab)
     return rows, gap_rows, draw_args
 
 
@@ -470,14 +496,27 @@ def main(argv=None):
     for flag, value in vars(args).items():
         log.info("arg %s = %s", flag, value)
     cfg = load_config(args.config)
-    cm, mt = cfg["city_maps"], cfg["city_meeting"]
+    base_cm, mt = cfg["city_maps"], cfg["city_meeting"]
+    base_cm.setdefault("version_label", base_cm["version"])
+    cm = base_cm if not args.version else {**base_cm, "version": args.version, "version_label": args.version_label}
+    if args.version and args.version == base_cm["version"]:
+        sys.exit(f"ERROR: --version {args.version} is the config's version already")
     mt["years"] = {int(y): p for y, p in mt["years"].items()}
     mt["products"] = list(dict.fromkeys(p for ps in mt["years"].values() for p in ps))   # slot order
     bad = [c for c in mt["cities"] if c not in cm["cities"]] + [p for ps in mt["years"].values() for p in ps
                                                                if p not in cfg["products"]]
     if bad:
         sys.exit(f"ERROR: city_meeting names not in the config: {bad}")
+    log.info("version %s (%s) | out %s%s", cm["version"], cm["version_label"], args.out_dir,
+             f" | base {base_cm['version']} ({base_cm['version_label']}) recomputed against {args.base_dir}"
+             if args.base_dir else "")
+    if args.base_dir:
+        for f in ("meeting_summary.csv", GAP_CSV):
+            if not (args.base_dir / f).exists():
+                sys.exit(f"ERROR: {args.base_dir / f} not found (--base-dir: the config version's meeting outputs)")
     ins = inputs(args, cfg, cm, mt)
+    if args.base_dir:
+        ins += [r for r in inputs(args, cfg, base_cm, mt) if r[1] == "version"]
     for y, kind, name, p, note in ins:
         log.info("  input %d %-8s %-22s %s", y, kind, name, p if p is not None else "MISSING: " + note)
     nb_path, nb_how = nobuilt_source(args)
@@ -508,7 +547,11 @@ def main(argv=None):
                    ["city", "year", "product"], ["spearman_1km_vs_version", "n_blocks_1km", "total_pop_box"])
     if gap_csv is not None:
         num = [c for c in gp.columns if c.startswith(("n_", "pop_", "share_"))]
-        check_previous(gp, [gap_csv, args.out_dir / LEGACY_GAP_CSV], ["city", "year", "group"], num)
+        check_previous(gp, [gap_csv] + ([] if args.version else [args.out_dir / LEGACY_GAP_CSV]),
+                       ["city", "year", "group"], num)
+    side = None
+    if args.base_dir:
+        side = base_side_by_side(args, cfg, base_cm, cm, mt, nb_path, nb_how, out, gp)
     for d in draws:
         draw(*d)
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -521,11 +564,62 @@ def main(argv=None):
             log.info("gap blocks:\n%s", gp.drop(columns=["rule", "nobuilt_source"]).round(3).to_string(index=False))
             log.info("wrote %s", gap_csv)
             legacy = args.out_dir / LEGACY_GAP_CSV
-            if legacy.exists():   # its Chicago 2010 rows matched above and are in gap_blocks.csv
+            if legacy.exists() and not args.version:   # its Chicago 2010 rows matched above and are in gap_blocks.csv
                 legacy.unlink()
                 log.info("removed %s (Chicago 2010 only; now part of %s)", legacy, GAP_CSV)
+        if side is not None:
+            name = f"meeting_summary_{tag(base_cm['version_label'])}_{tag(cm['version_label'])}.csv"
+            side.to_csv(args.out_dir / name, index=False)
+            b, n = base_cm["version_label"], cm["version_label"]
+            s = side[side["measure"].isin(["spearman_1km_vs_version", "total_pop_box", "n_blocks", "pop_model",
+                                           "pop_ghs_pop"])]
+            log.info("SUMMARY %s vs %s side by side (summary: rho / people in the box per panel; gap: blocks / people; "
+                     "model = the version itself):\n%s", b, n, s.round(3).to_string(index=False))
+            log.info("wrote %s", args.out_dir / name)
     log.info("wrote %s", args.out_dir / "meeting_summary.csv")
     log.info("DONE")
+
+
+def base_side_by_side(args, cfg, base_cm, cm, mt, nb_path, nb_how, out: pd.DataFrame,
+                      gp: pd.DataFrame) -> pd.DataFrame:
+    """The config version's numbers again (no drawing), checked row for row against --base-dir; then one long table
+    of both versions side by side."""
+    log.info("base version %s: recomputed (no figures), checked against %s", base_cm["version"], args.base_dir)
+    rows, gap_rows = [], []
+    for year in mt["years"]:
+        for key in mt["cities"]:
+            r, g, _ = run_city(args, cfg, base_cm, mt, key, year, nb_path, nb_how)
+            rows += r
+            gap_rows += g
+    bo, bg = pd.DataFrame(rows), pd.DataFrame(gap_rows)
+    n = check_previous(bo, [args.base_dir / "meeting_summary.csv"], ["city", "year", "product"],
+                       ["spearman_1km_vs_version", "n_blocks_1km", "total_pop_box"])
+    if n != len(bo):
+        sys.exit(f"ERROR: base summary: {len(bo)} rows, {n} of them in {args.base_dir / 'meeting_summary.csv'}")
+    if len(bg):
+        num = [c for c in bg.columns if c.startswith(("n_", "pop_", "share_"))]
+        n = check_previous(bg, [args.base_dir / GAP_CSV], ["city", "year", "group"], num)
+        if n != len(bg):
+            sys.exit(f"ERROR: base gap table: {len(bg)} rows, {n} of them in {args.base_dir / GAP_CSV}")
+
+    def long(summary: pd.DataFrame, gaps: pd.DataFrame, c: dict) -> pd.DataFrame:
+        s = summary.assign(item=np.where(summary["product"] == c["version"], "model", summary["product"]))
+        s = s.melt(id_vars=["city", "year", "item"], value_vars=["spearman_1km_vs_version", "n_blocks_1km",
+                                                                 "total_pop_box"], var_name="measure")
+        parts = [s.assign(table="summary")]
+        if len(gaps):
+            g = gaps.rename(columns={f"pop_{tag(c['version_label'])}": "pop_model"})
+            num = [k for k in g.columns if k.startswith(("n_", "pop_", "share_"))]
+            parts.append(g.rename(columns={"group": "item"}).melt(id_vars=["city", "year", "item"], value_vars=num,
+                                                                 var_name="measure").assign(table="gap"))
+        return pd.concat(parts, ignore_index=True)
+
+    b, n = base_cm["version_label"], cm["version_label"]
+    keys = ["city", "year", "table", "item", "measure"]
+    side = long(bo, bg, base_cm).rename(columns={"value": b}).merge(
+        long(out, gp, cm).rename(columns={"value": n}), on=keys, how="outer", validate="one_to_one")
+    side["diff"] = side[n] - side[b]
+    return side[keys + [b, n, "diff"]]
 
 
 if __name__ == "__main__":

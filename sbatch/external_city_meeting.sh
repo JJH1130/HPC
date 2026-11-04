@@ -9,6 +9,9 @@
 # Usually submitted by: bash sbatch/submit_conus.sh citymeeting. Alone (repo root, logs/ must exist):
 #   sbatch sbatch/external_city_meeting.sh
 #   bash sbatch/external_city_meeting.sh --check        # login node: list the inputs only (seconds)
+# v5.7 version of the figures (submit_conus.sh v57all; v5.6 recomputed and checked, side-by-side CSV):
+#   sbatch --export=ALL,MEET_VERSION=Dasy_CONUS_RF_v3_all_nby,MEET_LABEL=v5.7,MEET_OUT=results/validation/conus/external/city_maps_meeting_v57 \
+#       sbatch/external_city_meeting.sh
 # Resources: the 2010 maps of external_city_maps.sh took < 1 min and 0.4 GB (job 35194159).
 #SBATCH --job-name=external_city_meeting
 #SBATCH --partition=acpu
@@ -28,6 +31,13 @@ cd "$REPO"
 export MPLBACKEND=Agg
 echo "== python: $(command -v python)  args: $*"
 
+EXT=results/validation/conus/external
+if [[ -n ${MEET_VERSION:-} ]]; then  # another version (v5.7): own out dir, v5.6 recomputed against city_maps_meeting/
+    VER=(--version "$MEET_VERSION" --version-label "${MEET_LABEL:?MEET_LABEL needed with MEET_VERSION}"
+         --out-dir "${MEET_OUT:?MEET_OUT needed with MEET_VERSION}" --base-dir $EXT/city_maps_meeting)
+else
+    VER=(--out-dir $EXT/city_maps_meeting --compare-with $EXT/city_maps_internal_with_fj/city_maps_summary.csv)
+fi
 python -u src/validation/external_city_meeting.py \
     --config configs/external_grids.yaml \
     --data-root "$DATA_ROOT/raw/external" \
@@ -35,8 +45,7 @@ python -u src/validation/external_city_meeting.py \
     --cutout-root "$HISDAC_SCRATCH/cutouts" \
     --hisdac-dir "$HISDAC_DIR" \
     --name conus \
-    --out-dir results/validation/conus/external/city_maps_meeting \
-    --compare-with results/validation/conus/external/city_maps_internal_with_fj/city_maps_summary.csv \
+    "${VER[@]}" \
     "$@"
 
 echo "== done $(date -Is)"

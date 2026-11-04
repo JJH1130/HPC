@@ -172,7 +172,8 @@ def by_hand_gap(pop, bui, nby, ghs_path, gt, dasym_year_path, cx, cy):
     return rows, g, vb, bui[r0:r0 + mm, c0:c0 + mm], nby[r0:r0 + mm, c0:c0 + mm]
 
 
-def test_end_to_end(tmp: Path):
+def make_world(tmp: Path) -> dict:
+    """Synthetic city world: V56 predictions 2010 / 1980, BUI, NobuiltYear, GHS / WorldPop, the config (two cities)."""
     rng = np.random.default_rng(4)
     lon, lat = -87.6298, 41.8781
     cx, cy = Transformer.from_crs("EPSG:4326", OUR, always_xy=True).transform(lon, lat)
@@ -222,9 +223,19 @@ def test_end_to_end(tmp: Path):
                             "gap": {"product": "ghs_pop", "ratio_max": 0.25, "min_density": 1000}}}
     cp = tmp / "ext.yaml"
     cp.write_text(yaml.safe_dump(cfg, sort_keys=False))   # keep 2010 before 1980
+    return dict(lon=lon, lat=lat, cx=cx, cy=cy, gt=gt, pop=pop, pop80=pop80, bui=bui, bui80=bui80, nby=nby,
+                dasym=dasym, cut=cut, data=data, hisdac=hisdac, pred=pred, cp=cp,
+                base=["--config", str(cp), "--data-root", str(data), "--dasym-root", str(dasym), "--cutout-root",
+                      str(cut)])
+
+
+def test_end_to_end(tmp: Path):
+    w = make_world(tmp)
+    lon, lat, cx, cy, gt = w["lon"], w["lat"], w["cx"], w["cy"], w["gt"]
+    pop, pop80, bui, bui80, nby = w["pop"], w["pop80"], w["bui"], w["bui80"], w["nby"]
+    data, hisdac, pred = w["data"], w["hisdac"], w["pred"]
     out = tmp / "meet"
-    common = ["--config", str(cp), "--data-root", str(data), "--dasym-root", str(dasym), "--cutout-root", str(cut),
-              "--out-dir", str(out)]
+    common = w["base"] + ["--out-dir", str(out)]
     ecm.main(common[:-1] + [str(tmp / "maps")])          # the city maps summary (both years) to compare with
     old = pd.read_csv(tmp / "maps" / "city_maps_summary.csv")
     mt.main(common + ["--hisdac-dir", str(hisdac), "--check"])
@@ -355,6 +366,105 @@ def test_end_to_end(tmp: Path):
           "year + text panels by hand, Chicago 2010 = the older table, rerun compared, NobuiltYear NA, --check)")
 
 
+def test_version_option(tmp: Path):
+    """--version / --version-label / --base-dir (v5.7 next to v5.6): the figures of another version on the same boxes
+    and gap rule, its gap table by hand with pop_v57, the config version recomputed and checked against the base dir
+    (a changed base number stops before anything is written), the side-by-side CSV = both tables."""
+    w = make_world(tmp)
+    hisdac = ["--hisdac-dir", str(w["hisdac"])]
+    base_out, new_out = tmp / "meet", tmp / "meet57"
+    mt.main(w["base"] + ["--out-dir", str(base_out)] + hisdac)     # the v5.6 outputs (the base dir)
+    pop57, pop57_80 = w["pop"].copy(), w["pop80"].copy()
+    pop57[116:124, 116:132] = 250.0                      # v5.7 fills half of the 2010 gap core
+    pop57_80 = np.where(pop57_80 >= 0, pop57_80 * 1.1, pop57_80)
+    p57 = w["dasym"] / "conus" / "V57" / "predictions"
+    write(p57 / "pop_2010.tif", pop57, w["gt"], OUR, -9999.0)
+    write(p57 / "pop_1980.tif", pop57_80, w["gt"], OUR, -9999.0)
+    before = {f.name: f.stat().st_mtime_ns for f in base_out.iterdir()}
+    run = w["base"] + ["--out-dir", str(new_out), "--version", "V57", "--version-label", "v5.7", "--base-dir",
+                       str(base_out)] + hisdac
+    for bad in (["--version", "V57"], ["--base-dir", str(base_out)]):   # label missing / base without version
+        try:
+            mt.parse_args(w["base"] + ["--out-dir", str(new_out)] + bad)
+        except SystemExit:
+            pass
+        else:
+            raise AssertionError(f"{bad} accepted")
+    mt.main(run + ["--check"])
+    assert not new_out.exists()
+    drawn = {}
+    real_draw = mt.draw
+
+    def spy(*a):
+        drawn[a[0].name] = a
+        real_draw(*a)
+
+    mt.draw = spy
+    try:
+        mt.main(run)
+    finally:
+        mt.draw = real_draw
+    assert sorted(drawn) == ["boston_1980.png", "boston_2010.png", "chicago_1980.png", "chicago_2010.png"]
+    assert all(a[11] == "v5.7" and a[2][0][0].startswith("v5.7 (county input)") for a in drawn.values())
+    assert {f.name: f.stat().st_mtime_ns for f in base_out.iterdir()} == before   # the base dir is not written
+    s = pd.read_csv(new_out / "meeting_summary.csv")
+    assert set(s["product"]) == {"V57", "ghs_pop", "worldpop"} and len(s) == 10
+    gp = pd.read_csv(new_out / "gap_blocks.csv").set_index(["city", "year", "group"])
+    assert "pop_v57" in gp and "pop_v56" not in gp
+    boxes = {"chicago": (w["cx"], w["cy"]),
+             "boston": Transformer.from_crs("EPSG:4326", OUR, always_xy=True).transform(w["lon"] + 0.01, w["lat"])}
+    for city in boxes:
+        for year, pp, bu in ((2010, pop57, w["bui"]), (1980, pop57_80, w["bui80"])):
+            rows, g, vb, _, _ = by_hand_gap(pp, bu, w["nby"], w["data"] / "ghs" / f"ghs_{year}.tif", w["gt"],
+                                            p57 / f"pop_{year}.tif", *boxes[city])
+            for grp, sls in rows.items():
+                r = gp.loc[(city, year, grp)]
+                assert r["n_blocks"] == len(sls), (city, year, grp)
+                assert abs(r["pop_v57"] - sum(vb[sl].sum() for sl in sls)) < 1e-6 * max(1.0, r["pop_v57"])
+    g56 = pd.read_csv(base_out / "gap_blocks.csv").set_index(["city", "year", "group"])
+    assert gp.loc[("chicago", 2010, "gap"), "n_blocks"] < g56.loc[("chicago", 2010, "gap"), "n_blocks"]
+    # side by side: the v5.6 column = the base tables, the v5.7 column = the new ones
+    side = pd.read_csv(new_out / "meeting_summary_v56_v57.csv")
+    assert list(side.columns) == ["city", "year", "table", "item", "measure", "v5.6", "v5.7", "diff"]
+    s56 = pd.read_csv(base_out / "meeting_summary.csv")
+    for tab, ref, col in (("v5.6", s56, "V56"), ("v5.7", s, "V57")):
+        for r in ref.itertuples():
+            item = "model" if r.product == col else r.product
+            for meas in ("spearman_1km_vs_version", "total_pop_box", "n_blocks_1km"):
+                v = side[(side["city"] == r.city) & (side["year"] == r.year) & (side["table"] == "summary")
+                         & (side["item"] == item) & (side["measure"] == meas)][tab]
+                assert len(v) == 1 and np.isclose(v.iloc[0], getattr(r, meas), rtol=1e-12), (tab, r, meas)
+    for tab, ref, pc in (("v5.6", g56, "pop_v56"), ("v5.7", gp, "pop_v57")):
+        for (city, year, grp), r in ref.iterrows():
+            for meas, src in (("n_blocks", "n_blocks"), ("pop_model", pc), ("pop_ghs_pop", "pop_ghs_pop")):
+                v = side[(side["city"] == city) & (side["year"] == year) & (side["table"] == "gap")
+                         & (side["item"] == grp) & (side["measure"] == meas)][tab]
+                assert len(v) == 1 and np.isclose(v.iloc[0], r[src], rtol=1e-12, equal_nan=True), (tab, city, meas)
+    assert np.allclose(side["diff"], side["v5.7"] - side["v5.6"], equal_nan=True)
+    # a changed base number stops the run before anything is written
+    t = pd.read_csv(base_out / "meeting_summary.csv")
+    t.loc[0, "total_pop_box"] += 1
+    t.to_csv(base_out / "meeting_summary.csv", index=False)
+    stamp = (new_out / "meeting_summary_v56_v57.csv").stat().st_mtime_ns
+    try:
+        mt.main(run)
+    except SystemExit as e:
+        assert "total_pop_box differs" in str(e) and str(base_out) in str(e), e
+    else:
+        raise AssertionError("a changed base number did not stop the run")
+    assert (new_out / "meeting_summary_v56_v57.csv").stat().st_mtime_ns == stamp
+    # --check lists the base version's predictions too
+    (w["pred"] / "pop_1980.tif").unlink()
+    try:
+        mt.main(run + ["--check"])
+    except SystemExit as e:
+        assert "inputs missing" in str(e)
+    else:
+        raise AssertionError("--check did not stop on a missing base prediction")
+    print("ok: --version v5.7 (same boxes / rule, pop_v57 gap table by hand, label on the figures), v5.6 recomputed = "
+          "base dir (a change stops), side-by-side CSV = both tables, base dir untouched, --check incl. the base")
+
+
 def test_real_config():
     cfg = yaml.safe_load((REPO / "configs" / "external_grids.yaml").read_text())
     c = cfg["city_meeting"]
@@ -372,7 +482,7 @@ if __name__ == "__main__":
     test_blocks_and_gap()
     test_scatter_axes()
     test_real_config()
-    for t in (test_nobuilt_inputs, test_end_to_end):
+    for t in (test_nobuilt_inputs, test_end_to_end, test_version_option):
         with tempfile.TemporaryDirectory() as d:
             t(Path(d))
     print("ALL OK")

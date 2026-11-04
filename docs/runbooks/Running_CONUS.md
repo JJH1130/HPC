@@ -1917,6 +1917,100 @@ cells, city gap blocks, rank of nby; a `WARNING ... cells with a prediction diff
 mask differs in a city box, counted in `mask_diff_cells`), `undated_age_diag` (lines `SUMMARY`: FBUY by group, county
 Spearman).
 
+## 21. v5.7 for all census years 1900-2020 (2026-11-04)
+
+Request `docs/handoff/v57_all_years_request.md`; design `docs/conus_plan.md` "v5.7 all years". v5.7
+(`Dasy_CONUS_RF_v3_all_nby` = v5.4, no filter, + nby; chosen 2026-11-04) gets the eight missing years (1900 / 1920 /
+1930 / 1950 / 1970 / 1990 / 2000 / 2020) as v5.6 did in section 14; the five years run in section 20 stay as they are
+(their era blocks in the config are byte for byte as run; a snapshot before the run is checked after it). County
+numbers on ALL TEST counties (reporting rule 2026-11-04). Needs the CONUS cutout of all years incl. NOBUILT (sections
+9 / 10 / 19), v5.4's era files of the eight years on scratch, v5.6's county features of every tract year (gap
+counties), v5.7's five eras on scratch, the external tract sums on scratch (section 8, 2026-10-30) and the meeting-map
+inputs (section 18).
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| snapshot | login node, in the pre-check | hashes / rows of the five kept years -> `logs/conus_v57all_kept_years.json` | seconds |
+| features | 6 cores, 40 min | 8 years, v5.4 features + nby (`--years`) | ~8 min |
+| train | 16 cores, 2:30 | 8 eras, 60 candidates, compared with v5.4 | ~35 min |
+| predict | 32 cores, 1:30 | allocation of the 8 years | ~25 min |
+| validate | 8 cores, 1 h | every tract year 1910-2020 (gap counties from v5.6) | ~16 min |
+| kept_years_check | 1 core, 15 min | the snapshot again: `KEPT YEARS OK` | < 1 min |
+| compare_models + metrics_over_time | 1 core, 20 min each | summaries next to v5.4 / v5.6, checked against `v54_nby_comparison.csv` | < 1 min |
+| external_city_meeting | 2 cores, 45 min | meeting maps of v5.7 (after predict) + v5.6 recomputed and checked | ~3 min |
+| external_evaluate | 2 cores, 30 min | tract comparison with v5.7 as reference (after validate: needs v5.7's tracts) | minutes |
+
+9 jobs, one submit; ~1.5 h after the first one starts. Override: `FEATURES_TIME`, `TRAIN_TIME`, `PREDICT_TIME`,
+`VALIDATE_TIME`, `SUMMARY_TIME`, `MEET_TIME`, `EVAL_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh v57all
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK line, PRECHECK: 0 missing, SNAPSHOT line, one 'features N | train N | ... | external_evaluate N' line, 9 jobs)"
+```
+
+Good: `CHECK OK: ...` (meeting-map inputs of v5.7 and v5.6), `SKIP 1900 tract validation`, `PRECHECK: 0 missing of the
+inputs (...) | tract years: 1910 ... 2020`, `SNAPSHOT <n> items of years [1910, 1940, 1960, 1980, 2010] -> logs/...`, one
+line `features N | train N | predict N | validate N | kept_years_check N | summary N | metrics_over_time N | city_meeting
+N | external_evaluate N` (also in `logs/conus_v57all_jobs.txt`), 9 jobs in `squeue`; `== end of block 1`. `MISSING ...`
++ `ERROR: nothing submitted`: send the output to Claude.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v57all_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+squeue -u $USER -o "%.10i %.20j %.8T %.30R"
+echo "== end of block 2 (success = states PENDING / RUNNING / COMPLETED, no FAILED)"
+```
+
+Good: `PENDING` (reason `Dependency`) / `RUNNING` / `COMPLETED`; `== end of block 2`. A `FAILED` job: the jobs after it
+stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and send the log. A `FAILED` kept_years_check means a kept year
+changed: nothing waits for it; send its log.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v57all_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_v57all_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_v57all_seff.txt
+cat logs/conus_v57all_sacct.txt
+grep -h "KEPT YEARS" $(ls -t logs/kept_years_check.*.out | head -1)
+grep -hE "MATCH|DONE" $(ls -t logs/compare_models.*.out | head -1) $(ls -t logs/metrics_over_time.*.out | head -1)
+grep -hE "MATCH|DONE" $(ls -t logs/external_city_meeting.*.out | head -1) $(ls -t logs/external_evaluate.*.out | head -1)
+V=results/validation/conus/Dasy_CONUS_RF_v3_all_nby
+ls $V/summary_by_year.csv $V/mdape_by_year.png $V/county_metrics_by_year.csv $V/mdape_over_time.png \
+   results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv \
+   results/validation/conus/external/external_comparison_v57.csv
+git status --short results/validation/conus/external/city_maps_meeting/ results/validation/conus/external/external_comparison_v56.csv
+git add logs/ results/
+git commit -m "run: v5.7 all years 1900-2020 + summaries + meeting maps v5.7 + external comparison v5.7 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = every job COMPLETED, KEPT YEARS OK, MATCH lines, DONE lines, the six files listed, nothing under city_maps_meeting/ or external_comparison_v56.csv changed, push main -> main)"
+```
+
+Good: every job `COMPLETED`; `KEPT YEARS OK: <n> items`; `MATCH v54_nby_comparison.csv ...` (3 versions x county /
+tract, in both summaries), `MATCH .../city_maps_meeting/meeting_summary.csv` + `gap_blocks.csv` (v5.6 recomputed) and
+`MATCH .../external_comparison_v56.csv` (v5.6 / v5.4 / product rows unchanged), a `DONE` per job; the six files listed;
+`git status` prints nothing for the v5.6 meeting folder and the v56 table; `git push` ends with `main -> main`; `== end
+of block 3`. Failed jobs or `KEPT YEARS DIFFERS`: commit anyway (same block) and tell Claude.
+
+What to look for in the logs: `dasymetric_train` (CV vs v5.4 per new era, nby in the importance lines),
+`compare_models` (`county TEST, before allocation` table: all TEST first, kept / excluded t070 labelled; tract MdAPE
+by part), `metrics_over_time` (v5.7 minus v5.4 / minus v5.6 per year), `external_city_meeting` (`SUMMARY v5.6 vs v5.7
+side by side`), `external_evaluate` (tract MdAPE / MAPE per product with v5.7, v5.6, v5.4 columns).
+
 ## If it fails
 
 | Symptom | Fix |

@@ -104,7 +104,18 @@ excluded t070 labelled; CV only in columns named by the CV county set; tracts / 
 nobuilt_compare (`city_table(strict_mask=False)` logs a differing mask), v5.6 rows must equal the `nobuilt_*.csv`, else stop)
 -> `results/validation/conus/nobuilt/v54_nby_*.csv`; `src/grid/undated_age_diag.py` (`sbatch/undated_age_diag.sh`; diagnosis
 only: FBUY of built cells with / without NobuiltYear records, county Spearman of ratio_A_nby vs BUPR_1940 / BUPR_2015)
--> `results/hisdac_uncertainty/undated_age_diag.csv`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+-> `results/hisdac_uncertainty/undated_age_diag.csv`. v5.7 = `Dasy_CONUS_RF_v3_all_nby` (chosen 2026-11-04, the next
+base) for all 13 years (`docs/conus_plan.md` "v5.7 all years", runbook section 21, `bash sbatch/submit_conus.sh v57all`):
+13 eras in `configs/conus_rf_v3_all_nby.yaml` (the five run eras byte for byte), `--years` of the eight new ones;
+`src/dasymetric/kept_years_check.py` (`snapshot` on the login node before submitting -> `logs/conus_v57all_kept_years.json`,
+`check` = `sbatch/kept_years_check.sh` after validate: hashes / CSV rows of the kept years, `KEPT YEARS OK` or exit 1);
+county numbers on ALL TEST counties in `compare_models.py` (`test_all_*`, `test_kept_t070_*` / `test_excluded_t070_*`
+with `--exclusions`) and `metrics_over_time.py` (sets `test_all` / kept / excluded, several `--compare-with`), both
+`--check-against v54_nby_comparison.csv` (shared numbers must be equal, else stop; `metrics_over_time.check_against`);
+`external_city_meeting.py --version / --version-label / --base-dir` (another version's meeting maps, gap column
+`pop_<label>`, the config version recomputed and checked, `meeting_summary_<a>_<b>.csv`; sbatch env `MEET_VERSION` /
+`MEET_LABEL` / `MEET_OUT`) -> `city_maps_meeting_v57/`; `external_compare.py evaluate --reference / --reference-label /
+--compare-versions V=LABEL / --check-with <csv>` (sbatch env `EXT_TAG`) -> `external_comparison_v57.csv`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -142,7 +153,7 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby` (`v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all` (`v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
 `undated_age_diag` side by side; the pre-check prints the time left before a CURC maintenance window (`MAINT_START` / `MAINT_END`,
 MT) and which jobs would wait; `nobuilt` = NOBUILT layer -> nby / nbya features / train / predict / validate side by side -> `nobuilt_compare`; `uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
 `filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `externalv56` = pre-check of the reused tract sums + map inputs, then evaluate and city maps side by side; `citymeeting` = pre-check of the meeting-map inputs, one job; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
@@ -191,6 +202,11 @@ strips = whole window, default aggregation byte for byte, built-cell means, pred
 versions: all TEST = test + excluded TEST rows, metrics / kept / excluded / reported R2 by hand, CV columns by set, ranks,
 d_mdape vs v5.4, the nobuilt check and a changed TEST set stop; undated_age_diag on a synthetic HISDAC: FBUY quantiles / decade
 shares by hand, WarpedVRT read, Spearman = scipy),
+`python tests/test_v57all.py` (13-era config = v5.4 eras + nby, the five run eras byte for byte; `--years` on the
+synthetic pipeline keeps the first year (kept_years_check OK) and a changed QA row / rewritten prediction / tract row ->
+DIFFERS; compare_models / metrics_over_time all-TEST / kept / excluded by hand, `--check-against` passes / stops; the
+tracked v5.4 / v5.6 / v5.7 numbers = `v54_nby_comparison.csv`; meeting-map version option in
+`test_external_city_meeting.test_version_option`, evaluate overrides + `--check-with` in `test_external_compare`),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 
