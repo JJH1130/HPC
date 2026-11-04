@@ -1,0 +1,85 @@
+== job 35241004 (undated_age_diag) on c3cpu-e2-u6 at 2026-11-03T15:34:27-07:00
+== cores=2 gpus=none restart=0
+== git 9a0e8c7
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  hisdac: /pl/active/Leyk_Lab/data/HISDAC_US_V2  extra args: 
+15:34:32 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+15:34:32 INFO arg cutout = /scratch/alpine/jaju1407/hisdac/cutouts/conus
+15:34:32 INFO arg zone_year = 2010
+15:34:32 INFO arg ref_year = 2015
+15:34:32 INFO arg early_year = 1940
+15:34:32 INFO arg county_table = results/hisdac_uncertainty/county_record_uncertainty.csv
+15:34:32 INFO arg block_rows = 1024
+15:34:32 INFO arg out_dir = results/hisdac_uncertainty
+15:34:32 INFO == cells: FBUY of built cells with / without undated records (strips of 1024 rows)
+15:34:35 WARNING FBUY           /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/FBUY.tif | 18459x11615 ESRI:102039 | WarpedVRT nearest onto the zones
+15:34:35 INFO NobuiltYear    /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif | 18459x11615 ESRI:102039 | direct
+15:34:35 INFO BUPR_2015      /pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2015_BUPR.tif | 18459x11615 ESRI:102039 | direct
+15:34:39 INFO   rows 3072-4096 of 11615
+15:34:43 INFO   rows 7168-8192 of 11615
+15:34:46 INFO   rows 11264-11615 of 11615
+15:34:46 INFO   fbuy: {'raster': 'FBUY', 'path': '/pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/FBUY.tif', 'crs': 'ESRI:102039', 'width': 18459, 'height': 11615, 'transform': (250.0, 0.0, -2356398.7592963483, 0.0, -250.0, 3172999.287362932), 'dtype': 'float64', 'nodata': None, 'same_crs_as_zones': True, 'on_zone_grid': False, 'read_as': 'WarpedVRT nearest onto the zones', 'nodata_cells_read_as_0': 0, 'min': 0.0, 'max': 2022.0}
+15:34:46 INFO   nb: {'raster': 'NobuiltYear', 'path': '/pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif', 'crs': 'ESRI:102039', 'width': 18459, 'height': 11615, 'transform': (250.0, 0.0, -2356398.7593, 0.0, -250.0, 3172999.2873629997), 'dtype': 'float64', 'nodata': None, 'same_crs_as_zones': True, 'on_zone_grid': True, 'read_as': 'direct', 'nodata_cells_read_as_0': 0, 'min': 0.0, 'max': 24246.0}
+15:34:46 INFO   ref: {'raster': 'BUPR_2015', 'path': '/pl/active/Leyk_Lab/data/HISDAC_US_V2/BUPR/2015_BUPR.tif', 'crs': 'ESRI:102039', 'width': 18459, 'height': 11615, 'transform': (250.0, 0.0, -2356398.7593, 0.0, -250.0, 3172999.2873629997), 'dtype': 'float64', 'nodata': None, 'same_crs_as_zones': True, 'on_zone_grid': True, 'read_as': 'direct', 'nodata_cells_read_as_0': 0, 'min': 0.0, 'max': 8888.0}
+15:34:46 INFO == counties: ratio_A_nby vs the early share of the dated records
+15:34:46 INFO county ref_gt0: 3003 counties, Spearman(ratio_A_nby, bupr_1940 / bupr_2015) = 0.0210
+15:34:46 INFO county ref_gt0_nb_gt0: 3003 counties, Spearman(ratio_A_nby, bupr_1940 / bupr_2015) = 0.0210
+15:34:46 INFO SUMMARY FBUY of built cells (study cells with BUPR_2015 > 0 or NobuiltYear > 0) by group:
+group                    nb_gt0        nb_eq0  nb_gt0_dated       nb_only
+item                                                                     
+cells              2.219197e+07  4.038019e+06  8.043081e+06  1.414889e+07
+fbuy_out_of_range           NaN           NaN           NaN           NaN
+fbuy_cells         8.080673e+06  4.030405e+06  8.007385e+06  7.328800e+04
+fbuy_none          1.411130e+07  7.614000e+03  3.569600e+04  1.407560e+07
+q05                1.890000e+03  1.900000e+03  1.890000e+03  2.018000e+03
+q10                1.900000e+03  1.907000e+03  1.900000e+03  2.018000e+03
+q25                1.940000e+03  1.950000e+03  1.940000e+03  2.018000e+03
+q50                1.970000e+03  1.976000e+03  1.970000e+03  2.019000e+03
+q75                1.990000e+03  1.995000e+03  1.990000e+03  2.019000e+03
+q90                2.003000e+03  2.005000e+03  2.002000e+03  2.020000e+03
+q95                2.008000e+03  2.009000e+03  2.007000e+03  2.020000e+03
+mean               1.961077e+03  1.966649e+03  1.960548e+03  2.018783e+03
+share_before_1800  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+share_1800s        0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+share_1810s        1.221928e-03  9.386154e-04  1.233112e-03  0.000000e+00
+share_1820s        2.165909e-03  1.651447e-03  2.185732e-03  0.000000e+00
+share_1830s        2.645819e-03  2.084902e-03  2.670035e-03  0.000000e+00
+share_1840s        3.092935e-03  2.435983e-03  3.121244e-03  0.000000e+00
+share_1850s        6.664668e-03  5.870378e-03  6.725666e-03  0.000000e+00
+share_1860s        6.414441e-03  4.885365e-03  6.473149e-03  0.000000e+00
+share_1870s        8.536541e-03  6.779468e-03  8.614673e-03  0.000000e+00
+share_1880s        1.369750e-02  1.101701e-02  1.382286e-02  0.000000e+00
+share_1890s        1.667460e-02  1.370483e-02  1.682722e-02  0.000000e+00
+share_1900s        5.961669e-02  5.362885e-02  6.016234e-02  0.000000e+00
+share_1910s        2.937750e-02  2.791928e-02  2.964638e-02  0.000000e+00
+share_1920s        4.690290e-02  3.716723e-02  4.733218e-02  0.000000e+00
+share_1930s        4.370292e-02  3.387947e-02  4.410279e-02  1.364480e-05
+share_1940s        6.296010e-02  4.604029e-02  6.353635e-02  0.000000e+00
+share_1950s        8.939763e-02  7.106780e-02  9.021584e-02  0.000000e+00
+share_1960s        9.800991e-02  8.661090e-02  9.890695e-02  0.000000e+00
+share_1970s        1.381308e-01  1.416691e-01  1.393949e-01  1.364480e-05
+share_1980s        1.116187e-01  1.243850e-01  1.126403e-01  0.000000e+00
+share_1990s        1.170186e-01  1.483613e-01  1.180896e-01  0.000000e+00
+share_2000s        1.012041e-01  1.335233e-01  1.021302e-01  1.364480e-05
+share_2010s        3.910602e-02  4.637946e-02  3.216843e-02  7.971018e-01
+share_le_1940      2.622118e-01  2.185411e-01  2.646116e-01  1.364480e-05
+15:34:46 INFO SUMMARY counties:
+ level               group                                    item       value
+county             ref_gt0                                counties 3003.000000
+county             ref_gt0 spearman_ratio_A_nby_vs_bupr_1940_share    0.020986
+county      ref_gt0_nb_gt0                                counties 3003.000000
+county      ref_gt0_nb_gt0 spearman_ratio_A_nby_vs_bupr_1940_share    0.020986
+county   ratio_A_nby_0_0.1                                counties   48.000000
+county   ratio_A_nby_0_0.1                  median_bupr_1940_share    0.142357
+county ratio_A_nby_0.1_0.3                                counties  467.000000
+county ratio_A_nby_0.1_0.3                  median_bupr_1940_share    0.131404
+county ratio_A_nby_0.3_0.5                                counties  822.000000
+county ratio_A_nby_0.3_0.5                  median_bupr_1940_share    0.163117
+county ratio_A_nby_0.5_0.7                                counties  761.000000
+county ratio_A_nby_0.5_0.7                  median_bupr_1940_share    0.183712
+county ratio_A_nby_0.7_0.9                                counties  492.000000
+county ratio_A_nby_0.7_0.9                  median_bupr_1940_share    0.177838
+county   ratio_A_nby_0.9_1                                counties  413.000000
+county   ratio_A_nby_0.9_1                  median_bupr_1940_share    0.136364
+15:34:46 INFO wrote results/hisdac_uncertainty/undated_age_diag.csv
+15:34:46 INFO DONE
+== done 2026-11-03T15:34:46-07:00
