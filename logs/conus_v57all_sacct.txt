@@ -1,0 +1,29 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+35245777        dasymetric_features  COMPLETED   00:06:59                   6  06:24.441 
+35245777.ba+                  batch  COMPLETED   00:06:59  10148616K        6  06:24.440 
+35245777.ex+                 extern  COMPLETED   00:06:59          0        6  00:00.001 
+35245778           dasymetric_train  COMPLETED   00:46:34                  16   02:01:39 
+35245778.ba+                  batch  COMPLETED   00:46:34   7883584K       16   02:01:39 
+35245778.ex+                 extern  COMPLETED   00:46:34          0       16  00:00.001 
+35245779         dasymetric_predict  COMPLETED   00:22:59                  32   03:33:13 
+35245779.ba+                  batch  COMPLETED   00:22:59  14851936K       32   03:33:13 
+35245779.ex+                 extern  COMPLETED   00:22:59          0       32   00:00:00 
+35245780             validate_tract  COMPLETED   00:12:45                   8  11:35.152 
+35245780.ba+                  batch  COMPLETED   00:12:45  19912300K        8  11:35.151 
+35245780.ex+                 extern  COMPLETED   00:12:45          0        8  00:00.001 
+35245781           kept_years_check  COMPLETED   00:00:45                   1  00:02.669 
+35245781.ba+                  batch  COMPLETED   00:00:45    173820K        1  00:02.668 
+35245781.ex+                 extern  COMPLETED   00:00:45       256K        1  00:00.001 
+35245782             compare_models  COMPLETED   00:00:18                   1  00:04.451 
+35245782.ba+                  batch  COMPLETED   00:00:18    282700K        1  00:04.450 
+35245782.ex+                 extern  COMPLETED   00:00:18          0        1  00:00.001 
+35245783          metrics_over_time  COMPLETED   00:00:18                   1  00:05.972 
+35245783.ba+                  batch  COMPLETED   00:00:18    319396K        1  00:05.971 
+35245783.ex+                 extern  COMPLETED   00:00:18       288K        1  00:00.001 
+35245784      external_city_meeting  COMPLETED   00:00:46                   2  00:26.593 
+35245784.ba+                  batch  COMPLETED   00:00:46    370212K        2  00:26.592 
+35245784.ex+                 extern  COMPLETED   00:00:46          0        2  00:00.001 
+35245785          external_evaluate  COMPLETED   00:01:53                   2  00:06.733 
+35245785.ba+                  batch  COMPLETED   00:01:53    279204K        2  00:06.731 
+35245785.ex+                 extern  COMPLETED   00:01:53          0        2  00:00.001 

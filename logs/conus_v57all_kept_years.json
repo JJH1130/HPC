@@ -1,0 +1,1116 @@
+{
+ "years": [
+  1910,
+  1940,
+  1960,
+  1980,
+  2010
+ ],
+ "items": {
+  "1910 scratch metrics.json": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/model/metrics.json",
+   "value": "76601a67c627a4a31d869aed420aad40b47ef41e2aa460e03f5ea467e293fcce"
+  },
+  "1910 scratch county_features.csv": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/features/county_features.csv",
+   "value": "11447cab98bd301ffe5afb9275acc35584ca285f80f68eb01ddce2f165d58652"
+  },
+  "1910 scratch rf.joblib": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/model/rf.joblib",
+   "value": "size 152106557 mtime_ns 1793745690447895642"
+  },
+  "1910 scratch pop_1910.tif": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1910.tif",
+   "value": "size 361702701 mtime_ns 1793747096159426689"
+  },
+  "1910 results Y1910/best_params.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/best_params.json",
+   "value": "4794377b69bff90f0ea1893dc8083ad2efa1915d66cc33ef9d462ea0d7680265"
+  },
+  "1910 results Y1910/compare_Dasy_CONUS_RF_v3_all.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/compare_Dasy_CONUS_RF_v3_all.json",
+   "value": "9cfc6ff2ac86931ceba5014e74c2ee3bc32defa56780d2c5651c2267a191faf0"
+  },
+  "1910 results Y1910/compare_Dasy_CONUS_RF_v3_all_test.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/compare_Dasy_CONUS_RF_v3_all_test.json",
+   "value": "f8b505d49296b1995841c907a0732d7371985404792eefb3e1666f725e444327"
+  },
+  "1910 results Y1910/county_features.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/county_features.csv",
+   "value": "11447cab98bd301ffe5afb9275acc35584ca285f80f68eb01ddce2f165d58652"
+  },
+  "1910 results Y1910/cv_results.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/cv_results.csv",
+   "value": "fb591d1befd2b8e8c1d1bc645e1f3d1a769c7aade4e2e24b96333f4d499b5e0a"
+  },
+  "1910 results Y1910/feature_correlation.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/feature_correlation.csv",
+   "value": "a01738aa61c40b7eac56e6d984ca29215c1792cdb9218c3652ba5b4efac7e436"
+  },
+  "1910 results Y1910/feature_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/feature_importance.csv",
+   "value": "ddb9371d8d5e86987355f5b498afca618cd970c44b6d347a2ac0bfe8d6457564"
+  },
+  "1910 results Y1910/folds.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/folds.csv",
+   "value": "e1ba4d80f97cc87d93f3f1bfc46c8768aed1e73428d6091e67370e7482fe881a"
+  },
+  "1910 results Y1910/metrics.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/metrics.json",
+   "value": "76601a67c627a4a31d869aed420aad40b47ef41e2aa460e03f5ea467e293fcce"
+  },
+  "1910 results Y1910/oof_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/oof_predictions.csv",
+   "value": "e8d46a2be55d07959bad73eb7b2c68e411c9354826f85363316f826d3a660db0"
+  },
+  "1910 results Y1910/shap_by_year.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/shap_by_year.csv",
+   "value": "c823880414a0c41c788754d0357d7f6daaad263eb0828710c9e2d686dbc91ae5"
+  },
+  "1910 results Y1910/shap_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/shap_importance.csv",
+   "value": "bc324fb4835adcbb92bf635a58e33fcb305b6990310dbdecc0997c15f42d9f9c"
+  },
+  "1910 results Y1910/shap_importance_grouped.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/shap_importance_grouped.csv",
+   "value": "db3f3ef3657bb10a6aa36b742f40a0844926f70b982b6e1254a56ede2703f029"
+  },
+  "1910 results Y1910/shap_values.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/shap_values.csv",
+   "value": "b2067caf2aa951c8dee21baf6b73e1df2d631189352b14649697e647fca665ea"
+  },
+  "1910 results Y1910/test_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1910/test_predictions.csv",
+   "value": "7c09f376c1384359b3900c4692ce18674e74a7c12a91849c90805f48e8c9276a"
+  },
+  "1910 cv_summary.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/cv_summary.csv",
+   "col": "era",
+   "value": "Y1910",
+   "cols": [
+    "era",
+    "years",
+    "n_rows",
+    "n_counties",
+    "n_folds",
+    "features",
+    "cv_rmse",
+    "cv_r2",
+    "pooled_rmse",
+    "pooled_r2",
+    "model",
+    "n_candidates",
+    "best_params",
+    "train_seconds",
+    "n_test_rows",
+    "test_rmse",
+    "test_r2",
+    "Dasy_CONUS_RF_v3_all_test_rmse",
+    "Dasy_CONUS_RF_v3_all_test_r2",
+    "shap_Building",
+    "shap_Elevation",
+    "shap_Undated records",
+    "shap_Settlement context",
+    "shap_Slope",
+    "Dasy_CONUS_RF_v3_all_cv_rmse",
+    "Dasy_CONUS_RF_v3_all_cv_r2",
+    "Dasy_CONUS_RF_v3_all_pooled_rmse",
+    "Dasy_CONUS_RF_v3_all_pooled_r2",
+    "shap_Land use"
+   ],
+   "n": 1,
+   "hash": "4093526def06df085e8ed131e058ba28b526ef107561225d06e9565a71ff2ad6"
+  },
+  "1910 water_mask_by_year.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/water_mask_by_year.csv",
+   "col": "year",
+   "value": 1910,
+   "cols": [
+    "year",
+    "era",
+    "study_cells",
+    "masked_cells",
+    "masked_share",
+    "water_with_bui_kept"
+   ],
+   "n": 1,
+   "hash": "22a84d2d5b8e543d55ff00d4c6afe803027d44d40cf35294f8d3f0dfc78c5e69"
+  },
+  "1910 reallocation_qa.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/reallocation_qa.csv",
+   "col": "year",
+   "value": 1910,
+   "cols": [
+    "year",
+    "era",
+    "zone_id",
+    "GISJOIN",
+    "state",
+    "name",
+    "status",
+    "n_cells",
+    "pop",
+    "pop_cells",
+    "diff",
+    "rel_diff",
+    "n_masked"
+   ],
+   "n": 2940,
+   "hash": "468833db4ae20659d5364a3c414ad54d4efcb0386052c225ee629fa5b1950d4f"
+  },
+  "1910 tract_errors_1910.csv": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1910.csv",
+   "col": null,
+   "value": null,
+   "cols": [
+    "GISJOIN",
+    "county_gisjoin",
+    "status",
+    "flag",
+    "n_cells",
+    "small",
+    "pop_obs",
+    "pop_model",
+    "pop_baseline",
+    "lon",
+    "lat",
+    "zone_gisjoin",
+    "part",
+    "gap"
+   ],
+   "n": 1979,
+   "hash": "be62adb56ece9aea3f5ea8cac3a450feec7eeb059cc8c9c3abe73d37136960eb"
+  },
+  "1910 metrics_by_year.csv rows": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/metrics_by_year.csv",
+   "col": "year",
+   "value": 1910,
+   "cols": [
+    "year",
+    "part",
+    "method",
+    "subset",
+    "n",
+    "pop_share",
+    "area_share",
+    "rmse",
+    "mae",
+    "mdape",
+    "r2_log",
+    "r2_logdens",
+    "gap_counties",
+    "gap_tracts"
+   ],
+   "n": 70,
+   "hash": "3aca582a502a810340cbf0312cf26226554602490986f51172b3d3e9e06b0eef"
+  },
+  "1940 scratch metrics.json": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/model/metrics.json",
+   "value": "603e3971e73ed5761c567002599279e40f10d9221854152b8f2992cf0a8fabb2"
+  },
+  "1940 scratch county_features.csv": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/features/county_features.csv",
+   "value": "4926a6fad5a9d73d5ca6c9bec08c385a839e52d63617cf618667eac422c1dda0"
+  },
+  "1940 scratch rf.joblib": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/model/rf.joblib",
+   "value": "size 37622342 mtime_ns 1793746206755561328"
+  },
+  "1940 scratch pop_1940.tif": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1940.tif",
+   "value": "size 389862021 mtime_ns 1793747223151573546"
+  },
+  "1940 results Y1940/best_params.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/best_params.json",
+   "value": "2d0facd8a178ba2985a16194ea461d734c1ea2d27a95109f3c10163be660c480"
+  },
+  "1940 results Y1940/compare_Dasy_CONUS_RF_v3_all.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/compare_Dasy_CONUS_RF_v3_all.json",
+   "value": "a61240136dcbfc44fcc04699a06317505eda572a0ee96d652a8db7692d8c92d9"
+  },
+  "1940 results Y1940/compare_Dasy_CONUS_RF_v3_all_test.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/compare_Dasy_CONUS_RF_v3_all_test.json",
+   "value": "1d1063ed04ff73b635e3a57cf795f0e0a6ac7ad49325f0e201b4d686da8eda09"
+  },
+  "1940 results Y1940/county_features.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/county_features.csv",
+   "value": "4926a6fad5a9d73d5ca6c9bec08c385a839e52d63617cf618667eac422c1dda0"
+  },
+  "1940 results Y1940/cv_results.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/cv_results.csv",
+   "value": "07c3bcf6c680ed2b0b066d595f47bbcaff8b6cdc96eee73d248e2410e4dcd71e"
+  },
+  "1940 results Y1940/feature_correlation.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/feature_correlation.csv",
+   "value": "a6c1d66987fedc88bdd07089c7d0f8ca1bb6528b6db37a918a7630712c1c4c66"
+  },
+  "1940 results Y1940/feature_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/feature_importance.csv",
+   "value": "046b7d34ddc46b67bbccc1715b7437b4644c9790ceaa9bfacd84fb95dde9c71d"
+  },
+  "1940 results Y1940/folds.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/folds.csv",
+   "value": "6815a66d64455552262ea300ba738662c8bf6c8fb3cdfb185f1247d9bfc04eae"
+  },
+  "1940 results Y1940/metrics.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/metrics.json",
+   "value": "603e3971e73ed5761c567002599279e40f10d9221854152b8f2992cf0a8fabb2"
+  },
+  "1940 results Y1940/oof_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/oof_predictions.csv",
+   "value": "cac3fff412de4bdbc47eee35abd8bf4451689db11ae8eb105955859a26b4584d"
+  },
+  "1940 results Y1940/shap_by_year.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/shap_by_year.csv",
+   "value": "064bf90b167c9366d96bf9403f43557280c5ab5079f3fc3a0b46f0aea36b3400"
+  },
+  "1940 results Y1940/shap_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/shap_importance.csv",
+   "value": "9980864ccb1da3f10fe24a7eed96633dfae90f0a52c0bd3a209a3857c875a8bb"
+  },
+  "1940 results Y1940/shap_importance_grouped.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/shap_importance_grouped.csv",
+   "value": "5ea32fc5ef1fcabff381a935407c64ae8a95e92f02d7e349571c77c8acca52fb"
+  },
+  "1940 results Y1940/shap_values.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/shap_values.csv",
+   "value": "b1da6c87242ed7c19055615fba7cc427cd9faf3e4eaa4d6c4c710ab0dcc25455"
+  },
+  "1940 results Y1940/test_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/test_predictions.csv",
+   "value": "6fd696533ff7f9112c38a0d7fcd7197b120d764ddb4953ab52b71c525590f068"
+  },
+  "1940 cv_summary.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/cv_summary.csv",
+   "col": "era",
+   "value": "Y1940",
+   "cols": [
+    "era",
+    "years",
+    "n_rows",
+    "n_counties",
+    "n_folds",
+    "features",
+    "cv_rmse",
+    "cv_r2",
+    "pooled_rmse",
+    "pooled_r2",
+    "model",
+    "n_candidates",
+    "best_params",
+    "train_seconds",
+    "n_test_rows",
+    "test_rmse",
+    "test_r2",
+    "Dasy_CONUS_RF_v3_all_test_rmse",
+    "Dasy_CONUS_RF_v3_all_test_r2",
+    "shap_Building",
+    "shap_Elevation",
+    "shap_Undated records",
+    "shap_Settlement context",
+    "shap_Slope",
+    "Dasy_CONUS_RF_v3_all_cv_rmse",
+    "Dasy_CONUS_RF_v3_all_cv_r2",
+    "Dasy_CONUS_RF_v3_all_pooled_rmse",
+    "Dasy_CONUS_RF_v3_all_pooled_r2",
+    "shap_Land use"
+   ],
+   "n": 1,
+   "hash": "853a9f28f949446382259b08c25b7289113264f9962606fac5233645502c5d11"
+  },
+  "1940 water_mask_by_year.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/water_mask_by_year.csv",
+   "col": "year",
+   "value": 1940,
+   "cols": [
+    "year",
+    "era",
+    "study_cells",
+    "masked_cells",
+    "masked_share",
+    "water_with_bui_kept"
+   ],
+   "n": 1,
+   "hash": "ab6e28a338d1e14bbeb684560e6c4f4f4641eafb02cd8897dc5d323d3d553e3a"
+  },
+  "1940 reallocation_qa.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/reallocation_qa.csv",
+   "col": "year",
+   "value": 1940,
+   "cols": [
+    "year",
+    "era",
+    "zone_id",
+    "GISJOIN",
+    "state",
+    "name",
+    "status",
+    "n_cells",
+    "pop",
+    "pop_cells",
+    "diff",
+    "rel_diff",
+    "n_masked"
+   ],
+   "n": 3087,
+   "hash": "b38d5090d03f4d094d9038213f595598431183486d0fcd1d577812ea84fa9435"
+  },
+  "1940 tract_errors_1940.csv": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1940.csv",
+   "col": null,
+   "value": null,
+   "cols": [
+    "GISJOIN",
+    "county_gisjoin",
+    "status",
+    "flag",
+    "n_cells",
+    "small",
+    "pop_obs",
+    "pop_model",
+    "pop_baseline",
+    "lon",
+    "lat",
+    "zone_gisjoin",
+    "part",
+    "gap"
+   ],
+   "n": 7465,
+   "hash": "35ccad449b111ee442573a657e66594d63971ba172901e226907302505c337ac"
+  },
+  "1940 metrics_by_year.csv rows": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/metrics_by_year.csv",
+   "col": "year",
+   "value": 1940,
+   "cols": [
+    "year",
+    "part",
+    "method",
+    "subset",
+    "n",
+    "pop_share",
+    "area_share",
+    "rmse",
+    "mae",
+    "mdape",
+    "r2_log",
+    "r2_logdens",
+    "gap_counties",
+    "gap_tracts"
+   ],
+   "n": 70,
+   "hash": "337ba11734457e05e97314ddb0cac7fc29948f4deacbf75f381b8b72057659cb"
+  },
+  "1960 scratch metrics.json": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/model/metrics.json",
+   "value": "5eccfeda503ebf15aa213c44aa24273608888c35b1f224e6d9fee2563b53af80"
+  },
+  "1960 scratch county_features.csv": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/features/county_features.csv",
+   "value": "24ab9fc28749a3d7c2e6bccca495004e69e256f20f6ae91b00645e9fe7c0a83b"
+  },
+  "1960 scratch rf.joblib": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/model/rf.joblib",
+   "value": "size 38482598 mtime_ns 1793746378910321137"
+  },
+  "1960 scratch pop_1960.tif": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1960.tif",
+   "value": "size 393781881 mtime_ns 1793747351131247909"
+  },
+  "1960 results Y1960/best_params.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/best_params.json",
+   "value": "2d0facd8a178ba2985a16194ea461d734c1ea2d27a95109f3c10163be660c480"
+  },
+  "1960 results Y1960/compare_Dasy_CONUS_RF_v3_all.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/compare_Dasy_CONUS_RF_v3_all.json",
+   "value": "50cc91f837ff6ac3c97efdf68edad66a0f6a3d88c21b8970393ce1bbc47bdd97"
+  },
+  "1960 results Y1960/compare_Dasy_CONUS_RF_v3_all_test.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/compare_Dasy_CONUS_RF_v3_all_test.json",
+   "value": "cdcc95f6bdf4fe8b9fd76be85f7446a681ce25c86813187a6d50fd22958d282b"
+  },
+  "1960 results Y1960/county_features.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/county_features.csv",
+   "value": "24ab9fc28749a3d7c2e6bccca495004e69e256f20f6ae91b00645e9fe7c0a83b"
+  },
+  "1960 results Y1960/cv_results.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/cv_results.csv",
+   "value": "8528d9cd6bf294a5b9141bc7ed7d1f728f76f0deba4c6d029e0829d08b1a7ba3"
+  },
+  "1960 results Y1960/feature_correlation.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/feature_correlation.csv",
+   "value": "d9abee9787b8981cfb018846a645453c72c405aad8eb18f2f1629dab07f8ecf2"
+  },
+  "1960 results Y1960/feature_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/feature_importance.csv",
+   "value": "4475651772983b79f72a49b2d0f8a753f6923a464124b168d3df68af56e42086"
+  },
+  "1960 results Y1960/folds.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/folds.csv",
+   "value": "c2d1b7bf50235879701b0ec68de53864d373106eb72dab62ef530684baa5df1c"
+  },
+  "1960 results Y1960/metrics.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/metrics.json",
+   "value": "5eccfeda503ebf15aa213c44aa24273608888c35b1f224e6d9fee2563b53af80"
+  },
+  "1960 results Y1960/oof_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/oof_predictions.csv",
+   "value": "7f72cf3de46b308fce088b59c651ab51939dee586e2224f3df2391e7b349e63f"
+  },
+  "1960 results Y1960/shap_by_year.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/shap_by_year.csv",
+   "value": "928cb72b915f24cf6673c6d798d89113af19a721ce189470e9dafa5d141c0115"
+  },
+  "1960 results Y1960/shap_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/shap_importance.csv",
+   "value": "adc2a899ca89e1dfed5b855c88d0c303f6a6239939868a93815004167dc1cfd8"
+  },
+  "1960 results Y1960/shap_importance_grouped.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/shap_importance_grouped.csv",
+   "value": "877849fdae96d1436fb0c1f9c3c7d1ff8deb560d3b0eed51d1bb97306b237add"
+  },
+  "1960 results Y1960/shap_values.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/shap_values.csv",
+   "value": "daa9d34ee0705b64ea965883572849bf13c42bb4f61337cac3b1e599734a97df"
+  },
+  "1960 results Y1960/test_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/test_predictions.csv",
+   "value": "73d1fcfed1775c2747fdc5ccba55c18760ebf6fa2ff57462b3961b400951aa00"
+  },
+  "1960 cv_summary.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/cv_summary.csv",
+   "col": "era",
+   "value": "Y1960",
+   "cols": [
+    "era",
+    "years",
+    "n_rows",
+    "n_counties",
+    "n_folds",
+    "features",
+    "cv_rmse",
+    "cv_r2",
+    "pooled_rmse",
+    "pooled_r2",
+    "model",
+    "n_candidates",
+    "best_params",
+    "train_seconds",
+    "n_test_rows",
+    "test_rmse",
+    "test_r2",
+    "Dasy_CONUS_RF_v3_all_test_rmse",
+    "Dasy_CONUS_RF_v3_all_test_r2",
+    "shap_Building",
+    "shap_Elevation",
+    "shap_Undated records",
+    "shap_Settlement context",
+    "shap_Slope",
+    "Dasy_CONUS_RF_v3_all_cv_rmse",
+    "Dasy_CONUS_RF_v3_all_cv_r2",
+    "Dasy_CONUS_RF_v3_all_pooled_rmse",
+    "Dasy_CONUS_RF_v3_all_pooled_r2",
+    "shap_Land use"
+   ],
+   "n": 1,
+   "hash": "15fc82f7098aaed9f58ff28b36ac2d35821c26b35b30dbb22d2978247011c6ce"
+  },
+  "1960 water_mask_by_year.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/water_mask_by_year.csv",
+   "col": "year",
+   "value": 1960,
+   "cols": [
+    "year",
+    "era",
+    "study_cells",
+    "masked_cells",
+    "masked_share",
+    "water_with_bui_kept"
+   ],
+   "n": 1,
+   "hash": "8cc311087bf6bf4195cbf988b631e7ca638793fe7dda72a9c35c46a00f95ad1a"
+  },
+  "1960 reallocation_qa.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/reallocation_qa.csv",
+   "col": "year",
+   "value": 1960,
+   "cols": [
+    "year",
+    "era",
+    "zone_id",
+    "GISJOIN",
+    "state",
+    "name",
+    "status",
+    "n_cells",
+    "pop",
+    "pop_cells",
+    "diff",
+    "rel_diff",
+    "n_masked"
+   ],
+   "n": 3095,
+   "hash": "49ebdb4a7a08e5cb6d0d964780ac5e08bb6496a2897bf8299a99c67082093490"
+  },
+  "1960 tract_errors_1960.csv": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1960.csv",
+   "col": null,
+   "value": null,
+   "cols": [
+    "GISJOIN",
+    "county_gisjoin",
+    "status",
+    "flag",
+    "n_cells",
+    "small",
+    "pop_obs",
+    "pop_model",
+    "pop_baseline",
+    "lon",
+    "lat",
+    "zone_gisjoin",
+    "part",
+    "gap"
+   ],
+   "n": 22915,
+   "hash": "9c1562343db2ffa404a6851955e23ae3ec828731a4194e270eab54678867a9eb"
+  },
+  "1960 metrics_by_year.csv rows": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/metrics_by_year.csv",
+   "col": "year",
+   "value": 1960,
+   "cols": [
+    "year",
+    "part",
+    "method",
+    "subset",
+    "n",
+    "pop_share",
+    "area_share",
+    "rmse",
+    "mae",
+    "mdape",
+    "r2_log",
+    "r2_logdens",
+    "gap_counties",
+    "gap_tracts"
+   ],
+   "n": 70,
+   "hash": "f20cec04dcd1fc441283ff9209f76f465cdc9faff59dcd342d1d7a88778f48c3"
+  },
+  "1980 scratch metrics.json": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/model/metrics.json",
+   "value": "18f2500d1e2013bb243fb858c32dd2273670108d97ac738483d2b55883e9fdd3"
+  },
+  "1980 scratch county_features.csv": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/features/county_features.csv",
+   "value": "232d3b0795f9b85191dd135844689ebedac915e87de77d459642c017de827e1f"
+  },
+  "1980 scratch rf.joblib": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/model/rf.joblib",
+   "value": "size 38997542 mtime_ns 1793746549950508569"
+  },
+  "1980 scratch pop_1980.tif": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif",
+   "value": "size 389625208 mtime_ns 1793747477076037210"
+  },
+  "1980 results Y1980/best_params.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/best_params.json",
+   "value": "2d0facd8a178ba2985a16194ea461d734c1ea2d27a95109f3c10163be660c480"
+  },
+  "1980 results Y1980/compare_Dasy_CONUS_RF_v3_all.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/compare_Dasy_CONUS_RF_v3_all.json",
+   "value": "2be7d0b8d21f6c2b99486f29a005767f44bc33e1e402d16a38a55738515712d9"
+  },
+  "1980 results Y1980/compare_Dasy_CONUS_RF_v3_all_test.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/compare_Dasy_CONUS_RF_v3_all_test.json",
+   "value": "7fc1b5dcdf3bb3abf8ffd8a9ab2db1dc37c884c0511d837cca4400f0b3bba6d8"
+  },
+  "1980 results Y1980/county_features.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/county_features.csv",
+   "value": "232d3b0795f9b85191dd135844689ebedac915e87de77d459642c017de827e1f"
+  },
+  "1980 results Y1980/cv_results.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/cv_results.csv",
+   "value": "d5d378305e882b709f93a8998eed91da0ca3f309dedc04cb8feee137fe467cc5"
+  },
+  "1980 results Y1980/feature_correlation.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/feature_correlation.csv",
+   "value": "81852ec98c46b2849dbdd6ef88df5af1b28855b73648116b51753fe55d6283a7"
+  },
+  "1980 results Y1980/feature_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/feature_importance.csv",
+   "value": "136ba2111b323b78e01d0264ec7441651222a5f7c59383c8adf031c99af7baff"
+  },
+  "1980 results Y1980/folds.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/folds.csv",
+   "value": "fb0d7d58eb2ade78cbcbe1df587f2e16197aef909fcbace395cf0145708bbd69"
+  },
+  "1980 results Y1980/metrics.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/metrics.json",
+   "value": "18f2500d1e2013bb243fb858c32dd2273670108d97ac738483d2b55883e9fdd3"
+  },
+  "1980 results Y1980/oof_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/oof_predictions.csv",
+   "value": "c94ed69acae5d8424b6b471bea7e29b6a699a8125dc956ae400bba588f7e3c07"
+  },
+  "1980 results Y1980/shap_by_year.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/shap_by_year.csv",
+   "value": "1205a384f585185aa31aca870d13ba5349b128c3477b610f77ccdbb9a2b97367"
+  },
+  "1980 results Y1980/shap_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/shap_importance.csv",
+   "value": "eaae46810f9f88036746e0189e9cf2ddb0f21a54ed7fa3508ba45272b9414d6a"
+  },
+  "1980 results Y1980/shap_importance_grouped.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/shap_importance_grouped.csv",
+   "value": "e27c1e5f1d68e7053f739e2974acec6dffdb35bc4ccc69e3ce821ca9ea7dc28a"
+  },
+  "1980 results Y1980/shap_values.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/shap_values.csv",
+   "value": "ee4f1a2f183b9aad26866eb7dbb0156a4af97e8c8c939f0c33481fc43e900915"
+  },
+  "1980 results Y1980/test_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/test_predictions.csv",
+   "value": "471a92e2f768d2bbedbff37350206102f3c39584dacbafe7ba743837b8a011b7"
+  },
+  "1980 cv_summary.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/cv_summary.csv",
+   "col": "era",
+   "value": "Y1980",
+   "cols": [
+    "era",
+    "years",
+    "n_rows",
+    "n_counties",
+    "n_folds",
+    "features",
+    "cv_rmse",
+    "cv_r2",
+    "pooled_rmse",
+    "pooled_r2",
+    "model",
+    "n_candidates",
+    "best_params",
+    "train_seconds",
+    "n_test_rows",
+    "test_rmse",
+    "test_r2",
+    "Dasy_CONUS_RF_v3_all_test_rmse",
+    "Dasy_CONUS_RF_v3_all_test_r2",
+    "shap_Building",
+    "shap_Elevation",
+    "shap_Undated records",
+    "shap_Settlement context",
+    "shap_Slope",
+    "Dasy_CONUS_RF_v3_all_cv_rmse",
+    "Dasy_CONUS_RF_v3_all_cv_r2",
+    "Dasy_CONUS_RF_v3_all_pooled_rmse",
+    "Dasy_CONUS_RF_v3_all_pooled_r2",
+    "shap_Land use"
+   ],
+   "n": 1,
+   "hash": "43a89cd46a6888866a6edeae30711e82a879c9fec98b88e4a3df5d4217778443"
+  },
+  "1980 water_mask_by_year.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/water_mask_by_year.csv",
+   "col": "year",
+   "value": 1980,
+   "cols": [
+    "year",
+    "era",
+    "study_cells",
+    "masked_cells",
+    "masked_share",
+    "water_with_bui_kept"
+   ],
+   "n": 1,
+   "hash": "39d3d853b807b2f5415d2af4f2e7ca89977445a72e5c6723b065208ba2b79776"
+  },
+  "1980 reallocation_qa.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/reallocation_qa.csv",
+   "col": "year",
+   "value": 1980,
+   "cols": [
+    "year",
+    "era",
+    "zone_id",
+    "GISJOIN",
+    "state",
+    "name",
+    "status",
+    "n_cells",
+    "pop",
+    "pop_cells",
+    "diff",
+    "rel_diff",
+    "n_masked"
+   ],
+   "n": 3106,
+   "hash": "d22734da3962b5089f07586fe958f8f605eb7040082d40a82200b58e37f46405"
+  },
+  "1980 tract_errors_1980.csv": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1980.csv",
+   "col": null,
+   "value": null,
+   "cols": [
+    "GISJOIN",
+    "county_gisjoin",
+    "status",
+    "flag",
+    "n_cells",
+    "small",
+    "pop_obs",
+    "pop_model",
+    "pop_baseline",
+    "lon",
+    "lat",
+    "zone_gisjoin",
+    "part",
+    "gap"
+   ],
+   "n": 45923,
+   "hash": "36f77c51689e97eec4034c554b9a66e756b3891b27c8aba0aa54a07e202e792d"
+  },
+  "1980 metrics_by_year.csv rows": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/metrics_by_year.csv",
+   "col": "year",
+   "value": 1980,
+   "cols": [
+    "year",
+    "part",
+    "method",
+    "subset",
+    "n",
+    "pop_share",
+    "area_share",
+    "rmse",
+    "mae",
+    "mdape",
+    "r2_log",
+    "r2_logdens",
+    "gap_counties",
+    "gap_tracts"
+   ],
+   "n": 70,
+   "hash": "5e5429679dbcce02423562de78c8576954891c6aeee713970b361a675219dd17"
+  },
+  "2010 scratch metrics.json": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/model/metrics.json",
+   "value": "a249d83b63d50e2cb1fba6f7d158c290843c1be9c7a516264b22d7f20ea7cbc0"
+  },
+  "2010 scratch county_features.csv": {
+   "kind": "sha256",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/features/county_features.csv",
+   "value": "eb1a652b588fc75963a835f38bc226c1688771008a4d98e0e8c50ecd6d492a0b"
+  },
+  "2010 scratch rf.joblib": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/model/rf.joblib",
+   "value": "size 39110294 mtime_ns 1793746719991662351"
+  },
+  "2010 scratch pop_2010.tif": {
+   "kind": "stat",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif",
+   "value": "size 387348292 mtime_ns 1793747603137100400"
+  },
+  "2010 results Y2010/best_params.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/best_params.json",
+   "value": "2d0facd8a178ba2985a16194ea461d734c1ea2d27a95109f3c10163be660c480"
+  },
+  "2010 results Y2010/compare_Dasy_CONUS_RF_v3_all.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/compare_Dasy_CONUS_RF_v3_all.json",
+   "value": "32eb6fbd230598185153832893642ac971e5b9783b1276368eed80c4c602b497"
+  },
+  "2010 results Y2010/compare_Dasy_CONUS_RF_v3_all_test.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/compare_Dasy_CONUS_RF_v3_all_test.json",
+   "value": "d8a45ed518cfb236b48badf24cabbd95343bf083cb600225e1a7c0707c87dcdd"
+  },
+  "2010 results Y2010/county_features.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/county_features.csv",
+   "value": "eb1a652b588fc75963a835f38bc226c1688771008a4d98e0e8c50ecd6d492a0b"
+  },
+  "2010 results Y2010/cv_results.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/cv_results.csv",
+   "value": "66e7b2b9a1513b9a53014d05d8eaa2e21983bbec7d667c8c9b0809c09589a6f6"
+  },
+  "2010 results Y2010/feature_correlation.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/feature_correlation.csv",
+   "value": "7b87c1b221515d6ba5c64959de841dbac35c24052f165856a44131fcb22b4414"
+  },
+  "2010 results Y2010/feature_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/feature_importance.csv",
+   "value": "f24edba4e4e20d45ede04551c8f56e191d5dfe739b43116f46c7d361a0d17a61"
+  },
+  "2010 results Y2010/folds.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/folds.csv",
+   "value": "e7bf96a52510deabbe4ac0c7318c6691fe1f10fa6dc099520ce4c01b19376bea"
+  },
+  "2010 results Y2010/metrics.json": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/metrics.json",
+   "value": "a249d83b63d50e2cb1fba6f7d158c290843c1be9c7a516264b22d7f20ea7cbc0"
+  },
+  "2010 results Y2010/oof_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/oof_predictions.csv",
+   "value": "85c34fa4cc8052c909d37ab21daf8a60328ccff3a59386937e79fa4d07bff8f8"
+  },
+  "2010 results Y2010/shap_by_year.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/shap_by_year.csv",
+   "value": "970c8a0b48c3dcdef0989ee9cbd5b7fb8edd8505e980930d034db3c9f141e65c"
+  },
+  "2010 results Y2010/shap_importance.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/shap_importance.csv",
+   "value": "74f5c9ae73547792652dd4c1d30eedaa2f11be9dfe2bd714da1de5e1a3be788b"
+  },
+  "2010 results Y2010/shap_importance_grouped.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/shap_importance_grouped.csv",
+   "value": "fb7850928df5695a1921d05dad08b9135df6491eb14dda79cbd7c322c504f64c"
+  },
+  "2010 results Y2010/shap_values.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/shap_values.csv",
+   "value": "d27442122dc0ad4f0d9f4c4170a4cdf1c6e58c5e65b55ce07c82deeaf2e1044c"
+  },
+  "2010 results Y2010/test_predictions.csv": {
+   "kind": "sha256",
+   "path": "results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/test_predictions.csv",
+   "value": "39d7d8942bd0129eff530ccf28755e5d2f2029b4c234419d11d341bf539a912b"
+  },
+  "2010 cv_summary.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/cv_summary.csv",
+   "col": "era",
+   "value": "Y2010",
+   "cols": [
+    "era",
+    "years",
+    "n_rows",
+    "n_counties",
+    "n_folds",
+    "features",
+    "cv_rmse",
+    "cv_r2",
+    "pooled_rmse",
+    "pooled_r2",
+    "model",
+    "n_candidates",
+    "best_params",
+    "train_seconds",
+    "n_test_rows",
+    "test_rmse",
+    "test_r2",
+    "Dasy_CONUS_RF_v3_all_test_rmse",
+    "Dasy_CONUS_RF_v3_all_test_r2",
+    "shap_Building",
+    "shap_Elevation",
+    "shap_Undated records",
+    "shap_Settlement context",
+    "shap_Slope",
+    "Dasy_CONUS_RF_v3_all_cv_rmse",
+    "Dasy_CONUS_RF_v3_all_cv_r2",
+    "Dasy_CONUS_RF_v3_all_pooled_rmse",
+    "Dasy_CONUS_RF_v3_all_pooled_r2",
+    "shap_Land use"
+   ],
+   "n": 1,
+   "hash": "a3d123bfac156dc1ce469265cc8217a2dbd348a94228dfba77cf20d58cadc967"
+  },
+  "2010 water_mask_by_year.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/water_mask_by_year.csv",
+   "col": "year",
+   "value": 2010,
+   "cols": [
+    "year",
+    "era",
+    "study_cells",
+    "masked_cells",
+    "masked_share",
+    "water_with_bui_kept"
+   ],
+   "n": 1,
+   "hash": "7193bb5add75a1abd8f36e28b70aae524e3d2291a9dca8b1f619813fd3214bc8"
+  },
+  "2010 reallocation_qa.csv rows": {
+   "kind": "rows",
+   "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/qa/reallocation_qa.csv",
+   "col": "year",
+   "value": 2010,
+   "cols": [
+    "year",
+    "era",
+    "zone_id",
+    "GISJOIN",
+    "state",
+    "name",
+    "status",
+    "n_cells",
+    "pop",
+    "pop_cells",
+    "diff",
+    "rel_diff",
+    "n_masked"
+   ],
+   "n": 3109,
+   "hash": "46a7316bf4c3725e33605b99ec1308877a95464a14185b2d2ea005b9f9d49756"
+  },
+  "2010 tract_errors_2010.csv": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_2010.csv",
+   "col": null,
+   "value": null,
+   "cols": [
+    "GISJOIN",
+    "county_gisjoin",
+    "status",
+    "flag",
+    "n_cells",
+    "small",
+    "pop_obs",
+    "pop_model",
+    "pop_baseline",
+    "lon",
+    "lat",
+    "zone_gisjoin",
+    "part",
+    "gap"
+   ],
+   "n": 72271,
+   "hash": "13c819cbf6b5bbcd8bdff984ccf8d3abc18f543f554bb4831e54fa3507f4cecf"
+  },
+  "2010 metrics_by_year.csv rows": {
+   "kind": "rows",
+   "path": "results/validation/conus/Dasy_CONUS_RF_v3_all_nby/metrics_by_year.csv",
+   "col": "year",
+   "value": 2010,
+   "cols": [
+    "year",
+    "part",
+    "method",
+    "subset",
+    "n",
+    "pop_share",
+    "area_share",
+    "rmse",
+    "mae",
+    "mdape",
+    "r2_log",
+    "r2_logdens",
+    "gap_counties",
+    "gap_tracts"
+   ],
+   "n": 70,
+   "hash": "135a103b745b87351c9e03f24c9bdfa6d13ff6574bc84398e59c0e3a757d1d99"
+  }
+ }
+}

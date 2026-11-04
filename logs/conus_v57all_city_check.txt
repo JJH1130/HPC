@@ -1,0 +1,29 @@
+== job local () on login-ci3 at 2026-11-03T19:32:23-07:00
+== cores=1 gpus=none restart=0
+== git 8757d33
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: --check
+19:33:23 INFO arg config = configs/external_grids.yaml
+19:33:23 INFO arg data_root = /projects/jaju1407/data/raw/external
+19:33:23 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+19:33:23 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+19:33:23 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+19:33:23 INFO arg name = conus
+19:33:23 INFO arg out_dir = results/validation/conus/external/city_maps_meeting_v57
+19:33:23 INFO arg compare_with = None
+19:33:23 INFO arg check = True
+19:33:23 INFO arg version = Dasy_CONUS_RF_v3_all_nby
+19:33:23 INFO arg version_label = v5.7
+19:33:23 INFO arg base_dir = results/validation/conus/external/city_maps_meeting
+19:33:23 INFO version Dasy_CONUS_RF_v3_all_nby (v5.7) | out results/validation/conus/external/city_maps_meeting_v57 | base Dasy_CONUS_RF_v3_u070 (v5.6) recomputed against results/validation/conus/external/city_maps_meeting
+19:33:23 INFO   input 2010 version  Dasy_CONUS_RF_v3_all_nby /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+19:33:23 INFO   input 2010 bui      BUI                    /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+19:33:23 INFO   input 2010 product  ghs_pop                /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+19:33:23 INFO   input 2010 product  worldpop               /projects/jaju1407/data/raw/external/worldpop/usa_ppp_2010.tif
+19:33:23 INFO   input 1980 version  Dasy_CONUS_RF_v3_all_nby /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+19:33:23 INFO   input 1980 bui      BUI                    /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+19:33:23 INFO   input 1980 product  ghs_pop                /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+19:33:23 INFO   input 2010 version  Dasy_CONUS_RF_v3_u070  /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_2010.tif
+19:33:23 INFO   input 1980 version  Dasy_CONUS_RF_v3_u070  /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_u070/predictions/pop_1980.tif
+19:33:23 INFO   input nobuilt  NobuiltYear            /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+19:33:23 INFO CHECK OK: 9 inputs for 3 cities x 2 years; NobuiltYear hisdac
+== done 2026-11-03T19:33:24-07:00

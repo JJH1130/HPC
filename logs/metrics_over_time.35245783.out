@@ -1,0 +1,381 @@
+== job 35245783 (metrics_over_time) on c3cpu-e2-u2 at 2026-11-03T21:04:09-07:00
+== cores=1 gpus=none restart=0
+== git 8757d33 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: --version Dasy_CONUS_RF_v3_all_nby --compare-with Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_u070 --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv --check-against results/validation/conus/nobuilt/v54_nby_comparison.csv
+21:04:11 INFO arg version = Dasy_CONUS_RF_v3_all_nby
+21:04:11 INFO arg name = conus
+21:04:11 INFO arg results_root = results
+21:04:11 INFO arg starts = [1910, 1920, 1940, 1960]
+21:04:11 INFO arg mape_min = 10
+21:04:11 INFO arg compare_with = ['Dasy_CONUS_RF_v3_all', 'Dasy_CONUS_RF_v3_u070']
+21:04:11 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+21:04:11 INFO arg check_against = results/validation/conus/nobuilt/v54_nby_comparison.csv
+21:04:11 INFO == A1 county metrics (model before allocation vs census; main = test_all, every TEST county of the split)
+21:04:11 INFO   1900 test                  576 counties | MdAPE  27.24 % | MAPE   45.35 % | R2 log density 0.8920 (reported test_r2: 0.8920)
+21:04:11 INFO   1900 cv                   2238 counties | MdAPE  26.78 % | MAPE   48.41 % | R2 log density 0.8557 (reported oof_pooled_r2: 0.8557)
+21:04:11 INFO   1900 test_all              576 counties | MdAPE  27.24 % | MAPE   45.35 % | R2 log density 0.8920 (reported test_r2: 0.8920)
+21:04:11 INFO   1900 test_kept_t070        398 counties | MdAPE  23.69 % | MAPE   43.09 % | R2 log density 0.8866
+21:04:11 INFO   1900 test_excluded_t070    178 counties | MdAPE  32.92 % | MAPE   50.39 % | R2 log density 0.8806
+21:04:11 INFO   1910 test                  595 counties | MdAPE  27.56 % | MAPE   43.61 % | R2 log density 0.8607 (reported test_r2: 0.8607)
+21:04:11 INFO   1910 cv                   2344 counties | MdAPE  26.63 % | MAPE   42.01 % | R2 log density 0.8504 (reported oof_pooled_r2: 0.8504)
+21:04:11 INFO   1910 test_all              595 counties | MdAPE  27.56 % | MAPE   43.61 % | R2 log density 0.8607 (reported test_r2: 0.8607)
+21:04:11 INFO   1910 test_kept_t070        408 counties | MdAPE  25.60 % | MAPE   40.26 % | R2 log density 0.8748
+21:04:11 INFO   1910 test_excluded_t070    187 counties | MdAPE  32.04 % | MAPE   50.91 % | R2 log density 0.7971
+21:04:11 INFO   1920 test                  612 counties | MdAPE  27.44 % | MAPE   40.64 % | R2 log density 0.8751 (reported test_r2: 0.8751)
+21:04:11 INFO   1920 cv                   2443 counties | MdAPE  25.94 % | MAPE   43.14 % | R2 log density 0.8621 (reported oof_pooled_r2: 0.8621)
+21:04:11 INFO   1920 test_all              612 counties | MdAPE  27.44 % | MAPE   40.64 % | R2 log density 0.8751 (reported test_r2: 0.8751)
+21:04:11 INFO   1920 test_kept_t070        414 counties | MdAPE  25.88 % | MAPE   36.91 % | R2 log density 0.8918
+21:04:11 INFO   1920 test_excluded_t070    198 counties | MdAPE  33.63 % | MAPE   48.44 % | R2 log density 0.8032
+21:04:12 INFO   1930 test                  615 counties | MdAPE  28.92 % | MAPE   43.29 % | R2 log density 0.8757 (reported test_r2: 0.8757)
+21:04:12 INFO   1930 cv                   2471 counties | MdAPE  26.28 % | MAPE   41.98 % | R2 log density 0.8618 (reported oof_pooled_r2: 0.8618)
+21:04:12 INFO   1930 test_all              615 counties | MdAPE  28.92 % | MAPE   43.29 % | R2 log density 0.8757 (reported test_r2: 0.8757)
+21:04:12 INFO   1930 test_kept_t070        417 counties | MdAPE  27.29 % | MAPE   40.90 % | R2 log density 0.8858
+21:04:12 INFO   1930 test_excluded_t070    198 counties | MdAPE  29.84 % | MAPE   48.34 % | R2 log density 0.8084
+21:04:12 INFO   1940 test                  615 counties | MdAPE  25.30 % | MAPE   41.31 % | R2 log density 0.8858 (reported test_r2: 0.8858)
+21:04:12 INFO   1940 cv                   2471 counties | MdAPE  25.78 % | MAPE   39.26 % | R2 log density 0.8759 (reported oof_pooled_r2: 0.8759)
+21:04:12 INFO   1940 test_all              615 counties | MdAPE  25.30 % | MAPE   41.31 % | R2 log density 0.8858 (reported test_r2: 0.8858)
+21:04:12 INFO   1940 test_kept_t070        417 counties | MdAPE  23.84 % | MAPE   38.20 % | R2 log density 0.8942
+21:04:12 INFO   1940 test_excluded_t070    198 counties | MdAPE  28.58 % | MAPE   47.86 % | R2 log density 0.8253
+21:04:12 INFO   1950 test                  617 counties | MdAPE  25.27 % | MAPE   44.28 % | R2 log density 0.8860 (reported test_r2: 0.8860)
+21:04:12 INFO   1950 cv                   2474 counties | MdAPE  26.66 % | MAPE   40.32 % | R2 log density 0.8802 (reported oof_pooled_r2: 0.8802)
+21:04:12 INFO   1950 test_all              617 counties | MdAPE  25.27 % | MAPE   44.28 % | R2 log density 0.8860 (reported test_r2: 0.8860)
+21:04:12 INFO   1950 test_kept_t070        418 counties | MdAPE  23.59 % | MAPE   40.02 % | R2 log density 0.8985
+21:04:12 INFO   1950 test_excluded_t070    199 counties | MdAPE  29.15 % | MAPE   53.21 % | R2 log density 0.8130
+21:04:12 INFO   1960 test                  618 counties | MdAPE  27.67 % | MAPE   44.39 % | R2 log density 0.8975 (reported test_r2: 0.8975)
+21:04:12 INFO   1960 cv                   2477 counties | MdAPE  27.00 % | MAPE   40.82 % | R2 log density 0.8891 (reported oof_pooled_r2: 0.8891)
+21:04:12 INFO   1960 test_all              618 counties | MdAPE  27.67 % | MAPE   44.39 % | R2 log density 0.8975 (reported test_r2: 0.8975)
+21:04:12 INFO   1960 test_kept_t070        419 counties | MdAPE  26.18 % | MAPE   38.05 % | R2 log density 0.9143
+21:04:12 INFO   1960 test_excluded_t070    199 counties | MdAPE  31.35 % | MAPE   57.74 % | R2 log density 0.8092
+21:04:12 INFO   1970 test                  620 counties | MdAPE  25.94 % | MAPE   43.55 % | R2 log density 0.9041 (reported test_r2: 0.9041)
+21:04:12 INFO   1970 cv                   2483 counties | MdAPE  26.44 % | MAPE   40.91 % | R2 log density 0.8990 (reported oof_pooled_r2: 0.8990)
+21:04:12 INFO   1970 test_all              620 counties | MdAPE  25.94 % | MAPE   43.55 % | R2 log density 0.9041 (reported test_r2: 0.9041)
+21:04:12 INFO   1970 test_kept_t070        421 counties | MdAPE  23.63 % | MAPE   35.88 % | R2 log density 0.9235
+21:04:12 INFO   1970 test_excluded_t070    199 counties | MdAPE  31.93 % | MAPE   59.79 % | R2 log density 0.8093
+21:04:12 INFO   1980 test                  622 counties | MdAPE  26.36 % | MAPE   45.40 % | R2 log density 0.9082 (reported test_r2: 0.9082)
+21:04:12 INFO   1980 cv                   2484 counties | MdAPE  25.81 % | MAPE   40.08 % | R2 log density 0.9035 (reported oof_pooled_r2: 0.9035)
+21:04:12 INFO   1980 test_all              622 counties | MdAPE  26.36 % | MAPE   45.40 % | R2 log density 0.9082 (reported test_r2: 0.9082)
+21:04:12 INFO   1980 test_kept_t070        423 counties | MdAPE  22.82 % | MAPE   33.48 % | R2 log density 0.9274
+21:04:12 INFO   1980 test_excluded_t070    199 counties | MdAPE  33.95 % | MAPE   70.73 % | R2 log density 0.8141
+21:04:12 INFO   1990 test                  622 counties | MdAPE  25.59 % | MAPE   41.34 % | R2 log density 0.9164 (reported test_r2: 0.9164)
+21:04:12 INFO   1990 cv                   2486 counties | MdAPE  25.51 % | MAPE   40.06 % | R2 log density 0.9098 (reported oof_pooled_r2: 0.9098)
+21:04:12 INFO   1990 test_all              622 counties | MdAPE  25.59 % | MAPE   41.34 % | R2 log density 0.9164 (reported test_r2: 0.9164)
+21:04:12 INFO   1990 test_kept_t070        423 counties | MdAPE  22.34 % | MAPE   32.45 % | R2 log density 0.9304
+21:04:12 INFO   1990 test_excluded_t070    199 counties | MdAPE  34.01 % | MAPE   60.24 % | R2 log density 0.8340
+21:04:12 INFO   2000 test                  622 counties | MdAPE  25.63 % | MAPE   45.66 % | R2 log density 0.9161 (reported test_r2: 0.9161)
+21:04:12 INFO   2000 cv                   2486 counties | MdAPE  25.47 % | MAPE   40.39 % | R2 log density 0.9121 (reported oof_pooled_r2: 0.9121)
+21:04:12 INFO   2000 test_all              622 counties | MdAPE  25.63 % | MAPE   45.66 % | R2 log density 0.9161 (reported test_r2: 0.9161)
+21:04:12 INFO   2000 test_kept_t070        423 counties | MdAPE  21.69 % | MAPE   33.33 % | R2 log density 0.9319
+21:04:12 INFO   2000 test_excluded_t070    199 counties | MdAPE  35.69 % | MAPE   71.86 % | R2 log density 0.8292
+21:04:12 INFO   2010 test                  622 counties | MdAPE  25.04 % | MAPE   45.67 % | R2 log density 0.9169 (reported test_r2: 0.9169)
+21:04:12 INFO   2010 cv                   2487 counties | MdAPE  26.31 % | MAPE   41.78 % | R2 log density 0.9126 (reported oof_pooled_r2: 0.9126)
+21:04:12 INFO   2010 test_all              622 counties | MdAPE  25.04 % | MAPE   45.67 % | R2 log density 0.9169 (reported test_r2: 0.9169)
+21:04:12 INFO   2010 test_kept_t070        423 counties | MdAPE  21.41 % | MAPE   35.08 % | R2 log density 0.9301
+21:04:12 INFO   2010 test_excluded_t070    199 counties | MdAPE  37.95 % | MAPE   68.20 % | R2 log density 0.8327
+21:04:12 INFO   2020 test                  621 counties | MdAPE  26.26 % | MAPE   50.08 % | R2 log density 0.9102 (reported test_r2: 0.9102)
+21:04:13 INFO   2020 cv                   2485 counties | MdAPE  26.95 % | MAPE   43.34 % | R2 log density 0.9117 (reported oof_pooled_r2: 0.9117)
+21:04:13 INFO   2020 test_all              621 counties | MdAPE  26.26 % | MAPE   50.08 % | R2 log density 0.9102 (reported test_r2: 0.9102)
+21:04:13 INFO   2020 test_kept_t070        422 counties | MdAPE  21.98 % | MAPE   38.20 % | R2 log density 0.9233
+21:04:13 INFO   2020 test_excluded_t070    199 counties | MdAPE  37.01 % | MAPE   75.27 % | R2 log density 0.8206
+21:04:13 INFO recomputed R2 = reported TEST R2 / pooled OOF R2 in all 39 rows with a reported value
+21:04:13 INFO county metrics:
+     counties                                                     mdape                                                       mape                                                    r2_logdens                                                  
+set        cv   test test_all test_excluded_t070 test_kept_t070      cv    test test_all test_excluded_t070 test_kept_t070      cv    test test_all test_excluded_t070 test_kept_t070         cv   test test_all test_excluded_t070 test_kept_t070
+year                                                                                                                                                                                                                                              
+1900   2238.0  576.0    576.0              178.0          398.0  26.780  27.239   27.239             32.923         23.691  48.410  45.350   45.350             50.394         43.094      0.856  0.892    0.892              0.881          0.887
+1910   2344.0  595.0    595.0              187.0          408.0  26.627  27.564   27.564             32.037         25.603  42.012  43.609   43.609             50.911         40.262      0.850  0.861    0.861              0.797          0.875
+1920   2443.0  612.0    612.0              198.0          414.0  25.937  27.436   27.436             33.631         25.881  43.137  40.641   40.641             48.438         36.912      0.862  0.875    0.875              0.803          0.892
+1930   2471.0  615.0    615.0              198.0          417.0  26.283  28.916   28.916             29.836         27.289  41.984  43.293   43.293             48.337         40.899      0.862  0.876    0.876              0.808          0.886
+1940   2471.0  615.0    615.0              198.0          417.0  25.784  25.304   25.304             28.578         23.837  39.258  41.313   41.313             47.862         38.204      0.876  0.886    0.886              0.825          0.894
+1950   2474.0  617.0    617.0              199.0          418.0  26.656  25.268   25.268             29.155         23.587  40.321  44.277   44.277             53.215         40.021      0.880  0.886    0.886              0.813          0.898
+1960   2477.0  618.0    618.0              199.0          419.0  27.002  27.667   27.667             31.352         26.184  40.817  44.390   44.390             57.744         38.047      0.889  0.898    0.898              0.809          0.914
+1970   2483.0  620.0    620.0              199.0          421.0  26.444  25.943   25.943             31.932         23.626  40.914  43.552   43.552             59.788         35.878      0.899  0.904    0.904              0.809          0.923
+1980   2484.0  622.0    622.0              199.0          423.0  25.814  26.361   26.361             33.954         22.824  40.079  45.395   45.395             70.729         33.477      0.903  0.908    0.908              0.814          0.927
+1990   2486.0  622.0    622.0              199.0          423.0  25.512  25.593   25.593             34.014         22.343  40.061  41.339   41.339             60.237         32.449      0.910  0.916    0.916              0.834          0.930
+2000   2486.0  622.0    622.0              199.0          423.0  25.473  25.632   25.632             35.692         21.691  40.387  45.656   45.656             71.855         33.330      0.912  0.916    0.916              0.829          0.932
+2010   2487.0  622.0    622.0              199.0          423.0  26.306  25.043   25.043             37.950         21.407  41.779  45.674   45.674             68.200         35.077      0.913  0.917    0.917              0.833          0.930
+2020   2485.0  621.0    621.0              199.0          422.0  26.948  26.261   26.261             37.005         21.981  43.336  50.079   50.079             75.273         38.199      0.912  0.910    0.910              0.821          0.923
+21:04:13 INFO == A2 tract sets
+21:04:13 INFO tract years [1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+21:04:13 INFO fixed set from_1910 (12 years 1910-2020): 6 counties tracted in every year
+21:04:13 INFO   G1700310 Cook County, Illinois; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio
+21:04:13 INFO fixed set from_1920 (11 years 1920-2020): 8 counties tracted in every year
+21:04:13 INFO   G1700310 Cook County, Illinois; G3600050 Bronx County, New York; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio; G5500790 Milwaukee County, Wisconsin
+21:04:13 INFO fixed set from_1940 (9 years 1940-2020): 73 counties tracted in every year
+21:04:13 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100730 Jefferson County, Alabama; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600370 Los Angeles County, California; G0600750 San Francisco County, California; G0800310 Denver County, Colorado; G0900030 Hartford County, Connecticut; G0900090 New Haven County, Connecticut; G1100010 District of Columbia, District of Columbia; G1300210 Bibb County, Georgia; G1300510 Chatham County, Georgia; G1300630 Clayton County, Georgia; G1300890 DeKalb County, Georgia; G1301210 Fulton County, Georgia; G1302450 Richmond County, Georgia; G1700310 Cook County, Illinois; G1701190 Madison County, Illinois; G1701630 St. Clair County, Illinois; G1800970 Marion County, Indiana; G1901530 Polk County, Iowa
+21:04:13 INFO fixed set from_1960 (7 years 1960-2020): 295 counties tracted in every year
+21:04:13 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100550 Etowah County, Alabama; G0100730 Jefferson County, Alabama; G0100970 Mobile County, Alabama; G0101010 Montgomery County, Alabama; G0101130 Russell County, Alabama; G0400130 Maricopa County, Arizona; G0400190 Pima County, Arizona; G0500910 Miller County, Arkansas; G0501190 Pulaski County, Arkansas; G0501310 Sebastian County, Arkansas; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600190 Fresno County, California; G0600290 Kern County, California; G0600370 Los Angeles County, California; G0600410 Marin County, California; G0600590 Orange County, California; G0600650 Riverside County, California; G0600670 Sacramento County, California; G0600710 San Bernardino County, California
+21:04:14 INFO   1900 test                  576 counties | MdAPE  32.27 % | MAPE   61.26 % | R2 log density 0.8449 (reported test_r2: 0.8449)
+21:04:14 INFO   1900 cv                   2238 counties | MdAPE  29.31 % | MAPE   57.64 % | R2 log density 0.8150 (reported oof_pooled_r2: 0.8150)
+21:04:14 INFO   1900 test_all              576 counties | MdAPE  32.27 % | MAPE   61.26 % | R2 log density 0.8449 (reported test_r2: 0.8449)
+21:04:14 INFO   1900 test_kept_t070        398 counties | MdAPE  29.59 % | MAPE   59.94 % | R2 log density 0.8395
+21:04:14 INFO   1900 test_excluded_t070    178 counties | MdAPE  41.73 % | MAPE   64.22 % | R2 log density 0.8247
+21:04:14 INFO   1910 test                  595 counties | MdAPE  30.40 % | MAPE   51.16 % | R2 log density 0.8221 (reported test_r2: 0.8221)
+21:04:14 INFO   1910 cv                   2344 counties | MdAPE  29.31 % | MAPE   48.18 % | R2 log density 0.8125 (reported oof_pooled_r2: 0.8125)
+21:04:14 INFO   1910 test_all              595 counties | MdAPE  30.40 % | MAPE   51.16 % | R2 log density 0.8221 (reported test_r2: 0.8221)
+21:04:14 INFO   1910 test_kept_t070        408 counties | MdAPE  28.88 % | MAPE   46.86 % | R2 log density 0.8462
+21:04:14 INFO   1910 test_excluded_t070    187 counties | MdAPE  38.95 % | MAPE   60.54 % | R2 log density 0.7272
+21:04:14 INFO   1920 test                  612 counties | MdAPE  31.54 % | MAPE   47.63 % | R2 log density 0.8344 (reported test_r2: 0.8344)
+21:04:14 INFO   1920 cv                   2443 counties | MdAPE  29.52 % | MAPE   49.91 % | R2 log density 0.8234 (reported oof_pooled_r2: 0.8234)
+21:04:14 INFO   1920 test_all              612 counties | MdAPE  31.54 % | MAPE   47.63 % | R2 log density 0.8344 (reported test_r2: 0.8344)
+21:04:14 INFO   1920 test_kept_t070        414 counties | MdAPE  29.57 % | MAPE   42.35 % | R2 log density 0.8624
+21:04:14 INFO   1920 test_excluded_t070    198 counties | MdAPE  37.35 % | MAPE   58.66 % | R2 log density 0.7266
+21:04:14 INFO   1930 test                  615 counties | MdAPE  32.76 % | MAPE   48.26 % | R2 log density 0.8392 (reported test_r2: 0.8392)
+21:04:14 INFO   1930 cv                   2471 counties | MdAPE  29.39 % | MAPE   49.93 % | R2 log density 0.8164 (reported oof_pooled_r2: 0.8164)
+21:04:14 INFO   1930 test_all              615 counties | MdAPE  32.76 % | MAPE   48.26 % | R2 log density 0.8392 (reported test_r2: 0.8392)
+21:04:14 INFO   1930 test_kept_t070        417 counties | MdAPE  31.08 % | MAPE   44.44 % | R2 log density 0.8641
+21:04:14 INFO   1930 test_excluded_t070    198 counties | MdAPE  34.74 % | MAPE   56.29 % | R2 log density 0.7222
+21:04:14 INFO   1940 test                  615 counties | MdAPE  31.13 % | MAPE   44.16 % | R2 log density 0.8577 (reported test_r2: 0.8577)
+21:04:14 INFO   1940 cv                   2471 counties | MdAPE  29.17 % | MAPE   47.59 % | R2 log density 0.8279 (reported oof_pooled_r2: 0.8279)
+21:04:14 INFO   1940 test_all              615 counties | MdAPE  31.13 % | MAPE   44.16 % | R2 log density 0.8577 (reported test_r2: 0.8577)
+21:04:14 INFO   1940 test_kept_t070        417 counties | MdAPE  27.72 % | MAPE   38.62 % | R2 log density 0.8849
+21:04:14 INFO   1940 test_excluded_t070    198 counties | MdAPE  37.39 % | MAPE   55.83 % | R2 log density 0.7415
+21:04:14 INFO   1950 test                  617 counties | MdAPE  30.13 % | MAPE   46.27 % | R2 log density 0.8558 (reported test_r2: 0.8558)
+21:04:14 INFO   1950 cv                   2474 counties | MdAPE  29.46 % | MAPE   49.58 % | R2 log density 0.8333 (reported oof_pooled_r2: 0.8333)
+21:04:14 INFO   1950 test_all              617 counties | MdAPE  30.13 % | MAPE   46.27 % | R2 log density 0.8558 (reported test_r2: 0.8558)
+21:04:14 INFO   1950 test_kept_t070        418 counties | MdAPE  25.73 % | MAPE   38.47 % | R2 log density 0.8935
+21:04:14 INFO   1950 test_excluded_t070    199 counties | MdAPE  39.03 % | MAPE   62.64 % | R2 log density 0.7115
+21:04:14 INFO   1960 test                  618 counties | MdAPE  30.45 % | MAPE   48.45 % | R2 log density 0.8612 (reported test_r2: 0.8612)
+21:04:14 INFO   1960 cv                   2477 counties | MdAPE  29.47 % | MAPE   50.09 % | R2 log density 0.8435 (reported oof_pooled_r2: 0.8435)
+21:04:14 INFO   1960 test_all              618 counties | MdAPE  30.45 % | MAPE   48.45 % | R2 log density 0.8612 (reported test_r2: 0.8612)
+21:04:14 INFO   1960 test_kept_t070        419 counties | MdAPE  26.89 % | MAPE   41.14 % | R2 log density 0.9005
+21:04:14 INFO   1960 test_excluded_t070    199 counties | MdAPE  43.89 % | MAPE   63.85 % | R2 log density 0.6999
+21:04:14 INFO   1970 test                  620 counties | MdAPE  30.39 % | MAPE   49.75 % | R2 log density 0.8628 (reported test_r2: 0.8628)
+21:04:14 INFO   1970 cv                   2483 counties | MdAPE  29.89 % | MAPE   52.12 % | R2 log density 0.8533 (reported oof_pooled_r2: 0.8533)
+21:04:14 INFO   1970 test_all              620 counties | MdAPE  30.39 % | MAPE   49.75 % | R2 log density 0.8628 (reported test_r2: 0.8628)
+21:04:14 INFO   1970 test_kept_t070        421 counties | MdAPE  24.75 % | MAPE   39.39 % | R2 log density 0.9067
+21:04:14 INFO   1970 test_excluded_t070    199 counties | MdAPE  43.46 % | MAPE   71.67 % | R2 log density 0.6872
+21:04:14 INFO   1980 test                  622 counties | MdAPE  29.59 % | MAPE   50.97 % | R2 log density 0.8615 (reported test_r2: 0.8615)
+21:04:15 INFO   1980 cv                   2484 counties | MdAPE  29.31 % | MAPE   52.47 % | R2 log density 0.8572 (reported oof_pooled_r2: 0.8572)
+21:04:15 INFO   1980 test_all              622 counties | MdAPE  29.59 % | MAPE   50.97 % | R2 log density 0.8615 (reported test_r2: 0.8615)
+21:04:15 INFO   1980 test_kept_t070        423 counties | MdAPE  25.15 % | MAPE   39.15 % | R2 log density 0.9032
+21:04:15 INFO   1980 test_excluded_t070    199 counties | MdAPE  42.48 % | MAPE   76.10 % | R2 log density 0.6906
+21:04:15 INFO   1990 test                  622 counties | MdAPE  27.19 % | MAPE   47.71 % | R2 log density 0.8758 (reported test_r2: 0.8758)
+21:04:15 INFO   1990 cv                   2486 counties | MdAPE  28.70 % | MAPE   54.36 % | R2 log density 0.8604 (reported oof_pooled_r2: 0.8604)
+21:04:15 INFO   1990 test_all              622 counties | MdAPE  27.19 % | MAPE   47.71 % | R2 log density 0.8758 (reported test_r2: 0.8758)
+21:04:15 INFO   1990 test_kept_t070        423 counties | MdAPE  23.86 % | MAPE   38.75 % | R2 log density 0.9078
+21:04:15 INFO   1990 test_excluded_t070    199 counties | MdAPE  37.15 % | MAPE   66.76 % | R2 log density 0.7270
+21:04:15 INFO   2000 test                  622 counties | MdAPE  27.25 % | MAPE   50.73 % | R2 log density 0.8753 (reported test_r2: 0.8753)
+21:04:15 INFO   2000 cv                   2486 counties | MdAPE  28.54 % | MAPE   56.86 % | R2 log density 0.8633 (reported oof_pooled_r2: 0.8633)
+21:04:15 INFO   2000 test_all              622 counties | MdAPE  27.25 % | MAPE   50.73 % | R2 log density 0.8753 (reported test_r2: 0.8753)
+21:04:15 INFO   2000 test_kept_t070        423 counties | MdAPE  23.74 % | MAPE   39.27 % | R2 log density 0.9084
+21:04:15 INFO   2000 test_excluded_t070    199 counties | MdAPE  39.25 % | MAPE   75.10 % | R2 log density 0.7257
+21:04:15 INFO   2010 test                  622 counties | MdAPE  28.39 % | MAPE   51.25 % | R2 log density 0.8775 (reported test_r2: 0.8775)
+21:04:15 INFO   2010 cv                   2487 counties | MdAPE  29.38 % | MAPE   57.84 % | R2 log density 0.8666 (reported oof_pooled_r2: 0.8666)
+21:04:15 INFO   2010 test_all              622 counties | MdAPE  28.39 % | MAPE   51.25 % | R2 log density 0.8775 (reported test_r2: 0.8775)
+21:04:15 INFO   2010 test_kept_t070        423 counties | MdAPE  24.09 % | MAPE   40.45 % | R2 log density 0.9104
+21:04:15 INFO   2010 test_excluded_t070    199 counties | MdAPE  39.15 % | MAPE   74.21 % | R2 log density 0.7243
+21:04:15 INFO   2020 test                  621 counties | MdAPE  27.53 % | MAPE   59.61 % | R2 log density 0.8675 (reported test_r2: 0.8675)
+21:04:15 INFO   2020 cv                   2485 counties | MdAPE  30.42 % | MAPE   62.95 % | R2 log density 0.8635 (reported oof_pooled_r2: 0.8635)
+21:04:15 INFO   2020 test_all              621 counties | MdAPE  27.53 % | MAPE   59.61 % | R2 log density 0.8675 (reported test_r2: 0.8675)
+21:04:15 INFO   2020 test_kept_t070        422 counties | MdAPE  23.83 % | MAPE   46.10 % | R2 log density 0.9014
+21:04:15 INFO   2020 test_excluded_t070    199 counties | MdAPE  41.89 % | MAPE   88.25 % | R2 log density 0.7036
+21:04:17 INFO fixed set from_1910 (12 years 1910-2020): 6 counties tracted in every year
+21:04:17 INFO   G1700310 Cook County, Illinois; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio
+21:04:17 INFO fixed set from_1920 (11 years 1920-2020): 8 counties tracted in every year
+21:04:17 INFO   G1700310 Cook County, Illinois; G3600050 Bronx County, New York; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio; G5500790 Milwaukee County, Wisconsin
+21:04:17 INFO fixed set from_1940 (9 years 1940-2020): 73 counties tracted in every year
+21:04:17 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100730 Jefferson County, Alabama; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600370 Los Angeles County, California; G0600750 San Francisco County, California; G0800310 Denver County, Colorado; G0900030 Hartford County, Connecticut; G0900090 New Haven County, Connecticut; G1100010 District of Columbia, District of Columbia; G1300210 Bibb County, Georgia; G1300510 Chatham County, Georgia; G1300630 Clayton County, Georgia; G1300890 DeKalb County, Georgia; G1301210 Fulton County, Georgia; G1302450 Richmond County, Georgia; G1700310 Cook County, Illinois; G1701190 Madison County, Illinois; G1701630 St. Clair County, Illinois; G1800970 Marion County, Indiana; G1901530 Polk County, Iowa
+21:04:17 INFO fixed set from_1960 (7 years 1960-2020): 295 counties tracted in every year
+21:04:17 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100550 Etowah County, Alabama; G0100730 Jefferson County, Alabama; G0100970 Mobile County, Alabama; G0101010 Montgomery County, Alabama; G0101130 Russell County, Alabama; G0400130 Maricopa County, Arizona; G0400190 Pima County, Arizona; G0500910 Miller County, Arkansas; G0501190 Pulaski County, Arkansas; G0501310 Sebastian County, Arkansas; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600190 Fresno County, California; G0600290 Kern County, California; G0600370 Los Angeles County, California; G0600410 Marin County, California; G0600590 Orange County, California; G0600650 Riverside County, California; G0600670 Sacramento County, California; G0600710 San Bernardino County, California
+21:04:17 INFO   1900 test                  398 counties | MdAPE  29.10 % | MAPE   51.25 % | R2 log density 0.8353 (reported test_r2: 0.8353)
+21:04:17 INFO   1900 cv                   1529 counties | MdAPE  27.75 % | MAPE   47.26 % | R2 log density 0.8105 (reported oof_pooled_r2: 0.8105)
+21:04:17 INFO   1900 test_all              576 counties | MdAPE  35.69 % | MAPE   57.16 % | R2 log density 0.7620
+21:04:17 INFO   1900 test_kept_t070        398 counties | MdAPE  29.10 % | MAPE   51.25 % | R2 log density 0.8353
+21:04:17 INFO   1900 test_excluded_t070    178 counties | MdAPE  54.02 % | MAPE   70.40 % | R2 log density 0.5926
+21:04:17 INFO   1910 test                  408 counties | MdAPE  27.42 % | MAPE   43.27 % | R2 log density 0.8460 (reported test_r2: 0.8460)
+21:04:17 INFO   1910 cv                   1589 counties | MdAPE  27.77 % | MAPE   41.54 % | R2 log density 0.8298 (reported oof_pooled_r2: 0.8298)
+21:04:17 INFO   1910 test_all              595 counties | MdAPE  32.74 % | MAPE   46.27 % | R2 log density 0.7744
+21:04:17 INFO   1910 test_kept_t070        408 counties | MdAPE  27.42 % | MAPE   43.27 % | R2 log density 0.8460
+21:04:17 INFO   1910 test_excluded_t070    187 counties | MdAPE  45.57 % | MAPE   52.82 % | R2 log density 0.5617
+21:04:17 INFO   1920 test                  414 counties | MdAPE  25.92 % | MAPE   38.18 % | R2 log density 0.8725 (reported test_r2: 0.8725)
+21:04:17 INFO   1920 cv                   1636 counties | MdAPE  27.42 % | MAPE   42.19 % | R2 log density 0.8478 (reported oof_pooled_r2: 0.8478)
+21:04:17 INFO   1920 test_all              612 counties | MdAPE  32.91 % | MAPE   43.34 % | R2 log density 0.7584
+21:04:17 INFO   1920 test_kept_t070        414 counties | MdAPE  25.92 % | MAPE   38.18 % | R2 log density 0.8725
+21:04:17 INFO   1920 test_excluded_t070    198 counties | MdAPE  46.32 % | MAPE   54.12 % | R2 log density 0.4435
+21:04:17 INFO   1930 test                  417 counties | MdAPE  28.96 % | MAPE   42.05 % | R2 log density 0.8690 (reported test_r2: 0.8690)
+21:04:17 INFO   1930 cv                   1654 counties | MdAPE  26.60 % | MAPE   41.80 % | R2 log density 0.8498 (reported oof_pooled_r2: 0.8498)
+21:04:17 INFO   1930 test_all              615 counties | MdAPE  32.93 % | MAPE   45.24 % | R2 log density 0.8091
+21:04:17 INFO   1930 test_kept_t070        417 counties | MdAPE  28.96 % | MAPE   42.05 % | R2 log density 0.8690
+21:04:17 INFO   1930 test_excluded_t070    198 counties | MdAPE  43.21 % | MAPE   51.95 % | R2 log density 0.5932
+21:04:17 INFO   1940 test                  417 counties | MdAPE  27.34 % | MAPE   37.85 % | R2 log density 0.8848 (reported test_r2: 0.8848)
+21:04:17 INFO   1940 cv                   1654 counties | MdAPE  27.52 % | MAPE   37.95 % | R2 log density 0.8675 (reported oof_pooled_r2: 0.8675)
+21:04:17 INFO   1940 test_all              615 counties | MdAPE  31.04 % | MAPE   42.61 % | R2 log density 0.8298
+21:04:17 INFO   1940 test_kept_t070        417 counties | MdAPE  27.34 % | MAPE   37.85 % | R2 log density 0.8848
+21:04:17 INFO   1940 test_excluded_t070    198 counties | MdAPE  40.36 % | MAPE   52.64 % | R2 log density 0.6369
+21:04:18 INFO   1950 test                  418 counties | MdAPE  26.45 % | MAPE   37.53 % | R2 log density 0.8935 (reported test_r2: 0.8935)
+21:04:18 INFO   1950 cv                   1656 counties | MdAPE  26.72 % | MAPE   38.26 % | R2 log density 0.8750 (reported oof_pooled_r2: 0.8750)
+21:04:18 INFO   1950 test_all              617 counties | MdAPE  34.40 % | MAPE   53.33 % | R2 log density 0.8081
+21:04:18 INFO   1950 test_kept_t070        418 counties | MdAPE  26.45 % | MAPE   37.53 % | R2 log density 0.8935
+21:04:18 INFO   1950 test_excluded_t070    199 counties | MdAPE  50.78 % | MAPE   86.53 % | R2 log density 0.5327
+21:04:18 INFO   1960 test                  419 counties | MdAPE  28.04 % | MAPE   37.64 % | R2 log density 0.9076 (reported test_r2: 0.9076)
+21:04:18 INFO   1960 cv                   1659 counties | MdAPE  24.21 % | MAPE   38.45 % | R2 log density 0.8876 (reported oof_pooled_r2: 0.8876)
+21:04:18 INFO   1960 test_all              618 counties | MdAPE  33.87 % | MAPE   51.75 % | R2 log density 0.8226
+21:04:18 INFO   1960 test_kept_t070        419 counties | MdAPE  28.04 % | MAPE   37.64 % | R2 log density 0.9076
+21:04:18 INFO   1960 test_excluded_t070    199 counties | MdAPE  48.88 % | MAPE   81.46 % | R2 log density 0.5290
+21:04:18 INFO   1970 test                  421 counties | MdAPE  24.10 % | MAPE   34.95 % | R2 log density 0.9153 (reported test_r2: 0.9153)
+21:04:18 INFO   1970 cv                   1664 counties | MdAPE  23.90 % | MAPE   37.69 % | R2 log density 0.9014 (reported oof_pooled_r2: 0.9014)
+21:04:18 INFO   1970 test_all              620 counties | MdAPE  31.35 % | MAPE   47.80 % | R2 log density 0.8299
+21:04:18 INFO   1970 test_kept_t070        421 counties | MdAPE  24.10 % | MAPE   34.95 % | R2 log density 0.9153
+21:04:18 INFO   1970 test_excluded_t070    199 counties | MdAPE  49.30 % | MAPE   74.97 % | R2 log density 0.5363
+21:04:18 INFO   1980 test                  423 counties | MdAPE  25.02 % | MAPE   34.90 % | R2 log density 0.9110 (reported test_r2: 0.9110)
+21:04:18 INFO   1980 cv                   1665 counties | MdAPE  24.55 % | MAPE   35.02 % | R2 log density 0.9092 (reported oof_pooled_r2: 0.9092)
+21:04:18 INFO   1980 test_all              622 counties | MdAPE  33.16 % | MAPE   43.84 % | R2 log density 0.7553
+21:04:18 INFO   1980 test_kept_t070        423 counties | MdAPE  25.02 % | MAPE   34.90 % | R2 log density 0.9110
+21:04:18 INFO   1980 test_excluded_t070    199 counties | MdAPE  54.49 % | MAPE   62.84 % | R2 log density 0.2654
+21:04:18 INFO   1990 test                  423 counties | MdAPE  22.01 % | MAPE   32.91 % | R2 log density 0.9201 (reported test_r2: 0.9201)
+21:04:18 INFO   1990 cv                   1665 counties | MdAPE  23.00 % | MAPE   34.52 % | R2 log density 0.9177 (reported oof_pooled_r2: 0.9177)
+21:04:18 INFO   1990 test_all              622 counties | MdAPE  31.93 % | MAPE   43.93 % | R2 log density 0.5369
+21:04:18 INFO   1990 test_kept_t070        423 counties | MdAPE  22.01 % | MAPE   32.91 % | R2 log density 0.9201
+21:04:18 INFO   1990 test_excluded_t070    199 counties | MdAPE  61.60 % | MAPE   67.34 % | R2 log density -0.6245
+21:04:19 INFO   2000 test                  423 counties | MdAPE  23.93 % | MAPE   34.71 % | R2 log density 0.9192 (reported test_r2: 0.9192)
+21:04:19 INFO   2000 cv                   1665 counties | MdAPE  23.08 % | MAPE   33.22 % | R2 log density 0.9246 (reported oof_pooled_r2: 0.9246)
+21:04:19 INFO   2000 test_all              622 counties | MdAPE  31.54 % | MAPE   45.52 % | R2 log density 0.5444
+21:04:19 INFO   2000 test_kept_t070        423 counties | MdAPE  23.93 % | MAPE   34.71 % | R2 log density 0.9192
+21:04:19 INFO   2000 test_excluded_t070    199 counties | MdAPE  59.77 % | MAPE   68.50 % | R2 log density -0.5521
+21:04:19 INFO   2010 test                  423 counties | MdAPE  23.03 % | MAPE   35.88 % | R2 log density 0.9189 (reported test_r2: 0.9189)
+21:04:19 INFO   2010 cv                   1666 counties | MdAPE  23.07 % | MAPE   33.61 % | R2 log density 0.9283 (reported oof_pooled_r2: 0.9283)
+21:04:19 INFO   2010 test_all              622 counties | MdAPE  32.73 % | MAPE   46.06 % | R2 log density 0.5216
+21:04:19 INFO   2010 test_kept_t070        423 counties | MdAPE  23.03 % | MAPE   35.88 % | R2 log density 0.9189
+21:04:19 INFO   2010 test_excluded_t070    199 counties | MdAPE  62.78 % | MAPE   67.70 % | R2 log density -0.6630
+21:04:19 INFO   2020 test                  422 counties | MdAPE  23.96 % | MAPE   38.62 % | R2 log density 0.9146 (reported test_r2: 0.9146)
+21:04:19 INFO   2020 cv                   1664 counties | MdAPE  24.39 % | MAPE   35.11 % | R2 log density 0.9264 (reported oof_pooled_r2: 0.9264)
+21:04:19 INFO   2020 test_all              621 counties | MdAPE  32.84 % | MAPE   48.76 % | R2 log density 0.5204
+21:04:19 INFO   2020 test_kept_t070        422 counties | MdAPE  23.96 % | MAPE   38.62 % | R2 log density 0.9146
+21:04:19 INFO   2020 test_excluded_t070    199 counties | MdAPE  65.12 % | MAPE   70.27 % | R2 log density -0.6604
+21:04:21 INFO fixed set from_1910 (12 years 1910-2020): 6 counties tracted in every year
+21:04:21 INFO   G1700310 Cook County, Illinois; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio
+21:04:21 INFO fixed set from_1920 (11 years 1920-2020): 8 counties tracted in every year
+21:04:21 INFO   G1700310 Cook County, Illinois; G3600050 Bronx County, New York; G3600470 Kings County, New York; G3600610 New York County, New York; G3600810 Queens County, New York; G3600850 Richmond County, New York; G3900350 Cuyahoga County, Ohio; G5500790 Milwaukee County, Wisconsin
+21:04:21 INFO fixed set from_1940 (9 years 1940-2020): 73 counties tracted in every year
+21:04:21 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100730 Jefferson County, Alabama; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600370 Los Angeles County, California; G0600750 San Francisco County, California; G0800310 Denver County, Colorado; G0900030 Hartford County, Connecticut; G0900090 New Haven County, Connecticut; G1100010 District of Columbia, District of Columbia; G1300210 Bibb County, Georgia; G1300510 Chatham County, Georgia; G1300630 Clayton County, Georgia; G1300890 DeKalb County, Georgia; G1301210 Fulton County, Georgia; G1302450 Richmond County, Georgia; G1700310 Cook County, Illinois; G1701190 Madison County, Illinois; G1701630 St. Clair County, Illinois; G1800970 Marion County, Indiana; G1901530 Polk County, Iowa
+21:04:21 INFO fixed set from_1960 (7 years 1960-2020): 295 counties tracted in every year
+21:04:21 INFO   (more than 60; see fixed_tract_counties.csv) first: G0100550 Etowah County, Alabama; G0100730 Jefferson County, Alabama; G0100970 Mobile County, Alabama; G0101010 Montgomery County, Alabama; G0101130 Russell County, Alabama; G0400130 Maricopa County, Arizona; G0400190 Pima County, Arizona; G0500910 Miller County, Arkansas; G0501190 Pulaski County, Arkansas; G0501310 Sebastian County, Arkansas; G0600010 Alameda County, California; G0600130 Contra Costa County, California; G0600190 Fresno County, California; G0600290 Kern County, California; G0600370 Los Angeles County, California; G0600410 Marin County, California; G0600590 Orange County, California; G0600650 Riverside County, California; G0600670 Sacramento County, California; G0600710 San Bernardino County, California
+21:04:21 INFO check against results/validation/conus/nobuilt/v54_nby_comparison.csv:
+21:04:21 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all_nby county: 15 rows (mdape, mape, r2; years [1910, 1940, 1960, 1980, 2010])
+21:04:21 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all_nby tract: 5 rows (mdape; years [1910, 1940, 1960, 1980, 2010])
+21:04:21 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all county: 15 rows (mdape, mape, r2; years [1910, 1940, 1960, 1980, 2010])
+21:04:21 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all tract: 5 rows (mdape; years [1910, 1940, 1960, 1980, 2010])
+21:04:21 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_u070 county: 15 rows (mdape, mape, r2; years [1910, 1940, 1960, 1980, 2010])
+21:04:21 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_u070 tract: 5 rows (mdape; years [1910, 1940, 1960, 1980, 2010])
+21:04:21 INFO all-tracts MdAPE vs metrics_by_year.csv: max |difference| 2.84e-14 over 24 rows
+21:04:21 INFO tract MdAPE / MAPE (tracts >= 10 people) by set and year:
+                 tracts          counties           mdape             mape         
+method            model baseline    model baseline  model baseline   model baseline
+set       year                                                                     
+all       1910   1897.0   1897.0     10.0     10.0  51.85    82.93  314.90   935.11
+          1920   2197.0   2197.0      8.0      8.0  54.27    79.23   96.70   147.52
+          1930   6362.0   6362.0     24.0     24.0  51.56    81.51  183.65   483.04
+          1940   7350.0   7350.0     74.0     74.0  40.13    86.92   82.01   334.76
+          1950  12300.0  12300.0    114.0    114.0  40.65    83.10   98.70   327.80
+          1960  22042.0  22042.0    295.0    295.0  33.98    82.67   55.12   166.02
+          1970  33298.0  33298.0    607.0    607.0  32.01    81.28   65.06   218.70
+          1980  44586.0  44586.0   1772.0   1772.0  26.91    79.91   58.85   222.85
+          1990  57338.0  57338.0   3016.0   3016.0  28.01    76.94   56.80   198.52
+          2000  62380.0  62380.0   3007.0   3007.0  25.47    75.86   53.72   188.46
+          2010  72243.0  72243.0   3109.0   3109.0  24.90    74.52   45.95   273.59
+          2020  78200.0  78200.0   2945.0   2945.0  25.46    74.48   47.01   169.06
+from_1910 1910   1199.0   1199.0      6.0      6.0  50.70    82.33  424.36  1364.64
+          1920   1838.0   1838.0      6.0      6.0  53.63    77.93   79.82   112.25
+          1930   4027.0   4027.0      6.0      6.0  54.59    77.05  212.14   501.77
+          1940   1521.0   1521.0      6.0      6.0  43.54    81.51   72.89   314.07
+          1950   3385.0   3385.0      6.0      6.0  45.76    65.69  126.27   371.83
+          1960   3240.0   3240.0      6.0      6.0  35.51    58.32   76.74   137.59
+          1970   3301.0   3301.0      6.0      6.0  33.09    55.61  111.40   304.71
+          1980   3419.0   3419.0      6.0      6.0  32.79    54.07  132.85   434.47
+          1990   3665.0   3665.0      6.0      6.0  32.88    52.85  154.49   489.90
+          2000   3669.0   3669.0      6.0      6.0  34.79    52.48  213.42   594.28
+          2010   3575.0   3575.0      6.0      6.0  31.56    49.47  101.75   369.20
+          2020   3654.0   3654.0      6.0      6.0  33.59    49.16  120.65   437.37
+from_1920 1920   2197.0   2197.0      8.0      8.0  54.27    79.23   96.70   147.52
+          1930   4680.0   4680.0      8.0      8.0  55.70    78.82  229.95   628.53
+          1940   1739.0   1739.0      8.0      8.0  42.74    81.43   70.16   288.06
+          1950   4051.0   4051.0      8.0      8.0  46.99    68.37  147.24   468.69
+          1960   3860.0   3860.0      8.0      8.0  36.66    59.86   78.46   173.62
+          1970   3929.0   3929.0      8.0      8.0  33.51    56.37  121.66   300.12
+          1980   4064.0   4064.0      8.0      8.0  33.29    54.41  137.28   405.95
+          1990   4309.0   4309.0      8.0      8.0  33.34    53.31  162.95   489.22
+          2000   4323.0   4323.0      8.0      8.0  35.07    52.99  213.08   574.16
+          2010   4204.0   4204.0      8.0      8.0  32.01    50.23  106.26   436.93
+          2020   4294.0   4294.0      8.0      8.0  33.70    49.90  125.52   424.10
+from_1940 1940   7349.0   7349.0     73.0     73.0  40.14    86.91   82.02   334.80
+          1950  10628.0  10628.0     73.0     73.0  40.98    81.39  105.73   361.08
+          1960  13011.0  13011.0     73.0     73.0  33.47    75.87   59.96   177.26
+          1970  15122.0  15122.0     73.0     73.0  30.55    72.22   78.03   278.25
+          1980  16348.0  16348.0     73.0     73.0  28.44    69.09   88.54   351.08
+          1990  17084.0  17084.0     73.0     73.0  29.66    66.37   84.40   299.32
+          2000  18179.0  18179.0     73.0     73.0  30.36    64.84   92.14   308.71
+          2010  19120.0  19120.0     73.0     73.0  29.31    62.88   67.66   284.02
+          2020  20755.0  20755.0     73.0     73.0  30.30    62.21   73.43   279.11
+from_1960 1960  22042.0  22042.0    295.0    295.0  33.98    82.67   55.12   166.02
+          1970  27954.0  27954.0    295.0    295.0  32.18    79.47   68.22   232.07
+          1980  31327.0  31327.0    295.0    295.0  28.57    76.26   68.57   267.38
+          1990  34091.0  34091.0    295.0    295.0  30.11    74.03   65.88   223.61
+          2000  37934.0  37934.0    295.0    295.0  29.25    73.08   66.84   238.76
+          2010  42304.0  42304.0    295.0    295.0  28.32    71.56   54.17   230.34
+          2020  46280.0  46280.0    295.0    295.0  29.02    70.91   57.17   205.74
+21:04:21 INFO tract MdAPE (%), Dasy_CONUS_RF_v3_all_nby minus Dasy_CONUS_RF_v3_all (negative = Dasy_CONUS_RF_v3_all_nby better):
+set    all  from_1910  from_1920  from_1940  from_1960
+year                                                  
+1910 -1.32       2.10        NaN        NaN        NaN
+1920  1.00       1.38       1.00        NaN        NaN
+1930  1.85       3.60       3.75        NaN        NaN
+1940 -2.49       2.60       2.15      -2.48        NaN
+1950 -1.18       3.79       3.41      -0.90        NaN
+1960 -3.91       1.05       1.20      -2.17      -3.91
+1970 -2.01       1.82       1.27      -1.10      -1.60
+1980 -5.44       1.88       1.62      -1.36      -2.61
+1990 -0.52      -0.09       0.09       0.57       1.31
+2000 -1.68       3.43       3.45       1.84       1.05
+2010 -1.70       2.03       2.41       1.45       0.59
+2020 -0.61       3.84       3.70       2.30       1.38
+21:04:21 INFO county TEST MdAPE (%), Dasy_CONUS_RF_v3_all_nby minus Dasy_CONUS_RF_v3_all (all TEST counties; MAPE %, R2 of log density):
+      mdape    mape  r2_logdens
+year                           
+1900 -5.029 -15.912       0.047
+1910 -2.833  -7.548       0.039
+1920 -4.106  -6.985       0.041
+1930 -3.840  -4.962       0.037
+1940 -5.821  -2.851       0.028
+1950 -4.864  -1.990       0.030
+1960 -2.788  -4.065       0.036
+1970 -4.444  -6.200       0.041
+1980 -3.233  -5.577       0.047
+1990 -1.595  -6.368       0.041
+2000 -1.613  -5.078       0.041
+2010 -3.348  -5.579       0.039
+2020 -1.272  -9.527       0.043
+21:04:21 INFO tract MdAPE (%), Dasy_CONUS_RF_v3_all_nby minus Dasy_CONUS_RF_v3_u070 (negative = Dasy_CONUS_RF_v3_all_nby better):
+set    all  from_1910  from_1920  from_1940  from_1960
+year                                                  
+1910 -1.21       1.48        NaN        NaN        NaN
+1920  1.86       2.37       1.86        NaN        NaN
+1930  1.35       3.18       3.46        NaN        NaN
+1940 -2.05       3.11       2.72      -2.04        NaN
+1950 -1.25       3.73       3.58      -0.87        NaN
+1960 -2.02       1.21       0.90      -1.45      -2.02
+1970  0.28       1.55       0.69      -0.23       0.44
+1980  0.11       1.52       1.17      -0.17       0.36
+1990  3.49       0.14       0.20       0.80       2.17
+2000 -0.93       3.20       2.97       0.81      -0.55
+2010  1.09       1.19       1.68       1.08       0.82
+2020  1.79       2.63       3.17       2.13       1.64
+21:04:21 INFO county TEST MdAPE (%), Dasy_CONUS_RF_v3_all_nby minus Dasy_CONUS_RF_v3_u070 (all TEST counties; MAPE %, R2 of log density):
+      mdape    mape  r2_logdens
+year                           
+1900 -8.456 -11.815       0.130
+1910 -5.181  -2.665       0.086
+1920 -5.477  -2.695       0.117
+1930 -4.014  -1.947       0.067
+1940 -5.734  -1.297       0.056
+1950 -9.135  -9.056       0.078
+1960 -6.208  -7.365       0.075
+1970 -5.404  -4.244       0.074
+1980 -6.803   1.558       0.153
+1990 -6.341  -2.586       0.380
+2000 -5.907   0.137       0.372
+2010 -7.689  -0.386       0.395
+2020 -6.576   1.317       0.390
+21:04:22 INFO   plot results/validation/conus/Dasy_CONUS_RF_v3_all_nby/mdape_over_time.png
+21:04:22 INFO wrote results/validation/conus/Dasy_CONUS_RF_v3_all_nby
+21:04:22 INFO DONE
+== done 2026-11-03T21:04:22-07:00

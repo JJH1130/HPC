@@ -1,0 +1,410 @@
+== job 35245782 (compare_models) on c3cpu-e2-u2 at 2026-11-03T21:04:08-07:00
+== cores=1 gpus=none restart=0
+== git 8757d33 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  args: --versions Dasy_CONUS_RF_v3_all_nby Dasy_CONUS_RF_v3_all Dasy_CONUS_RF_v3_u070 --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv --out results/validation/conus/Dasy_CONUS_RF_v3_all_nby/summary_by_year.csv --plot results/validation/conus/Dasy_CONUS_RF_v3_all_nby/mdape_by_year.png --check-against results/validation/conus/nobuilt/v54_nby_comparison.csv
+21:04:11 INFO arg versions = ['Dasy_CONUS_RF_v3_all_nby', 'Dasy_CONUS_RF_v3_all', 'Dasy_CONUS_RF_v3_u070']
+21:04:11 INFO arg name = conus
+21:04:11 INFO arg results_root = results
+21:04:11 INFO arg out = results/validation/conus/Dasy_CONUS_RF_v3_all_nby/summary_by_year.csv
+21:04:11 INFO arg plot = results/validation/conus/Dasy_CONUS_RF_v3_all_nby/mdape_by_year.png
+21:04:11 INFO arg repro_with = None
+21:04:11 INFO arg years = None
+21:04:11 INFO arg rank_features = []
+21:04:11 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+21:04:11 INFO arg check_against = results/validation/conus/nobuilt/v54_nby_comparison.csv
+21:04:11 INFO exclusion set results/hisdac_uncertainty/excluded_counties_t070.csv (t070): 1020 counties
+21:04:11 INFO   1900 test                  576 counties | MdAPE  27.24 % | MAPE   45.35 % | R2 log density 0.8920 (reported test_r2: 0.8920)
+21:04:11 INFO   1900 cv                   2238 counties | MdAPE  26.78 % | MAPE   48.41 % | R2 log density 0.8557 (reported oof_pooled_r2: 0.8557)
+21:04:11 INFO   1900 test_all              576 counties | MdAPE  27.24 % | MAPE   45.35 % | R2 log density 0.8920 (reported test_r2: 0.8920)
+21:04:11 INFO   1900 test_kept_t070        398 counties | MdAPE  23.69 % | MAPE   43.09 % | R2 log density 0.8866
+21:04:11 INFO   1900 test_excluded_t070    178 counties | MdAPE  32.92 % | MAPE   50.39 % | R2 log density 0.8806
+21:04:11 INFO   1910 test                  595 counties | MdAPE  27.56 % | MAPE   43.61 % | R2 log density 0.8607 (reported test_r2: 0.8607)
+21:04:11 INFO   1910 cv                   2344 counties | MdAPE  26.63 % | MAPE   42.01 % | R2 log density 0.8504 (reported oof_pooled_r2: 0.8504)
+21:04:11 INFO   1910 test_all              595 counties | MdAPE  27.56 % | MAPE   43.61 % | R2 log density 0.8607 (reported test_r2: 0.8607)
+21:04:11 INFO   1910 test_kept_t070        408 counties | MdAPE  25.60 % | MAPE   40.26 % | R2 log density 0.8748
+21:04:11 INFO   1910 test_excluded_t070    187 counties | MdAPE  32.04 % | MAPE   50.91 % | R2 log density 0.7971
+21:04:11 INFO   1920 test                  612 counties | MdAPE  27.44 % | MAPE   40.64 % | R2 log density 0.8751 (reported test_r2: 0.8751)
+21:04:11 INFO   1920 cv                   2443 counties | MdAPE  25.94 % | MAPE   43.14 % | R2 log density 0.8621 (reported oof_pooled_r2: 0.8621)
+21:04:11 INFO   1920 test_all              612 counties | MdAPE  27.44 % | MAPE   40.64 % | R2 log density 0.8751 (reported test_r2: 0.8751)
+21:04:11 INFO   1920 test_kept_t070        414 counties | MdAPE  25.88 % | MAPE   36.91 % | R2 log density 0.8918
+21:04:11 INFO   1920 test_excluded_t070    198 counties | MdAPE  33.63 % | MAPE   48.44 % | R2 log density 0.8032
+21:04:12 INFO   1930 test                  615 counties | MdAPE  28.92 % | MAPE   43.29 % | R2 log density 0.8757 (reported test_r2: 0.8757)
+21:04:12 INFO   1930 cv                   2471 counties | MdAPE  26.28 % | MAPE   41.98 % | R2 log density 0.8618 (reported oof_pooled_r2: 0.8618)
+21:04:12 INFO   1930 test_all              615 counties | MdAPE  28.92 % | MAPE   43.29 % | R2 log density 0.8757 (reported test_r2: 0.8757)
+21:04:12 INFO   1930 test_kept_t070        417 counties | MdAPE  27.29 % | MAPE   40.90 % | R2 log density 0.8858
+21:04:12 INFO   1930 test_excluded_t070    198 counties | MdAPE  29.84 % | MAPE   48.34 % | R2 log density 0.8084
+21:04:12 INFO   1940 test                  615 counties | MdAPE  25.30 % | MAPE   41.31 % | R2 log density 0.8858 (reported test_r2: 0.8858)
+21:04:12 INFO   1940 cv                   2471 counties | MdAPE  25.78 % | MAPE   39.26 % | R2 log density 0.8759 (reported oof_pooled_r2: 0.8759)
+21:04:12 INFO   1940 test_all              615 counties | MdAPE  25.30 % | MAPE   41.31 % | R2 log density 0.8858 (reported test_r2: 0.8858)
+21:04:12 INFO   1940 test_kept_t070        417 counties | MdAPE  23.84 % | MAPE   38.20 % | R2 log density 0.8942
+21:04:12 INFO   1940 test_excluded_t070    198 counties | MdAPE  28.58 % | MAPE   47.86 % | R2 log density 0.8253
+21:04:12 INFO   1950 test                  617 counties | MdAPE  25.27 % | MAPE   44.28 % | R2 log density 0.8860 (reported test_r2: 0.8860)
+21:04:12 INFO   1950 cv                   2474 counties | MdAPE  26.66 % | MAPE   40.32 % | R2 log density 0.8802 (reported oof_pooled_r2: 0.8802)
+21:04:12 INFO   1950 test_all              617 counties | MdAPE  25.27 % | MAPE   44.28 % | R2 log density 0.8860 (reported test_r2: 0.8860)
+21:04:12 INFO   1950 test_kept_t070        418 counties | MdAPE  23.59 % | MAPE   40.02 % | R2 log density 0.8985
+21:04:12 INFO   1950 test_excluded_t070    199 counties | MdAPE  29.15 % | MAPE   53.21 % | R2 log density 0.8130
+21:04:12 INFO   1960 test                  618 counties | MdAPE  27.67 % | MAPE   44.39 % | R2 log density 0.8975 (reported test_r2: 0.8975)
+21:04:12 INFO   1960 cv                   2477 counties | MdAPE  27.00 % | MAPE   40.82 % | R2 log density 0.8891 (reported oof_pooled_r2: 0.8891)
+21:04:12 INFO   1960 test_all              618 counties | MdAPE  27.67 % | MAPE   44.39 % | R2 log density 0.8975 (reported test_r2: 0.8975)
+21:04:12 INFO   1960 test_kept_t070        419 counties | MdAPE  26.18 % | MAPE   38.05 % | R2 log density 0.9143
+21:04:12 INFO   1960 test_excluded_t070    199 counties | MdAPE  31.35 % | MAPE   57.74 % | R2 log density 0.8092
+21:04:12 INFO   1970 test                  620 counties | MdAPE  25.94 % | MAPE   43.55 % | R2 log density 0.9041 (reported test_r2: 0.9041)
+21:04:12 INFO   1970 cv                   2483 counties | MdAPE  26.44 % | MAPE   40.91 % | R2 log density 0.8990 (reported oof_pooled_r2: 0.8990)
+21:04:12 INFO   1970 test_all              620 counties | MdAPE  25.94 % | MAPE   43.55 % | R2 log density 0.9041 (reported test_r2: 0.9041)
+21:04:12 INFO   1970 test_kept_t070        421 counties | MdAPE  23.63 % | MAPE   35.88 % | R2 log density 0.9235
+21:04:12 INFO   1970 test_excluded_t070    199 counties | MdAPE  31.93 % | MAPE   59.79 % | R2 log density 0.8093
+21:04:12 INFO   1980 test                  622 counties | MdAPE  26.36 % | MAPE   45.40 % | R2 log density 0.9082 (reported test_r2: 0.9082)
+21:04:12 INFO   1980 cv                   2484 counties | MdAPE  25.81 % | MAPE   40.08 % | R2 log density 0.9035 (reported oof_pooled_r2: 0.9035)
+21:04:12 INFO   1980 test_all              622 counties | MdAPE  26.36 % | MAPE   45.40 % | R2 log density 0.9082 (reported test_r2: 0.9082)
+21:04:12 INFO   1980 test_kept_t070        423 counties | MdAPE  22.82 % | MAPE   33.48 % | R2 log density 0.9274
+21:04:12 INFO   1980 test_excluded_t070    199 counties | MdAPE  33.95 % | MAPE   70.73 % | R2 log density 0.8141
+21:04:12 INFO   1990 test                  622 counties | MdAPE  25.59 % | MAPE   41.34 % | R2 log density 0.9164 (reported test_r2: 0.9164)
+21:04:12 INFO   1990 cv                   2486 counties | MdAPE  25.51 % | MAPE   40.06 % | R2 log density 0.9098 (reported oof_pooled_r2: 0.9098)
+21:04:12 INFO   1990 test_all              622 counties | MdAPE  25.59 % | MAPE   41.34 % | R2 log density 0.9164 (reported test_r2: 0.9164)
+21:04:12 INFO   1990 test_kept_t070        423 counties | MdAPE  22.34 % | MAPE   32.45 % | R2 log density 0.9304
+21:04:12 INFO   1990 test_excluded_t070    199 counties | MdAPE  34.01 % | MAPE   60.24 % | R2 log density 0.8340
+21:04:12 INFO   2000 test                  622 counties | MdAPE  25.63 % | MAPE   45.66 % | R2 log density 0.9161 (reported test_r2: 0.9161)
+21:04:12 INFO   2000 cv                   2486 counties | MdAPE  25.47 % | MAPE   40.39 % | R2 log density 0.9121 (reported oof_pooled_r2: 0.9121)
+21:04:12 INFO   2000 test_all              622 counties | MdAPE  25.63 % | MAPE   45.66 % | R2 log density 0.9161 (reported test_r2: 0.9161)
+21:04:12 INFO   2000 test_kept_t070        423 counties | MdAPE  21.69 % | MAPE   33.33 % | R2 log density 0.9319
+21:04:12 INFO   2000 test_excluded_t070    199 counties | MdAPE  35.69 % | MAPE   71.86 % | R2 log density 0.8292
+21:04:12 INFO   2010 test                  622 counties | MdAPE  25.04 % | MAPE   45.67 % | R2 log density 0.9169 (reported test_r2: 0.9169)
+21:04:12 INFO   2010 cv                   2487 counties | MdAPE  26.31 % | MAPE   41.78 % | R2 log density 0.9126 (reported oof_pooled_r2: 0.9126)
+21:04:12 INFO   2010 test_all              622 counties | MdAPE  25.04 % | MAPE   45.67 % | R2 log density 0.9169 (reported test_r2: 0.9169)
+21:04:12 INFO   2010 test_kept_t070        423 counties | MdAPE  21.41 % | MAPE   35.08 % | R2 log density 0.9301
+21:04:12 INFO   2010 test_excluded_t070    199 counties | MdAPE  37.95 % | MAPE   68.20 % | R2 log density 0.8327
+21:04:13 INFO   2020 test                  621 counties | MdAPE  26.26 % | MAPE   50.08 % | R2 log density 0.9102 (reported test_r2: 0.9102)
+21:04:13 INFO   2020 cv                   2485 counties | MdAPE  26.95 % | MAPE   43.34 % | R2 log density 0.9117 (reported oof_pooled_r2: 0.9117)
+21:04:13 INFO   2020 test_all              621 counties | MdAPE  26.26 % | MAPE   50.08 % | R2 log density 0.9102 (reported test_r2: 0.9102)
+21:04:13 INFO   2020 test_kept_t070        422 counties | MdAPE  21.98 % | MAPE   38.20 % | R2 log density 0.9233
+21:04:13 INFO   2020 test_excluded_t070    199 counties | MdAPE  37.01 % | MAPE   75.27 % | R2 log density 0.8206
+21:04:13 INFO   1900 test                  576 counties | MdAPE  32.27 % | MAPE   61.26 % | R2 log density 0.8449 (reported test_r2: 0.8449)
+21:04:13 INFO   1900 cv                   2238 counties | MdAPE  29.31 % | MAPE   57.64 % | R2 log density 0.8150 (reported oof_pooled_r2: 0.8150)
+21:04:13 INFO   1900 test_all              576 counties | MdAPE  32.27 % | MAPE   61.26 % | R2 log density 0.8449 (reported test_r2: 0.8449)
+21:04:13 INFO   1900 test_kept_t070        398 counties | MdAPE  29.59 % | MAPE   59.94 % | R2 log density 0.8395
+21:04:13 INFO   1900 test_excluded_t070    178 counties | MdAPE  41.73 % | MAPE   64.22 % | R2 log density 0.8247
+21:04:13 INFO   1910 test                  595 counties | MdAPE  30.40 % | MAPE   51.16 % | R2 log density 0.8221 (reported test_r2: 0.8221)
+21:04:13 INFO   1910 cv                   2344 counties | MdAPE  29.31 % | MAPE   48.18 % | R2 log density 0.8125 (reported oof_pooled_r2: 0.8125)
+21:04:13 INFO   1910 test_all              595 counties | MdAPE  30.40 % | MAPE   51.16 % | R2 log density 0.8221 (reported test_r2: 0.8221)
+21:04:13 INFO   1910 test_kept_t070        408 counties | MdAPE  28.88 % | MAPE   46.86 % | R2 log density 0.8462
+21:04:13 INFO   1910 test_excluded_t070    187 counties | MdAPE  38.95 % | MAPE   60.54 % | R2 log density 0.7272
+21:04:13 INFO   1920 test                  612 counties | MdAPE  31.54 % | MAPE   47.63 % | R2 log density 0.8344 (reported test_r2: 0.8344)
+21:04:13 INFO   1920 cv                   2443 counties | MdAPE  29.52 % | MAPE   49.91 % | R2 log density 0.8234 (reported oof_pooled_r2: 0.8234)
+21:04:13 INFO   1920 test_all              612 counties | MdAPE  31.54 % | MAPE   47.63 % | R2 log density 0.8344 (reported test_r2: 0.8344)
+21:04:13 INFO   1920 test_kept_t070        414 counties | MdAPE  29.57 % | MAPE   42.35 % | R2 log density 0.8624
+21:04:13 INFO   1920 test_excluded_t070    198 counties | MdAPE  37.35 % | MAPE   58.66 % | R2 log density 0.7266
+21:04:13 INFO   1930 test                  615 counties | MdAPE  32.76 % | MAPE   48.26 % | R2 log density 0.8392 (reported test_r2: 0.8392)
+21:04:13 INFO   1930 cv                   2471 counties | MdAPE  29.39 % | MAPE   49.93 % | R2 log density 0.8164 (reported oof_pooled_r2: 0.8164)
+21:04:14 INFO   1930 test_all              615 counties | MdAPE  32.76 % | MAPE   48.26 % | R2 log density 0.8392 (reported test_r2: 0.8392)
+21:04:14 INFO   1930 test_kept_t070        417 counties | MdAPE  31.08 % | MAPE   44.44 % | R2 log density 0.8641
+21:04:14 INFO   1930 test_excluded_t070    198 counties | MdAPE  34.74 % | MAPE   56.29 % | R2 log density 0.7222
+21:04:14 INFO   1940 test                  615 counties | MdAPE  31.13 % | MAPE   44.16 % | R2 log density 0.8577 (reported test_r2: 0.8577)
+21:04:14 INFO   1940 cv                   2471 counties | MdAPE  29.17 % | MAPE   47.59 % | R2 log density 0.8279 (reported oof_pooled_r2: 0.8279)
+21:04:14 INFO   1940 test_all              615 counties | MdAPE  31.13 % | MAPE   44.16 % | R2 log density 0.8577 (reported test_r2: 0.8577)
+21:04:14 INFO   1940 test_kept_t070        417 counties | MdAPE  27.72 % | MAPE   38.62 % | R2 log density 0.8849
+21:04:14 INFO   1940 test_excluded_t070    198 counties | MdAPE  37.39 % | MAPE   55.83 % | R2 log density 0.7415
+21:04:14 INFO   1950 test                  617 counties | MdAPE  30.13 % | MAPE   46.27 % | R2 log density 0.8558 (reported test_r2: 0.8558)
+21:04:14 INFO   1950 cv                   2474 counties | MdAPE  29.46 % | MAPE   49.58 % | R2 log density 0.8333 (reported oof_pooled_r2: 0.8333)
+21:04:14 INFO   1950 test_all              617 counties | MdAPE  30.13 % | MAPE   46.27 % | R2 log density 0.8558 (reported test_r2: 0.8558)
+21:04:14 INFO   1950 test_kept_t070        418 counties | MdAPE  25.73 % | MAPE   38.47 % | R2 log density 0.8935
+21:04:14 INFO   1950 test_excluded_t070    199 counties | MdAPE  39.03 % | MAPE   62.64 % | R2 log density 0.7115
+21:04:14 INFO   1960 test                  618 counties | MdAPE  30.45 % | MAPE   48.45 % | R2 log density 0.8612 (reported test_r2: 0.8612)
+21:04:14 INFO   1960 cv                   2477 counties | MdAPE  29.47 % | MAPE   50.09 % | R2 log density 0.8435 (reported oof_pooled_r2: 0.8435)
+21:04:14 INFO   1960 test_all              618 counties | MdAPE  30.45 % | MAPE   48.45 % | R2 log density 0.8612 (reported test_r2: 0.8612)
+21:04:14 INFO   1960 test_kept_t070        419 counties | MdAPE  26.89 % | MAPE   41.14 % | R2 log density 0.9005
+21:04:14 INFO   1960 test_excluded_t070    199 counties | MdAPE  43.89 % | MAPE   63.85 % | R2 log density 0.6999
+21:04:14 INFO   1970 test                  620 counties | MdAPE  30.39 % | MAPE   49.75 % | R2 log density 0.8628 (reported test_r2: 0.8628)
+21:04:14 INFO   1970 cv                   2483 counties | MdAPE  29.89 % | MAPE   52.12 % | R2 log density 0.8533 (reported oof_pooled_r2: 0.8533)
+21:04:14 INFO   1970 test_all              620 counties | MdAPE  30.39 % | MAPE   49.75 % | R2 log density 0.8628 (reported test_r2: 0.8628)
+21:04:14 INFO   1970 test_kept_t070        421 counties | MdAPE  24.75 % | MAPE   39.39 % | R2 log density 0.9067
+21:04:14 INFO   1970 test_excluded_t070    199 counties | MdAPE  43.46 % | MAPE   71.67 % | R2 log density 0.6872
+21:04:14 INFO   1980 test                  622 counties | MdAPE  29.59 % | MAPE   50.97 % | R2 log density 0.8615 (reported test_r2: 0.8615)
+21:04:15 INFO   1980 cv                   2484 counties | MdAPE  29.31 % | MAPE   52.47 % | R2 log density 0.8572 (reported oof_pooled_r2: 0.8572)
+21:04:15 INFO   1980 test_all              622 counties | MdAPE  29.59 % | MAPE   50.97 % | R2 log density 0.8615 (reported test_r2: 0.8615)
+21:04:15 INFO   1980 test_kept_t070        423 counties | MdAPE  25.15 % | MAPE   39.15 % | R2 log density 0.9032
+21:04:15 INFO   1980 test_excluded_t070    199 counties | MdAPE  42.48 % | MAPE   76.10 % | R2 log density 0.6906
+21:04:15 INFO   1990 test                  622 counties | MdAPE  27.19 % | MAPE   47.71 % | R2 log density 0.8758 (reported test_r2: 0.8758)
+21:04:15 INFO   1990 cv                   2486 counties | MdAPE  28.70 % | MAPE   54.36 % | R2 log density 0.8604 (reported oof_pooled_r2: 0.8604)
+21:04:15 INFO   1990 test_all              622 counties | MdAPE  27.19 % | MAPE   47.71 % | R2 log density 0.8758 (reported test_r2: 0.8758)
+21:04:15 INFO   1990 test_kept_t070        423 counties | MdAPE  23.86 % | MAPE   38.75 % | R2 log density 0.9078
+21:04:15 INFO   1990 test_excluded_t070    199 counties | MdAPE  37.15 % | MAPE   66.76 % | R2 log density 0.7270
+21:04:15 INFO   2000 test                  622 counties | MdAPE  27.25 % | MAPE   50.73 % | R2 log density 0.8753 (reported test_r2: 0.8753)
+21:04:15 INFO   2000 cv                   2486 counties | MdAPE  28.54 % | MAPE   56.86 % | R2 log density 0.8633 (reported oof_pooled_r2: 0.8633)
+21:04:15 INFO   2000 test_all              622 counties | MdAPE  27.25 % | MAPE   50.73 % | R2 log density 0.8753 (reported test_r2: 0.8753)
+21:04:15 INFO   2000 test_kept_t070        423 counties | MdAPE  23.74 % | MAPE   39.27 % | R2 log density 0.9084
+21:04:15 INFO   2000 test_excluded_t070    199 counties | MdAPE  39.25 % | MAPE   75.10 % | R2 log density 0.7257
+21:04:15 INFO   2010 test                  622 counties | MdAPE  28.39 % | MAPE   51.25 % | R2 log density 0.8775 (reported test_r2: 0.8775)
+21:04:15 INFO   2010 cv                   2487 counties | MdAPE  29.38 % | MAPE   57.84 % | R2 log density 0.8666 (reported oof_pooled_r2: 0.8666)
+21:04:15 INFO   2010 test_all              622 counties | MdAPE  28.39 % | MAPE   51.25 % | R2 log density 0.8775 (reported test_r2: 0.8775)
+21:04:15 INFO   2010 test_kept_t070        423 counties | MdAPE  24.09 % | MAPE   40.45 % | R2 log density 0.9104
+21:04:15 INFO   2010 test_excluded_t070    199 counties | MdAPE  39.15 % | MAPE   74.21 % | R2 log density 0.7243
+21:04:16 INFO   2020 test                  621 counties | MdAPE  27.53 % | MAPE   59.61 % | R2 log density 0.8675 (reported test_r2: 0.8675)
+21:04:16 INFO   2020 cv                   2485 counties | MdAPE  30.42 % | MAPE   62.95 % | R2 log density 0.8635 (reported oof_pooled_r2: 0.8635)
+21:04:16 INFO   2020 test_all              621 counties | MdAPE  27.53 % | MAPE   59.61 % | R2 log density 0.8675 (reported test_r2: 0.8675)
+21:04:16 INFO   2020 test_kept_t070        422 counties | MdAPE  23.83 % | MAPE   46.10 % | R2 log density 0.9014
+21:04:16 INFO   2020 test_excluded_t070    199 counties | MdAPE  41.89 % | MAPE   88.25 % | R2 log density 0.7036
+21:04:17 INFO   1900 test                  398 counties | MdAPE  29.10 % | MAPE   51.25 % | R2 log density 0.8353 (reported test_r2: 0.8353)
+21:04:17 INFO   1900 cv                   1529 counties | MdAPE  27.75 % | MAPE   47.26 % | R2 log density 0.8105 (reported oof_pooled_r2: 0.8105)
+21:04:17 INFO   1900 test_all              576 counties | MdAPE  35.69 % | MAPE   57.16 % | R2 log density 0.7620
+21:04:17 INFO   1900 test_kept_t070        398 counties | MdAPE  29.10 % | MAPE   51.25 % | R2 log density 0.8353
+21:04:17 INFO   1900 test_excluded_t070    178 counties | MdAPE  54.02 % | MAPE   70.40 % | R2 log density 0.5926
+21:04:17 INFO   1910 test                  408 counties | MdAPE  27.42 % | MAPE   43.27 % | R2 log density 0.8460 (reported test_r2: 0.8460)
+21:04:17 INFO   1910 cv                   1589 counties | MdAPE  27.77 % | MAPE   41.54 % | R2 log density 0.8298 (reported oof_pooled_r2: 0.8298)
+21:04:17 INFO   1910 test_all              595 counties | MdAPE  32.74 % | MAPE   46.27 % | R2 log density 0.7744
+21:04:17 INFO   1910 test_kept_t070        408 counties | MdAPE  27.42 % | MAPE   43.27 % | R2 log density 0.8460
+21:04:17 INFO   1910 test_excluded_t070    187 counties | MdAPE  45.57 % | MAPE   52.82 % | R2 log density 0.5617
+21:04:17 INFO   1920 test                  414 counties | MdAPE  25.92 % | MAPE   38.18 % | R2 log density 0.8725 (reported test_r2: 0.8725)
+21:04:17 INFO   1920 cv                   1636 counties | MdAPE  27.42 % | MAPE   42.19 % | R2 log density 0.8478 (reported oof_pooled_r2: 0.8478)
+21:04:17 INFO   1920 test_all              612 counties | MdAPE  32.91 % | MAPE   43.34 % | R2 log density 0.7584
+21:04:17 INFO   1920 test_kept_t070        414 counties | MdAPE  25.92 % | MAPE   38.18 % | R2 log density 0.8725
+21:04:17 INFO   1920 test_excluded_t070    198 counties | MdAPE  46.32 % | MAPE   54.12 % | R2 log density 0.4435
+21:04:17 INFO   1930 test                  417 counties | MdAPE  28.96 % | MAPE   42.05 % | R2 log density 0.8690 (reported test_r2: 0.8690)
+21:04:17 INFO   1930 cv                   1654 counties | MdAPE  26.60 % | MAPE   41.80 % | R2 log density 0.8498 (reported oof_pooled_r2: 0.8498)
+21:04:17 INFO   1930 test_all              615 counties | MdAPE  32.93 % | MAPE   45.24 % | R2 log density 0.8091
+21:04:17 INFO   1930 test_kept_t070        417 counties | MdAPE  28.96 % | MAPE   42.05 % | R2 log density 0.8690
+21:04:17 INFO   1930 test_excluded_t070    198 counties | MdAPE  43.21 % | MAPE   51.95 % | R2 log density 0.5932
+21:04:17 INFO   1940 test                  417 counties | MdAPE  27.34 % | MAPE   37.85 % | R2 log density 0.8848 (reported test_r2: 0.8848)
+21:04:17 INFO   1940 cv                   1654 counties | MdAPE  27.52 % | MAPE   37.95 % | R2 log density 0.8675 (reported oof_pooled_r2: 0.8675)
+21:04:17 INFO   1940 test_all              615 counties | MdAPE  31.04 % | MAPE   42.61 % | R2 log density 0.8298
+21:04:17 INFO   1940 test_kept_t070        417 counties | MdAPE  27.34 % | MAPE   37.85 % | R2 log density 0.8848
+21:04:17 INFO   1940 test_excluded_t070    198 counties | MdAPE  40.36 % | MAPE   52.64 % | R2 log density 0.6369
+21:04:18 INFO   1950 test                  418 counties | MdAPE  26.45 % | MAPE   37.53 % | R2 log density 0.8935 (reported test_r2: 0.8935)
+21:04:18 INFO   1950 cv                   1656 counties | MdAPE  26.72 % | MAPE   38.26 % | R2 log density 0.8750 (reported oof_pooled_r2: 0.8750)
+21:04:18 INFO   1950 test_all              617 counties | MdAPE  34.40 % | MAPE   53.33 % | R2 log density 0.8081
+21:04:18 INFO   1950 test_kept_t070        418 counties | MdAPE  26.45 % | MAPE   37.53 % | R2 log density 0.8935
+21:04:18 INFO   1950 test_excluded_t070    199 counties | MdAPE  50.78 % | MAPE   86.53 % | R2 log density 0.5327
+21:04:18 INFO   1960 test                  419 counties | MdAPE  28.04 % | MAPE   37.64 % | R2 log density 0.9076 (reported test_r2: 0.9076)
+21:04:18 INFO   1960 cv                   1659 counties | MdAPE  24.21 % | MAPE   38.45 % | R2 log density 0.8876 (reported oof_pooled_r2: 0.8876)
+21:04:18 INFO   1960 test_all              618 counties | MdAPE  33.87 % | MAPE   51.75 % | R2 log density 0.8226
+21:04:18 INFO   1960 test_kept_t070        419 counties | MdAPE  28.04 % | MAPE   37.64 % | R2 log density 0.9076
+21:04:18 INFO   1960 test_excluded_t070    199 counties | MdAPE  48.88 % | MAPE   81.46 % | R2 log density 0.5290
+21:04:18 INFO   1970 test                  421 counties | MdAPE  24.10 % | MAPE   34.95 % | R2 log density 0.9153 (reported test_r2: 0.9153)
+21:04:18 INFO   1970 cv                   1664 counties | MdAPE  23.90 % | MAPE   37.69 % | R2 log density 0.9014 (reported oof_pooled_r2: 0.9014)
+21:04:18 INFO   1970 test_all              620 counties | MdAPE  31.35 % | MAPE   47.80 % | R2 log density 0.8299
+21:04:18 INFO   1970 test_kept_t070        421 counties | MdAPE  24.10 % | MAPE   34.95 % | R2 log density 0.9153
+21:04:18 INFO   1970 test_excluded_t070    199 counties | MdAPE  49.30 % | MAPE   74.97 % | R2 log density 0.5363
+21:04:18 INFO   1980 test                  423 counties | MdAPE  25.02 % | MAPE   34.90 % | R2 log density 0.9110 (reported test_r2: 0.9110)
+21:04:18 INFO   1980 cv                   1665 counties | MdAPE  24.55 % | MAPE   35.02 % | R2 log density 0.9092 (reported oof_pooled_r2: 0.9092)
+21:04:18 INFO   1980 test_all              622 counties | MdAPE  33.16 % | MAPE   43.84 % | R2 log density 0.7553
+21:04:18 INFO   1980 test_kept_t070        423 counties | MdAPE  25.02 % | MAPE   34.90 % | R2 log density 0.9110
+21:04:18 INFO   1980 test_excluded_t070    199 counties | MdAPE  54.49 % | MAPE   62.84 % | R2 log density 0.2654
+21:04:18 INFO   1990 test                  423 counties | MdAPE  22.01 % | MAPE   32.91 % | R2 log density 0.9201 (reported test_r2: 0.9201)
+21:04:18 INFO   1990 cv                   1665 counties | MdAPE  23.00 % | MAPE   34.52 % | R2 log density 0.9177 (reported oof_pooled_r2: 0.9177)
+21:04:18 INFO   1990 test_all              622 counties | MdAPE  31.93 % | MAPE   43.93 % | R2 log density 0.5369
+21:04:18 INFO   1990 test_kept_t070        423 counties | MdAPE  22.01 % | MAPE   32.91 % | R2 log density 0.9201
+21:04:18 INFO   1990 test_excluded_t070    199 counties | MdAPE  61.60 % | MAPE   67.34 % | R2 log density -0.6245
+21:04:19 INFO   2000 test                  423 counties | MdAPE  23.93 % | MAPE   34.71 % | R2 log density 0.9192 (reported test_r2: 0.9192)
+21:04:19 INFO   2000 cv                   1665 counties | MdAPE  23.08 % | MAPE   33.22 % | R2 log density 0.9246 (reported oof_pooled_r2: 0.9246)
+21:04:19 INFO   2000 test_all              622 counties | MdAPE  31.54 % | MAPE   45.52 % | R2 log density 0.5444
+21:04:19 INFO   2000 test_kept_t070        423 counties | MdAPE  23.93 % | MAPE   34.71 % | R2 log density 0.9192
+21:04:19 INFO   2000 test_excluded_t070    199 counties | MdAPE  59.77 % | MAPE   68.50 % | R2 log density -0.5521
+21:04:19 INFO   2010 test                  423 counties | MdAPE  23.03 % | MAPE   35.88 % | R2 log density 0.9189 (reported test_r2: 0.9189)
+21:04:19 INFO   2010 cv                   1666 counties | MdAPE  23.07 % | MAPE   33.61 % | R2 log density 0.9283 (reported oof_pooled_r2: 0.9283)
+21:04:19 INFO   2010 test_all              622 counties | MdAPE  32.73 % | MAPE   46.06 % | R2 log density 0.5216
+21:04:19 INFO   2010 test_kept_t070        423 counties | MdAPE  23.03 % | MAPE   35.88 % | R2 log density 0.9189
+21:04:19 INFO   2010 test_excluded_t070    199 counties | MdAPE  62.78 % | MAPE   67.70 % | R2 log density -0.6630
+21:04:19 INFO   2020 test                  422 counties | MdAPE  23.96 % | MAPE   38.62 % | R2 log density 0.9146 (reported test_r2: 0.9146)
+21:04:19 INFO   2020 cv                   1664 counties | MdAPE  24.39 % | MAPE   35.11 % | R2 log density 0.9264 (reported oof_pooled_r2: 0.9264)
+21:04:20 INFO   2020 test_all              621 counties | MdAPE  32.84 % | MAPE   48.76 % | R2 log density 0.5204
+21:04:20 INFO   2020 test_kept_t070        422 counties | MdAPE  23.96 % | MAPE   38.62 % | R2 log density 0.9146
+21:04:20 INFO   2020 test_excluded_t070    199 counties | MdAPE  65.12 % | MAPE   70.27 % | R2 log density -0.6604
+21:04:20 INFO check against results/validation/conus/nobuilt/v54_nby_comparison.csv:
+21:04:20 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all county: 15 rows (mdape, mape, r2; years [1910, 1940, 1960, 1980, 2010])
+21:04:20 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all tract: 5 rows (mdape; years [1910, 1940, 1960, 1980, 2010])
+21:04:20 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all_nby county: 15 rows (mdape, mape, r2; years [1910, 1940, 1960, 1980, 2010])
+21:04:20 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_all_nby tract: 5 rows (mdape; years [1910, 1940, 1960, 1980, 2010])
+21:04:20 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_u070 county: 15 rows (mdape, mape, r2; years [1910, 1940, 1960, 1980, 2010])
+21:04:20 INFO   MATCH v54_nby_comparison.csv Dasy_CONUS_RF_v3_u070 tract: 5 rows (mdape; years [1910, 1940, 1960, 1980, 2010])
+21:04:20 INFO 1900 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6277      0.8147   0.8449         576       0.8449         32.2674        61.2620          NaN             NaN              NaN               NaN                 NaN              NaN                    NaN                 NaN           NaN          0          239.6
+Dasy_CONUS_RF_v3_all_nby    rf        0.5561      0.8546   0.8920         576       0.8920         27.2387        45.3496          NaN             NaN              NaN               NaN                 NaN              NaN                    NaN                 NaN           NaN          0          145.1
+   Dasy_CONUS_RF_v3_u070    rf        0.5693      0.8110   0.8353         576       0.7620         35.6949        57.1648          NaN             NaN              NaN               NaN                 NaN              NaN                    NaN                 NaN           NaN          0          276.2
+21:04:20 INFO 1910 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.5657      0.8124   0.8221         595       0.8221         30.3969        51.1569       1897.0            10.0          53.1722           72.0719             53.1722              NaN              9228.3102             82.9285         527.0          0          230.8
+Dasy_CONUS_RF_v3_all_nby    rf        0.5063      0.8499   0.8607         595       0.8607         27.5636        43.6087       1897.0            10.0          51.8482           63.9902             51.8482              NaN              8645.0527             82.9285         527.0          0          514.4
+   Dasy_CONUS_RF_v3_u070    rf        0.5022      0.8297   0.8460         595       0.7744         32.7442        46.2735       1897.0            10.0          53.0582           73.2560             53.0582              NaN              9058.5870             82.9285         527.0          0           89.3
+21:04:20 INFO 1920 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.5764      0.8228   0.8344         612       0.8344         31.5422        47.6267       2197.0             8.0          53.2714           65.4051             53.2714              NaN               141.0588             79.2289         533.0          0          513.1
+Dasy_CONUS_RF_v3_all_nby    rf        0.5104      0.8612   0.8751         612       0.8751         27.4362        40.6412       2197.0             8.0          54.2746           66.2531             54.2746              NaN               140.3839             79.2289         533.0          0          519.5
+   Dasy_CONUS_RF_v3_u070    rf        0.4989      0.8479   0.8725         612       0.7584         32.9134        43.3357       2197.0             8.0          52.4167           63.0442             52.4167              NaN                59.4605             79.2289         533.0          0          120.2
+21:04:20 INFO 1930 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.5846      0.8151   0.8392         615       0.8392         32.7555        48.2557       6362.0            24.0          49.7057           50.4565             49.7057              NaN               616.5233             81.5053         523.0          0          162.8
+Dasy_CONUS_RF_v3_all_nby    rf        0.5079      0.8606   0.8757         615       0.8757         28.9158        43.2932       6362.0            24.0          51.5582           51.6742             51.5582              NaN               818.8243             81.5053         523.0          0          175.0
+   Dasy_CONUS_RF_v3_u070    rf        0.5058      0.8491   0.8690         615       0.8091         32.9298        45.2405       6362.0            24.0          50.2073           49.3583             50.2073              NaN               698.0181             81.5053         523.0          0           86.8
+21:04:20 INFO 1940 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.5716      0.8265   0.8577         615       0.8577         31.1253        44.1643       7350.0            74.0          42.6264           39.8372             42.6264              NaN               310.6183              86.915         504.0          0          742.6
+Dasy_CONUS_RF_v3_all_nby    rf        0.4858      0.8749   0.8858         615       0.8858         25.3039        41.3133       7350.0            74.0          40.1334           40.9363             40.1334              NaN               252.5606              86.915         504.0          0          173.7
+   Dasy_CONUS_RF_v3_u070    rf        0.4753      0.8664   0.8848         615       0.8298         31.0376        42.6106       7350.0            74.0          42.1863           39.8789             42.1863              NaN               278.5242              86.915         504.0          0          390.7
+21:04:20 INFO 1950 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.5889      0.8323   0.8558         617       0.8558         30.1318        46.2668      12300.0           114.0          41.8246           37.4053             41.5268          86.1970               164.3833             83.1041         494.0          0          194.9
+Dasy_CONUS_RF_v3_all_nby    rf        0.4996      0.8793   0.8860         617       0.8860         25.2677        44.2765      12300.0           114.0          40.6495           37.3645             40.4633          85.0802               128.1817             83.1041         494.0          0          167.2
+   Dasy_CONUS_RF_v3_u070    rf        0.4834      0.8737   0.8935         617       0.8081         34.4029        53.3323      12300.0           114.0          41.9013           37.0619             41.6670          86.6427               196.5429             83.1041         494.0          0          210.0
+21:04:20 INFO 1960 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6002      0.8427   0.8612         618       0.8612         30.4548        48.4544      22042.0           295.0          37.8881           34.6014             37.1005          89.9316               127.0886              82.665         479.0          0          233.9
+Dasy_CONUS_RF_v3_all_nby    rf        0.5048      0.8885   0.8975         618       0.8975         27.6666        44.3896      22042.0           295.0          33.9776           30.9956             33.2958          81.3385                85.4102              82.665         479.0          0          171.3
+   Dasy_CONUS_RF_v3_u070    rf        0.4819      0.8861   0.9076         618       0.8226         33.8748        51.7546      22042.0           295.0          36.0022           32.5632             35.2947          90.5178                98.5788              82.665         479.0          0          107.0
+21:04:20 INFO 1970 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6079      0.8528   0.8628         620       0.8628         30.3867        49.7521      33298.0           607.0          34.0255           32.8609             33.1780          87.8853                80.9605             81.2806         464.0          0          789.5
+Dasy_CONUS_RF_v3_all_nby    rf        0.5043      0.8987   0.9041         620       0.9041         25.9430        43.5524      33298.0           607.0          32.0122           30.6136             31.1857          76.6829                76.5738             81.2806         464.0          0          674.4
+   Dasy_CONUS_RF_v3_u070    rf        0.4686      0.9002   0.9153         620       0.8299         31.3471        47.7960      33298.0           607.0          31.7327           30.1480             30.8717          88.8101                65.7511             81.2806         464.0          0          328.9
+21:04:20 INFO 1980 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6027      0.8568   0.8615         622       0.8615         29.5941        50.9718      44586.0          1772.0          32.3468           31.4195             31.2268          89.4570                51.1264             79.9093         443.0          0          452.3
+Dasy_CONUS_RF_v3_all_nby    rf        0.4948      0.9033   0.9082         622       0.9082         26.3612        45.3952      44586.0          1772.0          26.9101           26.7300             25.9658          71.6805                30.1984             79.9093         443.0          0          169.9
+   Dasy_CONUS_RF_v3_u070    rf        0.4432      0.9083   0.9110         622       0.7553         33.1644        43.8372      44586.0          1772.0          26.8013           26.7686             25.7784          89.4369                26.8406             79.9093         443.0          0          323.3
+21:04:20 INFO 1990 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6128      0.8601   0.8758         622       0.8758         27.1880        47.7074      57338.0          3016.0          28.5314           28.2576             27.3161          78.7096                32.1533             76.9398         428.0          0          709.1
+Dasy_CONUS_RF_v3_all_nby    rf        0.4919      0.9096   0.9164         622       0.9164         25.5927        41.3392      57338.0          3016.0          28.0103           27.3191             26.8922          62.2959                27.8630             76.9398         428.0          0          713.4
+   Dasy_CONUS_RF_v3_u070    rf        0.4320      0.9168   0.9201         622       0.5369         31.9341        43.9251      57338.0          3016.0          24.5224           24.6778             23.2374          78.9783                19.3011             76.9398         428.0          0          321.5
+21:04:20 INFO 2000 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6172      0.8631   0.8753         622       0.8753         27.2457        50.7334      62380.0          3007.0          27.1501           27.3888             26.0611          75.6941                29.3959             75.8582         416.0          0          705.3
+Dasy_CONUS_RF_v3_all_nby    rf        0.4939      0.9119   0.9161         622       0.9161         25.6323        45.6558      62380.0          3007.0          25.4722           25.0370             24.5652          53.9819                20.1070             75.8582         416.0          0          180.8
+   Dasy_CONUS_RF_v3_u070    rf        0.4169      0.9237   0.9192         622       0.5444         31.5388        45.5187      62380.0          3007.0          26.3991           26.6184             25.1866          78.2553                21.0041             75.8582         416.0          0          356.0
+21:04:20 INFO 2010 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6265      0.8663   0.8775         622       0.8775         28.3912        51.2525      72243.0          3109.0          26.5973           27.4040             25.5654          71.9931                30.7103             74.5158         416.0          0          721.5
+Dasy_CONUS_RF_v3_all_nby    rf        0.5059      0.9124   0.9169         622       0.9169         25.0428        45.6740      72243.0          3109.0          24.8967           25.3091             24.0089          52.1228                20.7234             74.5158         416.0          0          164.4
+   Dasy_CONUS_RF_v3_u070    rf        0.4151      0.9273   0.9189         622       0.5216         32.7316        46.0603      72243.0          3109.0          23.8025           24.5753             22.6729          77.4554                18.3230             74.5158         416.0          0          314.1
+21:04:20 INFO 2020 (MdAPE / MAE: tracts; no_gap = BUI gap counties left out):
+                 version model  cv_rmse_mean  cv_r2_mean  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  tract_all_n  tract_counties  tract_all_mdape  tract_test_mdape  tract_no_gap_mdape  tract_gap_mdape  tract_dens_0_50_mdape  baseline_all_mdape  gap_counties  mass_fail  train_seconds
+    Dasy_CONUS_RF_v3_all    rf        0.6485      0.8632   0.8675         621       0.8675         27.5334        59.6063      78200.0          2945.0          26.0609           27.1062             25.1188          73.9915                28.7643             74.4794         410.0          0          248.6
+Dasy_CONUS_RF_v3_all_nby    rf        0.5204      0.9114   0.9102         621       0.9102         26.2610        50.0793      78200.0          2945.0          25.4558           26.1060             24.6739          52.7584                20.3970             74.4794         410.0          0          176.7
+   Dasy_CONUS_RF_v3_u070    rf        0.4314      0.9251   0.9146         621       0.5204         32.8372        48.7620      78200.0          2945.0          23.6666           24.6859             22.6377          78.8920                17.8995             74.4794         410.0          0          310.6
+21:04:20 INFO chosen hyperparameters:
+ year                  version                                                                           best_params
+ 1900     Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1900 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1900    Dasy_CONUS_RF_v3_u070    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1910     Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1910 Dasy_CONUS_RF_v3_all_nby    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1910    Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1920     Dasy_CONUS_RF_v3_all    {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 400}
+ 1920 Dasy_CONUS_RF_v3_all_nby    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1920    Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1930     Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1930 Dasy_CONUS_RF_v3_all_nby  {"max_depth": null, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 201}
+ 1930    Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1940     Dasy_CONUS_RF_v3_all    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1940 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1940    Dasy_CONUS_RF_v3_u070    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1950     Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1950 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1950    Dasy_CONUS_RF_v3_u070    {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 400}
+ 1960     Dasy_CONUS_RF_v3_all    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 204}
+ 1960 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1960    Dasy_CONUS_RF_v3_u070   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1970     Dasy_CONUS_RF_v3_all    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1970 Dasy_CONUS_RF_v3_all_nby    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1970    Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 1980     Dasy_CONUS_RF_v3_all    {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 400}
+ 1980 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 1980    Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 1990     Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 1990 Dasy_CONUS_RF_v3_all_nby    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 1990    Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2000     Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2000 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 2000    Dasy_CONUS_RF_v3_u070    {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}
+ 2010     Dasy_CONUS_RF_v3_all {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2010 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 2010    Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+ 2020     Dasy_CONUS_RF_v3_all   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 2020 Dasy_CONUS_RF_v3_all_nby   {"max_depth": 20, "max_features": 0.75, "min_samples_leaf": 2, "n_estimators": 397}
+ 2020    Dasy_CONUS_RF_v3_u070 {"max_depth": null, "max_features": 0.75, "min_samples_leaf": 1, "n_estimators": 696}
+21:04:20 INFO county TEST, before allocation (main = test_all, every TEST county of the split; kept / excluded labelled; test_r2 = the model's own reported TEST set):
+ year                  version  test_r2  test_all_n  test_all_r2  test_all_mdape  test_all_mape  test_kept_t070_n  test_kept_t070_r2  test_kept_t070_mdape  test_kept_t070_mape  test_excluded_t070_n  test_excluded_t070_r2  test_excluded_t070_mdape  test_excluded_t070_mape
+ 1900     Dasy_CONUS_RF_v3_all    0.845         576        0.845          32.267         61.262               398              0.840                29.589               59.937                   178                  0.825                    41.726                   64.225
+ 1900 Dasy_CONUS_RF_v3_all_nby    0.892         576        0.892          27.239         45.350               398              0.887                23.691               43.094                   178                  0.881                    32.923                   50.394
+ 1900    Dasy_CONUS_RF_v3_u070    0.835         576        0.762          35.695         57.165               398              0.835                29.102               51.248                   178                  0.593                    54.018                   70.395
+ 1910     Dasy_CONUS_RF_v3_all    0.822         595        0.822          30.397         51.157               408              0.846                28.884               46.856                   187                  0.727                    38.954                   60.542
+ 1910 Dasy_CONUS_RF_v3_all_nby    0.861         595        0.861          27.564         43.609               408              0.875                25.603               40.262                   187                  0.797                    32.037                   50.911
+ 1910    Dasy_CONUS_RF_v3_u070    0.846         595        0.774          32.744         46.274               408              0.846                27.422               43.272                   187                  0.562                    45.573                   52.822
+ 1920     Dasy_CONUS_RF_v3_all    0.834         612        0.834          31.542         47.627               414              0.862                29.570               42.350                   198                  0.727                    37.353                   58.660
+ 1920 Dasy_CONUS_RF_v3_all_nby    0.875         612        0.875          27.436         40.641               414              0.892                25.881               36.912                   198                  0.803                    33.631                   48.438
+ 1920    Dasy_CONUS_RF_v3_u070    0.873         612        0.758          32.913         43.336               414              0.873                25.924               38.180                   198                  0.444                    46.325                   54.115
+ 1930     Dasy_CONUS_RF_v3_all    0.839         615        0.839          32.756         48.256               417              0.864                31.082               44.441                   198                  0.722                    34.743                   56.289
+ 1930 Dasy_CONUS_RF_v3_all_nby    0.876         615        0.876          28.916         43.293               417              0.886                27.289               40.899                   198                  0.808                    29.836                   48.337
+ 1930    Dasy_CONUS_RF_v3_u070    0.869         615        0.809          32.930         45.241               417              0.869                28.957               42.055                   198                  0.593                    43.209                   51.950
+ 1940     Dasy_CONUS_RF_v3_all    0.858         615        0.858          31.125         44.164               417              0.885                27.719               38.625                   198                  0.742                    37.389                   55.831
+ 1940 Dasy_CONUS_RF_v3_all_nby    0.886         615        0.886          25.304         41.313               417              0.894                23.837               38.204                   198                  0.825                    28.578                   47.862
+ 1940    Dasy_CONUS_RF_v3_u070    0.885         615        0.830          31.038         42.611               417              0.885                27.340               37.849                   198                  0.637                    40.360                   52.639
+ 1950     Dasy_CONUS_RF_v3_all    0.856         617        0.856          30.132         46.267               418              0.894                25.735               38.470                   199                  0.712                    39.026                   62.645
+ 1950 Dasy_CONUS_RF_v3_all_nby    0.886         617        0.886          25.268         44.277               418              0.898                23.587               40.021                   199                  0.813                    29.155                   53.215
+ 1950    Dasy_CONUS_RF_v3_u070    0.894         617        0.808          34.403         53.332               418              0.894                26.454               37.528                   199                  0.533                    50.781                   86.528
+ 1960     Dasy_CONUS_RF_v3_all    0.861         618        0.861          30.455         48.454               419              0.900                26.894               41.140                   199                  0.700                    43.885                   63.855
+ 1960 Dasy_CONUS_RF_v3_all_nby    0.898         618        0.898          27.667         44.390               419              0.914                26.184               38.047                   199                  0.809                    31.352                   57.744
+ 1960    Dasy_CONUS_RF_v3_u070    0.908         618        0.823          33.875         51.755               419              0.908                28.044               37.644                   199                  0.529                    48.878                   81.465
+ 1970     Dasy_CONUS_RF_v3_all    0.863         620        0.863          30.387         49.752               421              0.907                24.753               39.394                   199                  0.687                    43.459                   71.666
+ 1970 Dasy_CONUS_RF_v3_all_nby    0.904         620        0.904          25.943         43.552               421              0.923                23.626               35.878                   199                  0.809                    31.932                   59.788
+ 1970    Dasy_CONUS_RF_v3_u070    0.915         620        0.830          31.347         47.796               421              0.915                24.105               34.952                   199                  0.536                    49.304                   74.968
+ 1980     Dasy_CONUS_RF_v3_all    0.861         622        0.861          29.594         50.972               423              0.903                25.154               39.149                   199                  0.691                    42.481                   76.102
+ 1980 Dasy_CONUS_RF_v3_all_nby    0.908         622        0.908          26.361         45.395               423              0.927                22.824               33.477                   199                  0.814                    33.954                   70.729
+ 1980    Dasy_CONUS_RF_v3_u070    0.911         622        0.755          33.164         43.837               423              0.911                25.025               34.898                   199                  0.265                    54.493                   62.838
+ 1990     Dasy_CONUS_RF_v3_all    0.876         622        0.876          27.188         47.707               423              0.908                23.864               38.745                   199                  0.727                    37.149                   66.757
+ 1990 Dasy_CONUS_RF_v3_all_nby    0.916         622        0.916          25.593         41.339               423              0.930                22.343               32.449                   199                  0.834                    34.014                   60.237
+ 1990    Dasy_CONUS_RF_v3_u070    0.920         622        0.537          31.934         43.925               423              0.920                22.013               32.910                   199                 -0.625                    61.603                   67.340
+ 2000     Dasy_CONUS_RF_v3_all    0.875         622        0.875          27.246         50.733               423              0.908                23.736               39.272                   199                  0.726                    39.247                   75.096
+ 2000 Dasy_CONUS_RF_v3_all_nby    0.916         622        0.916          25.632         45.656               423              0.932                21.691               33.330                   199                  0.829                    35.692                   71.855
+ 2000    Dasy_CONUS_RF_v3_u070    0.919         622        0.544          31.539         45.519               423              0.919                23.933               34.709                   199                 -0.552                    59.771                   68.496
+ 2010     Dasy_CONUS_RF_v3_all    0.878         622        0.878          28.391         51.253               423              0.910                24.095               40.451                   199                  0.724                    39.150                   74.212
+ 2010 Dasy_CONUS_RF_v3_all_nby    0.917         622        0.917          25.043         45.674               423              0.930                21.407               35.077                   199                  0.833                    37.950                   68.200
+ 2010    Dasy_CONUS_RF_v3_u070    0.919         622        0.522          32.732         46.060               423              0.919                23.027               35.880                   199                 -0.663                    62.785                   67.700
+ 2020     Dasy_CONUS_RF_v3_all    0.868         621        0.868          27.533         59.606               422              0.901                23.832               46.101                   199                  0.704                    41.894                   88.247
+ 2020 Dasy_CONUS_RF_v3_all_nby    0.910         621        0.910          26.261         50.079               422              0.923                21.981               38.199                   199                  0.821                    37.005                   75.273
+ 2020    Dasy_CONUS_RF_v3_u070    0.915         621        0.520          32.837         48.762               422              0.915                23.963               38.620                   199                 -0.660                    65.121                   70.269
+21:04:20 INFO tract MdAPE (%) by part (gap = BUI gap counties, dens_* = observed people / km2):
+ year                  version   all  test  no_gap   gap  kept_t070  excluded_t070  dens_0_50  dens_50_500  dens_500_2000  dens_2000_plus
+ 1900     Dasy_CONUS_RF_v3_all   NaN   NaN     NaN   NaN        NaN            NaN        NaN          NaN            NaN             NaN
+ 1900 Dasy_CONUS_RF_v3_all_nby   NaN   NaN     NaN   NaN        NaN            NaN        NaN          NaN            NaN             NaN
+ 1900    Dasy_CONUS_RF_v3_u070   NaN   NaN     NaN   NaN        NaN            NaN        NaN          NaN            NaN             NaN
+ 1910     Dasy_CONUS_RF_v3_all 53.17 72.07   53.17   NaN      53.17            NaN    9228.31       179.00         111.57           49.64
+ 1910 Dasy_CONUS_RF_v3_all_nby 51.85 63.99   51.85   NaN      51.85            NaN    8645.05       195.67         100.22           48.64
+ 1910    Dasy_CONUS_RF_v3_u070 53.06 73.26   53.06   NaN      53.06            NaN    9058.59       191.09         110.20           49.77
+ 1920     Dasy_CONUS_RF_v3_all 53.27 65.41   53.27   NaN      53.27            NaN     141.06       267.95         145.07           50.14
+ 1920 Dasy_CONUS_RF_v3_all_nby 54.27 66.25   54.27   NaN      54.27            NaN     140.38       231.30         128.57           50.46
+ 1920    Dasy_CONUS_RF_v3_u070 52.42 63.04   52.42   NaN      52.42            NaN      59.46       230.27         144.40           48.16
+ 1930     Dasy_CONUS_RF_v3_all 49.71 50.46   49.71   NaN      49.71            NaN     616.52       166.38          98.99           41.59
+ 1930 Dasy_CONUS_RF_v3_all_nby 51.56 51.67   51.56   NaN      51.56            NaN     818.82       199.99          99.19           43.25
+ 1930    Dasy_CONUS_RF_v3_u070 50.21 49.36   50.21   NaN      50.21            NaN     698.02       187.63         103.89           41.79
+ 1940     Dasy_CONUS_RF_v3_all 42.63 39.84   42.63   NaN      42.63            NaN     310.62       107.33          44.34           38.25
+ 1940 Dasy_CONUS_RF_v3_all_nby 40.13 40.94   40.13   NaN      40.13            NaN     252.56        95.71          45.94           35.87
+ 1940    Dasy_CONUS_RF_v3_u070 42.19 39.88   42.19   NaN      42.19            NaN     278.52       105.64          45.73           37.51
+ 1950     Dasy_CONUS_RF_v3_all 41.82 37.41   41.53 86.20      41.44          86.92     164.38        79.51          40.47           38.61
+ 1950 Dasy_CONUS_RF_v3_all_nby 40.65 37.36   40.46 85.08      40.28          85.08     128.18        80.29          38.23           37.58
+ 1950    Dasy_CONUS_RF_v3_u070 41.90 37.06   41.67 86.64      41.50          87.46     196.54        84.62          38.75           38.41
+ 1960     Dasy_CONUS_RF_v3_all 37.89 34.60   37.10 89.93      36.96          88.51     127.09        55.18          30.40           35.82
+ 1960 Dasy_CONUS_RF_v3_all_nby 33.98 31.00   33.30 81.34      33.12          79.40      85.41        52.13          26.67           32.59
+ 1960    Dasy_CONUS_RF_v3_u070 36.00 32.56   35.29 90.52      35.12          88.38      98.58        52.94          28.01           34.20
+ 1970     Dasy_CONUS_RF_v3_all 34.03 32.86   33.18 87.89      33.06          80.50      80.96        39.64          28.09           32.66
+ 1970 Dasy_CONUS_RF_v3_all_nby 32.01 30.61   31.19 76.68      31.15          69.73      76.57        37.68          26.37           30.89
+ 1970    Dasy_CONUS_RF_v3_u070 31.73 30.15   30.87 88.81      30.76          82.44      65.75        37.52          25.71           30.91
+ 1980     Dasy_CONUS_RF_v3_all 32.35 31.42   31.23 89.46      30.93          78.63      51.13        32.88          29.40           31.83
+ 1980 Dasy_CONUS_RF_v3_all_nby 26.91 26.73   25.97 71.68      25.78          59.57      30.20        26.10          24.89           28.98
+ 1980    Dasy_CONUS_RF_v3_u070 26.80 26.77   25.78 89.44      25.48          79.33      26.84        29.01          23.77           29.18
+ 1990     Dasy_CONUS_RF_v3_all 28.53 28.26   27.32 78.71      26.70          60.60      32.15        29.13          24.42           31.08
+ 1990 Dasy_CONUS_RF_v3_all_nby 28.01 27.32   26.89 62.30      26.72          46.15      27.86        27.09          26.37           30.93
+ 1990    Dasy_CONUS_RF_v3_u070 24.52 24.68   23.24 78.98      22.95          55.04      19.30        25.82          22.60           29.93
+ 2000     Dasy_CONUS_RF_v3_all 27.15 27.39   26.06 75.69      25.49          58.49      29.40        27.44          23.06           31.21
+ 2000 Dasy_CONUS_RF_v3_all_nby 25.47 25.04   24.57 53.98      24.46          40.22      20.11        23.41          24.33           32.25
+ 2000    Dasy_CONUS_RF_v3_u070 26.40 26.62   25.19 78.26      24.99          53.49      21.00        27.13          23.84           32.19
+ 2010     Dasy_CONUS_RF_v3_all 26.60 27.40   25.57 71.99      25.04          55.67      30.71        25.38          22.49           31.74
+ 2010 Dasy_CONUS_RF_v3_all_nby 24.90 25.31   24.01 52.12      23.93          37.39      20.72        22.09          23.28           32.29
+ 2010    Dasy_CONUS_RF_v3_u070 23.80 24.58   22.67 77.46      22.45          51.24      18.32        23.42          21.48           31.20
+ 2020     Dasy_CONUS_RF_v3_all 26.06 27.11   25.12 73.99      24.55          57.41      28.76        24.26          22.70           31.01
+ 2020 Dasy_CONUS_RF_v3_all_nby 25.46 26.11   24.67 52.76      24.60          37.89      20.40        22.24          23.94           33.07
+ 2020    Dasy_CONUS_RF_v3_u070 23.67 24.69   22.64 78.89      22.37          54.71      17.90        22.55          21.78           30.52
+21:04:20 INFO mass check (reallocation_qa.csv, tolerance 1e-06): 0 county-years fail; years with a failure: none
+21:04:21 INFO wrote results/validation/conus/Dasy_CONUS_RF_v3_all_nby/mdape_by_year.png
+21:04:21 INFO wrote results/validation/conus/Dasy_CONUS_RF_v3_all_nby/summary_by_year.csv (39 rows)
+21:04:21 INFO DONE
+== done 2026-11-03T21:04:21-07:00

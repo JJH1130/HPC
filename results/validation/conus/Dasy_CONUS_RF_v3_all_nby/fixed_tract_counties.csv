@@ -1,0 +1,383 @@
+set,GISJOIN,state,name
+from_1910,G1700310,Illinois,Cook County
+from_1910,G3600470,New York,Kings County
+from_1910,G3600610,New York,New York County
+from_1910,G3600810,New York,Queens County
+from_1910,G3600850,New York,Richmond County
+from_1910,G3900350,Ohio,Cuyahoga County
+from_1920,G1700310,Illinois,Cook County
+from_1920,G3600050,New York,Bronx County
+from_1920,G3600470,New York,Kings County
+from_1920,G3600610,New York,New York County
+from_1920,G3600810,New York,Queens County
+from_1920,G3600850,New York,Richmond County
+from_1920,G3900350,Ohio,Cuyahoga County
+from_1920,G5500790,Wisconsin,Milwaukee County
+from_1940,G0100730,Alabama,Jefferson County
+from_1940,G0600010,California,Alameda County
+from_1940,G0600130,California,Contra Costa County
+from_1940,G0600370,California,Los Angeles County
+from_1940,G0600750,California,San Francisco County
+from_1940,G0800310,Colorado,Denver County
+from_1940,G0900030,Connecticut,Hartford County
+from_1940,G0900090,Connecticut,New Haven County
+from_1940,G1100010,District of Columbia,District of Columbia
+from_1940,G1300210,Georgia,Bibb County
+from_1940,G1300510,Georgia,Chatham County
+from_1940,G1300630,Georgia,Clayton County
+from_1940,G1300890,Georgia,DeKalb County
+from_1940,G1301210,Georgia,Fulton County
+from_1940,G1302450,Georgia,Richmond County
+from_1940,G1700310,Illinois,Cook County
+from_1940,G1701190,Illinois,Madison County
+from_1940,G1701630,Illinois,St. Clair County
+from_1940,G1800970,Indiana,Marion County
+from_1940,G1901530,Iowa,Polk County
+from_1940,G2101110,Kentucky,Jefferson County
+from_1940,G2200710,Louisiana,Orleans Parish
+from_1940,G2405100,Maryland,Baltimore city
+from_1940,G2500170,Massachusetts,Middlesex County
+from_1940,G2500250,Massachusetts,Suffolk County
+from_1940,G2600490,Michigan,Genesee County
+from_1940,G2600990,Michigan,Macomb County
+from_1940,G2601250,Michigan,Oakland County
+from_1940,G2601630,Michigan,Wayne County
+from_1940,G2700030,Minnesota,Anoka County
+from_1940,G2700370,Minnesota,Dakota County
+from_1940,G2700530,Minnesota,Hennepin County
+from_1940,G2701230,Minnesota,Ramsey County
+from_1940,G2701370,Minnesota,St. Louis County
+from_1940,G2900950,Missouri,Jackson County
+from_1940,G2901890,Missouri,St. Louis County
+from_1940,G2905100,Missouri,St. Louis city
+from_1940,G3400010,New Jersey,Atlantic County
+from_1940,G3400070,New Jersey,Camden County
+from_1940,G3400130,New Jersey,Essex County
+from_1940,G3400170,New Jersey,Hudson County
+from_1940,G3400210,New Jersey,Mercer County
+from_1940,G3400310,New Jersey,Passaic County
+from_1940,G3400390,New Jersey,Union County
+from_1940,G3600050,New York,Bronx County
+from_1940,G3600290,New York,Erie County
+from_1940,G3600470,New York,Kings County
+from_1940,G3600550,New York,Monroe County
+from_1940,G3600610,New York,New York County
+from_1940,G3600670,New York,Onondaga County
+from_1940,G3600810,New York,Queens County
+from_1940,G3600850,New York,Richmond County
+from_1940,G3601190,New York,Westchester County
+from_1940,G3900350,Ohio,Cuyahoga County
+from_1940,G3900490,Ohio,Franklin County
+from_1940,G3900610,Ohio,Hamilton County
+from_1940,G3900850,Ohio,Lake County
+from_1940,G3900950,Ohio,Lucas County
+from_1940,G3901130,Ohio,Montgomery County
+from_1940,G3901530,Ohio,Summit County
+from_1940,G4001090,Oklahoma,Oklahoma County
+from_1940,G4100510,Oregon,Multnomah County
+from_1940,G4200030,Pennsylvania,Allegheny County
+from_1940,G4201010,Pennsylvania,Philadelphia County
+from_1940,G4400070,Rhode Island,Providence County
+from_1940,G4700370,Tennessee,Davidson County
+from_1940,G4701570,Tennessee,Shelby County
+from_1940,G4801130,Texas,Dallas County
+from_1940,G4802010,Texas,Harris County
+from_1940,G4804530,Texas,Travis County
+from_1940,G5107600,Virginia,Richmond city
+from_1940,G5300330,Washington,King County
+from_1940,G5500790,Wisconsin,Milwaukee County
+from_1960,G0100550,Alabama,Etowah County
+from_1960,G0100730,Alabama,Jefferson County
+from_1960,G0100970,Alabama,Mobile County
+from_1960,G0101010,Alabama,Montgomery County
+from_1960,G0101130,Alabama,Russell County
+from_1960,G0400130,Arizona,Maricopa County
+from_1960,G0400190,Arizona,Pima County
+from_1960,G0500910,Arkansas,Miller County
+from_1960,G0501190,Arkansas,Pulaski County
+from_1960,G0501310,Arkansas,Sebastian County
+from_1960,G0600010,California,Alameda County
+from_1960,G0600130,California,Contra Costa County
+from_1960,G0600190,California,Fresno County
+from_1960,G0600290,California,Kern County
+from_1960,G0600370,California,Los Angeles County
+from_1960,G0600410,California,Marin County
+from_1960,G0600590,California,Orange County
+from_1960,G0600650,California,Riverside County
+from_1960,G0600670,California,Sacramento County
+from_1960,G0600710,California,San Bernardino County
+from_1960,G0600730,California,San Diego County
+from_1960,G0600750,California,San Francisco County
+from_1960,G0600770,California,San Joaquin County
+from_1960,G0600810,California,San Mateo County
+from_1960,G0600830,California,Santa Barbara County
+from_1960,G0600850,California,Santa Clara County
+from_1960,G0600950,California,Solano County
+from_1960,G0800010,Colorado,Adams County
+from_1960,G0800050,Colorado,Arapahoe County
+from_1960,G0800130,Colorado,Boulder County
+from_1960,G0800310,Colorado,Denver County
+from_1960,G0800410,Colorado,El Paso County
+from_1960,G0800590,Colorado,Jefferson County
+from_1960,G0801010,Colorado,Pueblo County
+from_1960,G0900010,Connecticut,Fairfield County
+from_1960,G0900030,Connecticut,Hartford County
+from_1960,G0900050,Connecticut,Litchfield County
+from_1960,G0900070,Connecticut,Middlesex County
+from_1960,G0900090,Connecticut,New Haven County
+from_1960,G0900130,Connecticut,Tolland County
+from_1960,G1000030,Delaware,New Castle County
+from_1960,G1100010,District of Columbia,District of Columbia
+from_1960,G1200310,Florida,Duval County
+from_1960,G1200570,Florida,Hillsborough County
+from_1960,G1200860,Florida,Miami-Dade County
+from_1960,G1200950,Florida,Orange County
+from_1960,G1201030,Florida,Pinellas County
+from_1960,G1300210,Georgia,Bibb County
+from_1960,G1300510,Georgia,Chatham County
+from_1960,G1300530,Georgia,Chattahoochee County
+from_1960,G1300630,Georgia,Clayton County
+from_1960,G1300670,Georgia,Cobb County
+from_1960,G1300890,Georgia,DeKalb County
+from_1960,G1301210,Georgia,Fulton County
+from_1960,G1301350,Georgia,Gwinnett County
+from_1960,G1302150,Georgia,Muscogee County
+from_1960,G1302450,Georgia,Richmond County
+from_1960,G1700310,Illinois,Cook County
+from_1960,G1700430,Illinois,DuPage County
+from_1960,G1700890,Illinois,Kane County
+from_1960,G1700970,Illinois,Lake County
+from_1960,G1701110,Illinois,McHenry County
+from_1960,G1701150,Illinois,Macon County
+from_1960,G1701190,Illinois,Madison County
+from_1960,G1701430,Illinois,Peoria County
+from_1960,G1701610,Illinois,Rock Island County
+from_1960,G1701630,Illinois,St. Clair County
+from_1960,G1701790,Illinois,Tazewell County
+from_1960,G1701970,Illinois,Will County
+from_1960,G1702010,Illinois,Winnebago County
+from_1960,G1800030,Indiana,Allen County
+from_1960,G1800190,Indiana,Clark County
+from_1960,G1800350,Indiana,Delaware County
+from_1960,G1800430,Indiana,Floyd County
+from_1960,G1800890,Indiana,Lake County
+from_1960,G1800970,Indiana,Marion County
+from_1960,G1801270,Indiana,Porter County
+from_1960,G1801410,Indiana,St. Joseph County
+from_1960,G1801630,Indiana,Vanderburgh County
+from_1960,G1900130,Iowa,Black Hawk County
+from_1960,G1901530,Iowa,Polk County
+from_1960,G1901550,Iowa,Pottawattamie County
+from_1960,G1901630,Iowa,Scott County
+from_1960,G1901930,Iowa,Woodbury County
+from_1960,G2000910,Kansas,Johnson County
+from_1960,G2001730,Kansas,Sedgwick County
+from_1960,G2001770,Kansas,Shawnee County
+from_1960,G2002090,Kansas,Wyandotte County
+from_1960,G2100670,Kentucky,Fayette County
+from_1960,G2101010,Kentucky,Henderson County
+from_1960,G2101110,Kentucky,Jefferson County
+from_1960,G2200150,Louisiana,Bossier Parish
+from_1960,G2200170,Louisiana,Caddo Parish
+from_1960,G2200330,Louisiana,East Baton Rouge Parish
+from_1960,G2200510,Louisiana,Jefferson Parish
+from_1960,G2200710,Louisiana,Orleans Parish
+from_1960,G2200730,Louisiana,Ouachita Parish
+from_1960,G2200870,Louisiana,St. Bernard Parish
+from_1960,G2300050,Maine,Cumberland County
+from_1960,G2400030,Maryland,Anne Arundel County
+from_1960,G2400050,Maryland,Baltimore County
+from_1960,G2400130,Maryland,Carroll County
+from_1960,G2400270,Maryland,Howard County
+from_1960,G2400310,Maryland,Montgomery County
+from_1960,G2400330,Maryland,Prince George's County
+from_1960,G2405100,Maryland,Baltimore city
+from_1960,G2500030,Massachusetts,Berkshire County
+from_1960,G2500050,Massachusetts,Bristol County
+from_1960,G2500090,Massachusetts,Essex County
+from_1960,G2500130,Massachusetts,Hampden County
+from_1960,G2500170,Massachusetts,Middlesex County
+from_1960,G2500210,Massachusetts,Norfolk County
+from_1960,G2500230,Massachusetts,Plymouth County
+from_1960,G2500250,Massachusetts,Suffolk County
+from_1960,G2500270,Massachusetts,Worcester County
+from_1960,G2600370,Michigan,Clinton County
+from_1960,G2600450,Michigan,Eaton County
+from_1960,G2600490,Michigan,Genesee County
+from_1960,G2600650,Michigan,Ingham County
+from_1960,G2600750,Michigan,Jackson County
+from_1960,G2600770,Michigan,Kalamazoo County
+from_1960,G2600810,Michigan,Kent County
+from_1960,G2600990,Michigan,Macomb County
+from_1960,G2601210,Michigan,Muskegon County
+from_1960,G2601250,Michigan,Oakland County
+from_1960,G2601450,Michigan,Saginaw County
+from_1960,G2601610,Michigan,Washtenaw County
+from_1960,G2601630,Michigan,Wayne County
+from_1960,G2700030,Minnesota,Anoka County
+from_1960,G2700370,Minnesota,Dakota County
+from_1960,G2700530,Minnesota,Hennepin County
+from_1960,G2701230,Minnesota,Ramsey County
+from_1960,G2701370,Minnesota,St. Louis County
+from_1960,G2701630,Minnesota,Washington County
+from_1960,G2900470,Missouri,Clay County
+from_1960,G2900770,Missouri,Greene County
+from_1960,G2900950,Missouri,Jackson County
+from_1960,G2900990,Missouri,Jefferson County
+from_1960,G2901830,Missouri,St. Charles County
+from_1960,G2901890,Missouri,St. Louis County
+from_1960,G2905100,Missouri,St. Louis city
+from_1960,G3100550,Nebraska,Douglas County
+from_1960,G3101090,Nebraska,Lancaster County
+from_1960,G3101530,Nebraska,Sarpy County
+from_1960,G3200030,Nevada,Clark County
+from_1960,G3300110,New Hampshire,Hillsborough County
+from_1960,G3400010,New Jersey,Atlantic County
+from_1960,G3400030,New Jersey,Bergen County
+from_1960,G3400050,New Jersey,Burlington County
+from_1960,G3400070,New Jersey,Camden County
+from_1960,G3400130,New Jersey,Essex County
+from_1960,G3400150,New Jersey,Gloucester County
+from_1960,G3400170,New Jersey,Hudson County
+from_1960,G3400210,New Jersey,Mercer County
+from_1960,G3400230,New Jersey,Middlesex County
+from_1960,G3400270,New Jersey,Morris County
+from_1960,G3400310,New Jersey,Passaic County
+from_1960,G3400330,New Jersey,Salem County
+from_1960,G3400390,New Jersey,Union County
+from_1960,G3500010,New Mexico,Bernalillo County
+from_1960,G3600010,New York,Albany County
+from_1960,G3600050,New York,Bronx County
+from_1960,G3600070,New York,Broome County
+from_1960,G3600290,New York,Erie County
+from_1960,G3600430,New York,Herkimer County
+from_1960,G3600470,New York,Kings County
+from_1960,G3600530,New York,Madison County
+from_1960,G3600550,New York,Monroe County
+from_1960,G3600590,New York,Nassau County
+from_1960,G3600610,New York,New York County
+from_1960,G3600630,New York,Niagara County
+from_1960,G3600650,New York,Oneida County
+from_1960,G3600670,New York,Onondaga County
+from_1960,G3600750,New York,Oswego County
+from_1960,G3600810,New York,Queens County
+from_1960,G3600830,New York,Rensselaer County
+from_1960,G3600850,New York,Richmond County
+from_1960,G3600870,New York,Rockland County
+from_1960,G3600910,New York,Saratoga County
+from_1960,G3600930,New York,Schenectady County
+from_1960,G3601030,New York,Suffolk County
+from_1960,G3601190,New York,Westchester County
+from_1960,G3700630,North Carolina,Durham County
+from_1960,G3700670,North Carolina,Forsyth County
+from_1960,G3700810,North Carolina,Guilford County
+from_1960,G3701190,North Carolina,Mecklenburg County
+from_1960,G3701830,North Carolina,Wake County
+from_1960,G3900030,Ohio,Allen County
+from_1960,G3900170,Ohio,Butler County
+from_1960,G3900230,Ohio,Clark County
+from_1960,G3900350,Ohio,Cuyahoga County
+from_1960,G3900490,Ohio,Franklin County
+from_1960,G3900570,Ohio,Greene County
+from_1960,G3900610,Ohio,Hamilton County
+from_1960,G3900810,Ohio,Jefferson County
+from_1960,G3900850,Ohio,Lake County
+from_1960,G3900930,Ohio,Lorain County
+from_1960,G3900950,Ohio,Lucas County
+from_1960,G3900990,Ohio,Mahoning County
+from_1960,G3901130,Ohio,Montgomery County
+from_1960,G3901510,Ohio,Stark County
+from_1960,G3901530,Ohio,Summit County
+from_1960,G3901550,Ohio,Trumbull County
+from_1960,G4000170,Oklahoma,Canadian County
+from_1960,G4000270,Oklahoma,Cleveland County
+from_1960,G4001090,Oklahoma,Oklahoma County
+from_1960,G4001130,Oklahoma,Osage County
+from_1960,G4001430,Oklahoma,Tulsa County
+from_1960,G4100050,Oregon,Clackamas County
+from_1960,G4100510,Oregon,Multnomah County
+from_1960,G4100670,Oregon,Washington County
+from_1960,G4200030,Pennsylvania,Allegheny County
+from_1960,G4200070,Pennsylvania,Beaver County
+from_1960,G4200110,Pennsylvania,Berks County
+from_1960,G4200130,Pennsylvania,Blair County
+from_1960,G4200170,Pennsylvania,Bucks County
+from_1960,G4200210,Pennsylvania,Cambria County
+from_1960,G4200290,Pennsylvania,Chester County
+from_1960,G4200410,Pennsylvania,Cumberland County
+from_1960,G4200430,Pennsylvania,Dauphin County
+from_1960,G4200450,Pennsylvania,Delaware County
+from_1960,G4200490,Pennsylvania,Erie County
+from_1960,G4200690,Pennsylvania,Lackawanna County
+from_1960,G4200710,Pennsylvania,Lancaster County
+from_1960,G4200770,Pennsylvania,Lehigh County
+from_1960,G4200790,Pennsylvania,Luzerne County
+from_1960,G4200910,Pennsylvania,Montgomery County
+from_1960,G4201010,Pennsylvania,Philadelphia County
+from_1960,G4201110,Pennsylvania,Somerset County
+from_1960,G4201250,Pennsylvania,Washington County
+from_1960,G4201290,Pennsylvania,Westmoreland County
+from_1960,G4201330,Pennsylvania,York County
+from_1960,G4400010,Rhode Island,Bristol County
+from_1960,G4400030,Rhode Island,Kent County
+from_1960,G4400050,Rhode Island,Newport County
+from_1960,G4400070,Rhode Island,Providence County
+from_1960,G4400090,Rhode Island,Washington County
+from_1960,G4500190,South Carolina,Charleston County
+from_1960,G4500450,South Carolina,Greenville County
+from_1960,G4500630,South Carolina,Lexington County
+from_1960,G4500790,South Carolina,Richland County
+from_1960,G4700370,Tennessee,Davidson County
+from_1960,G4700650,Tennessee,Hamilton County
+from_1960,G4700930,Tennessee,Knox County
+from_1960,G4701570,Tennessee,Shelby County
+from_1960,G4800090,Texas,Archer County
+from_1960,G4800290,Texas,Bexar County
+from_1960,G4800370,Texas,Bowie County
+from_1960,G4800850,Texas,Collin County
+from_1960,G4801130,Texas,Dallas County
+from_1960,G4801210,Texas,Denton County
+from_1960,G4801350,Texas,Ector County
+from_1960,G4801390,Texas,Ellis County
+from_1960,G4801410,Texas,El Paso County
+from_1960,G4801670,Texas,Galveston County
+from_1960,G4802010,Texas,Harris County
+from_1960,G4802450,Texas,Jefferson County
+from_1960,G4802510,Texas,Johnson County
+from_1960,G4802530,Texas,Jones County
+from_1960,G4803030,Texas,Lubbock County
+from_1960,G4803090,Texas,McLennan County
+from_1960,G4803550,Texas,Nueces County
+from_1960,G4804230,Texas,Smith County
+from_1960,G4804390,Texas,Tarrant County
+from_1960,G4804410,Texas,Taylor County
+from_1960,G4804510,Texas,Tom Green County
+from_1960,G4804530,Texas,Travis County
+from_1960,G4804790,Texas,Webb County
+from_1960,G4804850,Texas,Wichita County
+from_1960,G4900350,Utah,Salt Lake County
+from_1960,G4900570,Utah,Weber County
+from_1960,G5100130,Virginia,Arlington County
+from_1960,G5100410,Virginia,Chesterfield County
+from_1960,G5100590,Virginia,Fairfax County
+from_1960,G5100870,Virginia,Henrico County
+from_1960,G5101990,Virginia,York County
+from_1960,G5105100,Virginia,Alexandria city
+from_1960,G5106100,Virginia,Falls Church city
+from_1960,G5106500,Virginia,Hampton city
+from_1960,G5107100,Virginia,Norfolk city
+from_1960,G5107400,Virginia,Portsmouth city
+from_1960,G5107600,Virginia,Richmond city
+from_1960,G5108100,Virginia,Virginia Beach city
+from_1960,G5300110,Washington,Clark County
+from_1960,G5300330,Washington,King County
+from_1960,G5300530,Washington,Pierce County
+from_1960,G5300610,Washington,Snohomish County
+from_1960,G5300630,Washington,Spokane County
+from_1960,G5400090,West Virginia,Brooke County
+from_1960,G5400290,West Virginia,Hancock County
+from_1960,G5400690,West Virginia,Ohio County
+from_1960,G5500090,Wisconsin,Brown County
+from_1960,G5500250,Wisconsin,Dane County
+from_1960,G5500790,Wisconsin,Milwaukee County
+from_1960,G5501330,Wisconsin,Waukesha County
