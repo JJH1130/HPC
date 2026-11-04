@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -16,8 +16,9 @@ Last updated: 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 +
 - **Status (2026-11-04, v5.4 + nby without the filter):** run 2026-11-03 MT (jobs 35240999-35241004, 291e789; result
   in `docs/conus_plan.md` "v5.4 + NobuiltYear (no filter): result"). v5.4 + nby is the best on ALL TEST counties in
   every year (R2 0.861-0.917), ties v5.6 + nby on kept counties, and is the best on tracts 1940 / 1960 (1980 within
-  0.1 pp of v5.6; 2010 +1.1 pp). Undated-record age diagnosis: no clear age lean. **Open (user):** next base = v5.4 +
-  nby (no filter) or v5.6; if v5.4 + nby, run all 13 years. Tracts not used for the choice.
+  0.1 pp of v5.6; 2010 +1.1 pp). Undated-record age diagnosis: no clear age lean. **Decided (user, 2026-11-04):** v5.7 =
+  `Dasy_CONUS_RF_v3_all_nby` (v5.4, no filter, + nby) is the new base (best on all TEST counties; the 2010 tract cost of
+  1.1 pp vs v5.6 is reported, not tuned away). All 13 years requested: `docs/handoff/v57_all_years_request.md`.
 - **Status (2026-11-04, NobuiltYear feature test, request `docs/handoff/nobuiltyear_feature_request.md`):** run
   2026-11-03 MT (jobs 35233305-35233314; result in `docs/conus_plan.md` "NobuiltYear feature test result"); code was
   written (runbook section 19, `bash sbatch/submit_conus.sh nobuilt`; `docs/conus_plan.md` "NobuiltYear feature

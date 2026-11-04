@@ -10,7 +10,7 @@ Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.
 `configs/conus_rf_v3_bui.yaml`, `configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `configs/conus_rf_v3_all.yaml`,
 `configs/conus_rf_v3_ntl.yaml`, `configs/conus_rf_v3_ntlv.yaml`, split `configs/conus_split.csv`.
 
-## Version summary (for meetings; updated 2026-10-30)
+## Version summary (for meetings; updated 2026-11-04)
 
 Naming: CONUS = v5 series on HISDAC-US v2 (v6 = HISDAC-US v3, later). One RF per census year, county split 80 / 20 by
 state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all tracts of the year.
@@ -23,8 +23,11 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | v5.3 | `Dasy_CONUS_RF_v4` | + distances + terrain | 40.3 / 39.8 % | dropped |
 | v5.4 | `Dasy_CONUS_RF_v3_all` | v5.2 on BUI-fixed input, RF (vs LightGBM / XGBoost / CatBoost), 60 candidates, 1900-2020 | 37.9 / 26.6 % (2020: 26.1) | base |
 | v5.5 | `Dasy_CONUS_RF_v3_ntl` / `_ntlv` | + night lights (DMSP / VIIRS-like), 2000 / 2010 | 2010: 31.0 / 36.2 % | dropped (helps only gap counties) |
-| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | **chosen** (best so far, not declared final), all 13 years 1900-2020 |
-| v5.7 (test) | `Dasy_CONUS_RF_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}` | v5.6 + Siqiao's 900 m PLURAL grid (continuous / 3 or 5 classes), 1940 / 1980 / 2010 | 2010: 24.1-28.2 % (v5.6 23.8) | worse on tracts; drop proposed (user decides) |
+| v5.6 | `Dasy_CONUS_RF_v3_u070` | v5.4 trained / tested without counties with >= 70 % records lacking a built year (+ record / area rules), those imputed | 36.0 / 23.8 % (2020: 23.7) | previous choice; all 13 years 1900-2020 |
+| (test) | `Dasy_CONUS_RF_v3_u070_{plc,plcc,pq3,pq5,pe3,pe5}` | v5.6 + Siqiao's 900 m PLURAL grid (continuous / 3 or 5 classes), 1940 / 1980 / 2010 | 2010: 24.1-28.2 % (v5.6 23.8) | worse on tracts; dropped |
+| (test) | `Dasy_CONUS_RF_v3_u070_bc{3,5,9}` | v5.6 + built-cell aggregation, 1960 / 2010 | see "Built-cell aggregation test result" | dropped (v5.6 kept) |
+| (test) | `Dasy_CONUS_RF_v3_u070_{nby,nbya}` | v5.6 + NobuiltYear (records without a built year) / its age-scaled form, 1910-2010 | 34.4 / 24.7 % | superseded by v5.7 |
+| v5.7 | `Dasy_CONUS_RF_v3_all_nby` | v5.4 (no filter, all counties) + nby | 34.0 / 24.9 %; all-TEST county R2 0.898 / 0.917 (v5.4 0.861 / 0.878, v5.6 0.823 / 0.522) | **chosen 2026-11-04 (user)**, best on all TEST counties every year; 5 years run, all 13 years requested (`docs/handoff/v57_all_years_request.md`) |
 
 County metrics of v5.6 on **all** TEST counties (kept + 199 excluded, imputed; computed 2026-11-03 from
 `test_predictions.csv` + `excluded_predictions.csv`): TEST R2 1960 / 2010 = 0.823 / 0.522 (v5.4 0.861 / 0.878), MdAPE
