@@ -1,0 +1,58 @@
+version,label,year,feature,mean_abs_shap,rank
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,nby,0.3640638254780809,1
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,bui,0.3257219637480225,2
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,elev,0.2740655042181294,3
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,bldg_size,0.1404070265350619,4
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,dist_built,0.08175763382582724,5
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,rent_share,0.0423460124396965,6
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,slope,0.03946863895001052,7
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,mu_ratio,0.026827036003849815,8
+Dasy_CONUS_RF_v3_all_nby,v5.7,1940,res_share,0.026765764570896713,9
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,plural,0.3970537569685436,1
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,bui,0.26792008049365956,2
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,nby,0.22809716586237838,3
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,elev,0.12127302317149335,4
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,bldg_size,0.11578591200182753,5
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,rent_share,0.05266920094809166,6
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,res_share,0.03684929273442224,7
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,slope,0.03286882727848147,8
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,mu_ratio,0.03220671156798561,9
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1940,dist_built,0.026777188916201015,10
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,bui,0.571230236113914,1
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,nby,0.38338652208929075,2
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,bldg_size,0.21967258848938342,3
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,elev,0.15945101644341098,4
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,rent_share,0.09489941837366862,5
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,dist_built,0.03385565505657483,6
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,slope,0.0315544521672201,7
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,mu_ratio,0.029004997484039063,8
+Dasy_CONUS_RF_v3_all_nby,v5.7,1980,res_share,0.028763355087808765,9
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,bui,0.4884206493545944,1
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,plural,0.3238012262359459,2
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,nby,0.27391036711536604,3
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,bldg_size,0.1686495114359697,4
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,rent_share,0.10302467931485318,5
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,elev,0.08452190279628473,6
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,mu_ratio,0.03494147384267551,7
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,res_share,0.02738645573755606,8
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,slope,0.023508288205357043,9
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),1980,dist_built,0.01842458226207479,10
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,bui,0.7017649845881149,1
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,nby,0.3680821318174982,2
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,bldg_size,0.23888640404520822,3
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,elev,0.14638488295466542,4
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,rent_share,0.1004740214589939,5
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,res_share,0.034801547464783644,6
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,mu_ratio,0.03456343730043881,7
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,dist_built,0.03309222873089607,8
+Dasy_CONUS_RF_v3_all_nby,v5.7,2010,slope,0.023908350794161336,9
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,bui,0.562919243762315,1
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,nby,0.2776974589897905,2
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,plural,0.27709369601692974,3
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,bldg_size,0.21519364632255608,4
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,rent_share,0.11600760756429712,5
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,elev,0.08460970599643067,6
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,mu_ratio,0.047150220054462615,7
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,res_share,0.03550863797116449,8
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,slope,0.022906466716583473,9
+Dasy_CONUS_RF_v3_all_nby_pq5,v5.7 + PLURAL (pq5),2010,dist_built,0.018245744234624613,10

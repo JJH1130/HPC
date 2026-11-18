@@ -211,6 +211,8 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
      blocks 1-3; Claude analyses.
 3. **Feature importance figures for Stefan.** SHAP bar plot (mean |SHAP| per feature) + SHAP summary (beeswarm)
    plot, per era, for the version chosen after item 2 (from the tracked `shap_values.csv`, locally by Claude).
+   Drawn 2026-11-19 for v5.7 and v5.7 + PLURAL pq5, 1940 / 1980 / 2010: `src/validation/shap_figures.py` ->
+   `results/validation/conus/shap_figures/` (PLURAL takes importance from nby / dist_built / elev / BUI; rank 1 in 1940).
 4. **City boxes split by density class.** The 40 x 40 km boxes (Boston / Denver / Chicago, 1980 / 2010) split into
    rural / peri-urban / urban by population density, then the comparison with GHS-POP / WorldPop per class (Spearman,
    totals, scatter); Stefan wants to see how close or different we are in rural areas. Fixed 2026-11-19: 1 km blocks,

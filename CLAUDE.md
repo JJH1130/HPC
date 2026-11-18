@@ -137,7 +137,9 @@ figure) -> `results/validation/conus/plural_grid_v57/plural_v57_*.csv`. City box
 [VERSION LABEL]`; `city_density:` block of `configs/external_grids.yaml`): the meeting boxes / blocks split by GHS-POP block density
 (rural < 100, peri_urban 100 - 1,000, urban >= 1,000 per km2, a break = the upper class; same breaks on our density as a check),
 per class blocks / Spearman / totals / block-ratio quantiles / zero blocks / x4 shares + one figure per city and year; whole box =
-the version's `meeting_summary_<a>_<b>.csv`, else stop -> `results/validation/conus/external/city_density_classes_<label>/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+the version's `meeting_summary_<a>_<b>.csv`, else stop -> `results/validation/conus/external/city_density_classes_<label>/`. `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
+figure, a row per version: mean |SHAP| bar + beeswarm from the era's `shap_values.csv` / `county_features.csv`, bars checked
+against `shap_importance.csv`) -> `results/validation/conus/shap_figures/` (Stefan 2026-11-17 item 3). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
