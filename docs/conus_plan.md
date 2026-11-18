@@ -28,7 +28,7 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | (test) | `Dasy_CONUS_RF_v3_u070_bc{3,5,9}` | v5.6 + built-cell aggregation, 1960 / 2010 | see "Built-cell aggregation test result" | dropped (v5.6 kept) |
 | (test) | `Dasy_CONUS_RF_v3_u070_{nby,nbya}` | v5.6 + NobuiltYear (records without a built year) / its age-scaled form, 1910-2010 | 34.4 / 24.7 % | superseded by v5.7 |
 | v5.7 | `Dasy_CONUS_RF_v3_all_nby` | v5.4 (no filter, all counties) + nby | 34.0 / 24.9 %; all-TEST county R2 0.898 / 0.917 (v5.4 0.861 / 0.878, v5.6 0.823 / 0.522) | **chosen 2026-11-04 (user)**, best on all TEST counties every year; 5 years run, all 13 years requested (`docs/handoff/v57_all_years_request.md`), code ready ("v5.7 all years", runbook section 21) |
-| (test) | `Dasy_CONUS_RF_v3_all_nbya` | v5.7 with nby -> nby_age (NobuiltYear scaled to the year by the county's BUPR_year / BUPR_2015; Stefan 2026-11-17), 1910-2010 | - | code written 2026-11-18, not run ("v5.7 with nby_age instead of nby", runbook section 22); choice by county CV RMSE |
+| (test) | `Dasy_CONUS_RF_v3_all_nbya` | v5.7 with nby -> nby_age (NobuiltYear scaled to the year by the county's BUPR_year / BUPR_2015; Stefan 2026-11-17), 1910-2010 | 36.4 / 26.4 % | worse county CV in all 5 years (+6 %); v5.7 kept |
 
 County metrics of v5.6 on **all** TEST counties (kept + 199 excluded, imputed; computed 2026-11-03 from
 `test_predictions.csv` + `excluded_predictions.csv`): TEST R2 1960 / 2010 = 0.823 / 0.522 (v5.4 0.861 / 0.878), MdAPE
@@ -265,6 +265,25 @@ All nine jobs COMPLETED (~1.5 h). `KEPT YEARS OK: 120 items` (the five earlier y
   0.849 -> 0.885, Denver 1980 0.796 -> 0.816, Boston 0.94 -> 0.94); gap blocks a few fewer.
 - Kept as chosen (user, 2026-11-04). Open: the recent-year urban tract cost (not tuned on tracts; for after the meeting:
   e.g. a feature that separates cells with only undated records from mixed cells, chosen by county CV).
+
+## v5.7 with nby_age instead of nby: result (jobs 35861168-35861173, run 2026-11-18 MT, commit 6072402)
+
+All six jobs COMPLETED (~1.5 h); FACTORS OK (factors = the v5.6 + nby_age test's on the common counties); v5.4 / v5.6 /
+v5.7 / v5.6 + nby_age rows matched the earlier tables.
+
+| year | county CV RMSE v5.7 / nby_age (same folds) | all-TEST county R2 v5.7 / nby_age | tract MdAPE all v5.7 / nby_age | tract, excluded t070 counties |
+|---|---|---|---|---|
+| 1910 | **0.506** / 0.539 | **0.861** / 0.846 | **51.8** / 52.1 | - |
+| 1940 | **0.486** / 0.534 | **0.886** / 0.882 | **40.1** / 42.6 | - |
+| 1960 | **0.505** / 0.546 | **0.898** / 0.894 | **34.0** / 36.4 | **79.4** / 85.6 |
+| 1980 | **0.495** / 0.524 | **0.908** / 0.904 | **26.9** / 31.9 | **59.6** / 71.0 |
+| 2010 | **0.506** / 0.506 | 0.917 / **0.921** | **24.9** / 26.4 | **37.4** / 40.3 |
+
+- Rule (county CV RMSE, fixed before): v5.7 lower in 5 of 5 years (nby_age +6-10 % in 1910-1980, equal in 2010).
+  Tracts agree: nby_age worse in every year, most in 1980 (+5.0 pp) and in the excluded counties.
+- Why: the factor is small in early years (median f_c 0.045 in 1910, 0.17 in 1940; 1,527 of 2,940 counties < 0.05
+  in 1910), so nby_age is close to 0 there and loses the record-quality signal that raw nby carries.
+- v5.7 (raw nby) kept as the base. Same result as on v5.6 (2026-11-04).
 
 ## BUI outliers (request 2026-10-27): look first, decide after
 
