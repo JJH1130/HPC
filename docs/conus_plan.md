@@ -285,6 +285,42 @@ v5.7 / v5.6 + nby_age rows matched the earlier tables.
   in 1910), so nby_age is close to 0 there and loses the record-quality signal that raw nby carries.
 - v5.7 (raw nby) kept as the base. Same result as on v5.6 (2026-11-04).
 
+## City boxes by density class: result (job 35916297, run 2026-11-18 MT, commit d99e0fc)
+
+COMPLETED (1.5 min); v5.7 whole boxes and the meeting gap-block shares matched. Boston / Denver / Chicago 40 x 40 km,
+classes by GHS-POP 1 km block density (rural < 100, peri-urban 100-1,000, urban >= 1,000 per km2), the 3 cities pooled.
+
+People on each cell type, share of the class's people (`cell_type_shares.csv`):
+
+| year, class | BUI > 0: GHS / WorldPop / v5.7 / pq5 | BUI = 0, undated records only | BUI = 0, no record |
+|---|---|---|---|
+| 1980 rural | 57 / - / 90 / 73 % | 32 / - / 9 / 13 % | 11 / - / 1 / 14 % |
+| 1980 peri-urban | 81 / - / 99 / 97 % | 17 / - / 1 / 2 % | 2 / - / 0 / 1 % |
+| 1980 urban | 95 / - / 100 / 100 % | 5 / - / 0 / 0 % | 0 / - / 0 / 0 % |
+| 2010 rural | 76 / 58 / 94 / 86 % | 17 / 20 / 6 / 10 % | 7 / 22 / 1 / 5 % |
+| 2010 peri-urban | 94 / 92 / 99 / 98 % | 5 / 7 / 1 / 2 % | 1 / 2 / 0 / 0 % |
+| 2010 urban | 98 / 98 / 100 / 100 % | 2 / 2 / 0 / 0 % | 0 / 0 / 0 / 0 % |
+
+Block level (`density_class_summary.csv`, means over the 3 cities; ours / GHS-POP):
+
+| year, class | total ratio v5.7 / pq5 | blocks > 4x above v5.7 / pq5 | Spearman v5.7 / pq5 |
+|---|---|---|---|
+| 1980 rural | 3.2 / 4.3 | 52 / 64 % | 0.61 / 0.56 |
+| 1980 peri-urban | 1.3 / 1.3 | 1 / 1 % | 0.65 / 0.65 |
+| 1980 urban | 1.0 / 1.0 | 0 / 0 % | 0.65 / 0.66 |
+| 2010 rural | 4.4 / 5.3 | 56 / 64 % | 0.63 / 0.62 |
+| 2010 peri-urban | 1.3 / 1.4 | 1 / 2 % | 0.72 / 0.72 |
+| 2010 urban | 0.89 / 0.87 | 0 / 0 % | 0.74 / 0.74 |
+
+- Cells without a dated building do hold people by both block-input products (user's point): in rural blocks 24-43 %
+  of GHS-POP's people (2010 WorldPop 42 %), but only 6-10 % in v5.7. PLURAL moves the mix toward the products (rural
+  2010 no-record cells 1 -> 5 %, GHS 7 %, WorldPop 22 %).
+- But both versions already put 3-4 x GHS-POP's people into the rural blocks (urban blocks get 0.89 x), and PLURAL
+  raises it to 4-5 x: more of the excess, so the tracts get worse (rural tracts most), although the cell-type mix
+  inside the rural blocks gets closer to GHS-POP / WorldPop.
+- Urban / peri-urban: v5.7 and pq5 agree with the products about as well (Spearman 0.65-0.74).
+- Scope: 3 city boxes only (rural = the fringe of a metro area); for meetings with the "agreement, not accuracy" note.
+
 ## BUI outliers (request 2026-10-27): look first, decide after
 
 Pilot BUI maxima in one 250 m cell (62,500 m2): 306,635,538 (1920), 709,978,539 (1960), 5,447,140,510 (2010). Even a
