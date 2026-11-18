@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-18 (meeting with Stefan 2026-11-17 recorded); 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -170,6 +170,34 @@ Last updated: 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (
   (`results/census_conus/counties_conus_filled.csv`). Same day (user): they are appended to `configs/conus_split.csv`
   as train (existing rows unchanged) and trained on when the area ratio is within 0.95-1.05 (status `filled_nhgis`);
   outside it they are `filled_nhgis_alloc`, allocated only.
+
+### Meeting with Stefan, 2026-11-17 (to do; not started)
+
+Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 3 and 4 can run beside them; 5 later.
+
+1. **Year-scaled NobuiltYear (main idea).** Instead of the same NobuiltYear count in every year, scale it to the
+   year by the built-up ratio: nby_year = NobuiltYear x BUI_year / BUI_2020 (Stefan's example: NobuiltYear 20,
+   BUI_2020 100, BUI_1900 20 -> 4). One value per year, so each era's model gets its own nby.
+   To settle before coding (Claude + user):
+   - Unit of the ratio: per cell, or per county (the earlier `nby_age` = 2010-county sum of BUPR_year / BUPR_2015,
+     clipped 0-1; it was worse than raw nby: tract 1980 28.8 vs 27.6 %, county R2 0.770 vs 0.858). Per cell differs
+     from what was tested, but 14.1 M of 26.2 M built cells have undated records only (BUI_2020 = 0 -> ratio
+     undefined), and those are the cells nby is for: a rule for them is needed (e.g. a neighbourhood or county
+     ratio as fallback).
+   - Layer of the ratio: BUI (intensity, Stefan's words) or BUPR (record counts, what nby_age used); reference year
+     2020 or 2015.
+   - Compare with v5.7 by county CV / all TEST counties (selection), tracts reported.
+2. **PLURAL again, on the new base.** After 1: Stefan expects a compensating effect (spreading people where records
+   are missing, and damping over-allocation), and that PLURAL may work once NobuiltYear is in. Same variants as
+   the v5.6 test (continuous bilinear / cubic, 3 / 5 classes quantile / equal), on v5.7 (or the item 1 result).
+3. **Feature importance figures for Stefan.** SHAP bar plot (mean |SHAP| per feature) + SHAP summary (beeswarm)
+   plot for v5.7, per era (at least the meeting years; years to settle).
+4. **City boxes split by density class.** The 40 x 40 km boxes (Boston / Denver / Chicago, 1980 / 2010) split into
+   rural / peri-urban / urban by population density, then the comparison with GHS-POP / WorldPop per class (Spearman,
+   totals, scatter); Stefan wants to see how close or different we are in rural areas. To settle: whose density
+   defines the classes (GHS-POP, ours, or tract density) and the breaks; per 1 km block or per 250 m cell.
+5. **(Later, next meeting) Separate models for rural / peri-urban / urban.** Idea only; how to split (by county,
+   by cell, by which variable) is the hard part. Discuss next meeting, no analysis now.
 
 ### Meeting with Stefan, 2026-10-28 (to do; details to be settled)
 
