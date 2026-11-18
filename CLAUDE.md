@@ -123,7 +123,21 @@ nby -> nby_age, the `nby_age:` block of `conus_rf_v3_u070_nbya.yaml`); `src/vali
 and train: factors = `Dasy_CONUS_RF_v3_u070_nbya`'s on the common counties, county features = v5.7's with nby_age = nby x
 factor; FACTORS OK or the chain stops), `compare` (v5.4 / v5.6 / v5.7 / new / v5.6 + nby_age as `v54_nby_compare`
 (`county_rows(rank_features=...)`), d_mdape vs v5.7, f_c summary, CV rule = county CV RMSE on v5.7's folds; v5.4 / v5.6 /
-v5.7 rows must equal `v54_nby_*`, v5.6 + nby_age `nobuilt_*`, else stop) -> `results/validation/conus/nobuilt/v57_nbya_*.csv`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
+v5.7 rows must equal `v54_nby_*`, v5.6 + nby_age `nobuilt_*`, else stop) -> `results/validation/conus/nobuilt/v57_nbya_*.csv`. PLURAL on v5.7 (Stefan 2026-11-17 item 2, `docs/conus_plan.md`
+"PLURAL on v5.7", runbook section 23, `bash sbatch/submit_conus.sh v57plural`): `configs/conus_rf_v3_all_nby_{plc,plcc,pq3,pq5,pe3,pe5}.yaml`
+(`Dasy_CONUS_RF_v3_all_nby_<variant>` = v5.7's eras of 1940 / 1980 / 2010 + plural, the plural blocks of `conus_rf_v3_u070_<variant>.yaml`);
+`src/validation/v57_plural_compare.py` (`sbatch/v57_plural_compare.sh features|compare`): `config` (login-node pre-check: CONFIG OK),
+`features` (job between the six features jobs and train: county features = v5.7's + plural, plural / `plural_breaks.csv` = the v5.6
+test's; FEATURES OK or the chain stops), `compare` (v5.7 + six, v5.6 + six as reference columns, definitions of `v54_nby_compare` /
+`plural_compare` / `nobuilt_compare.cell_sums`; d_mdape vs v5.7 + d_mdape_own vs the own base; CV rule = per variant years with county
+CV RMSE below v5.7's + mean change; v5.6 / v5.7 rows must equal `v54_nby_*`, v5.6 + plural `plural_comparison.csv`, else stop; no
+figure) -> `results/validation/conus/plural_grid_v57/plural_v57_*.csv`. City boxes by density class (item 4, `docs/conus_plan.md`
+"City boxes by density class", runbook section 24, code only): `src/validation/external_city_density.py`
+(`sbatch/external_city_density.sh`, env `DENS_VERSION` / `DENS_LABEL` / `DENS_CHECK_WITH`; `bash sbatch/submit_conus.sh citydensity
+[VERSION LABEL]`; `city_density:` block of `configs/external_grids.yaml`): the meeting boxes / blocks split by GHS-POP block density
+(rural < 100, peri_urban 100 - 1,000, urban >= 1,000 per km2, a break = the upper class; same breaks on our density as a check),
+per class blocks / Spearman / totals / block-ratio quantiles / zero blocks / x4 shares + one figure per city and year; whole box =
+the version's `meeting_summary_<a>_<b>.csv`, else stop -> `results/validation/conus/external/city_density_classes_<label>/`. Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
 acknowledgement in `docs/acknowledgements.md`. Raw/processed data live under
 `/projects/jaju1407/data` (`$DATA_ROOT` in `sbatch/cluster_env.sh`), not in git. Second stage: `src/grid/make_cutout.py`
@@ -161,7 +175,7 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya` (`v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity` (`v57plural` / `citydensity` = PLURAL on v5.7 / city boxes by density class, see above; `v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
 `undated_age_diag` side by side; the pre-check prints the time left before a CURC maintenance window (`MAINT_START` / `MAINT_END`,
 MT) and which jobs would wait; `nobuilt` = NOBUILT layer -> nby / nbya features / train / predict / validate side by side -> `nobuilt_compare`; `uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
 `filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `externalv56` = pre-check of the reused tract sums + map inputs, then evaluate and city maps side by side; `citymeeting` = pre-check of the meeting-map inputs, one job; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
@@ -218,6 +232,12 @@ tracked v5.4 / v5.6 / v5.7 numbers = `v54_nby_comparison.csv`; meeting-map versi
 `python tests/test_v57nbya.py` (config = v5.7 eras with nby -> nby_age + mutations; factor check + f_c summary by hand,
 a changed factor / feature stops; compare on a synthetic world whose earlier tables come from v54_nby_compare /
 nobuilt_compare (metrics, d_mdape, ranks, CV rule by hand; changed rows / other folds stop); the tracked numbers),
+`python tests/test_v57plural.py` (six configs = v5.7 eras + plural + mutations; features check on synthetic
+files (changed column / plural / break / study cells stop); compare on a synthetic world whose earlier tables come from
+v54_nby_compare / plural_compare (metrics, d_mdape / d_mdape_own, ranks, cells, CV rule by hand; changed rows / other
+folds stop); the tracked numbers), `python tests/test_external_city_density.py` (class split on the breaks + metrics by
+hand; end to end on the meeting test's city world: class rows by hand, classes add up, all = the meeting numbers, a
+changed meeting number stops; the config block),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 

@@ -88,6 +88,15 @@
 #                                       # test's factors; the chain stops on a difference) -> train / predict / validate
 #                                       # (gap counties from v5.6) -> v57_nbya_compare (v5.4 / v5.6 / v5.7 / new /
 #                                       # v5.6 + nby_age on ALL TEST counties, CV rule); one submit
+#   bash sbatch/submit_conus.sh v57plural  # PLURAL on v5.7: six variants v5.7 + plural (Dasy_CONUS_RF_v3_all_nby_
+#                                       # {plc,plcc,pq3,pq5,pe3,pe5}), 1940 / 1980 / 2010: config check -> features x 6
+#                                       # side by side -> features check (county plural + breaks = the v5.6 PLURAL
+#                                       # test's; the chain stops on a difference) -> train / predict / validate x 6
+#                                       # (gap counties from v5.6) -> v57_plural_compare (ALL TEST counties, CV rule);
+#                                       # one submit
+#   bash sbatch/submit_conus.sh citydensity [VERSION LABEL]  # city boxes by density class (default v5.7:
+#                                       # Dasy_CONUS_RF_v3_all_nby v5.7): input check, one job ->
+#                                       # results/validation/conus/external/city_density_classes_<label>/
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -139,10 +148,14 @@
 # v5.6 numbers again); wall times ~3-4 x: features 40 min, train 2:30, predict 1:30, validate 1 h.
 # v57nbya: as v54nby's chain (jobs 35240999-35241004: features 5 min, train 21 min, predict 14 min, validate 4 min,
 # compare 4 min) + the factor check (two small CSV reads per year, < 1 min); wall times as v54nby.
+# v57plural: per variant as v57nbya for 3 of its 5 years + one feature (jobs of v57nbya: features 5 min, train 21 min,
+# predict 14 min, validate 4 min) and the v5.6 PLURAL test (quantile breaks: one more layer read per year); six chains
+# side by side; wall times as v57nbya (estimates). Compare: 13 versions x 3 years of whole-window cell reads, 1 h.
+# citydensity: as citymeeting (same boxes and product moves, 6 small figures): 2 cores, 30 min (DENS_TIME).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -967,6 +980,99 @@ elif [[ $mode == v57nbya ]]; then
     jv=$(sub "$jp" --ntasks=8 --time=${VALIDATE_TIME:-00:30:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh          --version $NEW --years $YRS $VAL --gap-version $V56)
     jc=$(sub "$jv" --time=${COMPARE_TIME:-00:45:00} sbatch/v57_nbya_compare.sh compare)
     echo "features $jf | factor_check $jk | train $jt | predict $jp | validate $jv | v57_nbya_compare $jc"         | tee logs/conus_v57nbya_jobs.txt
+elif [[ $mode == v57plural ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    V57=Dasy_CONUS_RF_v3_all_nby V56=Dasy_CONUS_RF_v3_u070
+    VARS="plc plcc pq3 pq5 pe3 pe5"
+    YRS="1940 1980 2010"  # the PLURAL grid's years
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    RD=results/dasymetric/conus
+    NB=results/validation/conus/nobuilt
+    miss=()  # everything is checked before anything is submitted
+    # each config = v5.7's eras + plural, plural block as the v5.6 test, every other setting as v5.7
+    if ( activate_env hisdac && python -u src/validation/v57_plural_compare.py config ) > logs/conus_v57plural_config.txt 2>&1; then
+        grep -E "CONFIG OK" logs/conus_v57plural_config.txt
+    else
+        miss+=("config check (logs/conus_v57plural_config.txt)")
+        grep -E "CONFIG DIFFERS|ERROR" logs/conus_v57plural_config.txt || tail -5 logs/conus_v57plural_config.txt
+    fi
+    nref=0
+    for y in $YRS; do
+        # cutout (PLURAL / PLURALC exist since the v5.6 test; not made again), v5.7's era (compare_with), tracts
+        for f in $CUT/zones/zones_$y.tif $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif \
+                 $CUT/layers/PLURAL/${y}_PLURAL.tif $CUT/layers/PLURALC/${y}_PLURALC.tif $CUT/layers/Land_Use/RO/${y}_RO.tif \
+                 $D/$V57/Y$y/model/rf.joblib $D/$V57/Y$y/model/oof_predictions.csv $D/$V57/Y$y/model/test_predictions.csv \
+                 $RD/$V57/Y$y/county_features.csv $RD/$V57/Y$y/folds.csv $DATA_ROOT/processed/tract/tracts_$y.gpkg; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for l in BUI BUPL BUPR BUA; do
+            [[ -f $CUT/layers/$l/${y}_$l.tif ]] || miss+=("$CUT/layers/$l/${y}_$l.tif")
+        done
+        for v in $V56 $V57; do  # tract / county rows (results) and cells (scratch) of the two bases
+            for f in $D/$v/predictions/pop_$y.tif results/validation/conus/$v/tract_errors_$y.csv \
+                     $RD/$v/Y$y/test_predictions.csv $RD/$v/Y$y/metrics.json; do
+                [[ -f $f ]] || miss+=("$f")
+            done
+        done
+        for v in $VARS; do  # the v5.6 PLURAL test: features check + reference columns (results)
+            for f in $RD/${V56}_$v/Y$y/county_features.csv $RD/${V56}_$v/Y$y/test_predictions.csv \
+                     $RD/${V56}_$v/Y$y/metrics.json results/validation/conus/${V56}_$v/tract_errors_$y.csv; do
+                [[ -f $f ]] || miss+=("$f")
+            done
+            if [[ $v == pq* || $v == pe* ]]; then
+                [[ -f $RD/${V56}_$v/Y$y/plural_breaks.csv ]] || miss+=("$RD/${V56}_$v/Y$y/plural_breaks.csv")
+            fi
+            [[ -f $D/${V56}_$v/predictions/pop_$y.tif ]] || nref=$((nref + 1))  # cells of the reference: optional
+        done
+    done
+    for f in $CUT/layers/NOBUILT/NOBUILT.tif $CUT/window.json $CUT/layers/DEM/DEM.tif \
+             results/hisdac_uncertainty/excluded_counties_t070.csv configs/conus_split.csv \
+             $NB/v54_nby_comparison.csv $NB/v54_nby_cells.csv results/validation/conus/plural_grid/plural_comparison.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    for v in $VARS; do
+        if [[ -e $D/${V57}_$v ]]; then echo "NOTE: $D/${V57}_$v exists already (a rerun overwrites its eras)"; fi
+    done
+    if (( nref )); then echo "NOTE: $nref v5.6 + plural predictions not on scratch (purged?): their cell rows are left out (tract / county rows kept)"; fi
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (configs, cutout incl. PLURAL / PLURALC / NOBUILT $YRS, v5.7 eras, v5.6 / v5.7 outputs, v5.6 PLURAL test results, tracts, v54_nby / plural_grid tables)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    fs="" ids=""
+    for v in $VARS; do
+        C=configs/conus_rf_v3_all_nby_$v.yaml
+        f=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-00:40:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+        fs="$fs $f" ids="$ids | $v features $f"
+    done
+    # county plural + breaks = the v5.6 test's, other county features = v5.7's; else nothing trains
+    jk=$(sub "${fs# }" --ntasks=1 --time=${CHECK_TIME:-00:15:00} --job-name=v57_plural_features sbatch/v57_plural_compare.sh features)
+    qs=""
+    for v in $VARS; do
+        C=configs/conus_rf_v3_all_nby_$v.yaml
+        t=$(sub "$jk" --ntasks=16 --time=${TRAIN_TIME:-02:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+        p=$(sub "$t" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+        q=$(sub "$p" --ntasks=8 --time=${VALIDATE_TIME:-00:30:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+            --version ${V57}_$v --years $YRS $VAL --gap-version $V56)
+        qs="$qs $q" ids="$ids | $v train $t predict $p validate $q"
+    done
+    jc=$(sub "${qs# }" --time=${COMPARE_TIME:-01:00:00} sbatch/v57_plural_compare.sh compare)
+    echo "${ids# | } | features_check $jk | v57_plural_compare $jc" | tee logs/conus_v57plural_jobs.txt
+elif [[ $mode == citydensity ]]; then
+    V=${2:-Dasy_CONUS_RF_v3_all_nby} L=${3:-v5.7}
+    DEF=results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv
+    if [[ $V == Dasy_CONUS_RF_v3_all_nby ]]; then
+        CHK=${DENS_CHECK_WITH:-$DEF}
+    else
+        CHK=${DENS_CHECK_WITH:?another version needs DENS_CHECK_WITH=<its meeting_summary_a_b.csv> or none}
+    fi
+    if ! DENS_VERSION=$V DENS_LABEL=$L DENS_CHECK_WITH=$CHK bash sbatch/external_city_density.sh --check \
+            > logs/conus_citydensity_check.txt 2>&1; then
+        grep -E "MISSING|ERROR" logs/conus_citydensity_check.txt || tail -5 logs/conus_citydensity_check.txt
+        echo "ERROR: nothing submitted (see logs/conus_citydensity_check.txt)"; exit 1
+    fi
+    grep -E "CHECK OK" logs/conus_citydensity_check.txt || true
+    jd=$(sub "" --time=${DENS_TIME:-00:30:00} --export=ALL,DENS_VERSION=$V,DENS_LABEL=$L,DENS_CHECK_WITH=$CHK \
+         sbatch/external_city_density.sh)
+    echo "city_density $jd ($V $L)" | tee logs/conus_citydensity_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

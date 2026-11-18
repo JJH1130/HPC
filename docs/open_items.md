@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-19 (v5.7 nby_age run: v5.7 kept); 2026-11-18 (item 1 of the 2026-11-17 meeting, v5.7 with nby_age, written as code, not run); 2026-11-18 (meeting with Stefan 2026-11-17 recorded); 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-19 (items 2 / 4 of the 2026-11-17 meeting: PLURAL on v5.7 and city boxes by density class written as code, not run); 2026-11-19 (v5.7 nby_age run: v5.7 kept); 2026-11-18 (item 1 of the 2026-11-17 meeting, v5.7 with nby_age, written as code, not run); 2026-11-18 (meeting with Stefan 2026-11-17 recorded); 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -199,6 +199,14 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
    the v5.6 test (continuous bilinear / cubic, 3 / 5 classes quantile / equal), on v5.7 (item 1 kept v5.7).
    Requested 2026-11-19 (`docs/handoff/v57_plural_density_request.md` part A); choice by county CV RMSE vs v5.7. The
    version for items 3 / 4 is settled after this (user).
+   - **Status (2026-11-19):** written as code, NOT run (`docs/conus_plan.md` "PLURAL on v5.7"; runbook section 23,
+     `bash sbatch/submit_conus.sh v57plural`): `configs/conus_rf_v3_all_nby_{plc,plcc,pq3,pq5,pe3,pe5}.yaml` (v5.7's
+     eras of 1940 / 1980 / 2010 + plural, plural blocks of the v5.6 test), config check before submit, features check
+     between features and train (county plural + breaks = the v5.6 test's), `src/validation/v57_plural_compare.py`
+     (v5.7 + six, v5.6 + six as reference; v5.6 / v5.7 rows checked against `v54_nby_*`, v5.6 + plural against
+     `plural_comparison.csv`; checked locally on the tracked files). Selection rule fixed before the results: per
+     variant the years with county CV RMSE below v5.7's + mean change; not by tracts; the user decides. Next: user runs
+     blocks 1-3; Claude analyses.
 3. **Feature importance figures for Stefan.** SHAP bar plot (mean |SHAP| per feature) + SHAP summary (beeswarm)
    plot, per era, for the version chosen after item 2 (from the tracked `shap_values.csv`, locally by Claude).
 4. **City boxes split by density class.** The 40 x 40 km boxes (Boston / Denver / Chicago, 1980 / 2010) split into
@@ -206,6 +214,10 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
    totals, scatter); Stefan wants to see how close or different we are in rural areas. Fixed 2026-11-19: 1 km blocks,
    GHS-POP density of the year, rural < 100 / peri-urban 100-1,000 / urban >= 1,000 per km2 (+ the same breaks on our
    density as a check). Code only in part B of the same request; run for the version chosen after item 2.
+   - **Status (2026-11-19):** code + tests only, NOT run (`docs/conus_plan.md` "City boxes by density class"; runbook
+     section 24, `bash sbatch/submit_conus.sh citydensity [VERSION LABEL]`): `src/validation/external_city_density.py`
+     (`city_density:` block of `configs/external_grids.yaml`; whole box checked against the version's meeting
+     side-by-side table) -> `results/validation/conus/external/city_density_classes_<label>/`. Run after item 2.
 - **For the next meeting write-up:** item 1 result = `docs/conus_plan.md` "v5.7 with nby_age instead of nby: result"
   (nby_age worse by county CV in all 5 years, on v5.7 as on v5.6; early-year factors near 0).
 5. **(Later, next meeting) Separate models for rural / peri-urban / urban.** Idea only; how to split (by county,

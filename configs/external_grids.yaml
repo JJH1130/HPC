@@ -96,3 +96,15 @@ city_meeting:
   cities: [boston, denver, chicago]
   labels: {ghs_pop: GHS-POP, worldpop: WorldPop}   # short names on the figures
   gap: {product: ghs_pop, ratio_max: 0.25, min_density: 1000}   # every city and year
+
+# City boxes by density class (src/validation/external_city_density.py; request docs/handoff/v57_plural_density_request.md
+# part B, Stefan 2026-11-17 item 4): the boxes, cells, mask and 1 km blocks of city_meeting above, split into classes by
+# the block density of class_product in the same year (fixed before any result): rural < 100, peri_urban 100 - 1,000,
+# urban >= 1,000 people per km2 (a block on a break goes to the upper class); the same breaks on our version's block
+# density as a check (basis "version"). WorldPop uses the GHS-POP classes (same blocks). ratio_band: blocks with our /
+# product > ratio_band (above) or < 1 / ratio_band (below) are counted.
+city_density:
+  class_product: ghs_pop
+  breaks: [100, 1000]
+  classes: [rural, peri_urban, urban]
+  ratio_band: 4

@@ -2099,6 +2099,115 @@ early years, `nby_kept_share`), `dasymetric_train` (CV vs v5.7 per era, nby_age 
 `v57_nbya_compare` (lines `SUMMARY`: county on ALL TEST counties first, kept / excluded t070 labelled, CV + ranks,
 tracts, cells, city gap blocks, f_c, the CV rule; `RULE` line).
 
+## 23. PLURAL on v5.7: six variants, 1940 / 1980 / 2010 (2026-11-19)
+
+Request `docs/handoff/v57_plural_density_request.md` part A (Stefan 2026-11-17 item 2); design `docs/conus_plan.md`
+"PLURAL on v5.7". `Dasy_CONUS_RF_v3_all_nby_{plc,plcc,pq3,pq5,pe3,pe5}` = v5.7's eras of the three PLURAL years +
+`plural`, the plural blocks of the v5.6 PLURAL test (section 13 / `docs/conus_plan.md` "PLURAL grid test"). v5.6,
+v5.7 and the v5.6 + plural versions are not rerun; the PLURAL / PLURALC cutout layers exist already. County metrics on
+ALL TEST counties (reporting rule); the choice is by county CV RMSE vs v5.7 only, the user decides. Needs the CONUS
+cutout with PLURAL / PLURALC / NOBUILT, v5.7's era files of the three years and the predictions of v5.6 / v5.7 on
+scratch, the v5.6 PLURAL test, nobuilt and plural_grid results in git.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| config check | login node, in the pre-check | six configs = v5.7's eras + plural, plural blocks as the v5.6 test, every other setting as v5.7 (`CONFIG OK`) | seconds |
+| features x 6 | 6 cores, 40 min each, side by side | 3 years, v5.7 features + plural; classed: breaks -> `<era>/plural_breaks.csv` | ~5 min |
+| features check | 1 core, 15 min | county plural + breaks = the v5.6 test's, other county features = v5.7's (`FEATURES OK`; else train never starts) | < 1 min |
+| train x 6 | 16 cores, 2 h each | 3 eras, 60 candidates, compared with v5.7 | ~15 min |
+| predict x 6 | 32 cores, 1 h each | allocation of the 3 years | ~10 min |
+| validate x 6 | 8 cores, 30 min each | tracts of the 3 years (gap counties from v5.6) | ~4 min |
+| v57_plural_compare | 4 cores, 1 h | v5.7 + six, v5.6 + six (reference): all TEST counties, tracts, people on BUI = 0 cells, ranks, CV rule; checks against v54_nby_* / plural_comparison.csv | ~10 min |
+
+26 jobs, one submit; ~1 h after the first one starts if the six chains run side by side (estimate). Override:
+`FEATURES_TIME`, `CHECK_TIME`, `TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`, `COMPARE_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh v57plural
+squeue -u $USER
+echo "== end of block 1 (success = CONFIG OK, PRECHECK: 0 missing, one 'plc features N | ... | v57_plural_compare N' line, 26 jobs)"
+```
+
+Good: `CONFIG OK: 6 configs = ...`, `PRECHECK: 0 missing of the inputs (...)`, maybe `NOTE: k v5.6 + plural predictions
+not on scratch` (their cell rows are left out; fine), one line `plc features N | ... | pe5 train N predict N validate N
+| features_check N | v57_plural_compare N` (also in `logs/conus_v57plural_jobs.txt`), 26 jobs in `squeue`;
+`== end of block 1`. `CONFIG DIFFERS` / `MISSING ...` + `ERROR: nothing submitted`: send the output to Claude.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v57plural_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+squeue -u $USER -o "%.10i %.20j %.8T %.30R"
+grep -hE "FEATURES" $(ls -t logs/v57_plural_features.*.out 2>/dev/null | head -1) 2>/dev/null
+echo "== end of block 2 (success = states PENDING / RUNNING / COMPLETED, no FAILED; FEATURES OK once the check ran)"
+```
+
+Good: `PENDING` (reason `Dependency`) / `RUNNING` / `COMPLETED`; once the check ran, `FEATURES OK: 6 variants x 3
+years, ...`; `== end of block 2`. A `FAILED` features check (`FEATURES DIFFER` or `ERROR: ...`): every train / predict /
+validate / compare stays `PENDING (DependencyNeverSatisfied)`; `scancel` them and send the log. Any other `FAILED`
+job: the same.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v57plural_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_v57plural_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_v57plural_seff.txt
+cat logs/conus_v57plural_sacct.txt
+grep -h "FEATURES" $(ls -t logs/v57_plural_features.*.out | head -1)
+grep -hE "MATCH|RULE|DONE" $(ls -t logs/v57_plural_compare.*.out | head -1)
+ls results/validation/conus/plural_grid_v57/
+git add logs/ results/
+git commit -m "run: PLURAL on v5.7, six variants, 1940 / 1980 / 2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = every job COMPLETED, FEATURES OK, 4 MATCH lines, 7 RULE lines, DONE, 5 plural_v57_*.csv, push main -> main)"
+```
+
+Good: every job `COMPLETED`; `FEATURES OK: 6 variants x 3 years, ...`; four `MATCH` lines in the compare log
+(`v54_nby_comparison.csv` with v5.6 / v5.7 / areal weighting, `plural_comparison.csv` twice (tracts, county),
+`v54_nby_cells.csv`); six lines `RULE: v57_<variant> has the lower county CV RMSE in k of 3 years ...` + `RULE: the user
+decides ...`; `DONE`; five files `plural_v57_{comparison, cells, feature_ranks, cv_rule, features_check}.csv`;
+`git push` ends with `main -> main`; `== end of block 3`. Failed jobs: commit anyway (same block) and tell Claude.
+
+What to look for in the logs: `v57_plural_features` (per variant / year: plural = the v5.6 test's, breaks),
+`dasymetric_train` (CV vs v5.7 per era, plural in the importance lines), `v57_plural_compare` (lines `SUMMARY`: county
+on ALL TEST counties first, kept / excluded t070 labelled, CV + ranks, tracts and their change vs the own base, people
+on cells, ranks of plural / nby, the CV rule; `RULE` lines).
+
+## 24. City boxes by density class (written 2026-11-19; not run yet)
+
+Request `docs/handoff/v57_plural_density_request.md` part B (Stefan 2026-11-17 item 4); design `docs/conus_plan.md`
+"City boxes by density class". To be run for the version chosen after section 23 (default v5.7). One job; inputs = the
+meeting maps' (section 18): the version's `pop_{2010,1980}.tif` on scratch, GHS-POP / WorldPop under
+`$DATA_ROOT/raw/external`, and the version's meeting side-by-side table in git (v5.7:
+`city_maps_meeting_v57/meeting_summary_v56_v57.csv`). Another version: `DENS_CHECK_WITH=<its meeting_summary_a_b.csv>`
+(or `none`, whole box then not checked) before the submit line, and the version + label as arguments.
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+bash sbatch/submit_conus.sh citydensity                      # v5.7; another: ... citydensity <VERSION> <LABEL>
+squeue -u $USER
+echo "== end (success = CHECK OK, one 'city_density N (...)' line)"
+```
+
+After the job: `grep -hE "MATCH|add up|DONE" $(ls -t logs/external_city_density.*.out | head -1)` (one `MATCH ...
+meeting_summary_v56_v57.csv`, `classes add up to all`, `DONE`), then commit `logs/` + `results/validation/conus/external/
+city_density_classes_<label>/` (`density_class_summary.csv`, six PNGs) with `git pull --rebase` before `git push`.
+
 ## If it fails
 
 | Symptom | Fix |
