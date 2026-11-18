@@ -1308,6 +1308,30 @@ sbatch/submit_conus.sh v57plural`).
 | Output | `results/validation/conus/plural_grid_v57/plural_v57_{comparison,cells,feature_ranks,cv_rule,features_check}.csv`; `plural_grid/` and `nobuilt/` read only |
 | Tests | `tests/test_v57plural.py`: six configs + mutations, exit codes; features check on synthetic files (a changed v5.7 column, plural value, break or study cells stops); compare on a synthetic world whose earlier tables are written by `v54_nby_compare.py` / `plural_compare.py` themselves (all-TEST metrics, d_mdape / d_mdape_own, ranks, cells, CV rule by hand; changed / missing rows and other folds stop); the tracked numbers |
 
+## PLURAL on v5.7: result (26 jobs, run 2026-11-18 MT, commit 0396102)
+
+All jobs COMPLETED; FEATURES OK (plural / breaks = the v5.6 test's); v5.6 / v5.7 / v5.6 + plural rows matched.
+
+| variant | county CV RMSE vs v5.7 (1940 / 1980 / 2010) | all-TEST county R2 1980 / 2010 | tract MdAPE all 1940 / 1980 / 2010 | people on BUI = 0 cells 1980 / 2010 |
+|---|---|---|---|---|
+| v5.7 | 0.486 / 0.495 / 0.506 | 0.908 / 0.917 | **40.1** / **26.9** / **24.9** | 14.3 / 10.0 % |
+| plc (bilinear) | -2.7 / -4.4 / -4.4 % | 0.909 / 0.920 | 40.9 / 33.0 / 27.9 | 17.5 / 12.5 % |
+| plcc (cubic) | -2.7 / -4.4 / -4.3 % | 0.913 / 0.920 | 41.3 / 30.7 / 27.8 | 19.2 / 12.6 % |
+| pq3 | -4.0 / -3.6 / -4.3 % | 0.911 / 0.923 | 41.0 / 29.1 / 27.3 | 16.4 / 12.7 % |
+| pq5 | -5.0 / -4.5 / -4.7 % | 0.916 / 0.924 | 41.7 / 31.1 / 27.5 | 20.9 / 13.4 % |
+| pe3 | -0.6 / -4.7 / -4.9 % | 0.912 / 0.923 | **39.9** / 31.3 / 30.9 | 15.7 / 11.2 % |
+| pe5 | -6.3 / -3.2 / -3.1 % | 0.912 / 0.921 | 41.8 / 30.2 / 29.4 | 16.6 / 12.3 % |
+
+- County CV (the fixed rule): every variant beats v5.7 in all 3 years (mean -3.4 to -4.8 %, best pq5); all-TEST county
+  R2 a little higher too.
+- Tracts: every variant worse in 1980 / 2010 (+2.2 to +6.1 pp; kept and excluded counties alike), worst in rural tracts
+  (1980 tracts < 50 per km2: 30.2 % -> 51-53 % for plc / pq5). 1940 about equal.
+- Stefan's compensation idea: PLURAL moves more people onto cells without buildings (2010: 10.0 % -> 11.2-13.4 %), not
+  fewer; the BUI = 0 / NobuiltYear > 0 part stays about the same. Same pattern as on v5.6.
+- Conflict: the county rule says PLURAL, the tracts (the product's within-county pattern; county totals are fixed by the
+  census in the output) say no. Not decided (user). Note: county CV judges the county prediction, which the output does
+  not use directly (mass preserved), so a county gain need not show in the map.
+
 ## City boxes by density class (request 2026-11-19, `docs/handoff/v57_plural_density_request.md` part B; runbook section 24)
 
 Stefan 2026-11-17 item 4: the meeting boxes compare whole 40 x 40 km boxes only; split them into rural / peri-urban /
