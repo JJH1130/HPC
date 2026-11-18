@@ -83,6 +83,11 @@
 #                                       # counties, kept / excluded t070) + metrics_over_time, both checked against
 #                                       # v54_nby_comparison.csv; meeting maps v5.7 (after predict) and external
 #                                       # evaluate with v5.7 as reference (after validate) side by side; one submit
+#   bash sbatch/submit_conus.sh v57nbya # v5.7 with nby -> nby_age (Dasy_CONUS_RF_v3_all_nbya), 1910 / 1940 / 1960 /
+#                                       # 1980 / 2010: config check -> features -> factor check (= the NobuiltYear
+#                                       # test's factors; the chain stops on a difference) -> train / predict / validate
+#                                       # (gap counties from v5.6) -> v57_nbya_compare (v5.4 / v5.6 / v5.7 / new /
+#                                       # v5.6 + nby_age on ALL TEST counties, CV rule); one submit
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -132,10 +137,12 @@
 # v57all: from v54nby (jobs 35240999-35241004; 5 years: features 5 min, train 21 min, predict 14 min, validate 4 min)
 # for 8 years ~1.6 x; validate 12 years as v56all (16 min, 20 GB, job 35090245); city meeting 2 x citymeeting (the
 # v5.6 numbers again); wall times ~3-4 x: features 40 min, train 2:30, predict 1:30, validate 1 h.
+# v57nbya: as v54nby's chain (jobs 35240999-35241004: features 5 min, train 21 min, predict 14 min, validate 4 min,
+# compare 4 min) + the factor check (two small CSV reads per year, < 1 min); wall times as v54nby.
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -907,6 +914,59 @@ elif [[ $mode == v57all ]]; then
          --check-with $EXT/external_comparison_v56.csv)
     echo "features $jf | train $jt | predict $jp | validate $jv | kept_years_check $jk | summary $js | metrics_over_time $jm | city_meeting $jc | external_evaluate $je" \
         | tee logs/conus_v57all_jobs.txt
+elif [[ $mode == v57nbya ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    NEW=Dasy_CONUS_RF_v3_all_nbya C=configs/conus_rf_v3_all_nbya.yaml
+    V57=Dasy_CONUS_RF_v3_all_nby V54=Dasy_CONUS_RF_v3_all V56=Dasy_CONUS_RF_v3_u070 V56A=Dasy_CONUS_RF_v3_u070_nbya
+    YRS="1910 1940 1960 1980 2010"
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    RD=results/dasymetric/conus
+    NB=results/validation/conus/nobuilt
+    miss=()  # everything is checked before anything is submitted
+    # the config = v5.7's eras with nby -> nby_age, every other setting as v5.7, nby_age block as the NobuiltYear test
+    if ( activate_env hisdac && python -u src/validation/v57_nbya_compare.py config ) > logs/conus_v57nbya_config.txt 2>&1; then
+        grep -E "CONFIG OK" logs/conus_v57nbya_config.txt
+    else
+        miss+=("config check (logs/conus_v57nbya_config.txt)")
+        grep -E "CONFIG DIFFERS|ERROR" logs/conus_v57nbya_config.txt || tail -5 logs/conus_v57nbya_config.txt
+    fi
+    for y in $YRS; do
+        for f in $CUT/zones/zones_$y.tif $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif                  $D/$V57/Y$y/model/rf.joblib $D/$V57/Y$y/model/oof_predictions.csv $D/$V57/Y$y/model/test_predictions.csv                  $D/$V56/Y$y/features/county_features.csv $DATA_ROOT/processed/tract/tracts_$y.gpkg                  $RD/$V56A/Y$y/nby_age_factor.csv $RD/$V57/Y$y/county_features.csv $RD/$V57/Y$y/folds.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for v in $V54 $V56 $V57 $V56A; do  # cells / city (scratch) and tract / county rows (results) of the compared
+            for f in $D/$v/predictions/pop_$y.tif results/validation/conus/$v/tract_errors_$y.csv                      $RD/$v/Y$y/test_predictions.csv $RD/$v/Y$y/metrics.json; do
+                [[ -f $f ]] || miss+=("$f")
+            done
+        done
+        for l in BUI BUPL BUPR BUA; do
+            [[ -f $CUT/layers/$l/${y}_$l.tif ]] || miss+=("$CUT/layers/$l/${y}_$l.tif")
+        done
+        if (( y >= 1940 )); then [[ -f $CUT/layers/Land_Use/RO/${y}_RO.tif ]] || miss+=("$CUT/layers/Land_Use/RO/${y}_RO.tif"); fi
+    done
+    for f in $CUT/layers/NOBUILT/NOBUILT.tif $CUT/window.json $CUT/layers/DEM/DEM.tif              results/hisdac_uncertainty/county_record_uncertainty.csv results/hisdac_uncertainty/excluded_counties_t070.csv              configs/conus_split.csv results/validation/conus/external/city_maps_meeting/gap_blocks.csv              $NB/nobuilt_comparison.csv $NB/nobuilt_cells.csv $NB/nobuilt_city_gaps.csv              $NB/v54_nby_comparison.csv $NB/v54_nby_cells.csv $NB/v54_nby_city_gaps.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    [[ -e $D/$NEW ]] && echo "NOTE: $D/$NEW exists already (a rerun overwrites its eras)"
+    # city gap blocks: v5.6 pop / BUI / GHS-POP of 1980 and 2010 = the meeting maps' inputs
+    if bash sbatch/external_city_meeting.sh --check > logs/conus_v57nbya_city_check.txt 2>&1; then
+        grep -E "CHECK OK" logs/conus_v57nbya_city_check.txt || true
+    else
+        miss+=("city-map inputs (logs/conus_v57nbya_city_check.txt)")
+        grep -E "MISSING|ERROR" logs/conus_v57nbya_city_check.txt || true
+    fi
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (config, cutout incl. NOBUILT $YRS, v5.7 eras, old nby_age factors, v5.4 / v5.6 / v5.7 / v5.6 + nby_age outputs, tracts, nobuilt / v54_nby results, city maps)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s
+' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    jf=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-00:40:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+    # nby_age factors = the NobuiltYear test's, county features = v5.7's with nby -> nby_age; else nothing trains
+    jk=$(sub "$jf" --ntasks=1 --time=${FACTOR_TIME:-00:15:00} --job-name=v57_nbya_factors sbatch/v57_nbya_compare.sh factors)
+    jt=$(sub "$jk" --ntasks=16 --time=${TRAIN_TIME:-02:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+    jp=$(sub "$jt" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+    jv=$(sub "$jp" --ntasks=8 --time=${VALIDATE_TIME:-00:30:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh          --version $NEW --years $YRS $VAL --gap-version $V56)
+    jc=$(sub "$jv" --time=${COMPARE_TIME:-00:45:00} sbatch/v57_nbya_compare.sh compare)
+    echo "features $jf | factor_check $jk | train $jt | predict $jp | validate $jv | v57_nbya_compare $jc"         | tee logs/conus_v57nbya_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

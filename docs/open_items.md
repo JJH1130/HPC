@@ -4,7 +4,7 @@ Pending items and important decisions for this project. This file is the
 durable record: Claude's local memory does not move between computers, so any
 important decision saved to memory is also written here.
 
-Last updated: 2026-11-18 (meeting with Stefan 2026-11-17 recorded); 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
+Last updated: 2026-11-18 (item 1 of the 2026-11-17 meeting, v5.7 with nby_age, written as code, not run); 2026-11-18 (meeting with Stefan 2026-11-17 recorded); 2026-11-04 (v5.7 all years written as code, not run); 2026-11-04 (v5.7 = v5.4 + nby chosen; all years requested); 2026-11-04 (v5.4 + nby without the filter run); 2026-11-04 (v5.4 + nby without the filter + undated-record age diagnosis written as code, not run); 2026-11-04 (NobuiltYear feature test run); 2026-11-03 (meeting city maps fix 3: common scatter axes, gap blocks for every city / year, written as code, not run); 2026-11-03 (meeting city maps: display fixes + 1980 written as code, not run; F&J city maps moved to city_maps_internal_with_fj/); 2026-11-03 (meeting city maps 2010 written as code, not run; city map display bug: 0-people cells drawn grey); 2026-11-03 (external comparison with v5.6 + city maps written as code, not run); 2026-10-31 (built-cell aggregation test written as code, not run); 2026-10-30 (county feature aggregation diagnosis written as code, not run); 2026-10-30 (v5.6 run for all years 1900-2020); 2026-10-30 (PLURAL grid test run: no gain on tracts, drop proposed); 2026-10-30 (PLURAL grid test written as code, not run); 2026-10-30 (uncertainty filter written as code: u090 / u070 / u050, rule fixed); 2026-10-30 (2020 run; record uncertainty without BUPR_contemp); 2026-10-30 (metrics over time computed; 2020 and HISDAC record uncertainty written as code)
 
 ## Open items
 
@@ -185,6 +185,14 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
      reference year 2015 (as before). Requested 2026-11-18: `docs/handoff/v57_nbya_request.md` (v5.7 with nby
      replaced by nby_age, 1910 / 1940 / 1960 / 1980 / 2010).
    - Compare with v5.7 by county CV / all TEST counties (selection), tracts reported.
+   - **Status (2026-11-18):** written as code, NOT run (`docs/conus_plan.md` "v5.7 with nby_age instead of nby";
+     runbook section 22, `bash sbatch/submit_conus.sh v57nbya`): `configs/conus_rf_v3_all_nbya.yaml`
+     (`Dasy_CONUS_RF_v3_all_nbya`), config check before submit, factor check between features and train (factors =
+     the NobuiltYear test's), `src/validation/v57_nbya_compare.py` (v5.4 / v5.6 / v5.7 / new / v5.6 + nby_age; v5.7 and
+     v5.6 + nby_age rows checked against `v54_nby_*` / `nobuilt_*`; f_c summary; CV rule). Selection rule fixed before
+     the results: county CV RMSE on v5.7's CV counties only; the user decides. Expected f_c from the earlier factors:
+     median 1910 0.045, 1940 0.17, 1960 0.34, 1980 0.62, 2010 0.98 (share of v5.7's undated records kept 13 / 23 / 38
+     / 59 / 97 %), i.e. nby_age is close to 0 in most counties before 1940. Next: user runs blocks 1-3; Claude analyses.
 2. **PLURAL again, on the new base.** After 1: Stefan expects a compensating effect (spreading people where records
    are missing, and damping over-allocation), and that PLURAL may work once NobuiltYear is in. Same variants as
    the v5.6 test (continuous bilinear / cubic, 3 / 5 classes quantile / equal), on v5.7 (or the item 1 result).

@@ -116,7 +116,10 @@ def test_predictions(d: Path) -> tuple[pd.DataFrame, bool]:
     return pd.concat([tp, ex], ignore_index=True), True
 
 
-def county_rows(args, year: int, versions: dict, excl: set, split_test: set | None) -> list[dict]:
+def county_rows(args, year: int, versions: dict, excl: set, split_test: set | None,
+                rank_features=("nby",)) -> list[dict]:
+    """County rows of every version (sets test_all / test_kept_t070 / test_excluded_t070); ranks of `rank_features`
+    on the test_all row of a version that has at least one of them."""
     root = args.results_root / "dasymetric" / args.name
     rows, sets = [], {}
     for var, v in versions.items():
@@ -156,8 +159,8 @@ def county_rows(args, year: int, versions: dict, excl: set, split_test: set | No
             if s == "test_all":
                 r.update({"cv_counties": cv_n, f"cv_rmse_{cvset}": met.get("cv_rmse_mean"),
                           f"cv_r2_{cvset}": met.get("cv_r2_mean"), "cv_note": CV_NOTE})
-                rk = rank_row(d, ["nby"])
-                if rk.get("nby_perm_rank") is not None or rk.get("nby_shap_rank") is not None:
+                rk = rank_row(d, list(rank_features))
+                if any(rk.get(f"{f}_{k}_rank") is not None for f in rank_features for k in ("perm", "shap")):
                     r.update(rk)
             rows.append(r)
     if sets:

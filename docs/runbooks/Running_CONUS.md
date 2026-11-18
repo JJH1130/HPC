@@ -2011,6 +2011,94 @@ What to look for in the logs: `dasymetric_train` (CV vs v5.4 per new era, nby in
 by part), `metrics_over_time` (v5.7 minus v5.4 / minus v5.6 per year), `external_city_meeting` (`SUMMARY v5.6 vs v5.7
 side by side`), `external_evaluate` (tract MdAPE / MAPE per product with v5.7, v5.6, v5.4 columns).
 
+## 22. v5.7 with nby_age instead of nby, 1910 / 1940 / 1960 / 1980 / 2010 (2026-11-18)
+
+Request `docs/handoff/v57_nbya_request.md` (Stefan 2026-11-17 item 1); design `docs/conus_plan.md` "v5.7 with nby_age
+instead of nby". One change against v5.7: `Dasy_CONUS_RF_v3_all_nbya` = v5.7's eras of the five years with `nby` ->
+`nby_age` (NobuiltYear x the county's BUPR_year / BUPR_2015, clipped 0-1; the feature of the NobuiltYear test, section
+19). v5.4, v5.6, v5.7 and v5.6 + nby_age are not rerun. County metrics on ALL TEST counties (reporting rule); the choice
+is by county CV RMSE on v5.7's CV counties only, the user decides. Needs the CONUS cutout with NOBUILT (section 19),
+v5.7's era files of the five years on scratch, the predictions of v5.4 / v5.6 / v5.7 / v5.6 + nby_age on scratch, the
+nobuilt / v54_nby results in git and the meeting-map inputs (section 18).
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| config check | login node, in the pre-check | the config = v5.7's eras with nby -> nby_age, every other setting as v5.7 (`CONFIG OK`) | seconds |
+| features | 6 cores, 40 min | 5 years, v5.7 features with nby_age; factors -> `<era>/nby_age_factor.csv` | ~5 min |
+| factor check | 1 core, 15 min | factors = the NobuiltYear test's (common counties), county features = v5.7's with nby -> nby_age (`FACTORS OK`; else train never starts) | < 1 min |
+| train | 16 cores, 2 h | 5 eras, 60 candidates, compared with v5.7 | ~21 min |
+| predict | 32 cores, 1 h | allocation of the 5 years | ~14 min |
+| validate | 8 cores, 30 min | tracts of the 5 years (gap counties from v5.6) | ~4 min |
+| v57_nbya_compare | 4 cores, 45 min | five versions: all TEST counties, tracts, people on BUI = 0 cells, city gap blocks, ranks, f_c summary, CV rule; checks against v54_nby_* / nobuilt_* | ~5 min |
+
+6 jobs, one submit; ~1 h after the first one starts (from v54nby's sacct). Override: `FEATURES_TIME`, `FACTOR_TIME`,
+`TRAIN_TIME`, `PREDICT_TIME`, `VALIDATE_TIME`, `COMPARE_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh v57nbya
+squeue -u $USER
+echo "== end of block 1 (success = CONFIG OK, CHECK OK, PRECHECK: 0 missing, one 'features N | factor_check N | ... | v57_nbya_compare N' line, 6 jobs)"
+```
+
+Good: `CONFIG OK: configs/conus_rf_v3_all_nbya.yaml = ...`, `CHECK OK: ...` (meeting-map inputs), `PRECHECK: 0 missing
+of the inputs (...)`, one line `features N | factor_check N | train N | predict N | validate N | v57_nbya_compare N` (also
+in `logs/conus_v57nbya_jobs.txt`), 6 jobs in `squeue`; `== end of block 1`. `CONFIG DIFFERS` / `MISSING ...` + `ERROR:
+nothing submitted`: send the output to Claude.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v57nbya_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+squeue -u $USER -o "%.10i %.20j %.8T %.30R"
+grep -hE "FACTORS|SUMMARY nby_age" $(ls -t logs/v57_nbya_factors.*.out 2>/dev/null | head -1) 2>/dev/null
+echo "== end of block 2 (success = states PENDING / RUNNING / COMPLETED, no FAILED; FACTORS OK once the factor check ran)"
+```
+
+Good: `PENDING` (reason `Dependency`) / `RUNNING` / `COMPLETED`; once the factor check ran, `FACTORS OK: 5 years, ...`;
+`== end of block 2`. A `FAILED` factor check (`FACTORS DIFFER` or `ERROR: ...`): train / predict / validate / compare
+stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and send the log. Any other `FAILED` job: the same.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_v57nbya_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_v57nbya_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_v57nbya_seff.txt
+cat logs/conus_v57nbya_sacct.txt
+grep -h "FACTORS" $(ls -t logs/v57_nbya_factors.*.out | head -1)
+grep -hE "MATCH|RULE|DONE" $(ls -t logs/v57_nbya_compare.*.out | head -1)
+ls results/validation/conus/nobuilt/v57_nbya_*.csv
+git add logs/ results/
+git commit -m "run: v5.7 with nby_age instead of nby, 1910-2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = every job COMPLETED, FACTORS OK, 8 MATCH lines, RULE line, DONE, 7 v57_nbya_*.csv, push main -> main)"
+```
+
+Good: every job `COMPLETED`; `FACTORS OK: 5 years, ...`; seven `MATCH` lines in the compare log (`v54_nby_comparison.csv`
+with v5.4 / v5.6 / v5.7 / areal weighting, `nobuilt_comparison.csv` twice (tracts, county), `v54_nby_cells.csv`,
+`nobuilt_cells.csv`, `v54_nby_city_gaps.csv`, `nobuilt_city_gaps.csv`) + `MATCH .../gap_blocks.csv` from the city part;
+`RULE: v5.7 + nby_age has the lower county CV RMSE in k of 5 years ...`; `DONE`; seven files `v57_nbya_{comparison,
+cells, city_gaps, feature_ranks, factor_summary, factor_check, cv_rule}.csv` (`factor_check` from the factor job)
+next to the unchanged `nobuilt_*` / `v54_nby_*`; `git push` ends with `main -> main`; `== end of block 3`.
+Failed jobs: commit anyway (same block) and tell Claude.
+
+What to look for in the logs: `v57_nbya_factors` (lines `SUMMARY nby_age factor f_c per year`: how small f_c is in the
+early years, `nby_kept_share`), `dasymetric_train` (CV vs v5.7 per era, nby_age in the importance lines),
+`v57_nbya_compare` (lines `SUMMARY`: county on ALL TEST counties first, kept / excluded t070 labelled, CV + ranks,
+tracts, cells, city gap blocks, f_c, the CV rule; `RULE` line).
+
 ## If it fails
 
 | Symptom | Fix |
@@ -2087,6 +2175,9 @@ side by side`), `external_evaluate` (tract MdAPE / MAPE per product with v5.7, v
 | `counties not in the split table` | a county of the census input is not in `configs/conus_split.csv`: send Claude the list (never regenerate the split) |
 | `used counties skipped` / `counties with no unmasked cell skipped` (warnings) | expected for a few tiny or all-water counties; send the list with the logs |
 | later jobs `DependencyNeverSatisfied` | an earlier job failed: `scancel` them, fix it, resubmit the chain |
+| v57nbya: `FACTORS DIFFER` / `nby_age factors ... differ` in `v57_nbya_factors` | the new factors are not the NobuiltYear test's (cutout BUPR or `county_record_uncertainty.csv` changed since 2026-11-03): nothing trained; `scancel` the rest, send the log |
+| v57nbya: `county feature <col> differs from v5.7` | more than nby -> nby_age changed (cutout / water / zones since v5.7 ran): nothing trained; `scancel` the rest, send the log |
+| v57nbya compare: `ERROR: ... differs from .../v54_nby_*.csv` or `nobuilt_*.csv` | an earlier version's numbers changed (results or predictions overwritten): nothing written; send the log |
 
 ## Notes
 

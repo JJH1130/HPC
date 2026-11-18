@@ -10,7 +10,7 @@ Run steps: `docs/runbooks/Running_CONUS.md`. Configs: `configs/conus_study_area.
 `configs/conus_rf_v3_bui.yaml`, `configs/conus_{rf,lgbm,xgb,cat}_v3_n60.yaml`, `configs/conus_rf_v3_all.yaml`,
 `configs/conus_rf_v3_ntl.yaml`, `configs/conus_rf_v3_ntlv.yaml`, split `configs/conus_split.csv`.
 
-## Version summary (for meetings; updated 2026-11-04)
+## Version summary (for meetings; updated 2026-11-18)
 
 Naming: CONUS = v5 series on HISDAC-US v2 (v6 = HISDAC-US v3, later). One RF per census year, county split 80 / 20 by
 state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all tracts of the year.
@@ -28,6 +28,7 @@ state (fixed), 60-candidate random search on county CV only. Tract MdAPE = all t
 | (test) | `Dasy_CONUS_RF_v3_u070_bc{3,5,9}` | v5.6 + built-cell aggregation, 1960 / 2010 | see "Built-cell aggregation test result" | dropped (v5.6 kept) |
 | (test) | `Dasy_CONUS_RF_v3_u070_{nby,nbya}` | v5.6 + NobuiltYear (records without a built year) / its age-scaled form, 1910-2010 | 34.4 / 24.7 % | superseded by v5.7 |
 | v5.7 | `Dasy_CONUS_RF_v3_all_nby` | v5.4 (no filter, all counties) + nby | 34.0 / 24.9 %; all-TEST county R2 0.898 / 0.917 (v5.4 0.861 / 0.878, v5.6 0.823 / 0.522) | **chosen 2026-11-04 (user)**, best on all TEST counties every year; 5 years run, all 13 years requested (`docs/handoff/v57_all_years_request.md`), code ready ("v5.7 all years", runbook section 21) |
+| (test) | `Dasy_CONUS_RF_v3_all_nbya` | v5.7 with nby -> nby_age (NobuiltYear scaled to the year by the county's BUPR_year / BUPR_2015; Stefan 2026-11-17), 1910-2010 | - | code written 2026-11-18, not run ("v5.7 with nby_age instead of nby", runbook section 22); choice by county CV RMSE |
 
 County metrics of v5.6 on **all** TEST counties (kept + 199 excluded, imputed; computed 2026-11-03 from
 `test_predictions.csv` + `excluded_predictions.csv`): TEST R2 1960 / 2010 = 0.823 / 0.522 (v5.4 0.861 / 0.878), MdAPE
@@ -1248,6 +1249,27 @@ counties every year). Its five years (1910 / 1940 / 1960 / 1980 / 2010) get the 
 | Meeting maps v5.7 | `external_city_meeting.py --version Dasy_CONUS_RF_v3_all_nby --version-label v5.7 --base-dir .../city_maps_meeting` (env `MEET_VERSION` / `MEET_LABEL` / `MEET_OUT` of `sbatch/external_city_meeting.sh`): same cities / years / boxes / fixed scatter range / gap rule; mask and gap blocks = v5.7's cells; gap column `pop_v57` -> `results/validation/conus/external/city_maps_meeting_v57/`. v5.6 computed again without figures: its summary and gap rows must equal `city_maps_meeting/` (every row, else stop); `meeting_summary_v56_v57.csv` = both side by side (city, year, table summary / gap, item (`model` = the version), measure, v5.6, v5.7, diff). `city_maps_meeting/` is not written |
 | External v5.7 | `external_compare.py evaluate --reference v5.7 --compare-versions v5.6 v5.4` (CLI overrides of the config, evaluate only; the 2026-10-30 sums of v5.6's tracts reused, `--strict-sums`; v5.7's evaluated tracts must be the same set, else stop) `--check-with external_comparison_v56.csv` (shared rows: n_tracts / MdAPE / MAPE equal, else stop) -> `external_comparison_v57.csv` + `external_mdape_by_year_v57.png` (env `EXT_TAG=v57`); the v56 files stay. Needs v5.7's tract errors, so it runs after validate (not right after predict) |
 | Tests | `tests/test_v57all.py` (config; `--years` + snapshot on the synthetic pipeline, DIFFERS cases; all-TEST / kept / excluded by hand in both summaries, `--check-against`; the tracked numbers), `tests/test_external_city_meeting.py` `test_version_option`, `tests/test_external_compare.py` (overrides + `--check-with`) |
+
+## v5.7 with nby_age instead of nby (request 2026-11-18, `docs/handoff/v57_nbya_request.md`; runbook section 22)
+
+Stefan 2026-11-17 item 1 (`docs/open_items.md`): do not give every year the same NobuiltYear count; scale it to the
+year by the county's growth of dated records (BUPR). That is the `nby_age` feature of the NobuiltYear test
+(`common.nby_age_setup`: NobuiltYear x f_c(year), f_c = 2010-county sum of BUPR_year / BUPR_2015, clipped 0-1, 1 where
+BUPR_2015 = 0), which on v5.6 (with the filter) was worse than nby (tract 1980 28.8 vs 27.6 %, all-TEST county R2 1980
+0.770 vs 0.858). Now on v5.7 (no filter), one change. Code written 2026-11-18, not run (`bash sbatch/submit_conus.sh
+v57nbya`).
+
+| Topic | Decision |
+|---|---|
+| Model | `configs/conus_rf_v3_all_nbya.yaml` (`Dasy_CONUS_RF_v3_all_nbya`): v5.7's eras of 1910 / 1940 / 1960 / 1980 / 2010 with `nby` -> `nby_age` (same list position; feature group `Undated records: [nby_age]`), the `nby_age:` block of `conus_rf_v3_u070_nbya.yaml` (`bupr_ref` = `county_record_uncertainty.csv`, reference year 2015). Split, folds, statuses, water mask, strips, search space, 60 candidates as v5.7; no `exclude_counties`; `compare_with` v5.7. Tract validation with v5.6's gap counties (`--gap-version`, as before) |
+| Config check | `v57_nbya_compare.py config` (pre-check on the login node, `tests/test_v57nbya.py`): eras = v5.7's with nby -> nby_age, every other setting = v5.7's, nby_age block = the NobuiltYear test's; `CONFIG OK` or nothing is submitted |
+| Factor check | Job `v57_nbya_factors` between features and train (`v57_nbya_compare.py factors`): per year the new `nby_age_factor.csv` against `Dasy_CONUS_RF_v3_u070_nbya`'s (tracked results copy): common counties' factors equal (<= 1e-12; a different county set is logged, a different factor stops); the new `county_features.csv` against v5.7's: same counties, every other column equal, nby_age = nby x factor (rtol 1e-6). `FACTORS OK` or exit 1 (train never starts) -> `v57_nbya_factor_check.csv` |
+| f_c summary | Per version and year: counties, f_c 10 / 50 / 90 % quantiles, mean, counties with f_c < 0.05 / < 0.10, clipped to 1, BUPR_2015 = 0, and `nby_kept_share` = sum nby x area x f_c / sum nby x area over v5.7's county-feature rows (the share of v5.7's undated records nby_age keeps) -> `v57_nbya_factor_summary.csv` + log. From the NobuiltYear test's factors (same as expected here): median f_c 1910 0.045 (1,527 of 2,940 counties < 0.05), 1940 0.17, 1960 0.34, 1980 0.62, 2010 0.98; `nby_kept_share` 0.13 / 0.23 / 0.38 / 0.59 / 0.97; 99-106 counties with BUPR_2015 = 0 (f_c = 1), none clipped |
+| Comparison | `src/validation/v57_nbya_compare.py compare` (`sbatch/v57_nbya_compare.sh compare`), the definitions of `v54_nby_compare.py` (its `county_rows`, now with a `rank_features` argument; default unchanged): v5.4, v5.6, v5.7, v5.7 + nby_age and, as a reference column, v5.6 + nby_age on the same years, tracts, TEST counties and cells. County before allocation: MdAPE / MAPE / R2 on ALL TEST counties (main), kept / excluded t070 labelled; CV RMSE / R2 by CV set (v5.7 and the new version share one: directly comparable); tract MdAPE (all, kept / excluded t070, gap / no-gap, four density classes, areal weighting), `d_mdape` vs v5.7; people on BUI = 0 cells and of those on NobuiltYear > 0; city gap blocks (Boston / Denver / Chicago, 1980 / 2010); ranks of nby / nby_age |
+| Stop rule | Before writing: v5.4 / v5.6 / v5.7 rows (county, tract, cells, city_gap) = `v54_nby_comparison.csv`, `v54_nby_cells.csv`, `v54_nby_city_gaps.csv`; v5.6 + nby_age rows = `nobuilt_comparison.csv` (tracts; county: its TEST = our `test_kept_t070`, CV, nby_age ranks), `nobuilt_cells.csv`, `nobuilt_city_gaps.csv` (1e-9; a missing / extra row also stops). Checked locally on the tracked files 2026-11-18: 225 + 45 + 5 rows MATCH (v5.7 1980 all-TEST R2 0.908, v5.6 + nby_age 0.770) |
+| Selection | Fixed before the results: county CV RMSE only, on v5.7's CV counties (`folds.csv` equal, else stop) -> `v57_nbya_cv_rule.csv` + a `RULE` log line (years where the new version is lower, mean change). The user decides; tracts reported, not used for tuning |
+| Output | `results/validation/conus/nobuilt/v57_nbya_{comparison,cells,city_gaps,feature_ranks,factor_summary,factor_check,cv_rule}.csv`; `nobuilt_*` / `v54_nby_*` read only |
+| Tests | `tests/test_v57nbya.py`: config + mutations; factor check (summary by hand, a changed factor / feature / nby_age stops); compare on a synthetic world whose earlier tables are written by `v54_nby_compare.py` / `nobuilt_compare.py` themselves (all-TEST metrics, d_mdape, ranks, CV rule by hand; changed rows / other folds stop); the tracked numbers |
 
 ## BUI outliers (bui_qa, job 34921582)
 
