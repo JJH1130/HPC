@@ -1,0 +1,34 @@
+== job local () on login-ci3 at 2026-11-18T13:28:29-07:00
+== cores=1 gpus=none restart=0
+== git c230efd
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  version Dasy_CONUS_RF_v3_all_nby (v5.7)  extra: Dasy_CONUS_RF_v3_all_nby_pq5=v5.7_pq5  whole-box check: results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv  args: --check
+13:29:53 INFO arg config = configs/external_grids.yaml
+13:29:53 INFO arg data_root = /projects/jaju1407/data/raw/external
+13:29:53 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+13:29:53 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+13:29:53 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+13:29:53 INFO arg name = conus
+13:29:53 INFO arg version = Dasy_CONUS_RF_v3_all_nby
+13:29:53 INFO arg extra_version = ['Dasy_CONUS_RF_v3_all_nby_pq5=v5.7_pq5']
+13:29:53 INFO arg version_label = v5.7
+13:29:53 INFO arg out_dir = results/validation/conus/external/city_density_classes_v57
+13:29:53 INFO arg check_with = results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv
+13:29:53 INFO arg no_check_with = False
+13:29:53 INFO arg check = True
+13:29:53 INFO arg extra = [('Dasy_CONUS_RF_v3_all_nby_pq5', 'v5.7_pq5')]
+13:29:53 INFO RULE (fixed before the results): classes by ghs_pop block density of the year, breaks [100, 1000] (on a break = the upper class) -> ['rural', 'peri_urban', 'urban']; check basis = v5.7's density; ratio band x4
+13:29:53 INFO   input 2010 version Dasy_CONUS_RF_v3_all_nby /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+13:29:53 INFO   input 2010 version Dasy_CONUS_RF_v3_all_nby_pq5 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_2010.tif
+13:29:53 INFO   input 2010 BUI                              /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+13:29:53 INFO   input 2010 product ghs_pop                  /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+13:29:53 INFO   input 2010 product worldpop                 /projects/jaju1407/data/raw/external/worldpop/usa_ppp_2010.tif
+13:29:53 INFO   input 1980 version Dasy_CONUS_RF_v3_all_nby /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+13:29:53 INFO   input 1980 version Dasy_CONUS_RF_v3_all_nby_pq5 /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1980.tif
+13:29:53 INFO   input 1980 BUI                              /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+13:29:53 INFO   input 1980 product ghs_pop                  /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+13:29:53 INFO   input NobuiltYear /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+13:29:53 INFO   input meeting check results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv 
+13:29:53 INFO   input meeting check results/validation/conus/external/city_maps_meeting_v57/gap_blocks.csv 
+13:29:53 INFO   extra version Dasy_CONUS_RF_v3_all_nby_pq5 (v5.7_pq5): whole box NOT checked (no earlier numbers)
+13:29:53 INFO CHECK OK: inputs for 3 cities x 2 years
+== done 2026-11-18T13:29:54-07:00
