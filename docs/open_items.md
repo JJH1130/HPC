@@ -178,14 +178,10 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
 1. **Year-scaled NobuiltYear (main idea).** Instead of the same NobuiltYear count in every year, scale it to the
    year by the built-up ratio: nby_year = NobuiltYear x BUI_year / BUI_2020 (Stefan's example: NobuiltYear 20,
    BUI_2020 100, BUI_1900 20 -> 4). One value per year, so each era's model gets its own nby.
-   To settle before coding (Claude + user):
-   - Unit of the ratio: per cell, or per county (the earlier `nby_age` = 2010-county sum of BUPR_year / BUPR_2015,
-     clipped 0-1; it was worse than raw nby: tract 1980 28.8 vs 27.6 %, county R2 0.770 vs 0.858). Per cell differs
-     from what was tested, but 14.1 M of 26.2 M built cells have undated records only (BUI_2020 = 0 -> ratio
-     undefined), and those are the cells nby is for: a rule for them is needed (e.g. a neighbourhood or county
-     ratio as fallback).
-   - Layer of the ratio: BUI (intensity, Stefan's words) or BUPR (record counts, what nby_age used); reference year
-     2020 or 2015.
+   - Ratio per 2010 county (user, 2026-11-18: training is on counties). This is the `nby_age` form already tested on
+     v5.6 (factor = county BUPR_year / BUPR_2015, clipped 0-1), which was worse than raw nby (tract 1980 28.8 vs
+     27.6 %, all-TEST county R2 1980 0.770 vs 0.858). New run differs in: base v5.7 (no filter), Stefan's layer
+     (BUI instead of BUPR) and reference year (2020 instead of 2015) - to settle.
    - Compare with v5.7 by county CV / all TEST counties (selection), tracts reported.
 2. **PLURAL again, on the new base.** After 1: Stefan expects a compensating effect (spreading people where records
    are missing, and damping over-allocation), and that PLURAL may work once NobuiltYear is in. Same variants as
