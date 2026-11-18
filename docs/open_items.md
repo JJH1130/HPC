@@ -177,11 +177,12 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
 
 1. **Year-scaled NobuiltYear (main idea).** Instead of the same NobuiltYear count in every year, scale it to the
    year by the built-up ratio: nby_year = NobuiltYear x BUI_year / BUI_2020 (Stefan's example: NobuiltYear 20,
-   BUI_2020 100, BUI_1900 20 -> 4). One value per year, so each era's model gets its own nby.
+   BUI_2020 100, BUI_1900 20 -> 4; the user settled BUPR record counts, not BUI). One value per year, so each era's model gets its own nby.
    - Ratio per 2010 county (user, 2026-11-18: training is on counties). This is the `nby_age` form already tested on
      v5.6 (factor = county BUPR_year / BUPR_2015, clipped 0-1), which was worse than raw nby (tract 1980 28.8 vs
-     27.6 %, all-TEST county R2 1980 0.770 vs 0.858). New run differs in: base v5.7 (no filter), Stefan's layer
-     (BUI instead of BUPR) and reference year (2020 instead of 2015) - to settle.
+     27.6 %, all-TEST county R2 1980 0.770 vs 0.858). Layer = BUPR record counts (user, 2026-11-18: the
+     growth of the dated record count applied to NobuiltYear), so the new run = `nby_age` on v5.7 (no filter);
+     reference year 2015 (as before) or 2020 to settle.
    - Compare with v5.7 by county CV / all TEST counties (selection), tracts reported.
 2. **PLURAL again, on the new base.** After 1: Stefan expects a compensating effect (spreading people where records
    are missing, and damping over-allocation), and that PLURAL may work once NobuiltYear is in. Same variants as
