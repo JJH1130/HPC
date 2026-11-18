@@ -1,0 +1,30 @@
+== job 35861169 (v57_nbya_factors) on c3cpu-e2-u5 at 2026-11-17T21:38:01-07:00
+== cores=1 gpus=none restart=0
+== git 846395f
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  subcommand: factors  extra args: 
+21:38:04 INFO arg cmd = factors
+21:38:04 INFO arg years = [1910, 1940, 1960, 1980, 2010]
+21:38:04 INFO arg name = conus
+21:38:04 INFO arg results_root = results
+21:38:04 INFO arg out_dir = results/validation/conus/nobuilt
+21:38:04 INFO arg base = Dasy_CONUS_RF_v3_u070
+21:38:04 INFO == nby_age factors of Dasy_CONUS_RF_v3_all_nbya vs Dasy_CONUS_RF_v3_u070_nbya; county features vs Dasy_CONUS_RF_v3_all_nby
+21:38:04 INFO   1910: factors 2940 new / 2940 old / 2940 common, max |diff| 0, 0 differ | features 2940 rows, 17 columns = v5.7, nby_age = nby x factor (max rel diff 7.57e-13, 0 differ) -> OK
+21:38:04 INFO   1940: factors 3087 new / 3087 old / 3087 common, max |diff| 0, 0 differ | features 3087 rows, 19 columns = v5.7, nby_age = nby x factor (max rel diff 5.21e-13, 0 differ) -> OK
+21:38:04 INFO   1960: factors 3095 new / 3095 old / 3095 common, max |diff| 0, 0 differ | features 3095 rows, 19 columns = v5.7, nby_age = nby x factor (max rel diff 6.24e-13, 0 differ) -> OK
+21:38:04 INFO   1980: factors 3106 new / 3106 old / 3106 common, max |diff| 0, 0 differ | features 3106 rows, 19 columns = v5.7, nby_age = nby x factor (max rel diff 5.37e-13, 0 differ) -> OK
+21:38:04 INFO   2010: factors 3109 new / 3109 old / 3109 common, max |diff| 0, 0 differ | features 3109 rows, 19 columns = v5.7, nby_age = nby x factor (max rel diff 4.54e-13, 0 differ) -> OK
+21:38:05 INFO SUMMARY nby_age factor f_c per year (county quantiles; n_lt_* = counties below; nby_kept_share = sum nby x area x f_c / sum nby x area over v5.7's county-feature rows):
+ variant  year  counties  factor_p10  factor_median  factor_p90  factor_mean  n_lt_0_05  n_lt_0_10  n_clipped_1  n_bupr_2015_zero  feature_counties  nby_kept_share
+v57_nbya  1910      2940      0.0021         0.0453      0.2886       0.1201       1527       1955            0                99              2940          0.1254
+v57_nbya  1940      3087      0.0242         0.1682      0.5044       0.2339        547       1013            0               106              3087          0.2305
+v57_nbya  1960      3095      0.0938         0.3428      0.6705       0.3749        192        328            0               106              3095          0.3759
+v57_nbya  1980      3106      0.3163         0.6164      0.8603       0.6022         38         54            0               106              3106          0.5927
+v57_nbya  2010      3109      0.9342         0.9768      0.9997       0.9674          1          1            0               106              3109          0.9665
+v56_nbya  1910      2940      0.0021         0.0453      0.2886       0.1201       1527       1955            0                99              2940          0.1254
+v56_nbya  1940      3087      0.0242         0.1682      0.5044       0.2339        547       1013            0               106              3087          0.2305
+v56_nbya  1960      3095      0.0938         0.3428      0.6705       0.3749        192        328            0               106              3095          0.3759
+v56_nbya  1980      3106      0.3163         0.6164      0.8603       0.6022         38         54            0               106              3106          0.5927
+v56_nbya  2010      3109      0.9342         0.9768      0.9997       0.9674          1          1            0               106              3109          0.9665
+21:38:05 INFO FACTORS OK: 5 years, factors = Dasy_CONUS_RF_v3_u070_nbya on the common counties, county features = v5.7 with nby -> nby_age
+== done 2026-11-17T21:38:05-07:00

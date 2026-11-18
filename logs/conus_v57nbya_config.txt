@@ -1,0 +1,7 @@
+21:29:14 INFO arg cmd = config
+21:29:14 INFO arg new_config = configs/conus_rf_v3_all_nbya.yaml
+21:29:14 INFO arg v57_config = configs/conus_rf_v3_all_nby.yaml
+21:29:14 INFO arg old_config = configs/conus_rf_v3_u070_nbya.yaml
+21:29:14 INFO arg years = [1910, 1940, 1960, 1980, 2010]
+21:29:14 INFO arg base = Dasy_CONUS_RF_v3_u070
+CONFIG OK: configs/conus_rf_v3_all_nbya.yaml = configs/conus_rf_v3_all_nby.yaml eras ['Y1910', 'Y1940', 'Y1960', 'Y1980', 'Y2010'] with nby -> nby_age, nby_age block = configs/conus_rf_v3_u070_nbya.yaml, every other setting as v5.7

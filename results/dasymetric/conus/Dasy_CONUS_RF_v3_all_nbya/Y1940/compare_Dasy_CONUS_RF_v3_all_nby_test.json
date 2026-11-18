@@ -1,0 +1,6 @@
+{
+  "version": "Dasy_CONUS_RF_v3_all_nby",
+  "n_test_rows": 615,
+  "test_rmse": 0.47214878645633457,
+  "test_r2": 0.885834645436111
+}
