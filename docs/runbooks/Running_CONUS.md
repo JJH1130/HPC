@@ -2186,27 +2186,59 @@ What to look for in the logs: `v57_plural_features` (per variant / year: plural 
 on ALL TEST counties first, kept / excluded t070 labelled, CV + ranks, tracts and their change vs the own base, people
 on cells, ranks of plural / nby, the CV rule; `RULE` lines).
 
-## 24. City boxes by density class (written 2026-11-19; not run yet)
+## 24. City boxes by density class + cell types, v5.7 and v5.7 + PLURAL pq5 (2026-11-19)
 
-Request `docs/handoff/v57_plural_density_request.md` part B (Stefan 2026-11-17 item 4); design `docs/conus_plan.md`
-"City boxes by density class". To be run for the version chosen after section 23 (default v5.7). One job; inputs = the
-meeting maps' (section 18): the version's `pop_{2010,1980}.tif` on scratch, GHS-POP / WorldPop under
-`$DATA_ROOT/raw/external`, and the version's meeting side-by-side table in git (v5.7:
-`city_maps_meeting_v57/meeting_summary_v56_v57.csv`). Another version: `DENS_CHECK_WITH=<its meeting_summary_a_b.csv>`
-(or `none`, whole box then not checked) before the submit line, and the version + label as arguments.
+Requests `docs/handoff/v57_plural_density_request.md` part B (Stefan 2026-11-17 item 4) and
+`docs/handoff/city_density_run_request.md` (two versions + cell-type shares); design `docs/conus_plan.md` "City boxes by
+density class" (+ "Run request 2026-11-19"). One job (2 cores, 30 min; `DENS_TIME`). Inputs = the meeting maps' (section
+18) + the cell types: `pop_{2010,1980}.tif` of v5.7 and of `Dasy_CONUS_RF_v3_all_nby_pq5` (section 23) on scratch,
+GHS-POP / WorldPop under `$DATA_ROOT/raw/external`, the cutout's `layers/BUI/{2010,1980}_BUI.tif`, NobuiltYear (as the
+meeting maps: `$HISDAC_DIR/FBUY/NobuiltYear.tif`), and in git `city_maps_meeting_v57/meeting_summary_v56_v57.csv` +
+`gap_blocks.csv`. v5.7 is checked against them; pq5 is not (no earlier numbers; logged). Other versions:
+`citydensity <VERSION> <LABEL>` with `DENS_CHECK_WITH=<meeting_summary_a_b.csv>` (or `none`), and `DENS_EXTRA=<V=LABEL>`
+(or `none`) before the submit line.
+
+Block 1, pre-check + submit (login node):
 
 ```bash
 cd /projects/jaju1407/HPC
 git pull
+git log --oneline -1
 mkdir -p logs
-bash sbatch/submit_conus.sh citydensity                      # v5.7; another: ... citydensity <VERSION> <LABEL>
+bash sbatch/submit_conus.sh citydensity
 squeue -u $USER
-echo "== end (success = CHECK OK, one 'city_density N (...)' line)"
+echo "== end of block 1 (success = CHECK OK, NobuiltYear line, 'v5.7_pq5 ... NOT checked', one 'city_density N (... extra ...)' line)"
 ```
 
-After the job: `grep -hE "MATCH|add up|DONE" $(ls -t logs/external_city_density.*.out | head -1)` (one `MATCH ...
-meeting_summary_v56_v57.csv`, `classes add up to all`, `DONE`), then commit `logs/` + `results/validation/conus/external/
-city_density_classes_<label>/` (`density_class_summary.csv`, six PNGs) with `git pull --rebase` before `git push`.
+Good: `input NobuiltYear /pl/active/.../FBUY/NobuiltYear.tif (hisdac)`, `extra version Dasy_CONUS_RF_v3_all_nby_pq5
+(v5.7_pq5): whole box NOT checked (no earlier numbers)`, `CHECK OK: inputs for 3 cities x 2 years`, one line `city_density
+N (Dasy_CONUS_RF_v3_all_nby v5.7; extra Dasy_CONUS_RF_v3_all_nby_pq5=v5.7_pq5)`; `== end of block 1`. `ERROR: nothing
+submitted` (`MISSING ...` / `ERROR: ...`): send the output to Claude.
+
+Block 2, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_citydensity_jobs.txt | head -1)
+sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_citydensity_sacct.txt
+seff "$j" | tee logs/conus_citydensity_seff.txt
+grep -hE "MATCH|add up|NOT checked|DONE|ERROR" logs/external_city_density.$j.out
+ls results/validation/conus/external/city_density_classes_v57/
+git add logs/ results/validation/conus/external/city_density_classes_v57/
+git commit -m "run: city boxes by density class + cell types, v5.7 and v5.7 + PLURAL pq5 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, 2 MATCH lines, 2 'classes add up', 'cell types add up', DONE, 2 CSV + 12 PNG, push main -> main)"
+```
+
+Good: `COMPLETED`; in the log `MATCH .../meeting_summary_v56_v57.csv: ... whole-box numbers of v5.7`, `MATCH
+.../gap_blocks.csv: 12 gap / dense_not_gap groups`, `classes add up to all` twice (v5.7, pq5), `cell types add up: 6
+city-years`, `v5.7_pq5 (...): whole box NOT checked`, `DONE`; files `density_class_summary.csv`,
+`cell_type_shares.csv`, six `<city>_<year>.png` + six `<city>_<year>_cell_types.png`; `git push` ends with `main ->
+main`; `== end of block 2`. A `FAILED` job or an `ERROR` line (e.g. `whole box differs`, `of the gap blocks differs`):
+commit the log anyway (same block) and tell Claude.
 
 ## If it fails
 

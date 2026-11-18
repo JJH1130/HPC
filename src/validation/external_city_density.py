@@ -32,8 +32,31 @@ classes) and one row per product of the year slot (2010: GHS-POP, WorldPop; 1980
 on the fixed axes of the meeting scatter plots (0.01 - 30,000 per km2), 1:1 line + x4 / / 4 lines. The meeting map
 folders are not touched.
 
+More versions (--extra-version V=LABEL, request docs/handoff/city_density_run_request.md: v5.7 + PLURAL pq5) get the
+same class rows (column version) on their own mask, without the whole-box check (no earlier numbers; logged). They must
+be on the grid of the main version.
+
+Cell types (request docs/handoff/city_density_run_request.md; does PLURAL put people where GHS-POP / WorldPop, which use
+block-level census input, also have people?): the 250 m cells of the full 1 km blocks inside the main version's mask
+(the blocks above; cells of partial blocks are left out so that the classes add up to the box) are split into
+  bui_gt0           BUI of the year > 0
+  bui0_nobuilt_gt0  BUI = 0 and NobuiltYear > 0 (records without a built year only)
+  bui0_no_record    BUI = 0 and NobuiltYear = 0 (no HISDAC record)
+BUI = the cutout's layers/BUI/{YEAR}_BUI.tif; NobuiltYear = the source of external_city_meeting.py (cutout
+layers/NobuiltYear/*.tif, else HISDAC FBUY/NobuiltYear.tif) or else the cutout layer NOBUILT/NOBUILT.tif, read onto the
+box in the same way (nodata = 0). Per city x year x class (GHS-POP block class of the cell's block, + all) x cell type:
+n_cells, share_<p> = people of p on those cells / people of p on all these cells of the box (so the three types of
+`all` add up to 1 and the classes add up to `all`), share_class_<p> = the same within the class, pop_<p>; p = the
+products of the year (ghs_pop, worldpop) and every version (column tag of its label: v57, v57pq5). An extra version's
+people outside the main mask are left out (logged). Checks: n_cells of a class = 16 x its blocks; with the meeting
+check the main version's gap / dense_not_gap blocks of the meeting maps are recomputed and their cell shares (BUI > 0,
+BUI = 0 and NobuiltYear > 0, no record) must equal the meeting's gap_blocks.csv next to --check-with (the same BUI /
+NobuiltYear reads). One bar figure per city and year (<city>_<year>_cell_types.png, one size): a panel per class (+
+all), one stacked bar per product / version = the three type shares within the class, the class's share of the box
+people above the bar.
+
 Outputs (<out-dir>, default results/validation/conus/external/city_density_classes_<label>/):
-density_class_summary.csv + the PNGs. `--check` only lists the inputs.
+density_class_summary.csv, cell_type_shares.csv + the PNGs. `--check` only lists the inputs.
 """
 from __future__ import annotations
 
@@ -66,8 +89,13 @@ def parse_args(argv=None):
     p.add_argument("--data-root", type=Path, required=True, help="$DATA_ROOT/raw/external")
     p.add_argument("--dasym-root", type=Path, required=True,
                    help="<dasym-root>/<name>/<version>/predictions/pop_{YEAR}.tif")
+    p.add_argument("--cutout-root", type=Path, required=True,
+                   help="<cutout-root>/<name>/layers/BUI/{YEAR}_BUI.tif (+ NobuiltYear / NOBUILT layers if cut)")
+    p.add_argument("--hisdac-dir", type=Path, default=None, help="HISDAC-US V2 folder: FBUY/NobuiltYear.tif")
     p.add_argument("--name", default="conus")
     p.add_argument("--version", default=VERSION)
+    p.add_argument("--extra-version", action="append", default=[], metavar="VERSION=LABEL",
+                   help="another version on the same grid: class rows + cell-type shares, no whole-box check")
     p.add_argument("--version-label", default=LABEL)
     p.add_argument("--out-dir", type=Path, help="default results/validation/conus/external/city_density_classes_<label>")
     p.add_argument("--check-with", type=Path, default=CHECK_WITH,
@@ -75,6 +103,14 @@ def parse_args(argv=None):
     p.add_argument("--no-check-with", action="store_true", help="no meeting table for this version (logged)")
     p.add_argument("--check", action="store_true", help="list the inputs only; exit 1 if one is missing")
     a = p.parse_args(argv)
+    a.extra = []
+    for e in a.extra_version:
+        if "=" not in e:
+            p.error(f"--extra-version {e!r}: VERSION=LABEL")
+        a.extra.append(tuple(e.split("=", 1)))
+    tags = [ecmt.tag(lab) for lab in [a.version_label, *(lab for _, lab in a.extra)]]
+    if len(set(tags)) != len(tags):
+        p.error(f"version labels give the same column tag: {tags}")
     if a.out_dir is None:
         a.out_dir = EXT / f"city_density_classes_{ecmt.tag(a.version_label)}"
     return a
@@ -119,10 +155,73 @@ def class_rows(v: np.ndarray, p: np.ndarray, basis_dens: np.ndarray, dc: dict, b
     return rows
 
 
+CELL_TYPES = ("bui_gt0", "bui0_nobuilt_gt0", "bui0_no_record")
+
+
+def cell_types(bui: np.ndarray, nb: np.ndarray) -> np.ndarray:
+    """0 = BUI > 0, 1 = BUI = 0 and NobuiltYear > 0, 2 = BUI = 0 and NobuiltYear = 0 (no record)."""
+    return np.where(bui > 0, 0, np.where(nb > 0, 1, 2))
+
+
+def cell_type_rows(pops: dict, ctype: np.ndarray, ccls: np.ndarray, sel: np.ndarray, classes) -> list[dict]:
+    """Rows class x cell type over the cells `sel`: n_cells, share_<p> (of p's people on sel), share_class_<p>
+    (within the class), pop_<p>; pops = {column tag: people per cell}, ccls = class index per cell."""
+    tot = {k: float(v[sel].sum()) for k, v in pops.items()}
+    rows = []
+    for cname, cm in [*((c, ccls == i) for i, c in enumerate(classes)), ("all", np.ones_like(sel))]:
+        cs = sel & cm
+        ctot = {k: float(v[cs].sum()) for k, v in pops.items()}
+        for t, tname in enumerate(CELL_TYPES):
+            m = cs & (ctype == t)
+            r = {"class": cname, "cell_type": tname, "n_cells": int(m.sum())}
+            pp = {k: float(v[m].sum()) for k, v in pops.items()}
+            r.update({f"share_{k}": pp[k] / tot[k] if tot[k] > 0 else np.nan for k in pops})
+            r.update({f"share_class_{k}": pp[k] / ctot[k] if ctot[k] > 0 else np.nan for k in pops})
+            r.update({f"pop_{k}": pp[k] for k in pops})
+            rows.append(r)
+    return rows
+
+
+def nobuilt_path(args):
+    """(path, how) of NobuiltYear: external_city_meeting.py's source, else the cutout layer NOBUILT/NOBUILT.tif."""
+    path, how = ecmt.nobuilt_source(args)
+    if path is not None:
+        return path, how
+    p = args.cutout_root / args.name / "layers" / "NOBUILT" / "NOBUILT.tif"
+    return (p, "cutout NOBUILT") if p.exists() else (None, f"{how}; {p} not found")
+
+
 # ---------------------------------------------------------------- one city and year
 
-def run_city(args, cfg, cm, mt, dc, key, year):
-    """(rows, box rows for the check, figure arguments) of one city and year."""
+def version_rows(vpop, mask, grids, f, bkm2, dc, base, labels, cfg):
+    """(class rows, scatter data, class grid, full-block flags) of one version over its own mask."""
+    vb, _, full = ecmt.blocks(vpop, vpop, mask, f)
+    cb = ecmt.blocks(grids[dc["class_product"]], vpop, mask, f)[0]
+    basis = {"ghs_pop": cb[full] / bkm2, "version": vb[full] / bkm2}
+    rows, scat = [], {}
+    for prod, g in grids.items():
+        st = ecm.panel_stats(g, mask, np.zeros_like(vpop), vpop, f)
+        pb = ecmt.blocks(g, vpop, mask, f)[0]
+        v, p = vb[full], pb[full]
+        for b in BASES:
+            for r in class_rows(v, p, basis[b], dc, bkm2):
+                row = {**base, "product": prod, "product_label": labels.get(prod, cfg["products"][prod]["label"]),
+                       "basis": b, **r}
+                if r["class"] == "all":
+                    row.update(total_pop_box_version=float(np.nansum(vpop)), total_pop_box_product=st["total_pop_box"])
+                rows.append(row)
+        scat[prod] = (v / bkm2, p / bkm2, classify(basis["ghs_pop"], dc["breaks"]))
+        a = [r for r in rows if r["product"] == prod and r["basis"] == "ghs_pop"]
+        log.info("  %-10s %-9s %s", base["version_label"], prod, " | ".join(
+            f"{r['class']} {r['n_blocks']} blocks rho {r['spearman']:.3f} ratio {r['ratio_total']:.3f}" for r in a))
+    cls_grid = np.full(full.shape, np.nan)
+    cls_grid[full] = classify(basis["ghs_pop"], dc["breaks"])
+    return rows, scat, cls_grid, full
+
+
+def run_city(args, cfg, cm, mt, dc, key, year, nb_path):
+    """(class rows, box rows for the check, figure arguments, cell-type rows, gap cell rows, bar figure arguments)
+    of one city and year."""
     city = cm["cities"][key]
     vpath = args.dasym_root / args.name / args.version / "predictions" / f"pop_{year}.tif"
     with rasterio.open(vpath) as src:
@@ -147,37 +246,64 @@ def run_city(args, cfg, cm, mt, dc, key, year):
     cp = dc["class_product"]
     if cp not in grids:
         sys.exit(f"ERROR: {year}: class product {cp} is not a product of the year ({list(grids)})")
-    vb, _, full = ecmt.blocks(vpop, vpop, mask, f)
-    cb = ecmt.blocks(grids[cp], vpop, mask, f)[0]
-    basis = {"ghs_pop": cb[full] / bkm2, "version": vb[full] / bkm2}
     s0 = ecm.panel_stats(vpop, mask, np.zeros_like(vpop), vpop, f)
     box = [{"city": key, "year": year, "item": "model", "n_blocks_1km": s0["n_blocks_1km"],
             "total_pop_box": s0["total_pop_box"]}]
-    rows, scat = [], {}
-    base = {"city": key, "city_label": city["label"], "year": year, "version": args.version,
-            "version_label": args.version_label, "class_product": cp}
     for prod, g in grids.items():
         st = ecm.panel_stats(g, mask, np.zeros_like(vpop), vpop, f)
-        pb = ecmt.blocks(g, vpop, mask, f)[0]
-        v, p = vb[full], pb[full]
         box.append({"city": key, "year": year, "item": prod, "n_blocks_1km": st["n_blocks_1km"],
                     "total_pop_box": st["total_pop_box"], "spearman_1km_vs_version": st["spearman_1km_vs_version"]})
-        for b in BASES:
-            for r in class_rows(v, p, basis[b], dc, bkm2):
-                row = {**base, "product": prod, "product_label": labels.get(prod, cfg["products"][prod]["label"]),
-                       "basis": b, **r}
-                if r["class"] == "all":
-                    row.update(total_pop_box_version=s0["total_pop_box"], total_pop_box_product=st["total_pop_box"])
-                rows.append(row)
-        scat[prod] = (v / bkm2, p / bkm2, classify(basis["ghs_pop"], dc["breaks"]))
-        a = [r for r in rows if r["product"] == prod and r["basis"] == "ghs_pop"]
-        log.info("  %-9s %s", prod, " | ".join(f"{r['class']} {r['n_blocks']} blocks rho {r['spearman']:.3f} ratio "
-                                                 f"{r['ratio_total']:.3f}" for r in a))
-    cls_grid = np.full(full.shape, np.nan)
-    cls_grid[full] = classify(basis["ghs_pop"], dc["breaks"])
+    base = {"city": key, "city_label": city["label"], "year": year, "class_product": cp}
+    rows, scat, cls_grid, full = version_rows(vpop, mask, grids, f, bkm2, dc,
+                                              {**base, "version": args.version, "version_label": args.version_label},
+                                              labels, cfg)
+    vers = {ecmt.tag(args.version_label): np.nan_to_num(vpop, nan=0.0)}
+    for v, lab in args.extra:
+        p = args.dasym_root / args.name / v / "predictions" / f"pop_{year}.tif"
+        xpop, xmask, _ = ecm.read_box(p, win, grid_t)  # stops if not on the main version's grid
+        xpop = np.where(xmask, xpop, np.nan)
+        nd = int((xmask != mask).sum())
+        if nd:
+            log.warning("  %s: mask differs from %s's in %d cells (%.0f of its people outside the main mask; left "
+                        "out of the cell types)", lab, args.version_label, nd, float(np.nansum(xpop[~mask])))
+        rows += version_rows(xpop, xmask, grids, f, bkm2, dc, {**base, "version": v, "version_label": lab}, labels,
+                             cfg)[0]
+        vers[ecmt.tag(lab)] = np.where(mask, np.nan_to_num(xpop, nan=0.0), 0.0)
+    # cell types on the cells of the main version's full blocks
+    bui, bvalid, _ = ecm.read_box(args.cutout_root / args.name / "layers" / "BUI" / f"{year}_BUI.tif", win, grid_t)
+    bui = np.where(bvalid, bui, -1.0)
+    nb = ecmt.read_on_box(nb_path, bt, vpop.shape, crs)
+    ctype = cell_types(bui, nb)
+    up = np.ones((f, f))
+    sel = np.kron(full, up).astype(bool)
+    ccls = np.kron(np.nan_to_num(cls_grid, nan=-1), up).astype(int)
+    pops = {k: np.where(sel, np.nan_to_num(g, nan=0.0), 0.0) for k, g in grids.items()} | vers
+    crow = [{"city": key, "city_label": city["label"], "year": year, **r}
+            for r in cell_type_rows(pops, ctype, ccls, sel, dc["classes"])]
+    for r in crow:
+        if r["class"] == "all":
+            log.info("  cells %-16s %6d  %s", r["cell_type"], r["n_cells"],
+                     "  ".join(f"{k} {100 * r[f'share_{k}']:.1f}%" for k in pops))
+    gap = []
+    gc = mt.get("gap", {})
+    if gc and gc["product"] in grids:  # meeting gap blocks of the main version: check of the BUI / NobuiltYear reads
+        vb = ecmt.blocks(vpop, vpop, mask, f)[0]
+        gb = ecmt.blocks(grids[gc["product"]], vpop, mask, f)[0]
+        g = ecmt.gap_blocks(vb, gb, full, bkm2, gc["ratio_max"], gc["min_density"])
+        dense = full & (gb / bkm2 >= gc["min_density"]) & ~g
+        for group, fl in (("gap", g), ("dense_not_gap", dense)):
+            gap.append({"city": key, "year": year, "group": group, "n_cells": int(fl.sum()) * f * f,
+                        "share_cells_bui_gt0": ecmt.cell_share(fl, ctype == 0, f),
+                        "share_cells_nobuilt_gt0_bui0": ecmt.cell_share(fl, ctype == 1, f),
+                        "share_cells_no_record": ecmt.cell_share(fl, ctype == 2, f)})
     draw_args = (args.out_dir / f"{key}_{year}.png", city["label"], year, cls_grid, cm["box_km"], f * grid_t.a / 1000,
-                 scat, rows, mt, labels, dc, args.version_label)
-    return rows, box, draw_args
+                 scat, [r for r in rows if r["version"] == args.version], mt, labels, dc, args.version_label)
+    vlabs = [args.version_label, *(lab for _, lab in args.extra)]
+    cols = [*mt["products"], *(ecmt.tag(lab) for lab in vlabs)]
+    names = {**{p: labels.get(p, cfg["products"][p]["label"]) for p in mt["products"]},
+             **{ecmt.tag(lab): lab for lab in vlabs}}
+    bar_args = (args.out_dir / f"{key}_{year}_cell_types.png", city["label"], year, crow, cols, names, dc)
+    return rows, box, draw_args, crow, gap, bar_args
 
 
 # ---------------------------------------------------------------- checks
@@ -212,6 +338,47 @@ def check_sums(t: pd.DataFrame, classes):
         if not np.allclose(c[col], a.loc[c.index, col], rtol=1e-9, atol=1e-6):
             sys.exit(f"ERROR: the classes do not add up to all ({col})")
     log.info("  classes add up to all: %d groups (blocks, people)", len(c))
+
+
+def check_cells(c: pd.DataFrame, t: pd.DataFrame, classes, version: str, f: int = 4):
+    """Cell types: the three types of `all` add up to 1, the classes add up to `all`, n_cells = f^2 x blocks."""
+    shares = [k for k in c.columns if k.startswith("share_") and not k.startswith("share_class_")]
+    for (city, year), g in c.groupby(["city", "year"]):
+        a = g[g["class"] == "all"]
+        tot = a[shares].sum(min_count=1).dropna()
+        if not np.allclose(tot, 1.0, atol=1e-9):
+            sys.exit(f"ERROR: {city} {year}: cell-type shares of the box do not add up to 1: {tot.to_dict()}")
+        cl = g[g["class"].isin(classes)].groupby("cell_type")[["n_cells", *shares]].sum(min_count=1)
+        al = a.set_index("cell_type")[["n_cells", *shares]].loc[cl.index]
+        if not np.allclose(cl.to_numpy(float), al.to_numpy(float), atol=1e-9, equal_nan=True):
+            sys.exit(f"ERROR: {city} {year}: cell types of the classes do not add up to all")
+        n = g[g["class"].isin(classes)].groupby("class")["n_cells"].sum()
+        b = t[(t["city"] == city) & (t["year"] == year) & (t["version"] == version) & (t["basis"] == "ghs_pop")
+              & (t["product"] == t["class_product"])].set_index("class")["n_blocks"]
+        if not (n == f * f * b.loc[n.index]).all():
+            sys.exit(f"ERROR: {city} {year}: cells per class != {f * f} x blocks ({n.to_dict()} vs {b.to_dict()})")
+    log.info("  cell types add up: %d city-years (box shares = 1, classes = all, cells = %d x blocks)",
+             c.groupby(["city", "year"]).ngroups, f * f)
+
+
+def check_gap_cells(gap: pd.DataFrame, path: Path):
+    """Cell shares of the main version's gap / dense_not_gap blocks = the meeting's gap_blocks.csv."""
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (gap table of the meeting maps next to --check-with)")
+    ref = pd.read_csv(path)
+    cols = ["n_cells", "share_cells_bui_gt0", "share_cells_nobuilt_gt0_bui0", "share_cells_no_record"]
+    m = gap.merge(ref[["city", "year", "group", *cols]], on=["city", "year", "group"], how="outer",
+                  suffixes=("", "_ref"), indicator=True)
+    if (m["_merge"] != "both").any():
+        sys.exit(f"ERROR: gap groups differ from {path}: "
+                 f"{m.loc[m['_merge'] != 'both', ['city', 'year', 'group']].to_dict('records')}")
+    for col in cols:
+        if not np.allclose(m[col].to_numpy(float), m[col + "_ref"].to_numpy(float), rtol=1e-9, atol=1e-12,
+                           equal_nan=True):
+            sys.exit(f"ERROR: {col} of the gap blocks differs from {path}: "
+                     f"{m[['city', 'year', 'group', col, col + '_ref']].to_dict('records')}")
+    log.info("  MATCH %s: %d gap / dense_not_gap groups (cells, BUI > 0, BUI = 0 and NobuiltYear > 0, no record)",
+             path, len(m))
 
 
 # ---------------------------------------------------------------- figure
@@ -295,6 +462,64 @@ def draw(path: Path, city_label: str, year: int, cls_grid: np.ndarray, box_km: f
     log.info("  wrote %s", path)
 
 
+TYPE_LABELS = {"bui_gt0": "BUI > 0", "bui0_nobuilt_gt0": "BUI = 0, NobuiltYear > 0 (undated records only)",
+               "bui0_no_record": "BUI = 0, NobuiltYear = 0 (no record)"}
+BAR_FIGSIZE = (15.0, 5.2)
+
+
+def draw_cells(path: Path, city_label: str, year: int, crow: list, cols: list, names: dict, dc: dict):
+    """One panel per class (+ the whole box): a stacked bar per product / version = the cell-type shares within the
+    class; above the bar the class's share of the box people."""
+    plots = ecm._plots()
+    plt = plots.plt
+    colors = plots.SERIES[:3]  # fixed order: BUI > 0, undated records only, no record
+    panels = ["all", *dc["classes"]]
+    pname = {"all": "whole box", "rural": "rural", "peri_urban": "peri-urban", "urban": "urban"}
+    fig = plt.figure(figsize=BAR_FIGSIZE, dpi=150, layout="constrained")
+    axes = fig.subplots(1, len(panels), sharey=True, squeeze=False)[0]
+    x = np.arange(len(cols))
+    for ax, cname in zip(axes, panels):
+        g = {r["cell_type"]: r for r in crow if r["class"] == cname}
+        ncell = sum(g[t]["n_cells"] for t in CELL_TYPES)
+        bottom = np.zeros(len(cols))
+        for t, col in zip(CELL_TYPES, colors):
+            h = np.array([g[t].get(f"share_class_{k}", np.nan) for k in cols], float)
+            ok = np.isfinite(h)
+            ax.bar(x[ok], h[ok], bottom=bottom[ok], width=0.62, color=col, edgecolor="white", linewidth=1.0,
+                   label=TYPE_LABELS[t])
+            for xi, hi, bi in zip(x[ok], h[ok], bottom[ok]):
+                if hi >= 0.05:
+                    ax.text(xi, bi + hi / 2, f"{100 * hi:.0f}", ha="center", va="center", fontsize=7, color="white")
+            bottom[ok] += h[ok]
+        for xi, k in zip(x, cols):
+            sv = np.array([g[t].get(f"share_{k}", np.nan) for t in CELL_TYPES], float)
+            if np.isfinite(sv).all():
+                ax.text(xi, 1.015, f"{100 * sv.sum():.0f}%", ha="center", va="bottom", fontsize=7, color=plots.MUTED)
+            else:
+                ax.text(xi, 0.5, f"no {year} grid", ha="center", va="center", rotation=90, fontsize=7,
+                        color=plots.MUTED)
+        ax.set_xticks(x, [names[k] for k in cols], rotation=30, ha="right", fontsize=7.5)
+        ax.set_ylim(0, 1.08)
+        ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0], ["0", "25", "50", "75", "100"])
+        ax.set_title(f"{pname.get(cname, cname)} ({ncell:,} cells)", fontsize=8.5, color=plots.INK)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.tick_params(labelsize=7.5, colors=plots.INK)
+        ax.grid(axis="y", color="#e6e6e3", lw=0.6)
+        ax.set_axisbelow(True)
+    axes[0].set_ylabel("% of the class's people on cells of the type", fontsize=8, color=plots.INK)
+    h, lab = axes[0].get_legend_handles_labels()
+    fig.legend(h, lab, loc="outside lower center", ncol=3, fontsize=7.5, frameon=False)
+    fig.suptitle(f"{city_label}, {year}: people by HISDAC record of their 250 m cell (classes = GHS-POP 1 km block "
+                 f"density; grey number above a bar = the class's share of the box people)", fontsize=9,
+                 color=plots.INK)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    from matplotlib.transforms import Bbox
+    w, hh = BAR_FIGSIZE
+    fig.savefig(path, facecolor="white", bbox_inches=Bbox([[-0.3, -0.3], [w + 0.3, hh + 0.3]]))
+    plt.close(fig)
+    log.info("  wrote %s", path)
+
+
 # ---------------------------------------------------------------- main
 
 def main(argv=None):
@@ -316,46 +541,76 @@ def main(argv=None):
              dc["classes"], args.version_label, dc["ratio_band"])
     miss = []
     for year, prods in mt["years"].items():
-        p = args.dasym_root / args.name / args.version / "predictions" / f"pop_{year}.tif"
-        log.info("  input %d version %-24s %s", year, args.version, p if p.exists() else "MISSING")
+        for v in [args.version, *(v for v, _ in args.extra)]:
+            p = args.dasym_root / args.name / v / "predictions" / f"pop_{year}.tif"
+            log.info("  input %d version %-24s %s", year, v, p if p.exists() else "MISSING")
+            miss += [] if p.exists() else [str(p)]
+        p = args.cutout_root / args.name / "layers" / "BUI" / f"{year}_BUI.tif"
+        log.info("  input %d BUI     %-24s %s", year, "", p if p.exists() else "MISSING")
         miss += [] if p.exists() else [str(p)]
         for prod in prods:
             path, note = resolve(args.data_root, cfg["products"][prod], year)
             log.info("  input %d product %-24s %s", year, prod, path if path is not None else "MISSING: " + note)
             miss += [] if path is not None else [f"{prod} {year}: {note}"]
+    nb_path, nb_how = nobuilt_path(args)
+    log.info("  input NobuiltYear %s", f"{nb_path} ({nb_how})" if nb_path is not None else "MISSING: " + nb_how)
+    miss += [] if nb_path is not None else [f"NobuiltYear: {nb_how}"]
+    gap_ref = args.check_with.parent / "gap_blocks.csv"
     if not args.no_check_with:
-        log.info("  input whole-box check %s %s", args.check_with, "" if args.check_with.exists() else "MISSING")
-        miss += [] if args.check_with.exists() else [str(args.check_with)]
+        for p in (args.check_with, gap_ref):
+            log.info("  input meeting check %s %s", p, "" if p.exists() else "MISSING")
+            miss += [] if p.exists() else [str(p)]
+    for v, lab in args.extra:
+        log.info("  extra version %s (%s): whole box NOT checked (no earlier numbers)", v, lab)
     if miss:
         sys.exit(f"ERROR: {len(miss)} inputs missing: {miss}")
     if args.check:
         log.info("CHECK OK: inputs for %d cities x %d years", len(mt["cities"]), len(mt["years"]))
         return 0
-    rows, box, draws = [], [], []
+    rows, box, draws, cells, gaps, bars = [], [], [], [], [], []
     for year in mt["years"]:
         for key in mt["cities"]:
-            r, b, d = run_city(args, cfg, cm, mt, dc, key, year)
+            r, b, d, c, g, br = run_city(args, cfg, cm, mt, dc, key, year, nb_path)
             rows += r
             box += b
             draws.append(d)
-    t, bx = pd.DataFrame(rows), pd.DataFrame(box)
+            cells += c
+            gaps += g
+            bars.append(br)
+    t, bx, ct = pd.DataFrame(rows), pd.DataFrame(box), pd.DataFrame(cells)
+    lead = ["city", "city_label", "year", "class", "cell_type", "n_cells"]
+    ct = ct[lead + [k for k in ct.columns if k.startswith("share_") and not k.startswith("share_class_")]
+            + [k for k in ct.columns if k.startswith("share_class_")] + [k for k in ct.columns if k.startswith("pop_")]]
     log.info("checks (a difference stops the run before writing):")
-    check_sums(t, dc["classes"])
+    for v in t["version"].unique():
+        check_sums(t[t["version"] == v], dc["classes"])
+    check_cells(ct, t, dc["classes"], args.version)
     if args.no_check_with:
         log.warning("  whole box NOT checked (--no-check-with)")
     else:
         check_box(bx, args.check_with, args.version_label)
+        if gaps:
+            check_gap_cells(pd.DataFrame(gaps), gap_ref)
+    for v, lab in args.extra:
+        log.warning("  %s (%s): whole box NOT checked (no earlier numbers; its classes add up, see above)", lab, v)
     for d in draws:
         draw(*d)
+    for d in bars:
+        draw_cells(*d)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     t.to_csv(args.out_dir / "density_class_summary.csv", index=False)
+    ct.to_csv(args.out_dir / "cell_type_shares.csv", index=False)
     with pd.option_context("display.width", 250, "display.max_rows", 200, "display.max_columns", 30):
-        cols = ["city", "year", "product", "class", "n_blocks", "spearman", "ratio_total", "ratio_p10", "ratio_median",
-                "ratio_p90", "n_version_zero", "n_product_zero", "share_above", "share_below"]
+        cols = ["version_label", "city", "year", "product", "class", "n_blocks", "spearman", "ratio_total", "ratio_p10",
+                "ratio_median", "ratio_p90", "n_version_zero", "n_product_zero", "share_above", "share_below"]
         for b in BASES:
             log.info("SUMMARY classes by %s (%s):\n%s", "GHS-POP (main)" if b == "ghs_pop" else
-                     f"{args.version_label} (check)", b, t.loc[t["basis"] == b, cols].round(3).to_string(index=False))
-    log.info("wrote %s", args.out_dir / "density_class_summary.csv")
+                     "the version's own density (check)", b, t.loc[t["basis"] == b, cols].round(3).to_string(index=False))
+        sc = [k for k in ct.columns if k.startswith("share_") and not k.startswith("share_class_")]
+        log.info("SUMMARY cell types, share of the box people (%%):\n%s",
+                 ct[["city", "year", "class", "cell_type", "n_cells", *sc]].assign(**{k: 100 * ct[k] for k in sc})
+                 .round(1).to_string(index=False))
+    log.info("wrote %s, %s", args.out_dir / "density_class_summary.csv", args.out_dir / "cell_type_shares.csv")
     log.info("DONE")
     return 0
 

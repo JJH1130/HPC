@@ -1348,6 +1348,23 @@ later for the version chosen after item 2 (`bash sbatch/submit_conus.sh citydens
 | Version | `--version` / `--version-label`, default v5.7 (`Dasy_CONUS_RF_v3_all_nby`) -> `results/validation/conus/external/city_density_classes_<label>/` (`density_class_summary.csv` + PNGs); the meeting map folders are not touched |
 | Tests | `tests/test_external_city_density.py`: class split on the breaks and the metrics by hand; end to end on the synthetic city world of the meeting test (meeting maps of a v5.7 first): class rows by hand (blocks, people, scipy Spearman), classes add up, `all` = the meeting numbers, one PNG size, a changed meeting number stops with nothing written, a missing label column stops, `--check`; the real config block |
 
+### Run request 2026-11-19: v5.7 + v5.7 pq5, cell types (`docs/handoff/city_density_run_request.md`; runbook section 24)
+
+Background ("PLURAL on v5.7: result"): PLURAL improves county CV but worsens tracts, and its extra people go mostly to
+BUI = 0 cells without any HISDAC record. Cells without a record can still hold buildings / people (also uncertain), so
+the city boxes count how many people GHS-POP / WorldPop (block-level census input; a reference, not truth) put on
+such cells, next to v5.7 and v5.7 + PLURAL pq5 (the variant with the best county CV). Same job as item 4. Code
+2026-11-19, not run.
+
+| Topic | Decision |
+|---|---|
+| Versions | One run: v5.7 (`Dasy_CONUS_RF_v3_all_nby`, label v5.7, main: figures, whole-box check as above) + `--extra-version Dasy_CONUS_RF_v3_all_nby_pq5=v5.7_pq5` (1980 / 2010 = the PLURAL years with GHS-POP; on the main version's grid, else stop). The extra version's class rows (column `version`) use its own mask; its whole box is NOT checked (no earlier numbers; logged). Output stays `city_density_classes_v57/` |
+| Cell types | The 250 m cells of the full 1 km blocks inside v5.7's mask (= the class blocks; cells of partial blocks left out so that classes add up to the box): `bui_gt0` (BUI of the year > 0), `bui0_nobuilt_gt0` (BUI = 0, NobuiltYear > 0: undated records only), `bui0_no_record` (BUI = 0, NobuiltYear = 0). BUI = cutout `layers/BUI/{YEAR}_BUI.tif`; NobuiltYear = the meeting maps' source (cutout `layers/NobuiltYear/`, else `$HISDAC_DIR/FBUY/NobuiltYear.tif`; the meeting v5.7 run used HISDAC), else the cutout `NOBUILT/NOBUILT.tif`, read the same way (nodata = 0). Class of a cell = GHS-POP class of its block |
+| Numbers | `cell_type_shares.csv`: city, year, class (rural / peri_urban / urban / all), cell_type, n_cells, `share_<p>` = people of p on the cells / p's people on all these cells of the box, then `share_class_<p>` (within the class), `pop_<p>`; p = ghs_pop, worldpop (2010; NaN in 1980), v57, v57pq5. pq5 people outside v5.7's mask are left out (logged if any) |
+| Checks | The three types of `all` add up to 1 per product; the classes add up to `all`; cells of a class = 16 x its blocks; v5.7's meeting gap / dense_not_gap blocks recomputed: their cells and cell shares (BUI > 0, undated only, no record) = `city_maps_meeting_v57/gap_blocks.csv` (checks the BUI / NobuiltYear reads). A difference stops before writing |
+| Figure | The class figures for v5.7 only (unchanged) + per city and year `<city>_<year>_cell_types.png` (one size): panels whole box / rural / peri-urban / urban, one stacked bar per GHS-POP / WorldPop / v5.7 / v5.7_pq5 = the three type shares within the class (same 0-100 % axis), the class's share of the box people above the bar; 1980 keeps an empty WorldPop slot |
+| Tests | `tests/test_external_city_density.py`: `test_cell_types` (split and shares by hand); end to end with a synthetic pq5 (its class rows, cell types and shares by hand for both versions and the products, sums, a changed gap share stops, `--no-check-with`, one bar PNG size) |
+
 ## BUI outliers (bui_qa, job 34921582)
 
 Unit confirmed from `BUI_README.txt`: "indoor building gross area sum per pixel area in square feet". A 250 m cell is

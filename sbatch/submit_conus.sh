@@ -95,7 +95,8 @@
 #                                       # (gap counties from v5.6) -> v57_plural_compare (ALL TEST counties, CV rule);
 #                                       # one submit
 #   bash sbatch/submit_conus.sh citydensity [VERSION LABEL]  # city boxes by density class (default v5.7:
-#                                       # Dasy_CONUS_RF_v3_all_nby v5.7): input check, one job ->
+#                                       # Dasy_CONUS_RF_v3_all_nby v5.7, + DENS_EXTRA default v5.7 + PLURAL pq5) +
+#                                       # cell-type shares (BUI / NobuiltYear): input check, one job ->
 #                                       # results/validation/conus/external/city_density_classes_<label>/
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
@@ -1064,15 +1065,17 @@ elif [[ $mode == citydensity ]]; then
     else
         CHK=${DENS_CHECK_WITH:?another version needs DENS_CHECK_WITH=<its meeting_summary_a_b.csv> or none}
     fi
-    if ! DENS_VERSION=$V DENS_LABEL=$L DENS_CHECK_WITH=$CHK bash sbatch/external_city_density.sh --check \
+    # extra versions (class rows + cell-type shares, no whole-box check): one VERSION=LABEL (sbatch --export), or none
+    X=${DENS_EXTRA:-Dasy_CONUS_RF_v3_all_nby_pq5=v5.7_pq5}
+    if ! DENS_VERSION=$V DENS_LABEL=$L DENS_CHECK_WITH=$CHK DENS_EXTRA=$X bash sbatch/external_city_density.sh --check \
             > logs/conus_citydensity_check.txt 2>&1; then
         grep -E "MISSING|ERROR" logs/conus_citydensity_check.txt || tail -5 logs/conus_citydensity_check.txt
         echo "ERROR: nothing submitted (see logs/conus_citydensity_check.txt)"; exit 1
     fi
-    grep -E "CHECK OK" logs/conus_citydensity_check.txt || true
-    jd=$(sub "" --time=${DENS_TIME:-00:30:00} --export=ALL,DENS_VERSION=$V,DENS_LABEL=$L,DENS_CHECK_WITH=$CHK \
-         sbatch/external_city_density.sh)
-    echo "city_density $jd ($V $L)" | tee logs/conus_citydensity_jobs.txt
+    grep -E "CHECK OK|NobuiltYear|NOT checked" logs/conus_citydensity_check.txt || true
+    jd=$(sub "" --time=${DENS_TIME:-00:30:00} \
+         --export=ALL,DENS_VERSION=$V,DENS_LABEL=$L,DENS_CHECK_WITH=$CHK,DENS_EXTRA=$X sbatch/external_city_density.sh)
+    echo "city_density $jd ($V $L; extra $X)" | tee logs/conus_citydensity_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

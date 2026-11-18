@@ -137,7 +137,7 @@ figure) -> `results/validation/conus/plural_grid_v57/plural_v57_*.csv`. City box
 [VERSION LABEL]`; `city_density:` block of `configs/external_grids.yaml`): the meeting boxes / blocks split by GHS-POP block density
 (rural < 100, peri_urban 100 - 1,000, urban >= 1,000 per km2, a break = the upper class; same breaks on our density as a check),
 per class blocks / Spearman / totals / block-ratio quantiles / zero blocks / x4 shares + one figure per city and year; whole box =
-the version's `meeting_summary_<a>_<b>.csv`, else stop -> `results/validation/conus/external/city_density_classes_<label>/`. `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
+the version's `meeting_summary_<a>_<b>.csv`, else stop -> `results/validation/conus/external/city_density_classes_<label>/`; `--extra-version V=LABEL` (sbatch env `DENS_EXTRA`, default v5.7 + PLURAL pq5) adds a version's class rows without the whole-box check, and `cell_type_shares.csv` + `<city>_<year>_cell_types.png` give the people share of each product / version on cells with BUI > 0 / BUI = 0 and NobuiltYear > 0 / no record (BUI from the cutout, NobuiltYear as the meeting maps; per class and the box; the meeting `gap_blocks.csv` cell shares recomputed, else stop). `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
 figure, a row per version: mean |SHAP| bar + beeswarm from the era's `shap_values.csv` / `county_features.csv`, bars checked
 against `shap_importance.csv`) -> `results/validation/conus/shap_figures/` (Stefan 2026-11-17 item 3). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
@@ -239,7 +239,7 @@ files (changed column / plural / break / study cells stop); compare on a synthet
 v54_nby_compare / plural_compare (metrics, d_mdape / d_mdape_own, ranks, cells, CV rule by hand; changed rows / other
 folds stop); the tracked numbers), `python tests/test_external_city_density.py` (class split on the breaks + metrics by
 hand; end to end on the meeting test's city world: class rows by hand, classes add up, all = the meeting numbers, a
-changed meeting number stops; the config block),
+changed meeting number stops; a second version + cell types / shares by hand, a changed gap share stops; the config block),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 

@@ -7,7 +7,10 @@
 # of the version (meeting_summary_<a>_<b>.csv, column = the label), else the run stops before writing.
 # Reads the version's pop_{2010,1980}.tif and GHS-POP / WorldPop under $DATA_ROOT/raw/external; writes
 # results/validation/conus/external/city_density_classes_<label>/ (density_class_summary.csv + PNGs). The meeting map
-# folders are not touched.
+# folders are not touched. DENS_EXTRA (default the v5.7 + PLURAL pq5 version, `none` = no extra; space separated
+# VERSION=LABEL): those versions get the class rows too (no whole-box check), and every version + product gets the
+# cell-type shares (BUI > 0 / BUI = 0 and NobuiltYear > 0 / no record; docs/handoff/city_density_run_request.md) ->
+# cell_type_shares.csv + <city>_<year>_cell_types.png. BUI from the cutout, NobuiltYear as the meeting maps.
 # Usually submitted by: bash sbatch/submit_conus.sh citydensity [VERSION LABEL]. Alone (repo root, logs/ must exist):
 #   sbatch sbatch/external_city_density.sh                                   # v5.7 (default)
 #   sbatch --export=ALL,DENS_VERSION=<version>,DENS_LABEL=<label>,DENS_CHECK_WITH=<meeting_summary_a_b.csv> \
@@ -36,16 +39,22 @@ VER=${DENS_VERSION:-Dasy_CONUS_RF_v3_all_nby}
 LAB=${DENS_LABEL:-v5.7}
 CHK=${DENS_CHECK_WITH:-results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv}
 if [[ $CHK == none ]]; then CHECK=(--no-check-with); else CHECK=(--check-with "$CHK"); fi
-echo "== python: $(command -v python)  version $VER ($LAB)  whole-box check: $CHK  args: $*"
+EXTRA_SPEC=${DENS_EXTRA:-Dasy_CONUS_RF_v3_all_nby_pq5=v5.7_pq5}  # space separated VERSION=LABEL, or none
+EXTRA=()
+if [[ $EXTRA_SPEC != none ]]; then for e in $EXTRA_SPEC; do EXTRA+=(--extra-version "$e"); done; fi
+echo "== python: $(command -v python)  version $VER ($LAB)  extra: $EXTRA_SPEC  whole-box check: $CHK  args: $*"
 
 python -u src/validation/external_city_density.py \
     --config configs/external_grids.yaml \
     --data-root "$DATA_ROOT/raw/external" \
     --dasym-root "$HISDAC_SCRATCH/dasymetric" \
+    --cutout-root "$HISDAC_SCRATCH/cutouts" \
+    --hisdac-dir "$HISDAC_DIR" \
     --name conus \
     --version "$VER" \
     --version-label "$LAB" \
     "${CHECK[@]}" \
+    "${EXTRA[@]}" \
     "$@"
 
 echo "== done $(date -Is)"
