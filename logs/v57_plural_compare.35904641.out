@@ -1,0 +1,303 @@
+== job 35904641 (v57_plural_compare) on c3cpu-c15-u11-4 at 2026-11-18T11:31:02-07:00
+== cores=4 gpus=none restart=0
+== git 5aada1a
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  subcommand: compare  out: results/validation/conus/plural_grid_v57  extra args: 
+11:31:30 INFO arg cmd = compare
+11:31:30 INFO arg variants = ['plc', 'plcc', 'pq3', 'pq5', 'pe3', 'pe5']
+11:31:30 INFO arg years = [1940, 1980, 2010]
+11:31:30 INFO arg name = conus
+11:31:30 INFO arg results_root = results
+11:31:30 INFO arg out_dir = results/validation/conus/plural_grid_v57
+11:31:30 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+11:31:30 INFO arg split = configs/conus_split.csv
+11:31:30 INFO arg mape_min = 10
+11:31:30 INFO arg nobuilt_dir = results/validation/conus/nobuilt
+11:31:30 INFO arg plural_dir = results/validation/conus/plural_grid
+11:31:30 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+11:31:30 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+11:31:30 INFO arg base = Dasy_CONUS_RF_v3_u070
+11:31:30 INFO versions {'v56': 'Dasy_CONUS_RF_v3_u070', 'v57': 'Dasy_CONUS_RF_v3_all_nby', 'v57_plc': 'Dasy_CONUS_RF_v3_all_nby_plc', 'v57_plcc': 'Dasy_CONUS_RF_v3_all_nby_plcc', 'v57_pq3': 'Dasy_CONUS_RF_v3_all_nby_pq3', 'v57_pq5': 'Dasy_CONUS_RF_v3_all_nby_pq5', 'v57_pe3': 'Dasy_CONUS_RF_v3_all_nby_pe3', 'v57_pe5': 'Dasy_CONUS_RF_v3_all_nby_pe5', 'v56_plc': 'Dasy_CONUS_RF_v3_u070_plc', 'v56_plcc': 'Dasy_CONUS_RF_v3_u070_plcc', 'v56_pq3': 'Dasy_CONUS_RF_v3_u070_pq3', 'v56_pq5': 'Dasy_CONUS_RF_v3_u070_pq5', 'v56_pe3': 'Dasy_CONUS_RF_v3_u070_pe3', 'v56_pe5': 'Dasy_CONUS_RF_v3_u070_pe5'} | years [1940, 1980, 2010] | t070 exclusion set 1020 counties
+11:31:30 INFO reporting rule: county metrics on ALL TEST counties (test_all); kept / excluded t070 only labelled
+11:31:30 INFO selection rule (fixed 2026-11-19 before the results): per variant the years with a county CV RMSE below v5.7's (same CV counties / folds) and the mean change; not by tracts; the user decides
+11:31:30 INFO == cells: people on BUI = 0 cells and on NobuiltYear > 0 among them (nobuilt_cells.csv definition)
+11:31:47 INFO   cells 1940 base : people on BUI = 0 cells 0.2954 of 131530392 | of those on NobuiltYear > 0 cells 0.2976
+11:31:59 INFO   cells 1940 v57  : people on BUI = 0 cells 0.2995 of 131530392 | of those on NobuiltYear > 0 cells 0.6093
+11:32:10 INFO   cells 1940 v57_plc: people on BUI = 0 cells 0.3126 of 131530392 | of those on NobuiltYear > 0 cells 0.5334
+11:32:20 INFO   cells 1940 v57_plcc: people on BUI = 0 cells 0.3105 of 131530392 | of those on NobuiltYear > 0 cells 0.5267
+11:32:32 INFO   cells 1940 v57_pq3: people on BUI = 0 cells 0.3352 of 131530392 | of those on NobuiltYear > 0 cells 0.3834
+11:32:42 INFO   cells 1940 v57_pq5: people on BUI = 0 cells 0.3538 of 131530392 | of those on NobuiltYear > 0 cells 0.3599
+11:32:52 INFO   cells 1940 v57_pe3: people on BUI = 0 cells 0.2992 of 131530392 | of those on NobuiltYear > 0 cells 0.6251
+11:33:02 INFO   cells 1940 v57_pe5: people on BUI = 0 cells 0.3518 of 131530392 | of those on NobuiltYear > 0 cells 0.3431
+11:33:11 INFO   cells 1940 v56_plc: people on BUI = 0 cells 0.3294 of 131530392 | of those on NobuiltYear > 0 cells 0.3052
+11:33:20 INFO   cells 1940 v56_plcc: people on BUI = 0 cells 0.3294 of 131530392 | of those on NobuiltYear > 0 cells 0.3059
+11:33:29 INFO   cells 1940 v56_pq3: people on BUI = 0 cells 0.2990 of 131530392 | of those on NobuiltYear > 0 cells 0.3165
+11:33:38 INFO   cells 1940 v56_pq5: people on BUI = 0 cells 0.3183 of 131530392 | of those on NobuiltYear > 0 cells 0.3090
+11:33:49 INFO   cells 1940 v56_pe3: people on BUI = 0 cells 0.3040 of 131530392 | of those on NobuiltYear > 0 cells 0.2979
+11:34:00 INFO   cells 1940 v56_pe5: people on BUI = 0 cells 0.3323 of 131530392 | of those on NobuiltYear > 0 cells 0.3059
+11:34:12 INFO   cells 1980 base : people on BUI = 0 cells 0.1165 of 225167058 | of those on NobuiltYear > 0 cells 0.2798
+11:34:25 INFO   cells 1980 v57  : people on BUI = 0 cells 0.1427 of 225167058 | of those on NobuiltYear > 0 cells 0.7895
+11:34:37 INFO   cells 1980 v57_plc: people on BUI = 0 cells 0.1752 of 225167058 | of those on NobuiltYear > 0 cells 0.5648
+11:34:48 INFO   cells 1980 v57_plcc: people on BUI = 0 cells 0.1923 of 225167058 | of those on NobuiltYear > 0 cells 0.5911
+11:35:00 INFO   cells 1980 v57_pq3: people on BUI = 0 cells 0.1642 of 225167058 | of those on NobuiltYear > 0 cells 0.6591
+11:35:10 INFO   cells 1980 v57_pq5: people on BUI = 0 cells 0.2088 of 225167058 | of those on NobuiltYear > 0 cells 0.4487
+11:35:20 INFO   cells 1980 v57_pe3: people on BUI = 0 cells 0.1567 of 225167058 | of those on NobuiltYear > 0 cells 0.6552
+11:35:30 INFO   cells 1980 v57_pe5: people on BUI = 0 cells 0.1664 of 225167058 | of those on NobuiltYear > 0 cells 0.7280
+11:35:39 INFO   cells 1980 v56_plc: people on BUI = 0 cells 0.1446 of 225167058 | of those on NobuiltYear > 0 cells 0.2822
+11:35:48 INFO   cells 1980 v56_plcc: people on BUI = 0 cells 0.1440 of 225167058 | of those on NobuiltYear > 0 cells 0.2823
+11:35:58 INFO   cells 1980 v56_pq3: people on BUI = 0 cells 0.1335 of 225167058 | of those on NobuiltYear > 0 cells 0.2852
+11:36:07 INFO   cells 1980 v56_pq5: people on BUI = 0 cells 0.1339 of 225167058 | of those on NobuiltYear > 0 cells 0.2839
+11:36:16 INFO   cells 1980 v56_pe3: people on BUI = 0 cells 0.1129 of 225167058 | of those on NobuiltYear > 0 cells 0.2821
+11:36:26 INFO   cells 1980 v56_pe5: people on BUI = 0 cells 0.1281 of 225167058 | of those on NobuiltYear > 0 cells 0.2800
+11:36:37 INFO   cells 2010 base : people on BUI = 0 cells 0.0504 of 306675006 | of those on NobuiltYear > 0 cells 0.2893
+11:36:47 INFO   cells 2010 v57  : people on BUI = 0 cells 0.0999 of 306675006 | of those on NobuiltYear > 0 cells 0.7932
+11:36:58 INFO   cells 2010 v57_plc: people on BUI = 0 cells 0.1255 of 306675006 | of those on NobuiltYear > 0 cells 0.6730
+11:37:09 INFO   cells 2010 v57_plcc: people on BUI = 0 cells 0.1261 of 306675006 | of those on NobuiltYear > 0 cells 0.6720
+11:37:19 INFO   cells 2010 v57_pq3: people on BUI = 0 cells 0.1266 of 306675006 | of those on NobuiltYear > 0 cells 0.5723
+11:37:30 INFO   cells 2010 v57_pq5: people on BUI = 0 cells 0.1340 of 306675006 | of those on NobuiltYear > 0 cells 0.5962
+11:37:46 INFO   cells 2010 v57_pe3: people on BUI = 0 cells 0.1116 of 306675006 | of those on NobuiltYear > 0 cells 0.6921
+11:37:58 INFO   cells 2010 v57_pe5: people on BUI = 0 cells 0.1226 of 306675006 | of those on NobuiltYear > 0 cells 0.6584
+11:38:14 INFO   cells 2010 v56_plc: people on BUI = 0 cells 0.0577 of 306675006 | of those on NobuiltYear > 0 cells 0.2794
+11:38:25 INFO   cells 2010 v56_plcc: people on BUI = 0 cells 0.0577 of 306675006 | of those on NobuiltYear > 0 cells 0.2794
+11:38:35 INFO   cells 2010 v56_pq3: people on BUI = 0 cells 0.0544 of 306675006 | of those on NobuiltYear > 0 cells 0.2847
+11:38:50 INFO   cells 2010 v56_pq5: people on BUI = 0 cells 0.0555 of 306675006 | of those on NobuiltYear > 0 cells 0.2830
+11:39:00 INFO   cells 2010 v56_pe3: people on BUI = 0 cells 0.0558 of 306675006 | of those on NobuiltYear > 0 cells 0.2805
+11:39:12 INFO   cells 2010 v56_pe5: people on BUI = 0 cells 0.0588 of 306675006 | of those on NobuiltYear > 0 cells 0.2795
+11:39:24 INFO   1940: 615 TEST counties in every version (198 in the t070 exclusion set)
+11:39:36 INFO   1980: 622 TEST counties in every version (199 in the t070 exclusion set)
+11:39:51 INFO   2010: 622 TEST counties in every version (199 in the t070 exclusion set)
+11:40:10 INFO == checks: v5.6 / v5.7 / areal weighting = v54_nby_*; v5.6 (+ plural) = plural_comparison.csv (a difference stops the run)
+11:40:10 INFO   comparison v5.6 / v5.7: levels ['cells', 'county', 'tract']
+11:40:10 INFO   MATCH results/validation/conus/nobuilt/v54_nby_comparison.csv: 117 rows of Dasy_CONUS_RF_v3_u070, Dasy_CONUS_RF_v3_all_nby, areal_weighting (n, counties, mdape, mape, mape_n, r2, cv_counties, cv_rmse_train_all, cv_r2_train_all, cv_rmse_train_kept_t070, cv_r2_train_kept_t070, nby_perm_rank, nby_shap_rank, nby_perm, nby_shap, share)
+11:40:10 INFO   tracts v5.6 (+ plural): levels ['tract']
+11:40:10 INFO   MATCH results/validation/conus/plural_grid/plural_comparison.csv: 216 rows of Dasy_CONUS_RF_v3_u070, Dasy_CONUS_RF_v3_u070_plc, Dasy_CONUS_RF_v3_u070_plcc, Dasy_CONUS_RF_v3_u070_pq3, Dasy_CONUS_RF_v3_u070_pq5, Dasy_CONUS_RF_v3_u070_pe3, Dasy_CONUS_RF_v3_u070_pe5, areal_weighting (n, counties, mdape, mape, mape_n)
+11:40:10 INFO   county v5.6 (+ plural) (its TEST = test_kept_t070): levels ['county']
+11:40:10 INFO   MATCH results/validation/conus/plural_grid/plural_comparison.csv: 21 rows of Dasy_CONUS_RF_v3_u070, Dasy_CONUS_RF_v3_u070_plc, Dasy_CONUS_RF_v3_u070_plcc, Dasy_CONUS_RF_v3_u070_pq3, Dasy_CONUS_RF_v3_u070_pq5, Dasy_CONUS_RF_v3_u070_pe3, Dasy_CONUS_RF_v3_u070_pe5 (n, mdape, mape, mape_n, test_r2, cv_rmse, cv_r2, plural_perm_rank, plural_shap_rank)
+11:40:10 INFO   MATCH results/validation/conus/nobuilt/v54_nby_cells.csv: 6 rows of Dasy_CONUS_RF_v3_u070, Dasy_CONUS_RF_v3_all_nby (cells, cells_bui0, cells_bui0_nb, pop, pop_bui0, pop_bui0_nb, pop_nb)
+11:40:12 INFO SUMMARY county ALL TEST counties (main table; same set in every version), before allocation: R2 of log density / MdAPE (%) / MAPE (%):
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     0.886    0.886     0.887    0.893    0.892    0.884    0.895  0.830    0.854     0.856    0.856    0.857    0.836    0.860
+1980     0.908    0.909     0.913    0.911    0.916    0.912    0.912  0.755    0.803     0.803    0.808    0.808    0.744    0.789
+2010     0.917    0.920     0.920    0.923    0.924    0.923    0.921  0.522    0.579     0.580    0.576    0.577    0.538    0.575
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     25.30    24.02     23.28    23.14    23.99    26.00    24.57  31.04    29.20     28.61    29.91    30.11    30.46    29.86
+1980     26.36    25.25     24.67    25.71    24.39    25.29    26.47  33.16    30.97     31.07    30.90    30.87    30.70    31.65
+2010     25.04    25.32     25.37    25.26    24.85    23.02    24.70  32.73    31.44     31.32    31.50    31.29    30.10    31.13
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     41.31    41.87     41.56    39.29    39.69    42.00    39.58  42.61    41.58     41.55    40.78    41.87    42.38    40.82
+1980     45.40    43.99     43.21    44.01    41.59    42.94    41.67  43.84    43.68     43.63    43.11    42.66    44.32    43.63
+2010     45.67    43.35     43.32    42.17    42.01    42.60    43.33  46.06    45.27     45.23    45.17    44.45    44.63    44.87
+11:40:12 INFO SUMMARY county TEST counties KEPT by t070 (labelled, not the main number), before allocation: R2 of log density / MdAPE (%) / MAPE (%):
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     0.894    0.884     0.885    0.893    0.892    0.892    0.898  0.885    0.880     0.879    0.884    0.882    0.885    0.890
+1980     0.927    0.917     0.922    0.921    0.927    0.928    0.921  0.911    0.910     0.910    0.912    0.915    0.915    0.910
+2010     0.930    0.929     0.929    0.932    0.932    0.935    0.932  0.919    0.921     0.921    0.921    0.923    0.923    0.923
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     23.84    22.73     21.83    22.57    23.35    23.84    23.06  27.34    26.25     26.10    26.65    26.75    26.12    26.08
+1980     22.82    23.33     23.42    22.17    22.59    21.80    23.53  25.02    24.42     24.42    24.99    25.12    24.58    24.62
+2010     21.41    22.07     22.25    20.99    21.70    20.40    20.61  23.03    24.18     24.38    23.15    22.98    21.49    22.56
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     38.20    40.82     40.47    37.72    37.67    38.94    37.16  37.85    39.25     39.47    37.96    38.36    37.73    36.97
+1980     33.48    35.89     34.84    34.55    33.31    32.97    35.11  34.90    35.74     35.70    34.84    34.16    34.34    35.54
+2010     35.08    34.36     34.28    33.18    32.92    32.67    33.08  35.88    34.78     34.69    34.57    33.74    34.00    34.13
+11:40:12 INFO SUMMARY county TEST counties EXCLUDED by t070 (labelled), before allocation: R2 of log density / MdAPE (%) / MAPE (%):
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     0.825    0.850     0.851    0.854    0.852    0.824    0.852  0.637    0.742     0.749    0.739    0.745    0.658    0.737
+1980     0.814    0.841     0.844    0.840    0.847    0.827    0.843  0.265    0.451     0.451    0.465    0.457    0.213    0.395
+2010     0.833    0.846     0.848    0.853    0.855    0.846    0.844 -0.663   -0.446    -0.443   -0.460   -0.458   -0.609   -0.468
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     28.58    26.47     25.96    23.69    26.44    29.27    27.76  40.36    41.27     41.13    38.92    39.36    39.04    38.53
+1980     33.95    30.66     30.54    32.28    29.90    31.28    33.59  54.49    52.55     52.78    51.24    50.89    59.99    51.18
+2010     37.95    35.06     34.81    34.06    34.58    33.39    33.03  62.78    61.00     61.00    60.70    61.34    62.60    60.09
+variant    v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5    v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+year                                                                                                                               
+1940     47.86    44.08     43.85    42.59    43.94    48.44    44.68  52.64    46.49     45.93    46.73    49.27    52.16    48.92
+1980     70.73    61.20     61.01    64.11    59.20    64.13    55.59  62.84    60.54     60.49    60.70    60.75    65.55    60.82
+2010     68.20    62.45     62.52    61.27    61.33    63.72    65.13  67.70    67.59     67.62    67.68    67.20    67.23    67.72
+11:40:12 INFO SUMMARY county CV (own train counties; columns name the CV set: v5.7 and its variants share one, v5.6 and its variants another) + ranks of plural / nby (1 = most important):
+ variant  year  cv_counties  cv_rmse_train_all  cv_r2_train_all  cv_rmse_train_kept_t070  cv_r2_train_kept_t070  plural_perm_rank  plural_shap_rank  nby_perm_rank  nby_shap_rank
+     v56  1940       1654.0                NaN              NaN                   0.4753                 0.8664               NaN               NaN            NaN            NaN
+     v57  1940       2471.0             0.4858           0.8749                      NaN                    NaN               NaN               NaN            2.0            1.0
+ v57_plc  1940       2471.0             0.4726           0.8821                      NaN                    NaN               2.0               1.0            3.0            3.0
+v57_plcc  1940       2471.0             0.4728           0.8820                      NaN                    NaN               2.0               1.0            3.0            3.0
+ v57_pq3  1940       2471.0             0.4666           0.8849                      NaN                    NaN               2.0               1.0            3.0            3.0
+ v57_pq5  1940       2471.0             0.4616           0.8872                      NaN                    NaN               2.0               1.0            3.0            3.0
+ v57_pe3  1940       2471.0             0.4827           0.8766                      NaN                    NaN              10.0               8.0            2.0            1.0
+ v57_pe5  1940       2471.0             0.4554           0.8901                      NaN                    NaN               2.0               1.0            3.0            3.0
+ v56_plc  1940       1654.0                NaN              NaN                   0.4648                 0.8722               2.0               3.0            NaN            NaN
+v56_plcc  1940       1654.0                NaN              NaN                   0.4646                 0.8723               2.0               3.0            NaN            NaN
+ v56_pq3  1940       1654.0                NaN              NaN                   0.4643                 0.8725               2.0               3.0            NaN            NaN
+ v56_pq5  1940       1654.0                NaN              NaN                   0.4636                 0.8729               2.0               3.0            NaN            NaN
+ v56_pe3  1940       1654.0                NaN              NaN                   0.4698                 0.8695               9.0               8.0            NaN            NaN
+ v56_pe5  1940       1654.0                NaN              NaN                   0.4549                 0.8773               2.0               3.0            NaN            NaN
+     v56  1980       1665.0                NaN              NaN                   0.4432                 0.9083               NaN               NaN            NaN            NaN
+     v57  1980       2484.0             0.4948           0.9033                      NaN                    NaN               NaN               NaN            2.0            2.0
+ v57_plc  1980       2484.0             0.4730           0.9119                      NaN                    NaN               3.0               2.0            2.0            3.0
+v57_plcc  1980       2484.0             0.4730           0.9118                      NaN                    NaN               3.0               2.0            2.0            3.0
+ v57_pq3  1980       2484.0             0.4768           0.9103                      NaN                    NaN               3.0               2.0            2.0            3.0
+ v57_pq5  1980       2484.0             0.4723           0.9120                      NaN                    NaN               3.0               2.0            2.0            3.0
+ v57_pe3  1980       2484.0             0.4715           0.9123                      NaN                    NaN               5.0               4.0            2.0            2.0
+ v57_pe5  1980       2484.0             0.4790           0.9096                      NaN                    NaN               3.0               3.0            2.0            2.0
+ v56_plc  1980       1665.0                NaN              NaN                   0.4289                 0.9143               3.0               4.0            NaN            NaN
+v56_plcc  1980       1665.0                NaN              NaN                   0.4283                 0.9146               3.0               4.0            NaN            NaN
+ v56_pq3  1980       1665.0                NaN              NaN                   0.4352                 0.9117               5.0               4.0            NaN            NaN
+ v56_pq5  1980       1665.0                NaN              NaN                   0.4305                 0.9136               4.0               4.0            NaN            NaN
+ v56_pe3  1980       1665.0                NaN              NaN                   0.4223                 0.9169               3.0               3.0            NaN            NaN
+ v56_pe5  1980       1665.0                NaN              NaN                   0.4301                 0.9136               4.0               4.0            NaN            NaN
+     v56  2010       1666.0                NaN              NaN                   0.4151                 0.9273               NaN               NaN            NaN            NaN
+     v57  2010       2487.0             0.5059           0.9124                      NaN                    NaN               NaN               NaN            2.0            2.0
+ v57_plc  2010       2487.0             0.4838           0.9202                      NaN                    NaN               3.0               2.0            2.0            3.0
+v57_plcc  2010       2487.0             0.4843           0.9200                      NaN                    NaN               3.0               2.0            2.0            3.0
+ v57_pq3  2010       2487.0             0.4840           0.9200                      NaN                    NaN               3.0               3.0            2.0            2.0
+ v57_pq5  2010       2487.0             0.4820           0.9207                      NaN                    NaN               3.0               3.0            2.0            2.0
+ v57_pe3  2010       2487.0             0.4813           0.9209                      NaN                    NaN               3.0               4.0            2.0            2.0
+ v57_pe5  2010       2487.0             0.4903           0.9180                      NaN                    NaN               4.0               4.0            2.0            2.0
+ v56_plc  2010       1666.0                NaN              NaN                   0.3977                 0.9334               3.0               4.0            NaN            NaN
+v56_plcc  2010       1666.0                NaN              NaN                   0.3979                 0.9334               3.0               4.0            NaN            NaN
+ v56_pq3  2010       1666.0                NaN              NaN                   0.4033                 0.9315               4.0               4.0            NaN            NaN
+ v56_pq5  2010       1666.0                NaN              NaN                   0.4005                 0.9325               4.0               4.0            NaN            NaN
+ v56_pe3  2010       1666.0                NaN              NaN                   0.3933                 0.9349               3.0               3.0            NaN            NaN
+ v56_pe5  2010       1666.0                NaN              NaN                   0.3998                 0.9327               4.0               4.0            NaN            NaN
+11:40:12 INFO SUMMARY tract MdAPE (%) by set, year and variant (areal_weighting = area-proportional):
+variant                 v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5     v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5  areal_weighting
+set            year                                                                                                                                               
+all            1940   40.13    40.92     41.34    40.97    41.68    39.93    41.83   42.19    43.28     43.38    42.09    41.52    42.38    42.18            86.92
+               1980   26.91    32.98     30.69    29.09    31.05    31.26    30.20   26.80    29.65     29.71    28.16    28.05    32.30    33.25            79.91
+               2010   24.90    27.86     27.79    27.29    27.54    30.94    29.37   23.80    25.35     25.34    24.11    24.17    28.20    25.81            74.52
+kept_t070      1940   40.13    40.92     41.34    40.97    41.68    39.93    41.83   42.19    43.28     43.38    42.09    41.52    42.38    42.18            86.92
+               1980   25.78    31.81     29.48    27.86    29.82    30.12    29.03   25.48    28.25     28.31    26.79    26.62    30.88    31.86            79.08
+               2010   23.93    26.98     26.87    26.36    26.63    30.00    28.40   22.45    24.05     24.06    22.80    22.79    26.92    24.63            74.62
+excluded_t070  1980   59.57    66.23     63.31    63.28    67.22    63.32    63.09   79.33    78.25     78.32    78.42    78.50    77.33    78.51            91.44
+               2010   37.39    39.19     39.47    38.74    39.30    42.41    41.03   51.24    50.68     50.77    51.05    50.88    51.79    50.77            73.15
+no_gap         1940   40.13    40.92     41.34    40.97    41.68    39.93    41.83   42.19    43.28     43.38    42.09    41.52    42.38    42.18            86.92
+               1980   25.97    32.01     29.72    28.05    30.04    30.32    29.24   25.78    28.58     28.65    27.10    26.95    31.17    32.13            79.44
+               2010   24.01    27.12     27.02    26.49    26.77    30.08    28.53   22.67    24.21     24.26    23.00    23.01    27.00    24.77            74.49
+gap            1980   71.68    77.41     72.95    74.99    77.81    74.69    75.13   89.44    88.99     89.01    89.16    88.97    88.18    89.08            91.38
+               2010   52.12    50.70     50.83    51.29    51.28    55.09    54.11   77.46    76.33     76.31    76.45    76.01    77.82    75.45            75.63
+dens_0_50      1940  252.56   340.23    340.67   322.74   351.82   262.22   361.94  278.52   351.47    349.70   322.73   304.35   276.35   320.70          3125.02
+               1980   30.20    53.16     45.26    41.44    50.69    39.13    42.52   26.84    37.05     36.95    33.72    32.16    39.80    49.15           129.54
+               2010   20.72    29.03     28.63    27.18    27.22    29.14    30.48   18.32    20.14     20.03    18.84    19.03    20.38    20.22            73.58
+dens_50_500    1940   95.71   102.83    106.18    98.77   102.46    96.80   107.88  105.64   110.36    113.28   103.35   100.85   107.01   106.62           165.68
+               1980   26.10    32.58     29.77    28.39    29.94    29.17    28.11   29.01    29.85     29.87    29.61    29.69    31.41    33.05            70.60
+               2010   22.09    25.93     25.94    24.49    25.49    27.70    26.02   23.42    24.14     24.11    23.79    23.99    25.24    24.19            67.63
+dens_500_2000  1940   45.94    43.43     43.27    42.25    42.34    46.72    42.75   45.73    44.26     43.86    43.53    43.89    44.35    44.07            77.70
+               1980   24.89    30.75     28.26    26.86    28.79    31.78    28.64   23.77    27.18     27.22    24.97    24.79    31.72    30.70            82.02
+               2010   23.28    25.04     25.07    24.68    24.74    32.05    27.02   21.48    23.28     23.24    21.85    21.64    29.77    24.00            73.56
+dens_2000_plus 1940   35.87    36.78     37.53    36.95    37.72    35.68    38.24   37.51    39.12     38.96    37.28    37.18    38.27    38.28            87.27
+               1980   28.98    32.21     31.05    29.69    30.95    30.35    30.77   29.18    30.66     30.76    30.04    30.38    31.66    33.36            79.36
+               2010   32.29    33.34     33.21    33.51    33.86    32.98    35.42   31.20    32.52     32.62    31.50    31.38    33.60    33.71            78.72
+11:40:12 INFO SUMMARY tract MdAPE change vs the own base (v57_* - v5.7, v56_* - v5.6; points):
+variant              v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5  v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+set            year                                                                                                                        
+all            1940  0.0     0.79      1.20     0.84     1.54    -0.20     1.70  0.0     1.09      1.19    -0.10    -0.67     0.20    -0.00
+               1980  0.0     6.07      3.78     2.18     4.14     4.35     3.29  0.0     2.85      2.91     1.36     1.25     5.50     6.45
+               2010  0.0     2.97      2.90     2.40     2.64     6.05     4.47  0.0     1.55      1.54     0.31     0.37     4.39     2.01
+kept_t070      1940  0.0     0.79      1.20     0.84     1.54    -0.20     1.70  0.0     1.09      1.19    -0.10    -0.67     0.20    -0.00
+               1980  0.0     6.02      3.70     2.08     4.03     4.34     3.25  0.0     2.78      2.83     1.31     1.14     5.40     6.38
+               2010  0.0     3.05      2.93     2.42     2.70     6.07     4.47  0.0     1.60      1.62     0.35     0.34     4.47     2.18
+excluded_t070  1980  0.0     6.66      3.75     3.71     7.65     3.75     3.53  0.0    -1.08     -1.01    -0.91    -0.83    -2.00    -0.82
+               2010  0.0     1.80      2.08     1.35     1.91     5.02     3.64  0.0    -0.56     -0.47    -0.18    -0.36     0.55    -0.46
+no_gap         1940  0.0     0.79      1.20     0.84     1.54    -0.20     1.70  0.0     1.09      1.19    -0.10    -0.67     0.20    -0.00
+               1980  0.0     6.04      3.76     2.09     4.08     4.36     3.28  0.0     2.80      2.87     1.32     1.17     5.39     6.35
+               2010  0.0     3.11      3.01     2.48     2.76     6.07     4.52  0.0     1.54      1.59     0.33     0.34     4.33     2.10
+gap            1980  0.0     5.73      1.27     3.31     6.13     3.01     3.45  0.0    -0.45     -0.43    -0.28    -0.47    -1.26    -0.36
+               2010  0.0    -1.42     -1.29    -0.84    -0.84     2.97     1.99  0.0    -1.13     -1.14    -1.01    -1.45     0.36    -2.01
+dens_0_50      1940  0.0    87.67     88.11    70.18    99.26     9.66   109.38  0.0    72.95     71.17    44.20    25.82    -2.18    42.18
+               1980  0.0    22.96     15.06    11.24    20.49     8.93    12.32  0.0    10.21     10.11     6.88     5.32    12.96    22.31
+               2010  0.0     8.31      7.90     6.45     6.50     8.42     9.76  0.0     1.82      1.71     0.51     0.71     2.06     1.90
+dens_50_500    1940  0.0     7.12     10.47     3.06     6.75     1.09    12.17  0.0     4.72      7.64    -2.29    -4.79     1.37     0.99
+               1980  0.0     6.49      3.68     2.29     3.85     3.08     2.02  0.0     0.83      0.85     0.60     0.67     2.40     4.04
+               2010  0.0     3.84      3.85     2.40     3.41     5.62     3.94  0.0     0.72      0.69     0.37     0.57     1.82     0.77
+dens_500_2000  1940  0.0    -2.51     -2.67    -3.69    -3.61     0.78    -3.19  0.0    -1.48     -1.88    -2.20    -1.85    -1.38    -1.67
+               1980  0.0     5.86      3.36     1.97     3.89     6.89     3.75  0.0     3.40      3.45     1.20     1.01     7.94     6.93
+               2010  0.0     1.76      1.79     1.40     1.46     8.77     3.74  0.0     1.80      1.76     0.37     0.16     8.29     2.52
+dens_2000_plus 1940  0.0     0.91      1.66     1.08     1.85    -0.19     2.36  0.0     1.62      1.45    -0.23    -0.32     0.76     0.77
+               1980  0.0     3.22      2.07     0.71     1.96     1.37     1.78  0.0     1.48      1.58     0.86     1.20     2.48     4.18
+               2010  0.0     1.06      0.92     1.22     1.57     0.70     3.13  0.0     1.32      1.42     0.29     0.17     2.39     2.50
+11:40:12 INFO SUMMARY tract MAPE (%, tracts >= 10 people):
+variant                  v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5      v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5  areal_weighting
+set            year                                                                                                                                                 
+all            1940    82.01    84.31     85.03    83.36    85.36    82.37    87.04    88.03    91.09     91.86    88.86    87.24    88.37    90.03           334.76
+               1980    58.85    67.77     67.66    62.87    68.51    65.58    64.12    59.50    65.29     65.39    61.62    61.91    66.12    67.00           222.85
+               2010    45.95    51.88     51.66    51.52    52.84    55.36    53.16    47.38    50.47     50.39    48.02    47.84    54.32    51.08           273.59
+kept_t070      1940    82.01    84.31     85.03    83.36    85.36    82.37    87.04    88.03    91.09     91.86    88.86    87.24    88.37    90.03           334.76
+               1980    57.90    67.01     66.95    61.89    67.50    64.96    63.24    57.62    63.77     63.87    59.87    60.18    64.77    65.65           229.23
+               2010    45.24    51.60     51.34    51.25    52.66    54.98    52.77    44.28    47.77     47.69    45.07    44.87    51.89    48.48           293.02
+excluded_t070  1980    73.20    79.19     78.33    77.57    83.81    74.95    77.33    87.84    88.29     88.33    88.07    88.06    86.43    87.47           126.69
+               2010    52.29    54.33     54.53    54.01    54.41    58.68    56.68    75.12    74.56     74.58    74.49    74.43    76.07    74.28            99.62
+no_gap         1940    82.01    84.31     85.03    83.36    85.36    82.37    87.04    88.03    91.09     91.86    88.86    87.24    88.37    90.03           334.76
+               1980    58.03    67.04     67.12    62.07    67.78    64.84    63.37    57.74    63.80     63.90    59.98    60.28    64.66    65.57           227.59
+               2010    44.91    51.21     50.98    50.78    52.17    54.56    52.32    44.38    47.73     47.65    45.14    44.96    51.69    48.41           283.28
+gap            1980    79.53    85.98     80.96    82.74    86.75    83.93    82.87   103.52   102.50    102.50   102.62   102.49   102.53   102.69           104.67
+               2010    64.78    63.97     64.12    65.09    65.02    69.85    68.42   101.73   100.14    100.18   100.33    99.99   102.06    99.44            97.71
+dens_0_50      1940  1158.59  1261.82   1259.86  1229.69  1303.07  1182.47  1323.59  1314.97  1416.09   1444.56  1389.38  1355.65  1343.45  1414.20         10263.74
+               1980   178.38   230.53    238.03   206.89   248.83   204.76   208.06   172.99   208.34    208.04   188.27   189.25   197.73   209.38          1215.08
+               2010    93.72   121.30    120.10   121.57   127.84   118.91   120.86    94.44   105.33    104.85    96.92    96.73   107.71   106.04          1156.63
+dens_50_500    1940   184.94   188.39    191.73   184.20   189.08   183.52   199.13   203.94   210.08    213.64   203.20   194.73   201.79   204.34           607.69
+               1980    65.38    71.56     70.37    66.88    67.73    71.44    67.29    69.89    72.54     72.96    70.36    71.06    75.15    75.10           139.23
+               2010    39.36    42.83     42.72    41.16    41.96    46.96    42.83    44.13    45.83     45.84    44.72    44.51    48.90    45.74           103.34
+dens_500_2000  1940    76.03    73.38     74.36    72.56    72.04    76.22    74.01    76.69    76.53     76.04    73.81    72.79    75.98    75.86           104.62
+               1980    36.23    38.86     37.53    36.91    37.81    42.00    38.72    36.69    38.99     39.04    37.06    37.02    42.47    40.25            78.21
+               2010    31.94    32.29     32.34    31.97    31.82    40.35    34.43    32.93    34.60     34.58    33.05    32.85    41.56    35.14            68.79
+dens_2000_plus 1940    42.25    42.71     43.16    42.95    43.20    42.18    43.40    43.87    44.58     44.55    43.64    43.51    43.92    43.96            79.52
+               1980    35.63    37.41     36.54    35.97    36.68    36.64    37.21    36.16    37.02     37.10    36.46    36.58    37.95    38.91            72.97
+               2010    36.74    36.95     36.99    37.29    37.51    37.79    39.46    36.24    36.92     36.99    36.35    36.20    38.31    38.19            72.77
+11:40:12 INFO SUMMARY people on cells (share_bui0 = on BUI = 0 cells / all; share_nb_of_bui0 = of those, on NobuiltYear > 0 cells; share_bui0_nb = BUI = 0 and NobuiltYear > 0 / all):
+variant                   v57  v57_plc  v57_plcc  v57_pq3  v57_pq5  v57_pe3  v57_pe5     v56  v56_plc  v56_plcc  v56_pq3  v56_pq5  v56_pe3  v56_pe5
+set              year                                                                                                                              
+share_bui0       1940  0.2995   0.3126    0.3105   0.3352   0.3538   0.2992   0.3518  0.2954   0.3294    0.3294   0.2990   0.3183   0.3040   0.3323
+                 1980  0.1427   0.1752    0.1923   0.1642   0.2088   0.1567   0.1664  0.1165   0.1446    0.1440   0.1335   0.1339   0.1129   0.1281
+                 2010  0.0999   0.1255    0.1261   0.1266   0.1340   0.1116   0.1226  0.0504   0.0577    0.0577   0.0544   0.0555   0.0558   0.0588
+share_nb_of_bui0 1940  0.6093   0.5334    0.5267   0.3834   0.3599   0.6251   0.3431  0.2976   0.3052    0.3059   0.3165   0.3090   0.2979   0.3059
+                 1980  0.7895   0.5648    0.5911   0.6591   0.4487   0.6552   0.7280  0.2798   0.2822    0.2823   0.2852   0.2839   0.2821   0.2800
+                 2010  0.7932   0.6730    0.6720   0.5723   0.5962   0.6921   0.6584  0.2893   0.2794    0.2794   0.2847   0.2830   0.2805   0.2795
+share_bui0_nb    1940  0.1825   0.1667    0.1635   0.1285   0.1273   0.1870   0.1207  0.0879   0.1005    0.1008   0.0946   0.0983   0.0906   0.1016
+                 1980  0.1127   0.0990    0.1136   0.1082   0.0937   0.1026   0.1212  0.0326   0.0408    0.0407   0.0381   0.0380   0.0319   0.0359
+                 2010  0.0792   0.0845    0.0848   0.0725   0.0799   0.0772   0.0807  0.0146   0.0161    0.0161   0.0155   0.0157   0.0157   0.0164
+11:40:12 INFO SUMMARY rank of plural / nby (permutation / SHAP):
+             perm_rank                                                                                                   shap_rank                                                                                                  
+variant            v57 v57_plc v57_plcc v57_pq3 v57_pq5 v57_pe3 v57_pe5 v56_plc v56_plcc v56_pq3 v56_pq5 v56_pe3 v56_pe5       v57 v57_plc v57_plcc v57_pq3 v57_pq5 v57_pe3 v57_pe5 v56_plc v56_plcc v56_pq3 v56_pq5 v56_pe3 v56_pe5
+feature year                                                                                                                                                                                                                        
+nby     1940       2.0     3.0      3.0     3.0     3.0     2.0     3.0     NaN      NaN     NaN     NaN     NaN     NaN       1.0     3.0      3.0     3.0     3.0     1.0     3.0     NaN      NaN     NaN     NaN     NaN     NaN
+        1980       2.0     2.0      2.0     2.0     2.0     2.0     2.0     NaN      NaN     NaN     NaN     NaN     NaN       2.0     3.0      3.0     3.0     3.0     2.0     2.0     NaN      NaN     NaN     NaN     NaN     NaN
+        2010       2.0     2.0      2.0     2.0     2.0     2.0     2.0     NaN      NaN     NaN     NaN     NaN     NaN       2.0     3.0      3.0     2.0     2.0     2.0     2.0     NaN      NaN     NaN     NaN     NaN     NaN
+plural  1940       NaN     2.0      2.0     2.0     2.0    10.0     2.0     2.0      2.0     2.0     2.0     9.0     2.0       NaN     1.0      1.0     1.0     1.0     8.0     1.0     3.0      3.0     3.0     3.0     8.0     3.0
+        1980       NaN     3.0      3.0     3.0     3.0     5.0     3.0     3.0      3.0     5.0     4.0     3.0     4.0       NaN     2.0      2.0     2.0     2.0     4.0     3.0     4.0      4.0     4.0     4.0     3.0     4.0
+        2010       NaN     3.0      3.0     3.0     3.0     3.0     4.0     3.0      3.0     4.0     4.0     3.0     4.0       NaN     2.0      2.0     3.0     3.0     4.0     4.0     4.0      4.0     4.0     4.0     3.0     4.0
+11:40:12 INFO SUMMARY selection rule: county CV RMSE on v5.7's CV counties (same folds checked):
+ variant  year  cv_counties  cv_rmse_v57  cv_rmse_variant  d_cv_rmse  rel_d_cv_rmse  cv_r2_v57  cv_r2_variant   lower  years  years_lower  mean_d_cv_rmse  mean_rel_d_cv_rmse
+ v57_plc  1940         2471       0.4858           0.4726    -0.0133        -0.0273     0.8749         0.8821 variant      3            3         -0.0191             -0.0383
+ v57_plc  1980         2484       0.4948           0.4730    -0.0218        -0.0441     0.9033         0.9119 variant      3            3         -0.0191             -0.0383
+ v57_plc  2010         2487       0.5059           0.4838    -0.0221        -0.0437     0.9124         0.9202 variant      3            3         -0.0191             -0.0383
+v57_plcc  1940         2471       0.4858           0.4728    -0.0130        -0.0268     0.8749         0.8820 variant      3            3         -0.0188             -0.0378
+v57_plcc  1980         2484       0.4948           0.4730    -0.0217        -0.0439     0.9033         0.9118 variant      3            3         -0.0188             -0.0378
+v57_plcc  2010         2487       0.5059           0.4843    -0.0216        -0.0428     0.9124         0.9200 variant      3            3         -0.0188             -0.0378
+ v57_pq3  1940         2471       0.4858           0.4666    -0.0192        -0.0395     0.8749         0.8849 variant      3            3         -0.0197             -0.0397
+ v57_pq3  1980         2484       0.4948           0.4768    -0.0179        -0.0363     0.9033         0.9103 variant      3            3         -0.0197             -0.0397
+ v57_pq3  2010         2487       0.5059           0.4840    -0.0220        -0.0434     0.9124         0.9200 variant      3            3         -0.0197             -0.0397
+ v57_pq5  1940         2471       0.4858           0.4616    -0.0242        -0.0499     0.8749         0.8872 variant      3            3         -0.0235             -0.0475
+ v57_pq5  1980         2484       0.4948           0.4723    -0.0224        -0.0453     0.9033         0.9120 variant      3            3         -0.0235             -0.0475
+ v57_pq5  2010         2487       0.5059           0.4820    -0.0240        -0.0474     0.9124         0.9207 variant      3            3         -0.0235             -0.0475
+ v57_pe3  1940         2471       0.4858           0.4827    -0.0031        -0.0064     0.8749         0.8766 variant      3            3         -0.0170             -0.0341
+ v57_pe3  1980         2484       0.4948           0.4715    -0.0233        -0.0471     0.9033         0.9123 variant      3            3         -0.0170             -0.0341
+ v57_pe3  2010         2487       0.5059           0.4813    -0.0246        -0.0487     0.9124         0.9209 variant      3            3         -0.0170             -0.0341
+ v57_pe5  1940         2471       0.4858           0.4554    -0.0304        -0.0627     0.8749         0.8901 variant      3            3         -0.0206             -0.0418
+ v57_pe5  1980         2484       0.4948           0.4790    -0.0157        -0.0318     0.9033         0.9096 variant      3            3         -0.0206             -0.0418
+ v57_pe5  2010         2487       0.5059           0.4903    -0.0156        -0.0309     0.9124         0.9180 variant      3            3         -0.0206             -0.0418
+11:40:12 INFO RULE: v57_plc has the lower county CV RMSE in 3 of 3 years (mean change -0.0191, -3.8 %)
+11:40:12 INFO RULE: v57_plcc has the lower county CV RMSE in 3 of 3 years (mean change -0.0188, -3.8 %)
+11:40:12 INFO RULE: v57_pq3 has the lower county CV RMSE in 3 of 3 years (mean change -0.0197, -4.0 %)
+11:40:12 INFO RULE: v57_pq5 has the lower county CV RMSE in 3 of 3 years (mean change -0.0235, -4.8 %)
+11:40:12 INFO RULE: v57_pe3 has the lower county CV RMSE in 3 of 3 years (mean change -0.0170, -3.4 %)
+11:40:12 INFO RULE: v57_pe5 has the lower county CV RMSE in 3 of 3 years (mean change -0.0206, -4.2 %)
+11:40:12 INFO RULE: the user decides (tracts reported, not used for the choice)
+11:40:12 INFO wrote results/validation/conus/plural_grid_v57
+11:40:12 INFO DONE
+== done 2026-11-18T11:40:14-07:00

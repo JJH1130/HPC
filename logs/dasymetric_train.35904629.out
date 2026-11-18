@@ -1,0 +1,261 @@
+== job 35904629 (dasymetric_train) on c3cpu-c11-u15-2 at 2026-11-18T10:25:03-07:00
+== cores=16 gpus=none restart=0
+== git 5aada1a
+== python: /projects/jaju1407/software/envs/hisdac/bin/python
+== config: configs/conus_rf_v3_all_nby_pq3.yaml (name=conus version=Dasy_CONUS_RF_v3_all_nby_pq3)  out: /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3  n_jobs: 16  extra args: 
+10:26:13 INFO arg config = configs/conus_rf_v3_all_nby_pq3.yaml
+10:26:13 INFO arg out_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+10:26:13 INFO arg n_jobs = 16
+10:26:13 INFO arg years = None
+10:26:13 INFO split /projects/jaju1407/HPC/configs/conus_split.csv: 3109 counties, 2487 train / 622 test, train folds {0: 498, 1: 498, 2: 497, 3: 497, 4: 497}
+10:26:13 INFO eras: ['Y1940', 'Y1980', 'Y2010']
+10:26:13 INFO era Y1940: 1 rows trained on with status ['filled_nhgis']: [('G1200860', 'Miami-Dade County', 'filled_nhgis')]
+10:26:13 INFO era Y1940: 1 rows with a status outside train_status ['ok', 'filled_nhgis'] left out of training and test: [('G4601130', 'Shannon County', 'filled_nhgis_alloc')]
+10:26:13 INFO era Y1940: split: 2471 train rows (2471 counties), 615 test rows (615 counties)
+10:26:13 INFO era Y1940: training rows: 2471 county-years | 2471 counties (groups) | 1 years 1940-1940 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope', 'nby', 'plural']
+10:26:13 INFO era Y1940: folds (split table conus_split.csv by GISJOIN): counties per fold {0: 494, 1: 492, 2: 497, 3: 492, 4: 496} -> /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1940/model/folds.csv
+10:26:13 INFO Spearman rho of county features (all training rows):
+              bui  bldg_size  mu_ratio  dist_built  res_share  rent_share   elev  slope    nby  plural
+bui         1.000      0.975     0.955      -0.850      0.949       0.814 -0.216  0.042  0.384  -0.518
+bldg_size   0.975      1.000     0.968      -0.888      0.958       0.791 -0.257  0.064  0.398  -0.550
+mu_ratio    0.955      0.968     1.000      -0.917      0.986       0.783 -0.227  0.060  0.411  -0.558
+dist_built -0.850     -0.888    -0.917       1.000     -0.919      -0.660  0.251  0.011 -0.335   0.632
+res_share   0.949      0.958     0.986      -0.919      1.000       0.786 -0.222  0.068  0.392  -0.544
+rent_share  0.814      0.791     0.783      -0.660      0.786       1.000 -0.153  0.131  0.341  -0.381
+elev       -0.216     -0.257    -0.227       0.251     -0.222      -0.153  1.000  0.477 -0.441   0.439
+slope       0.042      0.064     0.060       0.011      0.068       0.131  0.477  1.000 -0.085   0.101
+nby         0.384      0.398     0.411      -0.335      0.392       0.341 -0.441 -0.085  1.000  -0.569
+plural     -0.518     -0.550    -0.558       0.632     -0.544      -0.381  0.439  0.101 -0.569   1.000
+10:26:13 INFO   |rho| > 0.80: mu_ratio - res_share 0.986
+10:26:13 INFO   |rho| > 0.80: bui - bldg_size 0.975
+10:26:13 INFO   |rho| > 0.80: bldg_size - mu_ratio 0.968
+10:26:13 INFO   |rho| > 0.80: bldg_size - res_share 0.958
+10:26:13 INFO   |rho| > 0.80: bui - mu_ratio 0.955
+10:26:13 INFO   |rho| > 0.80: bui - res_share 0.949
+10:26:13 INFO   |rho| > 0.80: dist_built - res_share -0.919
+10:26:13 INFO   |rho| > 0.80: mu_ratio - dist_built -0.917
+10:26:13 INFO   |rho| > 0.80: bldg_size - dist_built -0.888
+10:26:13 INFO   |rho| > 0.80: bui - dist_built -0.850
+10:26:13 INFO   |rho| > 0.80: bui - rent_share 0.814
+10:26:15 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1940/model/feature_correlation.png
+10:26:15 INFO era Y1940: model rf | search 60 of continuous candidates | 5 folds | scoring neg_root_mean_squared_error | n_jobs 16
+10:26:15 INFO era Y1940: search space {'n_estimators': {'dist': 'randint', 'low': 200, 'high': 1000}, 'max_depth': [None, 5, 10, 15, 20, 30], 'min_samples_leaf': {'dist': 'randint', 'low': 1, 'high': 10}, 'max_features': ['sqrt', 0.33, 0.5, 0.75, 1.0]} | fixed {'random_state': 42}
+10:27:14 INFO   fold 0: CV RMSE 0.4664 | R2 0.883
+10:27:14 INFO   fold 1: CV RMSE 0.4689 | R2 0.872
+10:27:14 INFO   fold 2: CV RMSE 0.4555 | R2 0.893
+10:27:14 INFO   fold 3: CV RMSE 0.4935 | R2 0.890
+10:27:14 INFO   fold 4: CV RMSE 0.4490 | R2 0.887
+10:27:14 INFO era Y1940: best params {'max_depth': 30, 'max_features': 0.5, 'min_samples_leaf': 1, 'n_estimators': 400} (search 59 s)
+10:27:14 INFO era Y1940: CV RMSE 0.4666 +/- 0.0152 | CV R2 0.885 +/- 0.007 | train RMSE 0.1700 | sd(y) 1.3791
+10:27:14 INFO era Y1940: TEST (scored once, 615 test counties): RMSE 0.4576 | R2 0.893
+10:27:17 INFO feature importance (permutation = increase in RMSE when shuffled):
+   feature  impurity  permutation_mean  permutation_sd
+       bui    0.2171            0.5481          0.0058
+    plural    0.3024            0.5052          0.0117
+       nby    0.1571            0.4011          0.0060
+      elev    0.0771            0.2031          0.0040
+ bldg_size    0.0944            0.1868          0.0032
+ res_share    0.0517            0.1156          0.0018
+     slope    0.0224            0.1150          0.0036
+rent_share    0.0184            0.1045          0.0034
+  mu_ratio    0.0431            0.0904          0.0014
+dist_built    0.0164            0.0804          0.0018
+10:34:13 INFO mean |SHAP| per feature:
+plural        0.3934
+bui           0.2662
+nby           0.2268
+bldg_size     0.1203
+elev          0.1200
+rent_share    0.0492
+res_share     0.0381
+mu_ratio      0.0343
+slope         0.0331
+dist_built    0.0283
+10:34:13 INFO grouped mean |SHAP|:
+Building              0.4001
+PLURAL                0.3934
+Undated records       0.2268
+Elevation             0.1200
+Land use              0.0800
+Slope                 0.0331
+Settlement context    0.0283
+10:34:13 INFO mean |SHAP| by year:
+        bui  bldg_size  mu_ratio  dist_built  res_share  rent_share  elev  slope    nby  plural
+year                                                                                           
+1940  0.266       0.12     0.034       0.028      0.038       0.049  0.12  0.033  0.227   0.393
+10:34:14 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1940/model/shap_summary.png
+10:34:14 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1940/model/shap_by_year.png
+10:34:22 INFO Dasy_CONUS_RF_v3_all_nby (its saved out-of-fold predictions, same folds, 2471 rows, its own target): CV RMSE 0.4858 +/- 0.0063 | CV R2 0.875 +/- 0.010 | pooled RMSE 0.4859 R2 0.876 (reported: RMSE 0.4858339867518029, R2 0.8749475318740061)
+10:34:22 INFO Dasy_CONUS_RF_v3_all_nby on the same 615 test rows (its own y): RMSE 0.4721 | R2 0.886
+10:34:22 INFO era Y1940: CV Dasy_CONUS_RF_v3_all_nby_pq3 vs Dasy_CONUS_RF_v3_all_nby (same folds and rows): RMSE 0.4666 vs 0.4858 | R2 0.885 vs 0.875 | pooled RMSE 0.4668 vs 0.4859
+10:34:22 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1940/model
+10:34:22 INFO era Y1980: 3 rows trained on with status ['filled_nhgis']: [('G1200860', 'Miami-Dade County', 'filled_nhgis'), ('G4601130', 'Shannon County', 'filled_nhgis'), ('G5105150', 'Bedford city', 'filled_nhgis')]
+10:34:22 INFO era Y1980: split: 2484 train rows (2484 counties), 622 test rows (622 counties)
+10:34:22 INFO era Y1980: training rows: 2484 county-years | 2484 counties (groups) | 1 years 1980-1980 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope', 'nby', 'plural']
+10:34:22 INFO era Y1980: folds (split table conus_split.csv by GISJOIN): counties per fold {0: 498, 1: 497, 2: 497, 3: 495, 4: 497} -> /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1980/model/folds.csv
+10:34:22 INFO Spearman rho of county features (all training rows):
+              bui  bldg_size  mu_ratio  dist_built  res_share  rent_share   elev  slope    nby  plural
+bui         1.000      0.976     0.940      -0.789      0.933       0.861 -0.310  0.023  0.456  -0.614
+bldg_size   0.976      1.000     0.962      -0.837      0.952       0.834 -0.349  0.049  0.466  -0.630
+mu_ratio    0.940      0.962     1.000      -0.880      0.983       0.821 -0.340  0.056  0.493  -0.641
+dist_built -0.789     -0.837    -0.880       1.000     -0.885      -0.675  0.316  0.021 -0.380   0.629
+res_share   0.933      0.952     0.983      -0.885      1.000       0.825 -0.342  0.062  0.474  -0.633
+rent_share  0.861      0.834     0.821      -0.675      0.825       1.000 -0.232  0.098  0.383  -0.517
+elev       -0.310     -0.349    -0.340       0.316     -0.342      -0.232  1.000  0.479 -0.440   0.523
+slope       0.023      0.049     0.056       0.021      0.062       0.098  0.479  1.000 -0.084   0.125
+nby         0.456      0.466     0.493      -0.380      0.474       0.383 -0.440 -0.084  1.000  -0.636
+plural     -0.614     -0.630    -0.641       0.629     -0.633      -0.517  0.523  0.125 -0.636   1.000
+10:34:22 INFO   |rho| > 0.80: mu_ratio - res_share 0.983
+10:34:22 INFO   |rho| > 0.80: bui - bldg_size 0.976
+10:34:22 INFO   |rho| > 0.80: bldg_size - mu_ratio 0.962
+10:34:22 INFO   |rho| > 0.80: bldg_size - res_share 0.952
+10:34:22 INFO   |rho| > 0.80: bui - mu_ratio 0.940
+10:34:22 INFO   |rho| > 0.80: bui - res_share 0.933
+10:34:22 INFO   |rho| > 0.80: dist_built - res_share -0.885
+10:34:22 INFO   |rho| > 0.80: mu_ratio - dist_built -0.880
+10:34:22 INFO   |rho| > 0.80: bui - rent_share 0.861
+10:34:22 INFO   |rho| > 0.80: bldg_size - dist_built -0.837
+10:34:22 INFO   |rho| > 0.80: bldg_size - rent_share 0.834
+10:34:22 INFO   |rho| > 0.80: res_share - rent_share 0.825
+10:34:22 INFO   |rho| > 0.80: mu_ratio - rent_share 0.821
+10:34:23 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1980/model/feature_correlation.png
+10:34:23 INFO era Y1980: model rf | search 60 of continuous candidates | 5 folds | scoring neg_root_mean_squared_error | n_jobs 16
+10:34:23 INFO era Y1980: search space {'n_estimators': {'dist': 'randint', 'low': 200, 'high': 1000}, 'max_depth': [None, 5, 10, 15, 20, 30], 'min_samples_leaf': {'dist': 'randint', 'low': 1, 'high': 10}, 'max_features': ['sqrt', 0.33, 0.5, 0.75, 1.0]} | fixed {'random_state': 42}
+10:35:15 INFO   fold 0: CV RMSE 0.4547 | R2 0.919
+10:35:15 INFO   fold 1: CV RMSE 0.4625 | R2 0.910
+10:35:15 INFO   fold 2: CV RMSE 0.5220 | R2 0.894
+10:35:15 INFO   fold 3: CV RMSE 0.4793 | R2 0.917
+10:35:15 INFO   fold 4: CV RMSE 0.4656 | R2 0.912
+10:35:15 INFO era Y1980: best params {'max_depth': 30, 'max_features': 0.5, 'min_samples_leaf': 3, 'n_estimators': 938} (search 52 s)
+10:35:15 INFO era Y1980: CV RMSE 0.4768 +/- 0.0239 | CV R2 0.910 +/- 0.009 | train RMSE 0.2690 | sd(y) 1.5958
+10:35:16 INFO era Y1980: TEST (scored once, 622 test counties): RMSE 0.4792 | R2 0.911
+10:35:20 INFO feature importance (permutation = increase in RMSE when shuffled):
+   feature  impurity  permutation_mean  permutation_sd
+       bui    0.3677            0.7212          0.0113
+       nby    0.1328            0.4694          0.0085
+    plural    0.1916            0.3380          0.0064
+ bldg_size    0.1414            0.1627          0.0038
+rent_share    0.0471            0.1076          0.0037
+      elev    0.0360            0.1031          0.0027
+  mu_ratio    0.0399            0.0602          0.0015
+     slope    0.0107            0.0587          0.0027
+ res_share    0.0236            0.0537          0.0017
+dist_built    0.0091            0.0374          0.0012
+10:38:42 INFO mean |SHAP| per feature:
+bui           0.5021
+plural        0.3260
+nby           0.2739
+bldg_size     0.1663
+rent_share    0.1015
+elev          0.0806
+mu_ratio      0.0318
+res_share     0.0248
+slope         0.0226
+dist_built    0.0170
+10:38:42 INFO grouped mean |SHAP|:
+Building              0.6694
+PLURAL                0.3260
+Undated records       0.2739
+Land use              0.1152
+Elevation             0.0806
+Slope                 0.0226
+Settlement context    0.0170
+10:38:42 INFO mean |SHAP| by year:
+        bui  bldg_size  mu_ratio  dist_built  res_share  rent_share   elev  slope    nby  plural
+year                                                                                            
+1980  0.502      0.166     0.032       0.017      0.025       0.101  0.081  0.023  0.274   0.326
+10:38:43 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1980/model/shap_summary.png
+10:38:43 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1980/model/shap_by_year.png
+10:38:47 INFO Dasy_CONUS_RF_v3_all_nby (its saved out-of-fold predictions, same folds, 2484 rows, its own target): CV RMSE 0.4948 +/- 0.0316 | CV R2 0.903 +/- 0.012 | pooled RMSE 0.4958 R2 0.903 (reported: RMSE 0.4947631415356605, R2 0.9032717213276211)
+10:38:49 INFO Dasy_CONUS_RF_v3_all_nby on the same 622 test rows (its own y): RMSE 0.4871 | R2 0.908
+10:38:49 INFO era Y1980: CV Dasy_CONUS_RF_v3_all_nby_pq3 vs Dasy_CONUS_RF_v3_all_nby (same folds and rows): RMSE 0.4768 vs 0.4948 | R2 0.910 vs 0.903 | pooled RMSE 0.4774 vs 0.4958
+10:38:49 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y1980/model
+10:38:50 INFO era Y2010: 4 rows trained on with status ['filled_nhgis']: [('G0800140', 'Broomfield County', 'filled_nhgis'), ('G1200860', 'Miami-Dade County', 'filled_nhgis'), ('G4601130', 'Shannon County', 'filled_nhgis'), ('G5105150', 'Bedford city', 'filled_nhgis')]
+10:38:50 INFO era Y2010: split: 2487 train rows (2487 counties), 622 test rows (622 counties)
+10:38:50 INFO era Y2010: training rows: 2487 county-years | 2487 counties (groups) | 1 years 2010-2010 | features ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope', 'nby', 'plural']
+10:38:50 INFO era Y2010: folds (split table conus_split.csv by GISJOIN): counties per fold {0: 498, 1: 498, 2: 497, 3: 497, 4: 497} -> /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y2010/model/folds.csv
+10:38:50 INFO Spearman rho of county features (all training rows):
+              bui  bldg_size  mu_ratio  dist_built  res_share  rent_share   elev  slope    nby  plural
+bui         1.000      0.979     0.937      -0.773      0.930       0.867 -0.342  0.031  0.480  -0.656
+bldg_size   0.979      1.000     0.960      -0.826      0.949       0.844 -0.374  0.050  0.485  -0.660
+mu_ratio    0.937      0.960     1.000      -0.873      0.982       0.829 -0.375  0.061  0.513  -0.660
+dist_built -0.773     -0.826    -0.873       1.000     -0.880      -0.691  0.338  0.017 -0.397   0.621
+res_share   0.930      0.949     0.982      -0.880      1.000       0.833 -0.374  0.064  0.489  -0.650
+rent_share  0.867      0.844     0.829      -0.691      0.833       1.000 -0.263  0.095  0.400  -0.568
+elev       -0.342     -0.374    -0.375       0.338     -0.374      -0.263  1.000  0.479 -0.440   0.502
+slope       0.031      0.050     0.061       0.017      0.064       0.095  0.479  1.000 -0.085   0.147
+nby         0.480      0.485     0.513      -0.397      0.489       0.400 -0.440 -0.085  1.000  -0.634
+plural     -0.656     -0.660    -0.660       0.621     -0.650      -0.568  0.502  0.147 -0.634   1.000
+10:38:50 INFO   |rho| > 0.80: mu_ratio - res_share 0.982
+10:38:50 INFO   |rho| > 0.80: bui - bldg_size 0.979
+10:38:50 INFO   |rho| > 0.80: bldg_size - mu_ratio 0.960
+10:38:50 INFO   |rho| > 0.80: bldg_size - res_share 0.949
+10:38:50 INFO   |rho| > 0.80: bui - mu_ratio 0.937
+10:38:50 INFO   |rho| > 0.80: bui - res_share 0.930
+10:38:50 INFO   |rho| > 0.80: dist_built - res_share -0.880
+10:38:50 INFO   |rho| > 0.80: mu_ratio - dist_built -0.873
+10:38:50 INFO   |rho| > 0.80: bui - rent_share 0.867
+10:38:50 INFO   |rho| > 0.80: bldg_size - rent_share 0.844
+10:38:50 INFO   |rho| > 0.80: res_share - rent_share 0.833
+10:38:50 INFO   |rho| > 0.80: mu_ratio - rent_share 0.829
+10:38:50 INFO   |rho| > 0.80: bldg_size - dist_built -0.826
+10:38:50 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y2010/model/feature_correlation.png
+10:38:50 INFO era Y2010: model rf | search 60 of continuous candidates | 5 folds | scoring neg_root_mean_squared_error | n_jobs 16
+10:38:50 INFO era Y2010: search space {'n_estimators': {'dist': 'randint', 'low': 200, 'high': 1000}, 'max_depth': [None, 5, 10, 15, 20, 30], 'min_samples_leaf': {'dist': 'randint', 'low': 1, 'high': 10}, 'max_features': ['sqrt', 0.33, 0.5, 0.75, 1.0]} | fixed {'random_state': 42}
+10:39:40 INFO   fold 0: CV RMSE 0.4413 | R2 0.933
+10:39:40 INFO   fold 1: CV RMSE 0.4666 | R2 0.922
+10:39:40 INFO   fold 2: CV RMSE 0.5433 | R2 0.901
+10:39:40 INFO   fold 3: CV RMSE 0.4853 | R2 0.926
+10:39:40 INFO   fold 4: CV RMSE 0.4833 | R2 0.919
+10:39:40 INFO era Y2010: best params {'max_depth': 20, 'max_features': 0.5, 'min_samples_leaf': 1, 'n_estimators': 761} (search 50 s)
+10:39:40 INFO era Y2010: CV RMSE 0.4840 +/- 0.0336 | CV R2 0.920 +/- 0.011 | train RMSE 0.1772 | sd(y) 1.7170
+10:39:40 INFO era Y2010: TEST (scored once, 622 test counties): RMSE 0.4740 | R2 0.923
+10:39:46 INFO feature importance (permutation = increase in RMSE when shuffled):
+   feature  impurity  permutation_mean  permutation_sd
+       bui    0.3805            0.9323          0.0157
+       nby    0.1333            0.6127          0.0173
+    plural    0.1243            0.3522          0.0093
+ bldg_size    0.1729            0.2650          0.0045
+rent_share    0.0501            0.1770          0.0026
+      elev    0.0346            0.1624          0.0032
+  mu_ratio    0.0524            0.1105          0.0014
+ res_share    0.0297            0.0973          0.0013
+     slope    0.0110            0.0838          0.0021
+dist_built    0.0112            0.0627          0.0013
+10:51:24 INFO mean |SHAP| per feature:
+bui           0.5770
+nby           0.2765
+plural        0.2604
+bldg_size     0.2178
+rent_share    0.1205
+elev          0.0880
+mu_ratio      0.0504
+res_share     0.0403
+slope         0.0229
+dist_built    0.0207
+10:51:24 INFO grouped mean |SHAP|:
+Building              0.8135
+Undated records       0.2765
+PLURAL                0.2604
+Land use              0.1471
+Elevation             0.0880
+Slope                 0.0229
+Settlement context    0.0207
+10:51:24 INFO mean |SHAP| by year:
+        bui  bldg_size  mu_ratio  dist_built  res_share  rent_share   elev  slope    nby  plural
+year                                                                                            
+2010  0.577      0.218      0.05       0.021       0.04        0.12  0.088  0.023  0.276    0.26
+10:51:24 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y2010/model/shap_summary.png
+10:51:24 INFO   plot /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y2010/model/shap_by_year.png
+10:51:35 INFO Dasy_CONUS_RF_v3_all_nby (its saved out-of-fold predictions, same folds, 2487 rows, its own target): CV RMSE 0.5059 +/- 0.0407 | CV R2 0.912 +/- 0.014 | pooled RMSE 0.5075 R2 0.913 (reported: RMSE 0.5059303832507036, R2 0.912448236376566)
+10:51:35 INFO Dasy_CONUS_RF_v3_all_nby on the same 622 test rows (its own y): RMSE 0.4934 | R2 0.917
+10:51:35 INFO era Y2010: CV Dasy_CONUS_RF_v3_all_nby_pq3 vs Dasy_CONUS_RF_v3_all_nby (same folds and rows): RMSE 0.4840 vs 0.5059 | R2 0.920 vs 0.912 | pooled RMSE 0.4851 vs 0.5075
+10:51:35 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/Y2010/model
+10:51:35 INFO CV by era:
+  era     years  n_rows  n_counties  n_folds  cv_rmse  cv_r2  pooled_rmse  pooled_r2 model  n_candidates                                                                        best_params  train_seconds  n_test_rows  test_rmse  test_r2  Dasy_CONUS_RF_v3_all_nby_test_rmse  Dasy_CONUS_RF_v3_all_nby_test_r2  shap_Building  shap_PLURAL  shap_Undated records  shap_Elevation  shap_Land use  shap_Slope  shap_Settlement context  Dasy_CONUS_RF_v3_all_nby_cv_rmse  Dasy_CONUS_RF_v3_all_nby_cv_r2  Dasy_CONUS_RF_v3_all_nby_pooled_rmse  Dasy_CONUS_RF_v3_all_nby_pooled_r2
+Y1940 1940-1940    2471        2471        5    0.467  0.885        0.467      0.885    rf            60 {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 400}          487.8          615      0.458    0.893                               0.472                             0.886          0.400        0.393                 0.227           0.120          0.080       0.033                    0.028                             0.486                           0.875                                 0.486                               0.876
+Y1980 1980-1980    2484        2484        5    0.477  0.910        0.477      0.910    rf            60 {"max_depth": 30, "max_features": 0.5, "min_samples_leaf": 3, "n_estimators": 938}          266.2          622      0.479    0.911                               0.487                             0.908          0.669        0.326                 0.274           0.081          0.115       0.023                    0.017                             0.495                           0.903                                 0.496                               0.903
+Y2010 2010-2010    2487        2487        5    0.484  0.920        0.485      0.920    rf            60 {"max_depth": 20, "max_features": 0.5, "min_samples_leaf": 1, "n_estimators": 761}          764.7          622      0.474    0.923                               0.493                             0.917          0.814        0.260                 0.276           0.088          0.147       0.023                    0.021                             0.506                           0.912                                 0.508                               0.913
+10:51:35 INFO wrote /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq3/cv_summary.csv
+10:51:35 INFO DONE
+== done 2026-11-18T10:51:40-07:00

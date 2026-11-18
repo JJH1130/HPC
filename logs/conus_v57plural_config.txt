@@ -1,0 +1,14 @@
+10:07:53 INFO arg cmd = config
+10:07:53 INFO arg variants = ['plc', 'plcc', 'pq3', 'pq5', 'pe3', 'pe5']
+10:07:53 INFO arg years = [1940, 1980, 2010]
+10:07:53 INFO arg v57_config = configs/conus_rf_v3_all_nby.yaml
+10:07:53 INFO arg new_pattern = configs/conus_rf_v3_all_nby_{v}.yaml
+10:07:53 INFO arg old_pattern = configs/conus_rf_v3_u070_{v}.yaml
+10:07:53 INFO arg base = Dasy_CONUS_RF_v3_u070
+  plc: configs/conus_rf_v3_all_nby_plc.yaml = v5.7 eras + plural, plural block = configs/conus_rf_v3_u070_plc.yaml
+  plcc: configs/conus_rf_v3_all_nby_plcc.yaml = v5.7 eras + plural, plural block = configs/conus_rf_v3_u070_plcc.yaml
+  pq3: configs/conus_rf_v3_all_nby_pq3.yaml = v5.7 eras + plural, plural block = configs/conus_rf_v3_u070_pq3.yaml
+  pq5: configs/conus_rf_v3_all_nby_pq5.yaml = v5.7 eras + plural, plural block = configs/conus_rf_v3_u070_pq5.yaml
+  pe3: configs/conus_rf_v3_all_nby_pe3.yaml = v5.7 eras + plural, plural block = configs/conus_rf_v3_u070_pe3.yaml
+  pe5: configs/conus_rf_v3_all_nby_pe5.yaml = v5.7 eras + plural, plural block = configs/conus_rf_v3_u070_pe5.yaml
+CONFIG OK: 6 configs = configs/conus_rf_v3_all_nby.yaml eras ['Y1940', 'Y1980', 'Y2010'] + plural (plc, plcc, pq3, pq5, pe3, pe5), plural blocks = the v5.6 test's, every other setting as v5.7

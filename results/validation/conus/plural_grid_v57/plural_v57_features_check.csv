@@ -1,0 +1,19 @@
+variant,version,year,feature_rows,feature_cols_equal,n_common_v56,only_new,only_v56,plural_max_rel_diff,plural_n_diff,breaks,breaks_max_abs_diff,breaks_ok,status,study_cells
+plc,Dasy_CONUS_RF_v3_all_nby_plc,1940,3087,20,3087,0,0,0.0,0,continuous,,True,OK,
+plc,Dasy_CONUS_RF_v3_all_nby_plc,1980,3106,20,3106,0,0,0.0,0,continuous,,True,OK,
+plc,Dasy_CONUS_RF_v3_all_nby_plc,2010,3109,20,3109,0,0,0.0,0,continuous,,True,OK,
+plcc,Dasy_CONUS_RF_v3_all_nby_plcc,1940,3087,20,3087,0,0,0.0,0,continuous,,True,OK,
+plcc,Dasy_CONUS_RF_v3_all_nby_plcc,1980,3106,20,3106,0,0,0.0,0,continuous,,True,OK,
+plcc,Dasy_CONUS_RF_v3_all_nby_plcc,2010,3109,20,3109,0,0,0.0,0,continuous,,True,OK,
+pq3,Dasy_CONUS_RF_v3_all_nby_pq3,1940,3087,20,3087,0,0,0.0,0,quantile 3,0.0,True,OK,124150580.0
+pq3,Dasy_CONUS_RF_v3_all_nby_pq3,1980,3106,20,3106,0,0,0.0,0,quantile 3,0.0,True,OK,124200314.0
+pq3,Dasy_CONUS_RF_v3_all_nby_pq3,2010,3109,20,3109,0,0,0.0,0,quantile 3,0.0,True,OK,124576956.0
+pq5,Dasy_CONUS_RF_v3_all_nby_pq5,1940,3087,20,3087,0,0,0.0,0,quantile 5,0.0,True,OK,124150580.0
+pq5,Dasy_CONUS_RF_v3_all_nby_pq5,1980,3106,20,3106,0,0,0.0,0,quantile 5,0.0,True,OK,124200314.0
+pq5,Dasy_CONUS_RF_v3_all_nby_pq5,2010,3109,20,3109,0,0,0.0,0,quantile 5,0.0,True,OK,124576956.0
+pe3,Dasy_CONUS_RF_v3_all_nby_pe3,1940,3087,20,3087,0,0,0.0,0,equal 3,0.0,True,OK,124150580.0
+pe3,Dasy_CONUS_RF_v3_all_nby_pe3,1980,3106,20,3106,0,0,0.0,0,equal 3,0.0,True,OK,124200314.0
+pe3,Dasy_CONUS_RF_v3_all_nby_pe3,2010,3109,20,3109,0,0,0.0,0,equal 3,0.0,True,OK,124576956.0
+pe5,Dasy_CONUS_RF_v3_all_nby_pe5,1940,3087,20,3087,0,0,0.0,0,equal 5,0.0,True,OK,124150580.0
+pe5,Dasy_CONUS_RF_v3_all_nby_pe5,1980,3106,20,3106,0,0,0.0,0,equal 5,0.0,True,OK,124200314.0
+pe5,Dasy_CONUS_RF_v3_all_nby_pe5,2010,3109,20,3109,0,0,0.0,0,equal 5,0.0,True,OK,124576956.0
