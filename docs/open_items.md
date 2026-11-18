@@ -196,13 +196,18 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
      / 59 / 97 %), i.e. nby_age is close to 0 in most counties before 1940. Next: user runs blocks 1-3; Claude analyses.
 2. **PLURAL again, on the new base.** After 1: Stefan expects a compensating effect (spreading people where records
    are missing, and damping over-allocation), and that PLURAL may work once NobuiltYear is in. Same variants as
-   the v5.6 test (continuous bilinear / cubic, 3 / 5 classes quantile / equal), on v5.7 (or the item 1 result).
+   the v5.6 test (continuous bilinear / cubic, 3 / 5 classes quantile / equal), on v5.7 (item 1 kept v5.7).
+   Requested 2026-11-19 (`docs/handoff/v57_plural_density_request.md` part A); choice by county CV RMSE vs v5.7. The
+   version for items 3 / 4 is settled after this (user).
 3. **Feature importance figures for Stefan.** SHAP bar plot (mean |SHAP| per feature) + SHAP summary (beeswarm)
-   plot for v5.7, per era (at least the meeting years; years to settle).
+   plot, per era, for the version chosen after item 2 (from the tracked `shap_values.csv`, locally by Claude).
 4. **City boxes split by density class.** The 40 x 40 km boxes (Boston / Denver / Chicago, 1980 / 2010) split into
    rural / peri-urban / urban by population density, then the comparison with GHS-POP / WorldPop per class (Spearman,
-   totals, scatter); Stefan wants to see how close or different we are in rural areas. To settle: whose density
-   defines the classes (GHS-POP, ours, or tract density) and the breaks; per 1 km block or per 250 m cell.
+   totals, scatter); Stefan wants to see how close or different we are in rural areas. Fixed 2026-11-19: 1 km blocks,
+   GHS-POP density of the year, rural < 100 / peri-urban 100-1,000 / urban >= 1,000 per km2 (+ the same breaks on our
+   density as a check). Code only in part B of the same request; run for the version chosen after item 2.
+- **For the next meeting write-up:** item 1 result = `docs/conus_plan.md` "v5.7 with nby_age instead of nby: result"
+  (nby_age worse by county CV in all 5 years, on v5.7 as on v5.6; early-year factors near 0).
 5. **(Later, next meeting) Separate models for rural / peri-urban / urban.** Idea only; how to split (by county,
    by cell, by which variable) is the hard part. Discuss next meeting, no analysis now.
 
