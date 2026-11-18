@@ -182,7 +182,8 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
      v5.6 (factor = county BUPR_year / BUPR_2015, clipped 0-1), which was worse than raw nby (tract 1980 28.8 vs
      27.6 %, all-TEST county R2 1980 0.770 vs 0.858). Layer = BUPR record counts (user, 2026-11-18: the
      growth of the dated record count applied to NobuiltYear), so the new run = `nby_age` on v5.7 (no filter);
-     reference year 2015 (as before) or 2020 to settle.
+     reference year 2015 (as before). Requested 2026-11-18: `docs/handoff/v57_nbya_request.md` (v5.7 with nby
+     replaced by nby_age, 1910 / 1940 / 1960 / 1980 / 2010).
    - Compare with v5.7 by county CV / all TEST counties (selection), tracts reported.
 2. **PLURAL again, on the new base.** After 1: Stefan expects a compensating effect (spreading people where records
    are missing, and damping over-allocation), and that PLURAL may work once NobuiltYear is in. Same variants as
