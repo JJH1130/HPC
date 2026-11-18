@@ -2240,6 +2240,90 @@ city-years`, `v5.7_pq5 (...): whole box NOT checked`, `DONE`; files `density_cla
 main`; `== end of block 2`. A `FAILED` job or an `ERROR` line (e.g. `whole box differs`, `of the gap blocks differs`):
 commit the log anyway (same block) and tell Claude.
 
+## 25. PLURAL at county level only: pq5 / plc models with the county plural, 1940 / 1980 / 2010 (2026-11-19)
+
+Request `docs/handoff/plural_countymean_request.md`; design `docs/conus_plan.md` "PLURAL at county level only". No
+features or training: `Dasy_CONUS_RF_v3_all_nby_{pq5,plc}cm` predict with the trained models of pq5 / plc (section
+23), every cell's plural replaced by its county's plural (`model_from`, `plural: {cell_value: county_mean}`). A cause
+check of the tract loss of PLURAL, not a selection; the interpretation rule is fixed and printed first in the compare
+log. Needs on scratch the pq5 / plc era models + county features and the v5.7 / pq5 / plc predictions (section 23), v5.6's
+county features (gap counties), the CONUS cutout with PLURAL / NOBUILT; in git the plural_grid_v57 tables.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| config check + snapshot | login node, in the pre-check | cm configs = PLURAL configs + county_mean / model_from (`CONFIG OK`); sha256 of the reused models -> `logs/conus_pluralcm_models.json` (`SNAPSHOT OK`) | < 1 min |
+| pluralcm_variance | 4 cores, 1 h | between / within county variance of plural / bui / nby / bldg_size (no model) | ~15 min |
+| predict x 2 | 32 cores, 1 h each | TEST check of the reused model, then allocation of the 3 years | ~15 min |
+| validate x 2 | 8 cores, 30 min each | tracts of the 3 years (gap counties from v5.6) | ~9 min |
+| pluralcm_compare | 4 cores, 1 h | model check, five versions: counties, tracts, cells, built contrast, rule; checks against plural_v57_* | ~15 min |
+
+6 jobs, one submit; ~40 min after the first one starts (estimate). Override: `DIAG_TIME`, `PREDICT_TIME`,
+`VALIDATE_TIME`, `COMPARE_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh pluralcm
+squeue -u $USER
+echo "== end of block 1 (success = CONFIG OK, PRECHECK: 0 missing, SNAPSHOT OK: 15 files, one 'variance N | pq5cm predict N validate N | plccm ... | compare N' line, 6 jobs)"
+```
+
+Good: `CONFIG OK: 2 cm configs = ...`, `PRECHECK: 0 missing of the inputs (...)`, `SNAPSHOT OK: 15 files of 2 PLURAL
+versions x 3 years -> logs/conus_pluralcm_models.json`, one line `variance N | pq5cm predict N validate N | plccm predict
+N validate N | compare N` (also in `logs/conus_pluralcm_jobs.txt`), 6 jobs in `squeue`; `== end of block 1`. `CONFIG
+DIFFERS` / `MISSING ...` + `ERROR: nothing submitted`: send the output to Claude. `NOTE: ... exists already` is fine (a
+rerun overwrites the cm folder).
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_pluralcm_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+squeue -u $USER -o "%.10i %.20j %.8T %.30R"
+grep -hE "^.{9}INFO MODEL|ERROR" $(ls -t logs/dasymetric_predict.*.out | head -2) 2>/dev/null | cut -c1-200
+echo "== end of block 2 (success = states PENDING / RUNNING / COMPLETED, no FAILED; MODEL ... -> OK lines once the predicts started)"
+```
+
+Good: `PENDING` (reason `Dependency`) / `RUNNING` / `COMPLETED`; once a predict job started, three lines `MODEL
+Dasy_CONUS_RF_v3_all_nby_<v>cm era Y<year>: ... -> OK` per job; `== end of block 2`. A `FAILED` predict (`not the same
+model` or another `ERROR`): its validate and the compare stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and
+send the log.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_pluralcm_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_pluralcm_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_pluralcm_seff.txt
+cat logs/conus_pluralcm_sacct.txt
+grep -hE "VARIANCE OK|ERROR" $(ls -t logs/pluralcm_variance.*.out | head -1)
+grep -hE "MODEL|MATCH|RULE: [a-z]|DONE|ERROR" $(ls -t logs/pluralcm_compare.*.out | head -1) | cut -c1-200
+ls results/validation/conus/plural_grid_v57/countymean/
+git add logs/ results/
+git commit -m "run: PLURAL at county level only, pq5cm / plccm, 1940 / 1980 / 2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = every job COMPLETED, VARIANCE OK, 6 MODEL ... OK, 3 MATCH lines, 6 RULE result lines, DONE, 6 pluralcm_*.csv, push main -> main)"
+```
+
+Good: every job `COMPLETED`; `VARIANCE OK: 3 years x 5 features, ...`; in the compare log six `MODEL
+Dasy_CONUS_RF_v3_all_nby_<v>cm <year> <- ...: OK` lines, three `MATCH` lines (`plural_v57_comparison.csv`,
+`plural_v57_cells.csv`, `contrast people = cell people`), six lines `RULE: <pq5|plc> <year> all tracts: ... -> <outcome>`
+(+ the rule text first and `RULE: a cause check ...` last), `DONE`; six files `pluralcm_{comparison, cells,
+built_contrast, rule, model_check, variance_split}.csv`; `git push` ends with `main -> main`; `== end of block 3`.
+Failed jobs: commit anyway (same block) and tell Claude.
+
+What to look for in the logs: `pluralcm_compare` lines `SUMMARY` (county numbers = the PLURAL versions', tracts by set
+and their change vs v5.7, people on cells, built contrast, variance table, the interpretation table) and `RULE`.
+
 ## If it fails
 
 | Symptom | Fix |

@@ -98,6 +98,10 @@
 #                                       # Dasy_CONUS_RF_v3_all_nby v5.7, + DENS_EXTRA default v5.7 + PLURAL pq5) +
 #                                       # cell-type shares (BUI / NobuiltYear): input check, one job ->
 #                                       # results/validation/conus/external/city_density_classes_<label>/
+#   bash sbatch/submit_conus.sh pluralcm   # PLURAL at county level only (no retraining): config check + inputs +
+#                                       # model snapshot (logs/conus_pluralcm_models.json) -> predict / validate of
+#                                       # Dasy_CONUS_RF_v3_all_nby_{pq5,plc}cm (pq5 / plc models, county plural) and the
+#                                       # variance job side by side -> plural_countymean compare; one submit
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -153,10 +157,12 @@
 # predict 14 min, validate 4 min) and the v5.6 PLURAL test (quantile breaks: one more layer read per year); six chains
 # side by side; wall times as v57nbya (estimates). Compare: 13 versions x 3 years of whole-window cell reads, 1 h.
 # citydensity: as citymeeting (same boxes and product moves, 6 small figures): 2 cores, 30 min (DENS_TIME).
+# pluralcm: predict / validate as one v57plural variant (jobs 35904624 / 35904625: predict 15 min / 14 GB on 32 cores,
+# validate 9 min / 17 GB); variance and compare 4 cores, 1 h each (DIAG_TIME, COMPARE_TIME; estimates).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -1057,6 +1063,74 @@ elif [[ $mode == v57plural ]]; then
     done
     jc=$(sub "${qs# }" --time=${COMPARE_TIME:-01:00:00} sbatch/v57_plural_compare.sh compare)
     echo "${ids# | } | features_check $jk | v57_plural_compare $jc" | tee logs/conus_v57plural_jobs.txt
+elif [[ $mode == pluralcm ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    V57=Dasy_CONUS_RF_v3_all_nby V56=Dasy_CONUS_RF_v3_u070
+    VARS="pq5 plc"  # PLURAL versions whose models are reused; new versions <version>cm
+    YRS="1940 1980 2010"
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    RD=results/dasymetric/conus
+    PG=results/validation/conus/plural_grid_v57
+    miss=()  # everything is checked before anything is submitted
+    # each cm config = its PLURAL config + model_from / compare_with + plural cell_value county_mean
+    if ( activate_env hisdac && python -u src/validation/plural_countymean.py config ) > logs/conus_pluralcm_config.txt 2>&1; then
+        grep -E "CONFIG OK" logs/conus_pluralcm_config.txt
+    else
+        miss+=("config check (logs/conus_pluralcm_config.txt)")
+        grep -E "CONFIG DIFFERS|ERROR" logs/conus_pluralcm_config.txt || tail -5 logs/conus_pluralcm_config.txt
+    fi
+    for y in $YRS; do
+        # cutout (prediction features + variance layers), tracts, v5.6 gap counties (scratch), v5.7 / PLURAL results
+        for f in $CUT/zones/zones_$y.tif $CUT/zones/zones_$y.csv $CUT/layers/water_frac/${y}_water_frac.tif                  $CUT/layers/PLURAL/${y}_PLURAL.tif $CUT/layers/Land_Use/RO/${y}_RO.tif                  $D/$V56/Y$y/features/county_features.csv $DATA_ROOT/processed/tract/tracts_$y.gpkg                  $RD/$V57/Y$y/county_features.csv $RD/$V57/Y$y/test_predictions.csv $D/$V57/predictions/pop_$y.tif; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+        for l in BUI BUPL BUPR BUA; do
+            [[ -f $CUT/layers/$l/${y}_$l.tif ]] || miss+=("$CUT/layers/$l/${y}_$l.tif")
+        done
+        for v in $V56 $V57; do
+            [[ -f results/validation/conus/$v/tract_errors_$y.csv ]] || miss+=("results/validation/conus/$v/tract_errors_$y.csv")
+        done
+        for v in $VARS; do  # the PLURAL version: model + county features (scratch), results, prediction, tracts
+            P=${V57}_$v
+            for f in $D/$P/Y$y/model/rf.joblib $D/$P/Y$y/model/test_predictions.csv $D/$P/Y$y/features/county_features.csv                      $D/$P/predictions/pop_$y.tif $RD/$P/Y$y/county_features.csv $RD/$P/Y$y/test_predictions.csv                      $RD/$P/Y$y/metrics.json results/validation/conus/$P/tract_errors_$y.csv; do
+                [[ -f $f ]] || miss+=("$f")
+            done
+            if [[ $v == pq5 ]]; then
+                for f in $D/$P/Y$y/features/plural_breaks.csv $RD/$P/Y$y/plural_breaks.csv; do
+                    [[ -f $f ]] || miss+=("$f")
+                done
+            fi
+        done
+    done
+    for v in $VARS; do
+        [[ -f $D/${V57}_$v/cv_summary.csv ]] || miss+=("$D/${V57}_$v/cv_summary.csv")
+        if [[ -e $D/${V57}_${v}cm ]]; then echo "NOTE: $D/${V57}_${v}cm exists already (a rerun overwrites it)"; fi
+    done
+    for f in $CUT/layers/NOBUILT/NOBUILT.tif $CUT/window.json $CUT/layers/DEM/DEM.tif              results/hisdac_uncertainty/excluded_counties_t070.csv configs/conus_split.csv              $PG/plural_v57_comparison.csv $PG/plural_v57_cells.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (configs, cutout $YRS, pq5 / plc models + county features, v5.6 / v5.7 / PLURAL outputs, tracts, plural_v57 tables)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    # hashes of the reused models / county features before anything runs (the compare checks the cm runs against it)
+    if ( activate_env hisdac && python -u src/validation/plural_countymean.py snapshot --dasym-root "$HISDAC_SCRATCH/dasymetric" ) \
+            > logs/conus_pluralcm_snapshot.txt 2>&1; then
+        grep -E "SNAPSHOT OK" logs/conus_pluralcm_snapshot.txt
+    else
+        grep -E "MISSING|ERROR" logs/conus_pluralcm_snapshot.txt || tail -5 logs/conus_pluralcm_snapshot.txt
+        echo "ERROR: nothing submitted (snapshot)"; exit 1
+    fi
+    jv=$(sub "" --ntasks=4 --time=${DIAG_TIME:-01:00:00} --job-name=pluralcm_variance sbatch/plural_countymean.sh variance)
+    qs="" ids="variance $jv"
+    for v in $VARS; do
+        C=configs/conus_rf_v3_all_nby_${v}cm.yaml
+        p=$(sub "" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+        q=$(sub "$p" --ntasks=8 --time=${VALIDATE_TIME:-00:30:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh \
+            --version ${V57}_${v}cm --years $YRS $VAL --gap-version $V56)
+        qs="$qs $q" ids="$ids | ${v}cm predict $p validate $q"
+    done
+    jc=$(sub "$jv$qs" --ntasks=4 --time=${COMPARE_TIME:-01:00:00} --job-name=pluralcm_compare sbatch/plural_countymean.sh compare)
+    echo "$ids | compare $jc" | tee logs/conus_pluralcm_jobs.txt
 elif [[ $mode == citydensity ]]; then
     V=${2:-Dasy_CONUS_RF_v3_all_nby} L=${3:-v5.7}
     DEF=results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv

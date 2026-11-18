@@ -19,6 +19,17 @@ Map years come from `maps:` in configs/model.yaml (default 1810, 1900, 2020 and 
 nby_age (NobuiltYear feature test): the county factors are recomputed and must equal <era>/features/nby_age_factor.csv
 (else the job stops before predicting).
 
+PLURAL at county level only (docs/conus_plan.md "PLURAL at county level only"):
+  plural: {cell_value: county_mean}  every cell of a county gets the county's plural of the model's
+                                     <era>/features/county_features.csv (the value the model was trained on) instead of
+                                     its own cell value (default cell_value: cell = as before, output unchanged)
+  model_from: <version>              no training of its own: the era models, county features, plural breaks and nby_age
+                                     factors are read from <out-root>/<name>/<model_from>/<era>/. Before predicting, the
+                                     loaded model must give that version's TEST predictions (model/test_predictions.csv)
+                                     from its county features (rtol 1e-9; same model = same county numbers), else stop;
+                                     the model file's sha256, the county-feature / breaks hashes and the era's
+                                     cv_summary row go to the log and to <version>/<era>/model_from.json.
+
 Checks (the job fails after writing everything if one fails): |sum pop_cell - pop_c| / pop_c < 1e-6
 for every county-year, no negative or NaN cell values in used counties, and no people on masked cells.
 
@@ -30,6 +41,8 @@ MAP_MAX_CELLS show people per f x f cells. --measure N times the first N strips 
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import math
 import sys
 import time
@@ -48,6 +61,7 @@ from common import (NODATA_OUT, add_common_args, built_local_setup, cell_feature
                     setup_logging, strips, used_mask, water_mask, write_tif)
 
 MASS_TOL = 1e-6
+MODEL_RTOL = 1e-9  # model_from: TEST predictions of the loaded model = the source version's test_predictions.csv
 BREAK_TOL = 1e-9  # plural class breaks: recomputed here = the ones county_features.py wrote
 MAP_MAX_CELLS = 20_000_000  # larger windows (CONUS: 214 M cells -> 1 km) are drawn as sums over f x f cells
 MAP_DEFAULTS = {"years": [1810, 1900, 2020], "compare_years": [1810]}
@@ -84,11 +98,104 @@ def check_breaks(plural: dict, path: Path, year: int):
     log.info("  %d: plural breaks = %s", year, path)
 
 
-def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, measure: int = 0):
+def src_dir(cfg: dict, out_root: Path, era: str = "") -> Path:
+    """The folder holding the era's model and county features: the version's own, or model_from's."""
+    return out_root / cfg["name"] / (cfg.get("model_from") or cfg["version"]) / era
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def county_plural(plural: dict, path: Path, year: int, zones: np.ndarray, table: pd.DataFrame, used: pd.DataFrame):
+    """cell_value county_mean: plural + {county: plural per zone id (lookup array), zones, missing: used zone ids
+    without a county-feature row}. The values = the year's rows of the model's county_features.csv (zone_id and
+    GISJOIN must match the zone table). A used county without a row had no unmasked cell in county_features.py: its
+    cells get 0 here and the county must be skipped after pass 1 (checked in predict_year)."""
+    if not path.exists():
+        sys.exit(f"ERROR: plural cell_value county_mean: {path} not found (the model's county features)")
+    cf = pd.read_csv(path, float_precision="round_trip")
+    if not {"year", "zone_id", "GISJOIN", "plural"} <= set(cf.columns):
+        sys.exit(f"ERROR: {path}: needs year, zone_id, GISJOIN, plural columns")
+    cf = cf[cf["year"] == year]
+    if not len(cf) or cf["zone_id"].duplicated().any():
+        sys.exit(f"ERROR: {path}: {len(cf)} rows of {year}, duplicated zone ids {cf['zone_id'].duplicated().sum()}")
+    gis = table.set_index("zone_id")["GISJOIN"].reindex(cf["zone_id"]).to_numpy()
+    if (gis != cf["GISJOIN"].to_numpy()).any():
+        sys.exit(f"ERROR: {year}: zone_id / GISJOIN of {path} differ from the cutout's zone table")
+    ids = used["zone_id"].to_numpy()
+    extra = sorted(set(cf["zone_id"]) - set(ids))
+    if extra:
+        sys.exit(f"ERROR: {year}: {len(extra)} counties of {path} are not used here: {extra[:20]}")
+    nz = int(max(zones.max(), ids.max(), cf["zone_id"].max())) + 1
+    lut = np.full(nz, np.nan)
+    lut[cf["zone_id"].to_numpy()] = cf["plural"].to_numpy(float)
+    if not np.isfinite(lut[cf["zone_id"].to_numpy()]).all():
+        sys.exit(f"ERROR: {year}: non-finite county plural in {path}")
+    missing = ids[np.isnan(lut[ids])]
+    lut[missing] = 0.0
+    v = cf["plural"].to_numpy(float)
+    log.info("  %d: plural cell_value county_mean: every cell = its county's plural from %s (%d counties, min / median "
+             "/ max %.4f / %.4f / %.4f); %d used counties without a row (cells 0, must be skipped: no unmasked cell)",
+             year, path, len(cf), v.min(), np.median(v), v.max(), len(missing))
+    return {**plural, "county": lut, "zones": zones, "missing": set(missing.tolist())}
+
+
+def model_check(bundle: dict, mpath: Path, src: Path, cfg: dict, era: str, out_root: Path, out: Path) -> dict:
+    """model_from: the loaded model must give its version's TEST predictions from its county features (same model =
+    same county numbers); hashes + the era's cv_summary row -> <out>/<era>/model_from.json. Stops on a difference."""
+    if bundle.get("version") != cfg["model_from"]:
+        sys.exit(f"ERROR: {mpath} belongs to {bundle.get('version')}, model_from says {cfg['model_from']}")
+    tp, cf = src / "model" / "test_predictions.csv", src / "features" / "county_features.csv"
+    for f in (tp, cf):
+        if not f.exists():
+            sys.exit(f"ERROR: model_from {cfg['model_from']} era {era}: {f} not found")
+    t = pd.read_csv(tp, float_precision="round_trip")[["GISJOIN", "year", "y_hat"]]
+    x = t.merge(pd.read_csv(cf, float_precision="round_trip"), on=["GISJOIN", "year"], how="left")
+    feats = bundle["features"]
+    if not len(t) or x[feats].isna().any().any():
+        sys.exit(f"ERROR: {era}: {len(t)} TEST rows, or some without county features in {cf}")
+    y = bundle["model"].predict(x[feats])
+    d = np.abs(y - x["y_hat"].to_numpy(float))
+    ok = bool(np.allclose(y, x["y_hat"].to_numpy(float), rtol=MODEL_RTOL, atol=0))
+    brk = src / "features" / "plural_breaks.csv"
+    cv = None
+    cvp = out_root / cfg["name"] / cfg["model_from"] / "cv_summary.csv"
+    if cvp.exists():
+        c = pd.read_csv(cvp)
+        c = c[c["era"].astype(str) == era] if "era" in c else c
+        cv = json.loads(c.to_json(orient="records"))
+    else:
+        log.warning("  model_from: %s not found; no cv_summary row", cvp)
+    info = {"version": cfg["version"], "model_from": cfg["model_from"], "era": era, "model_path": str(mpath),
+            "model_sha256": sha256(mpath), "county_features_path": str(cf), "county_features_sha256": sha256(cf),
+            "plural_breaks_sha256": sha256(brk) if brk.exists() else None, "features": feats,
+            "test_rows": len(t), "test_max_abs_diff": float(d.max()), "test_check": "OK" if ok else "DIFFERS",
+            "cv_summary": cv}
+    path = out / era / "model_from.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(info, indent=2))
+    log.info("MODEL %s era %s: %s sha256 %s | county features sha256 %s | TEST predictions of %s on %d counties: max "
+             "|diff| %.3g -> %s | cv_summary %s | -> %s", cfg["version"], era, mpath, info["model_sha256"],
+             info["county_features_sha256"], cfg["model_from"], len(t), d.max(), info["test_check"], cv, path)
+    if not ok:
+        sys.exit(f"ERROR: {era}: the model of {mpath} does not give the TEST predictions of {tp} (max |diff| "
+                 f"{d.max():.3g}); not the same model")
+    return info
+
+
+def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, measure: int = 0,
+                 src: Path | None = None):
     """Predict + reallocate one year. Pass 1 predicts the weights strip by strip (`block_rows`; one strip = the
     whole window without it) for the cells of used counties only; pass 2 scales them to the county totals.
+    src = the era folder of the model and its county features (src_dir; default <out>/<era>).
     measure > 0: stop after that many strips with cells, log the time per cell and the extrapolated total for
     the year, write nothing and return None."""
+    src = out / (bundle.get("era") or "") if src is None else src
     zones, table, grid = read_zones(cutout, year)
     used = county_selection(table, zones, bundle["use_status"], year, cfg["unusable"])
     ids = used["zone_id"].to_numpy()
@@ -99,11 +206,13 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
                           cfg.get("block_rows"))
     blocal = built_local_setup(cfg, zones, ids) if "built_local" in bundle["features"] else None
     if plural and plural["inner"] is not None:
-        check_breaks(plural, out / (bundle.get("era") or "") / "features" / "plural_breaks.csv", year)
+        check_breaks(plural, src / "features" / "plural_breaks.csv", year)
+    if plural and cfg["plural"].get("cell_value") == "county_mean":
+        plural = county_plural(plural, src / "features" / "county_features.csv", year, zones, table, used)
     nbya = nby_age_setup(cutout, year, grid, zones, used, cfg["nby_age"] if "nby_age" in bundle["features"] else None,
                          cfg.get("block_rows"))
     if nbya:  # the factors of the model's county features, else stop
-        check_factors(nbya, out / (bundle.get("era") or "") / "features" / "nby_age_factor.csv", year)
+        check_factors(nbya, src / "features" / "nby_age_factor.csv", year)
     if not whole and "dist_built" in bundle["features"]:  # timed on its own (whole-window distance transform)
         t = time.perf_counter()
         full["dist_built"] = dist_built(cutout, year, grid)
@@ -155,6 +264,11 @@ def predict_year(cutout: Path, year: int, bundle: dict, cfg: dict, out: Path, me
     pop[ids] = used["pop"].to_numpy()
     w_sum = np.bincount(z, weights=w, minlength=len(pop))
     empty = ~(w_sum[ids] > 0)
+    if plural and plural.get("missing"):  # county_mean: counties without a county-feature row must be skipped
+        left = sorted(plural["missing"] - set(ids[empty].tolist()))
+        if left:
+            sys.exit(f"ERROR: {year}: {len(left)} counties without a county-feature row have unmasked cells (zone ids "
+                     f"{left[:20]}); their plural is unknown")
     if empty.any() and cfg["unusable"] == "skip":  # no unmasked cell: as in county_features, NoData
         log.warning("  %d: %d counties with no unmasked cell skipped (NoData):\n%s", year, int(empty.sum()),
                     used[empty].to_string())
@@ -260,9 +374,14 @@ def main(argv=None):
         args.compare_years = maps["compare_years"]
     log.info("maps: %s | side by side with %s: %s", args.map_years, cfg.get("compare_with"), args.compare_years)
 
+    if cfg.get("model_from"):
+        log.info("model_from %s: models, county features, breaks and factors of %s (no training of %s)",
+                 cfg["model_from"], src_dir(cfg, args.out_root), cfg["version"])
+    if (cfg.get("plural") or {}).get("cell_value") == "county_mean":
+        log.info("plural cell_value county_mean: each cell gets its county's plural of the model's county features")
     bundles = {}
     for era in dict.fromkeys(era_of(cfg, y) for y in years):  # load each needed era model once, up front
-        mpath = out_dir(cfg, args.out_root, era) / "model" / f"{cfg['model']}.joblib"
+        mpath = src_dir(cfg, args.out_root, era) / "model" / f"{cfg['model']}.joblib"
         if not mpath.exists():
             sys.exit(f"ERROR: {mpath} not found (run stage 2, train.py, first)")
         bundle = joblib.load(mpath)
@@ -276,13 +395,16 @@ def main(argv=None):
         bundles[era] = bundle
         log.info("model %s%s (%s) | features %s | use_status %s", bundle["name"], f" era {era}" if era else "",
                  mpath, bundle["features"], bundle["use_status"])
+        if cfg.get("model_from") and not args.measure:
+            model_check(bundle, mpath, src_dir(cfg, args.out_root, era), cfg, era, args.out_root, out)
     log.info("%d years -> %s", len(years), out)
 
     if args.measure and not cfg.get("block_rows"):
         sys.exit("ERROR: --measure needs block_rows in the config")
     parts, bad_cells = [], 0
     for year in years:
-        res = predict_year(cutout, year, bundles[era_of(cfg, year)], cfg, out, args.measure)
+        res = predict_year(cutout, year, bundles[era_of(cfg, year)], cfg, out, args.measure,
+                           src_dir(cfg, args.out_root, era_of(cfg, year)))
         if res is None:  # --measure
             continue
         qa, n_bad, (arr, mask, grid) = res

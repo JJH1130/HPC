@@ -131,7 +131,18 @@ v5.7 rows must equal `v54_nby_*`, v5.6 + nby_age `nobuilt_*`, else stop) -> `res
 test's; FEATURES OK or the chain stops), `compare` (v5.7 + six, v5.6 + six as reference columns, definitions of `v54_nby_compare` /
 `plural_compare` / `nobuilt_compare.cell_sums`; d_mdape vs v5.7 + d_mdape_own vs the own base; CV rule = per variant years with county
 CV RMSE below v5.7's + mean change; v5.6 / v5.7 rows must equal `v54_nby_*`, v5.6 + plural `plural_comparison.csv`, else stop; no
-figure) -> `results/validation/conus/plural_grid_v57/plural_v57_*.csv`. City boxes by density class (item 4, `docs/conus_plan.md`
+figure) -> `results/validation/conus/plural_grid_v57/plural_v57_*.csv`. PLURAL at county level only (cause test of PLURAL's tract loss, no
+retraining; `docs/conus_plan.md` "PLURAL at county level only", runbook section 25, `bash sbatch/submit_conus.sh pluralcm`):
+model-config `plural: {cell_value: cell | county_mean}` (default cell = unchanged; county_mean = each cell gets its county's plural
+of the model's `county_features.csv`, `predict.county_plural`) and `model_from: <version>` (predict.py reads that version's era
+models / county features / breaks; features / train refuse it; TEST predictions of the reused model checked, sha256 -> `MODEL`
+log line + `<era>/model_from.json`); configs `conus_rf_v3_all_nby_{pq5,plc}cm.yaml` (`Dasy_CONUS_RF_v3_all_nby_<v>cm`);
+`src/validation/plural_countymean.py` (`sbatch/plural_countymean.sh variance|compare`): `config` / `snapshot` (login node,
+`logs/conus_pluralcm_models.json`), `variance` (between / within county variance of plural / bui / nby / bldg_size over the study
+cells; county means = county features, else stop), `compare` (v5.7 / pq5 / pq5cm / plc / plccm: county rows (cm = its PLURAL
+version's), tracts, BUI = 0 cell shares, per-county built / BUI = 0 weight contrast, the fixed interpretation rule cell_level /
+county_level / partial; v5.7 / pq5 / plc rows must equal `plural_v57_*.csv`, model hashes = snapshot, else stop)
+-> `results/validation/conus/plural_grid_v57/countymean/pluralcm_*.csv`. City boxes by density class (item 4, `docs/conus_plan.md`
 "City boxes by density class", runbook section 24, code only): `src/validation/external_city_density.py`
 (`sbatch/external_city_density.sh`, env `DENS_VERSION` / `DENS_LABEL` / `DENS_CHECK_WITH`; `bash sbatch/submit_conus.sh citydensity
 [VERSION LABEL]`; `city_density:` block of `configs/external_grids.yaml`): the meeting boxes / blocks split by GHS-POP block density
@@ -177,7 +188,7 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity` (`v57plural` / `citydensity` = PLURAL on v5.7 / city boxes by density class, see above; `v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm` (`v57plural` / `citydensity` / `pluralcm` = PLURAL on v5.7 / city boxes by density class / PLURAL at county level only, see above; `v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
 `undated_age_diag` side by side; the pre-check prints the time left before a CURC maintenance window (`MAINT_START` / `MAINT_END`,
 MT) and which jobs would wait; `nobuilt` = NOBUILT layer -> nby / nbya features / train / predict / validate side by side -> `nobuilt_compare`; `uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
 `filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `externalv56` = pre-check of the reused tract sums + map inputs, then evaluate and city maps side by side; `citymeeting` = pre-check of the meeting-map inputs, one job; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
@@ -240,6 +251,11 @@ v54_nby_compare / plural_compare (metrics, d_mdape / d_mdape_own, ranks, cells, 
 folds stop); the tracked numbers), `python tests/test_external_city_density.py` (class split on the breaks + metrics by
 hand; end to end on the meeting test's city world: class rows by hand, classes add up, all = the meeting numbers, a
 changed meeting number stops; a second version + cell types / shares by hand, a changed gap share stops; the config block),
+`python tests/test_pluralcm.py` (cm configs + mutations; default cell_value byte for byte = the code of 7508b5f
+(`git show`); county_mean: cell plural = county value, prediction by hand, mass preserved, strips = whole window, model files
+unchanged (sha256 = model_from.json), a changed source TEST prediction stops; snapshot / model check; variance split and built
+contrast = brute force; compare on a synthetic world from the earlier scripts (cm county rows, tracts, the rule by hand; changed
+numbers / model check stop); the tracked numbers),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 

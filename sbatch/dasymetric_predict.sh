@@ -4,7 +4,8 @@
 # Input: model/<model>.joblib (stage 2) + the cutout. Output: $HISDAC_SCRATCH/dasymetric/<name>/<version>/
 # predictions/pop_{YEAR}.tif (scratch only), qa/reallocation_qa.csv, maps/*.png (state background from
 # $DATA_ROOT/processed/census/counties_2020.gpkg; 1810 also side by side with compare_with).
-# The QA CSV and the PNGs are copied to results/dasymetric/<name>/<version>/.
+# The QA CSV and the PNGs are copied to results/dasymetric/<name>/<version>/. A config with model_from (the models
+# of another version, no training) also writes <era>/model_from.json (model check), copied to <version>/<era>/.
 #
 # Submit from the repo root (logs/ must exist). Extra args go to the Python script:
 #   mkdir -p logs && sbatch sbatch/dasymetric_predict.sh                  # all config years
@@ -39,6 +40,12 @@ copy_back() {
     local D=$OUT_ROOT/$NAME/$VERSION
     [[ -f $D/qa/reallocation_qa.csv ]] && cp "$D/qa/reallocation_qa.csv" "$RESULTS/"
     compgen -G "$D/maps/*.png" >/dev/null && cp "$D"/maps/*.png "$RESULTS/"
+    local f e  # model_from versions: the model check per era (hashes, TEST predictions) -> results/.../<era>/
+    for f in "$D"/*/model_from.json; do
+        [[ -f $f ]] || continue
+        e=$(basename "$(dirname "$f")")
+        mkdir -p "$RESULTS/$e" && cp "$f" "$RESULTS/$e/"
+    done
     du -sh "$D/predictions" 2>/dev/null || true
 }
 trap copy_back EXIT

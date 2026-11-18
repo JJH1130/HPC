@@ -56,7 +56,8 @@ from sklearn.model_selection import GroupKFold, RandomizedSearchCV, cross_val_pr
 
 import plots
 from models import MODELS, parse_space, plain
-from common import add_common_args, era_groups, load_config, log, log_args, out_dir, setup_logging, year_filter
+from common import (add_common_args, era_groups, load_config, log, log_args, no_model_from, out_dir, setup_logging,
+                    year_filter)
 
 SPLIT_PARTS = {"train", "test"}
 
@@ -508,6 +509,7 @@ def main(argv=None):
     args = parse_args(argv)
     log_args(args)
     cfg = load_config(args.config)
+    no_model_from(cfg, "train.py")
     if cfg.get("compare_with") and not (cfg.get("folds_from") or cfg.get("split")) and len(cfg["eras"]) > 1:
         sys.exit("ERROR: with several eras, compare_with needs folds_from or split (one fold table for all counties)")
     split = load_split(cfg)

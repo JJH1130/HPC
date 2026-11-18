@@ -57,6 +57,10 @@ NBY_REF_YEAR = 2015  # nby_age: f_c(year) = sum BUPR_year / sum BUPR_2015 over t
 FACTOR_TOL = 1e-12   # nby_age factors recomputed by predict.py = the ones county_features.py wrote
 PLURAL_LAYERS = ("PLURAL", "PLURALC")  # cutout layers: 900 m PLURAL grid, bilinear / cubic (clipped to 0-1)
 PLURAL_BREAKS = ("quantile", "equal")
+# plural at prediction (PLURAL at county level only, docs/conus_plan.md): cell = the cell's own value (default, every
+# version before); county_mean = the value of the cell's county in the model's county_features.csv (the value the model
+# was trained on), so every cell of a county has the same plural
+PLURAL_CELL_VALUES = ("cell", "county_mean")
 FEATURES = set(LAYER_FEATURES) | DERIVED_FEATURES
 # County aggregation of a cell feature (`aggregation:` block of the model config; built-cell aggregation test,
 # docs/conus_plan.md "Built-cell aggregation test"): mean = over all unmasked cells of the county (default, every
@@ -128,7 +132,18 @@ def load_config(path: Path) -> dict:
     cfg["plural"] = check_plural(cfg.get("plural"), "plural" in used, path)
     cfg["aggregation"], cfg["built_local"] = check_aggregation(cfg.get("aggregation"), used, path)
     cfg["nby_age"] = check_nby_age(cfg.get("nby_age"), "nby_age" in used, path)
+    mf = cfg.get("model_from")  # predict.py only: the models / county features of another version (no training)
+    if mf is not None and (not isinstance(mf, str) or not mf or mf == cfg["version"]):
+        sys.exit(f"ERROR: {path}: model_from must be another version's name, got {mf!r}")
+    cfg["model_from"] = mf
     return cfg
+
+
+def no_model_from(cfg: dict, step: str):
+    """county_features.py / train.py: a config with model_from has no features or training of its own."""
+    if cfg.get("model_from"):
+        sys.exit(f"ERROR: {cfg['version']} has model_from: {cfg['model_from']} (prediction only with that version's "
+                 f"models and county features); {step} is not run for it")
 
 
 def check_nby_age(spec, used: bool, path: Path):
@@ -168,7 +183,9 @@ def check_aggregation(spec, used, path: Path):
 
 def check_plural(spec, used: bool, path: Path):
     """The `plural:` block (PLURAL grid test): {layer: PLURAL | PLURALC, classes: null | k >= 2, breaks: quantile |
-    equal}. Needed when the feature plural is used; without classes plural = the cell value (0-1)."""
+    equal, cell_value: cell | county_mean}. Needed when the feature plural is used; without classes plural = the cell
+    value (0-1). cell_value (predict.py only; default cell) is kept in the result only when it is county_mean, so the
+    block of every earlier config loads as before."""
     if not used:
         return None
     if not isinstance(spec, dict) or spec.get("layer") not in PLURAL_LAYERS:
@@ -176,7 +193,13 @@ def check_plural(spec, used: bool, path: Path):
     k = spec.get("classes")
     if k is not None and (not isinstance(k, int) or k < 2 or spec.get("breaks") not in PLURAL_BREAKS):
         sys.exit(f"ERROR: {path}: plural classes must be an integer >= 2 with breaks one of {PLURAL_BREAKS}, got {spec!r}")
-    return {"layer": spec["layer"], "classes": k, "breaks": spec.get("breaks") if k else None}
+    cv = spec.get("cell_value", "cell")
+    if cv not in PLURAL_CELL_VALUES:
+        sys.exit(f"ERROR: {path}: plural cell_value must be one of {PLURAL_CELL_VALUES}, got {cv!r}")
+    out = {"layer": spec["layer"], "classes": k, "breaks": spec.get("breaks") if k else None}
+    if cv != "cell":
+        out["cell_value"] = cv
+    return out
 
 
 def resolve_repo_path(value, config_path: Path):
@@ -601,6 +624,9 @@ def cell_features(cutout: Path, year: int, grid: dict, mask: np.ndarray, names, 
         elif f == "plural":  # PLURAL grid test: the cell value, or its class number with breaks
             if plural is None:
                 sys.exit("ERROR: feature plural without plural_setup() (the config's plural: block)")
+            if plural.get("county") is not None:  # cell_value county_mean: the county's value (predict.py)
+                out[f] = plural["county"][sub(plural["zones"])]
+                continue
             v = layer(plural["layer"])
             out[f] = v if plural["inner"] is None else plural_classes(v, plural["inner"])
         elif f == "built_local":  # local built share of the study cells around the cell (k x k)

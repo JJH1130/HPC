@@ -1,0 +1,74 @@
+# Dasy_CONUS_RF_v3_all_nby_plccm (PLURAL at county level only; request 2026-11-19,
+# docs/handoff/plural_countymean_request.md; docs/conus_plan.md "PLURAL at county level only"): the trained models of
+# Dasy_CONUS_RF_v3_all_nby_plc (v5.7 + plural, continuous, bilinear; NOT retrained: model_from) with one change at prediction:
+# every cell gets its county's plural from plc's county_features.csv (the value the model was trained on) instead of its
+# own cell value, so plural is constant inside a county. Every other setting = conus_rf_v3_all_nby_plc.yaml (checked by
+# src/validation/plural_countymean.py config). Same model = the same county TEST / CV numbers (predict.py checks the
+# TEST predictions and logs the model hash). Cause test, not a selection: does the tract loss of plc come from the cell
+# values of plural (cm back to v5.7) or from the county prediction itself (cm stays at plc)?
+# Output: $HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plccm/ (predictions + qa only)
+version: Dasy_CONUS_RF_v3_all_nby_plccm
+model_from: Dasy_CONUS_RF_v3_all_nby_plc   # its era models + county features; no features / train jobs
+
+study_area: configs/conus_study_area.yaml
+years: [1940, 1980, 2010]
+
+water_mask: yearly
+compare_with: Dasy_CONUS_RF_v3_all_nby_plc   # side-by-side map: cell plural vs county plural
+
+split: configs/conus_split.csv
+use_status: [ok, filled_nhgis, filled_nhgis_alloc]
+train_status: [ok, filled_nhgis]
+unusable: skip
+block_rows: 512
+
+plural:
+  layer: PLURAL
+  cell_value: county_mean   # each cell = its county's plural of the model's county_features.csv
+  classes: null   # continuous: the cell value 0-1
+
+eras:
+  Y1940:
+    years: [1940]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby, plural]
+  Y1980:
+    years: [1980]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby, plural]
+  Y2010:
+    years: [2010]
+    features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby, plural]
+
+# elev and slope are separate groups, not one Terrain group (decided 2026-10-20).
+feature_groups:
+  Building: [bui, bldg_size, mu_ratio]
+  Undated records: [nby]
+  Settlement context: [dist_built]
+  Land use: [res_share, rent_share]
+  Elevation: [elev]
+  Slope: [slope]
+  PLURAL: [plural]
+
+maps:
+  years: [2010]
+  compare_years: [2010]   # side by side with plc
+
+correlation_threshold: 0.8
+
+model: rf
+
+search:
+  n_iter: 60   # as v5.7
+  random_state: 42
+  cv_folds: 5
+  scoring: neg_root_mean_squared_error
+
+permutation: {n_repeats: 10, random_state: 42}
+
+models:
+  rf:        # sklearn.ensemble.RandomForestRegressor
+    fixed: {random_state: 42}
+    space:
+      n_estimators: {dist: randint, low: 200, high: 1000}
+      max_depth: [null, 5, 10, 15, 20, 30]
+      min_samples_leaf: {dist: randint, low: 1, high: 10}
+      max_features: [sqrt, 0.33, 0.5, 0.75, 1.0]

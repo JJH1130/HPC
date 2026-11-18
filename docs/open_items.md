@@ -210,6 +210,15 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
      `plural_comparison.csv`; checked locally on the tracked files). Selection rule fixed before the results: per
      variant the years with county CV RMSE below v5.7's + mean change; not by tracts; the user decides. Next: user runs
      blocks 1-3; Claude analyses.
+   - **Status (2026-11-19, cause test `docs/handoff/plural_countymean_request.md`):** written as code, NOT run
+     (`docs/conus_plan.md` "PLURAL at county level only"; runbook section 25, `bash sbatch/submit_conus.sh pluralcm`):
+     pq5 / plc models reused without retraining (`model_from`), every cell's plural = its county's (`plural: {cell_value:
+     county_mean}`) -> `Dasy_CONUS_RF_v3_all_nby_{pq5,plc}cm`, 1940 / 1980 / 2010, predict + tracts; variance split
+     (within / between counties) of plural / bui / nby / bldg_size; per-county built / BUI = 0 weight contrast; people on
+     BUI = 0 cells; `src/validation/plural_countymean.py` -> `results/validation/conus/plural_grid_v57/countymean/`.
+     Interpretation fixed before the results: cm tract MdAPE within 0.5 pp of v5.7 = the cell values of plural cause the
+     loss; within 0.5 pp of the PLURAL version = the changed county prediction itself; else partial. Cause check, not a
+     selection (user decides). Next: user runs blocks 1-3; Claude analyses.
 3. **Feature importance figures for Stefan.** SHAP bar plot (mean |SHAP| per feature) + SHAP summary (beeswarm)
    plot, per era, for the version chosen after item 2 (from the tracked `shap_values.csv`, locally by Claude).
    Drawn 2026-11-19 for v5.7 and v5.7 + PLURAL pq5, 1940 / 1980 / 2010: `src/validation/shap_figures.py` ->

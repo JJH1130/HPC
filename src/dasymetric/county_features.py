@@ -39,8 +39,8 @@ import numpy as np
 import pandas as pd
 
 from common import (CELL_KM, add_common_args, built_local_setup, cell_features, county_selection, era_of,
-                    load_config, log, log_args, nby_age_setup, out_dir, plural_setup, read_layer, read_zones,
-                    setup_logging, strips, used_mask, water_mask, year_filter)
+                    load_config, log, log_args, nby_age_setup, no_model_from, out_dir, plural_setup, read_layer,
+                    read_zones, setup_logging, strips, used_mask, water_mask, year_filter)
 
 
 def parse_args(argv=None):
@@ -141,6 +141,7 @@ def main(argv=None):
     args = parse_args(argv)
     log_args(args)
     cfg = load_config(args.config)
+    no_model_from(cfg, "county_features.py")
     cutout = args.cutout_root / cfg["name"]
     log.info("study %r %s | %d years %d-%d | use_status %s -> %s", cfg["name"], cfg["version"],
              len(cfg["years"]), cfg["years"][0], cfg["years"][-1], cfg["use_status"], out_dir(cfg, args.out_root))
