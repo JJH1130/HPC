@@ -199,7 +199,8 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
    the v5.6 test (continuous bilinear / cubic, 3 / 5 classes quantile / equal), on v5.7 (item 1 kept v5.7).
    Run 2026-11-18 MT (`docs/conus_plan.md` "PLURAL on v5.7: result"): county CV better for all six variants
    (-3 to -5 %), tracts worse in 1980 / 2010 (+2 to +6 pp, rural most), more people on unbuilt cells. Open (user):
-   the county rule and the tracts disagree. Requested as `docs/handoff/v57_plural_density_request.md` part A. The
+   the county rule and the tracts disagree. Keep v5.7 for now (user, 2026-11-19). Cause test requested 2026-11-19:
+   `docs/handoff/plural_countymean_request.md` (trained PLURAL model, cell plural = county value at prediction). Requested as `docs/handoff/v57_plural_density_request.md` part A. The
    version for items 3 / 4 is settled after this (user).
    - **Status (2026-11-19):** written as code, NOT run (`docs/conus_plan.md` "PLURAL on v5.7"; runbook section 23,
      `bash sbatch/submit_conus.sh v57plural`): `configs/conus_rf_v3_all_nby_{plc,plcc,pq3,pq5,pe3,pe5}.yaml` (v5.7's
