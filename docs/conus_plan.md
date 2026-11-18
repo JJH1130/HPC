@@ -315,9 +315,10 @@ Block level (`density_class_summary.csv`, means over the 3 cities; ours / GHS-PO
 - Cells without a dated building do hold people by both block-input products (user's point): in rural blocks 24-43 %
   of GHS-POP's people (2010 WorldPop 42 %), but only 6-10 % in v5.7. PLURAL moves the mix toward the products (rural
   2010 no-record cells 1 -> 5 %, GHS 7 %, WorldPop 22 %).
-- But both versions already put 3-4 x GHS-POP's people into the rural blocks (urban blocks get 0.89 x), and PLURAL
-  raises it to 4-5 x: more of the excess, so the tracts get worse (rural tracts most), although the cell-type mix
-  inside the rural blocks gets closer to GHS-POP / WorldPop.
+- Correction (2026-11-19): the class totals depend on whose density defines the class. Classes by GHS-POP density:
+  rural blocks get 3.6 / 5.5 x GHS-POP's people (1980 / 2010; pq5 more). Classes by our density: 0.18 / 0.87 x. The first
+  is mostly a selection effect (blocks picked because GHS-POP is low there), so it does NOT show a rural over-allocation;
+  and rural blocks hold only ~0.2 % of the boxes' people. The tract loss of PLURAL is not explained by these boxes.
 - Urban / peri-urban: v5.7 and pq5 agree with the products about as well (Spearman 0.65-0.74).
 - Scope: 3 city boxes only (rural = the fringe of a metro area); for meetings with the "agreement, not accuracy" note.
 

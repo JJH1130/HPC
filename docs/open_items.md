@@ -218,8 +218,9 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
    totals, scatter); Stefan wants to see how close or different we are in rural areas. Fixed 2026-11-19: 1 km blocks,
    GHS-POP density of the year, rural < 100 / peri-urban 100-1,000 / urban >= 1,000 per km2 (+ the same breaks on our
    density as a check). Run 2026-11-18 MT for v5.7 + pq5 (`docs/conus_plan.md` "City boxes by density class: result"):
-   urban / peri-urban close to the products; rural blocks over-allocated 3-4 x (pq5 4-5 x); cells without dated
-   buildings hold people in GHS-POP / WorldPop (rural 24-43 %), v5.7 6-10 %.
+   urban / peri-urban close to the products; cells without dated buildings hold people in GHS-POP / WorldPop
+   (rural 24-43 %), v5.7 6-10 %, pq5 closer. Rural class totals depend on the class basis (selection effect), no
+   over-allocation shown.
    - **Status (2026-11-19):** code + tests only, NOT run (`docs/conus_plan.md` "City boxes by density class"; runbook
      section 24, `bash sbatch/submit_conus.sh citydensity [VERSION LABEL]`): `src/validation/external_city_density.py`
      (`city_density:` block of `configs/external_grids.yaml`; whole box checked against the version's meeting
