@@ -1,0 +1,84 @@
+Job ID: 35925934
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 4
+
+-------- CPU Metrics --------
+CPU Utilized: 00:01:38
+CPU Efficiency: 10.94% of 00:14:56 core-walltime
+Job Wall-clock time: 00:03:44
+Memory Utilized: 1.87 GiB
+Memory Efficiency: 12.47% of 15.00 GiB (3.75 GiB/core)
+
+Job ID: 35925935
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 32
+
+-------- CPU Metrics --------
+CPU Utilized: 01:39:37
+CPU Efficiency: 19.44% of 08:32:32 core-walltime
+Job Wall-clock time: 00:16:01
+Memory Utilized: 13.28 GiB
+Memory Efficiency: 11.07% of 120.00 GiB (3.75 GiB/core)
+
+Job ID: 35925936
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+
+-------- CPU Metrics --------
+CPU Utilized: 00:04:34
+CPU Efficiency: 8.67% of 00:52:40 core-walltime
+Job Wall-clock time: 00:06:35
+Memory Utilized: 16.01 GiB
+Memory Efficiency: 53.36% of 30.00 GiB (3.75 GiB/core)
+
+Job ID: 35925937
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 32
+
+-------- CPU Metrics --------
+CPU Utilized: 01:27:15
+CPU Efficiency: 18.04% of 08:03:44 core-walltime
+Job Wall-clock time: 00:15:07
+Memory Utilized: 13.26 GiB
+Memory Efficiency: 11.05% of 120.00 GiB (3.75 GiB/core)
+
+Job ID: 35925938
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 8
+
+-------- CPU Metrics --------
+CPU Utilized: 00:04:13
+CPU Efficiency: 8.78% of 00:48:00 core-walltime
+Job Wall-clock time: 00:06:00
+Memory Utilized: 16.01 GiB
+Memory Efficiency: 53.35% of 30.00 GiB (3.75 GiB/core)
+
+Job ID: 35925939
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 4
+
+-------- CPU Metrics --------
+CPU Utilized: 00:03:16
+CPU Efficiency: 14.58% of 00:22:24 core-walltime
+Job Wall-clock time: 00:05:36
+Memory Utilized: 2.96 GiB
+Memory Efficiency: 19.74% of 15.00 GiB (3.75 GiB/core)
+

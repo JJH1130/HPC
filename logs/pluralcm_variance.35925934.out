@@ -1,0 +1,44 @@
+== job 35925934 (pluralcm_variance) on c3cpu-e2-u9 at 2026-11-18T15:39:49-07:00
+== cores=4 gpus=none restart=0
+== git 792ed0f
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  subcommand: variance  out: results/validation/conus/plural_grid_v57/countymean  extra args: 
+15:39:59 INFO arg cmd = variance
+15:39:59 INFO arg pairs = ['pq5', 'plc']
+15:39:59 INFO arg years = [1940, 1980, 2010]
+15:39:59 INFO arg name = conus
+15:39:59 INFO arg results_root = results
+15:39:59 INFO arg out_dir = results/validation/conus/plural_grid_v57/countymean
+15:39:59 INFO arg block_rows = 512
+15:39:59 INFO arg water_mask = yearly
+15:39:59 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+15:39:59 INFO arg base = Dasy_CONUS_RF_v3_u070
+15:39:59 INFO == variance split over the study cells (unmasked cells of v5.7's counties): within share = sum over counties of the within-county sum of squares / total sum of squares
+15:41:04 INFO   1940: county means of the pass = county features (v5.7 bui / nby / bldg_size, plc plural, pq5 plural classes; 3087 counties, rtol 1e-09)
+15:41:19 INFO VARIANCE 1940 plural_plc: 123605397 cells, 3087 counties | within-county share of the variance 0.4227, between 0.5773 | counties with one value 0
+15:41:19 INFO VARIANCE 1940 plural_pq5: 123605397 cells, 3087 counties | within-county share of the variance 0.0855, between 0.9145 | counties with one value 636
+15:41:19 INFO VARIANCE 1940 bui       : 123605397 cells, 3087 counties | within-county share of the variance 0.8373, between 0.1627 | counties with one value 226
+15:41:19 INFO VARIANCE 1940 nby       : 123605397 cells, 3087 counties | within-county share of the variance 0.9296, between 0.0704 | counties with one value 0
+15:41:19 INFO VARIANCE 1940 bldg_size : 123605397 cells, 3087 counties | within-county share of the variance 0.9559, between 0.0441 | counties with one value 240
+15:42:06 INFO   1980: county means of the pass = county features (v5.7 bui / nby / bldg_size, plc plural, pq5 plural classes; 3106 counties, rtol 1e-09)
+15:42:23 INFO VARIANCE 1980 plural_plc: 123445147 cells, 3106 counties | within-county share of the variance 0.4193, between 0.5807 | counties with one value 0
+15:42:23 INFO VARIANCE 1980 plural_pq5: 123445147 cells, 3106 counties | within-county share of the variance 0.1119, between 0.8881 | counties with one value 437
+15:42:23 INFO VARIANCE 1980 bui       : 123445147 cells, 3106 counties | within-county share of the variance 0.8231, between 0.1769 | counties with one value 152
+15:42:23 INFO VARIANCE 1980 nby       : 123445147 cells, 3106 counties | within-county share of the variance 0.9294, between 0.0706 | counties with one value 0
+15:42:23 INFO VARIANCE 1980 bldg_size : 123445147 cells, 3106 counties | within-county share of the variance 0.9483, between 0.0517 | counties with one value 157
+15:43:09 INFO   2010: county means of the pass = county features (v5.7 bui / nby / bldg_size, plc plural, pq5 plural classes; 3109 counties, rtol 1e-09)
+15:43:28 INFO VARIANCE 2010 plural_plc: 123804966 cells, 3109 counties | within-county share of the variance 0.4364, between 0.5636 | counties with one value 0
+15:43:28 INFO VARIANCE 2010 plural_pq5: 123804966 cells, 3109 counties | within-county share of the variance 0.1340, between 0.8660 | counties with one value 385
+15:43:28 INFO VARIANCE 2010 bui       : 123804966 cells, 3109 counties | within-county share of the variance 0.8150, between 0.1850 | counties with one value 128
+15:43:28 INFO VARIANCE 2010 nby       : 123804966 cells, 3109 counties | within-county share of the variance 0.9294, between 0.0706 | counties with one value 0
+15:43:28 INFO VARIANCE 2010 bldg_size : 123804966 cells, 3109 counties | within-county share of the variance 0.9485, between 0.0515 | counties with one value 131
+15:43:29 INFO SUMMARY within-county share of the cell variance (1 = all inside counties, 0 = all between):
+year          1940    1980    2010
+feature                           
+plural_plc  0.4227  0.4193  0.4364
+plural_pq5  0.0855  0.1119  0.1340
+bui         0.8373  0.8231  0.8150
+nby         0.9296  0.9294  0.9294
+bldg_size   0.9559  0.9483  0.9485
+15:43:29 INFO VARIANCE OK: 3 years x 5 features, county means = county features -> results/validation/conus/plural_grid_v57/countymean/pluralcm_variance_split.csv
+15:43:29 INFO DONE
+== done 2026-11-18T15:43:29-07:00

@@ -1,0 +1,234 @@
+== job 35925939 (pluralcm_compare) on c3cpu-e2-u12 at 2026-11-18T16:09:02-07:00
+== cores=4 gpus=none restart=0
+== git 792ed0f
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  subcommand: compare  out: results/validation/conus/plural_grid_v57/countymean  extra args: 
+16:09:10 INFO arg cmd = compare
+16:09:10 INFO arg pairs = ['pq5', 'plc']
+16:09:10 INFO arg years = [1940, 1980, 2010]
+16:09:10 INFO arg name = conus
+16:09:10 INFO arg results_root = results
+16:09:10 INFO arg out_dir = results/validation/conus/plural_grid_v57/countymean
+16:09:10 INFO arg block_rows = 512
+16:09:10 INFO arg water_mask = yearly
+16:09:10 INFO arg exclusions = results/hisdac_uncertainty/excluded_counties_t070.csv
+16:09:10 INFO arg split = configs/conus_split.csv
+16:09:10 INFO arg mape_min = 10
+16:09:10 INFO arg prev_dir = results/validation/conus/plural_grid_v57
+16:09:10 INFO arg snapshot = logs/conus_pluralcm_models.json
+16:09:10 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+16:09:10 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+16:09:10 INFO arg base = Dasy_CONUS_RF_v3_u070
+16:09:10 INFO RULE: interpretation rule (fixed 2026-11-19 before the results): per PLURAL version P (pq5, plc) and its county-mean version Pcm, tract MdAPE of all tracts per year, judged where |P - v5.7| > 1.0 pp: cell_level = |Pcm - v5.7| <= 0.5 pp (the cell values of plural cause the tract loss); county_level = |Pcm - P| <= 0.5 pp (the changed county prediction itself causes it); beyond_v57 = Pcm past v5.7 by more than 0.5 pp; further = Pcm further from v5.7 than P by more than 0.5 pp; partial = in between (recovered = (P - Pcm) / (P - v5.7)); not_judged where |P - v5.7| <= 1.0 pp. Other tract sets: same numbers, not judged. A cause check, not a selection; the user decides
+16:09:10 INFO versions {'v57': 'Dasy_CONUS_RF_v3_all_nby', 'v57_pq5': 'Dasy_CONUS_RF_v3_all_nby_pq5', 'v57_pq5cm': 'Dasy_CONUS_RF_v3_all_nby_pq5cm', 'v57_plc': 'Dasy_CONUS_RF_v3_all_nby_plc', 'v57_plccm': 'Dasy_CONUS_RF_v3_all_nby_plccm'} | years [1940, 1980, 2010] | t070 exclusion set 1020 counties
+16:09:10 INFO == model check: the cm runs used the PLURAL versions' models (predict.py TEST check, snapshot, scratch)
+16:09:26 INFO   MODEL Dasy_CONUS_RF_v3_all_nby_pq5cm 1940 <- Dasy_CONUS_RF_v3_all_nby_pq5: OK (TEST rows 615, max |diff| 2.66e-15)
+16:09:26 INFO   MODEL Dasy_CONUS_RF_v3_all_nby_pq5cm 1980 <- Dasy_CONUS_RF_v3_all_nby_pq5: OK (TEST rows 622, max |diff| 4.44e-15)
+16:09:26 INFO   MODEL Dasy_CONUS_RF_v3_all_nby_pq5cm 2010 <- Dasy_CONUS_RF_v3_all_nby_pq5: OK (TEST rows 622, max |diff| 1.78e-15)
+16:09:26 INFO   MODEL Dasy_CONUS_RF_v3_all_nby_plccm 1940 <- Dasy_CONUS_RF_v3_all_nby_plc: OK (TEST rows 615, max |diff| 1.78e-15)
+16:09:26 INFO   MODEL Dasy_CONUS_RF_v3_all_nby_plccm 1980 <- Dasy_CONUS_RF_v3_all_nby_plc: OK (TEST rows 622, max |diff| 1.78e-15)
+16:09:26 INFO   MODEL Dasy_CONUS_RF_v3_all_nby_plccm 2010 <- Dasy_CONUS_RF_v3_all_nby_plc: OK (TEST rows 622, max |diff| 2.66e-15)
+16:09:26 INFO == cells: people on BUI = 0 cells and on NobuiltYear > 0 among them (nobuilt_cells.csv definition)
+16:09:41 INFO   cells 1940 v57  : people on BUI = 0 cells 0.2995 of 131530392 | of those on NobuiltYear > 0 cells 0.6093
+16:09:53 INFO   cells 1940 v57_pq5: people on BUI = 0 cells 0.3538 of 131530392 | of those on NobuiltYear > 0 cells 0.3599
+16:10:05 INFO   cells 1940 v57_pq5cm: people on BUI = 0 cells 0.3636 of 131530392 | of those on NobuiltYear > 0 cells 0.3571
+16:10:15 INFO   cells 1940 v57_plc: people on BUI = 0 cells 0.3126 of 131530392 | of those on NobuiltYear > 0 cells 0.5334
+16:10:29 INFO   cells 1940 v57_plccm: people on BUI = 0 cells 0.3265 of 131530392 | of those on NobuiltYear > 0 cells 0.5188
+16:10:38 INFO   cells 1980 v57  : people on BUI = 0 cells 0.1427 of 225167058 | of those on NobuiltYear > 0 cells 0.7895
+16:10:47 INFO   cells 1980 v57_pq5: people on BUI = 0 cells 0.2088 of 225167058 | of those on NobuiltYear > 0 cells 0.4487
+16:10:57 INFO   cells 1980 v57_pq5cm: people on BUI = 0 cells 0.2014 of 225167058 | of those on NobuiltYear > 0 cells 0.5023
+16:11:10 INFO   cells 1980 v57_plc: people on BUI = 0 cells 0.1752 of 225167058 | of those on NobuiltYear > 0 cells 0.5648
+16:11:20 INFO   cells 1980 v57_plccm: people on BUI = 0 cells 0.1882 of 225167058 | of those on NobuiltYear > 0 cells 0.5407
+16:11:28 INFO   cells 2010 v57  : people on BUI = 0 cells 0.0999 of 306675006 | of those on NobuiltYear > 0 cells 0.7932
+16:11:35 INFO   cells 2010 v57_pq5: people on BUI = 0 cells 0.1340 of 306675006 | of those on NobuiltYear > 0 cells 0.5962
+16:11:42 INFO   cells 2010 v57_pq5cm: people on BUI = 0 cells 0.1361 of 306675006 | of those on NobuiltYear > 0 cells 0.6036
+16:11:50 INFO   cells 2010 v57_plc: people on BUI = 0 cells 0.1255 of 306675006 | of those on NobuiltYear > 0 cells 0.6730
+16:11:57 INFO   cells 2010 v57_plccm: people on BUI = 0 cells 0.1345 of 306675006 | of those on NobuiltYear > 0 cells 0.6490
+16:11:58 INFO   1940: 615 TEST counties in every version (198 in the t070 exclusion set)
+16:11:59 INFO   1980: 622 TEST counties in every version (199 in the t070 exclusion set)
+16:12:01 INFO   2010: 622 TEST counties in every version (199 in the t070 exclusion set)
+16:12:04 INFO == checks: v5.7 / pq5 / plc / areal weighting = plural_v57_* (a difference stops the run)
+16:12:04 INFO   comparison v5.7 / PLURAL: levels ['cells', 'county', 'tract']
+16:12:04 INFO   MATCH results/validation/conus/plural_grid_v57/plural_v57_comparison.csv: 162 rows of Dasy_CONUS_RF_v3_all_nby, Dasy_CONUS_RF_v3_all_nby_pq5, Dasy_CONUS_RF_v3_all_nby_plc, areal_weighting (n, counties, mdape, mape, mape_n, r2, cv_counties, cv_rmse_train_all, cv_r2_train_all, nby_perm_rank, nby_shap_rank, nby_perm, nby_shap, share, plural_perm_rank, plural_shap_rank, plural_perm, plural_shap)
+16:12:04 INFO   MATCH results/validation/conus/plural_grid_v57/plural_v57_cells.csv: 9 rows of Dasy_CONUS_RF_v3_all_nby, Dasy_CONUS_RF_v3_all_nby_pq5, Dasy_CONUS_RF_v3_all_nby_plc (cells, cells_bui0, cells_bui0_nb, pop, pop_bui0, pop_bui0_nb, pop_nb)
+16:12:04 INFO == built contrast: per county mean weight (people / km2) of built / BUI = 0 cells (water-masked cells left out), county median + 10 / 90 %%
+16:12:55 INFO   contrast 1940 v57       : 3087 counties | built / BUI = 0 weight, county median 37.66 (10-90 % 17.23-149.99) | built / (BUI = 0, NobuiltYear > 0) 16.86 | built / (BUI = 0, no record) 66.77
+16:12:55 INFO   contrast 1940 v57_pq5   : 3087 counties | built / BUI = 0 weight, county median 22.53 (10-90 % 10.05-127.92) | built / (BUI = 0, NobuiltYear > 0) 19.05 | built / (BUI = 0, no record) 24.01
+16:12:55 INFO   contrast 1940 v57_pq5cm : 3087 counties | built / BUI = 0 weight, county median 22.52 (10-90 % 10.56-65.25) | built / (BUI = 0, NobuiltYear > 0) 17.02 | built / (BUI = 0, no record) 24.30
+16:12:55 INFO   contrast 1940 v57_plc   : 3087 counties | built / BUI = 0 weight, county median 33.92 (10-90 % 17.73-133.95) | built / (BUI = 0, NobuiltYear > 0) 17.94 | built / (BUI = 0, no record) 50.32
+16:12:55 INFO   contrast 1940 v57_plccm : 3087 counties | built / BUI = 0 weight, county median 31.70 (10-90 % 17.28-76.49) | built / (BUI = 0, NobuiltYear > 0) 16.08 | built / (BUI = 0, no record) 44.98
+16:13:45 INFO   contrast 1980 v57       : 3106 counties | built / BUI = 0 weight, county median 44.46 (10-90 % 17.28-181.87) | built / (BUI = 0, NobuiltYear > 0) 12.94 | built / (BUI = 0, no record) 152.69
+16:13:45 INFO   contrast 1980 v57_pq5   : 3106 counties | built / BUI = 0 weight, county median 24.02 (10-90 % 8.10-124.47) | built / (BUI = 0, NobuiltYear > 0) 12.37 | built / (BUI = 0, no record) 36.92
+16:13:45 INFO   contrast 1980 v57_pq5cm : 3106 counties | built / BUI = 0 weight, county median 24.46 (10-90 % 9.44-92.31) | built / (BUI = 0, NobuiltYear > 0) 11.09 | built / (BUI = 0, no record) 40.66
+16:13:45 INFO   contrast 1980 v57_plc   : 3106 counties | built / BUI = 0 weight, county median 28.80 (10-90 % 15.46-97.84) | built / (BUI = 0, NobuiltYear > 0) 12.91 | built / (BUI = 0, no record) 47.90
+16:13:45 INFO   contrast 1980 v57_plccm : 3106 counties | built / BUI = 0 weight, county median 26.21 (10-90 % 14.47-76.29) | built / (BUI = 0, NobuiltYear > 0) 11.95 | built / (BUI = 0, no record) 42.72
+16:14:33 INFO   contrast 2010 v57       : 3109 counties | built / BUI = 0 weight, county median 44.65 (10-90 % 14.69-167.40) | built / (BUI = 0, NobuiltYear > 0) 11.14 | built / (BUI = 0, no record) 149.38
+16:14:33 INFO   contrast 2010 v57_pq5   : 3109 counties | built / BUI = 0 weight, county median 25.74 (10-90 % 10.18-98.07) | built / (BUI = 0, NobuiltYear > 0) 9.13 | built / (BUI = 0, no record) 49.68
+16:14:33 INFO   contrast 2010 v57_pq5cm : 3109 counties | built / BUI = 0 weight, county median 23.97 (10-90 % 10.32-83.06) | built / (BUI = 0, NobuiltYear > 0) 8.29 | built / (BUI = 0, no record) 47.85
+16:14:33 INFO   contrast 2010 v57_plc   : 3109 counties | built / BUI = 0 weight, county median 26.85 (10-90 % 11.52-88.85) | built / (BUI = 0, NobuiltYear > 0) 8.58 | built / (BUI = 0, no record) 59.57
+16:14:33 INFO   contrast 2010 v57_plccm : 3109 counties | built / BUI = 0 weight, county median 24.28 (10-90 % 10.51-78.67) | built / (BUI = 0, NobuiltYear > 0) 7.89 | built / (BUI = 0, no record) 52.82
+16:14:33 INFO   MATCH contrast people = cell people (15 version-years)
+16:14:33 INFO SUMMARY county, ALL TEST counties, before allocation (cm = its PLURAL version by construction): R2 / MdAPE (%):
+variant    v57  v57_pq5  v57_pq5cm  v57_plc  v57_plccm
+year                                                  
+1940     0.886    0.892      0.892    0.886      0.886
+1980     0.908    0.916      0.916    0.909      0.909
+2010     0.917    0.924      0.924    0.920      0.920
+variant    v57  v57_pq5  v57_pq5cm  v57_plc  v57_plccm
+year                                                  
+1940     25.30    23.99      23.99    24.02      24.02
+1980     26.36    24.39      24.39    25.25      25.25
+2010     25.04    24.85      24.85    25.32      25.32
+16:14:33 INFO SUMMARY tract MdAPE (%) by set, year and version (areal_weighting = area-proportional):
+variant                 v57  v57_pq5  v57_pq5cm  v57_plc  v57_plccm  areal_weighting
+set            year                                                                 
+all            1940   40.13    41.68      41.40    40.92      41.75            86.92
+               1980   26.91    31.05      30.81    32.98      35.48            79.91
+               2010   24.90    27.54      28.76    27.86      30.15            74.52
+kept_t070      1940   40.13    41.68      41.40    40.92      41.75            86.92
+               1980   25.78    29.82      29.54    31.81      34.24            79.08
+               2010   23.93    26.63      27.68    26.98      29.17            74.62
+excluded_t070  1980   59.57    67.22      68.87    66.23      69.84            91.44
+               2010   37.39    39.30      42.87    39.19      42.87            73.15
+no_gap         1940   40.13    41.68      41.40    40.92      41.75            86.92
+               1980   25.97    30.04      29.80    32.01      34.45            79.44
+               2010   24.01    26.77      27.91    27.12      29.36            74.49
+gap            1980   71.68    77.81      79.79    77.41      81.00            91.38
+               2010   52.12    51.28      55.89    50.70      55.01            75.63
+dens_0_50      1940  252.56   351.82     344.32   340.23     346.10          3125.02
+               1980   30.20    50.69      49.25    53.16      62.47           129.54
+               2010   20.72    27.22      32.30    29.03      34.96            73.58
+dens_50_500    1940   95.71   102.46     102.47   102.83     105.08           165.68
+               1980   26.10    29.94      29.62    32.58      35.32            70.60
+               2010   22.09    25.49      26.10    25.93      28.20            67.63
+dens_500_2000  1940   45.94    42.34      42.45    43.43      42.13            77.70
+               1980   24.89    28.79      28.66    30.75      33.56            82.02
+               2010   23.28    24.74      25.51    25.04      26.59            73.56
+dens_2000_plus 1940   35.87    37.72      37.44    36.78      37.33            87.27
+               1980   28.98    30.95      30.80    32.21      33.69            79.36
+               2010   32.29    33.86      34.15    33.34      34.70            78.72
+16:14:33 INFO SUMMARY tract MdAPE change vs v5.7 (points):
+variant              v57  v57_pq5  v57_pq5cm  v57_plc  v57_plccm
+set            year                                             
+all            1940  0.0     1.54       1.26     0.79       1.62
+               1980  0.0     4.14       3.90     6.07       8.57
+               2010  0.0     2.64       3.86     2.97       5.26
+kept_t070      1940  0.0     1.54       1.26     0.79       1.62
+               1980  0.0     4.03       3.76     6.02       8.46
+               2010  0.0     2.70       3.74     3.05       5.23
+excluded_t070  1980  0.0     7.65       9.31     6.66      10.27
+               2010  0.0     1.91       5.48     1.80       5.48
+no_gap         1940  0.0     1.54       1.26     0.79       1.62
+               1980  0.0     4.08       3.83     6.04       8.49
+               2010  0.0     2.76       3.90     3.11       5.35
+gap            1980  0.0     6.13       8.11     5.73       9.32
+               2010  0.0    -0.84       3.76    -1.42       2.89
+dens_0_50      1940  0.0    99.26      91.76    87.67      93.54
+               1980  0.0    20.49      19.05    22.96      32.27
+               2010  0.0     6.50      11.57     8.31      14.24
+dens_50_500    1940  0.0     6.75       6.76     7.12       9.37
+               1980  0.0     3.85       3.52     6.49       9.22
+               2010  0.0     3.41       4.01     3.84       6.11
+dens_500_2000  1940  0.0    -3.61      -3.49    -2.51      -3.81
+               1980  0.0     3.89       3.77     5.86       8.67
+               2010  0.0     1.46       2.23     1.76       3.31
+dens_2000_plus 1940  0.0     1.85       1.57     0.91       1.46
+               1980  0.0     1.96       1.81     3.22       4.70
+               2010  0.0     1.57       1.86     1.06       2.42
+16:14:33 INFO SUMMARY people on cells (share_bui0 = on BUI = 0 cells / all; share_nb_of_bui0 = of those, on NobuiltYear > 0 cells; share_bui0_nb = BUI = 0 and NobuiltYear > 0 / all):
+variant                   v57  v57_pq5  v57_pq5cm  v57_plc  v57_plccm
+set              year                                                
+share_bui0       1940  0.2995   0.3538     0.3636   0.3126     0.3265
+                 1980  0.1427   0.2088     0.2014   0.1752     0.1882
+                 2010  0.0999   0.1340     0.1361   0.1255     0.1345
+share_nb_of_bui0 1940  0.6093   0.3599     0.3571   0.5334     0.5188
+                 1980  0.7895   0.4487     0.5023   0.5648     0.5407
+                 2010  0.7932   0.5962     0.6036   0.6730     0.6490
+share_bui0_nb    1940  0.1825   0.1273     0.1298   0.1667     0.1694
+                 1980  0.1127   0.0937     0.1011   0.0990     0.1018
+                 2010  0.0792   0.0799     0.0821   0.0845     0.0873
+16:14:33 INFO SUMMARY built contrast, county median (10 / 90 %) of mean weight ratios built / BUI = 0 cells:
+variant                      v57  v57_pq5  v57_pq5cm  v57_plc  v57_plccm
+measure             year                                                
+built_vs_bui0       1940   37.66    22.53      22.52    33.92      31.70
+                    1980   44.46    24.02      24.46    28.80      26.21
+                    2010   44.65    25.74      23.97    26.85      24.28
+built_vs_bui0_nb    1940   16.86    19.05      17.02    17.94      16.08
+                    1980   12.94    12.37      11.09    12.91      11.95
+                    2010   11.14     9.13       8.29     8.58       7.89
+built_vs_bui0_norec 1940   66.77    24.01      24.30    50.32      44.98
+                    1980  152.69    36.92      40.66    47.90      42.72
+                    2010  149.38    49.68      47.85    59.57      52.82
+16:14:33 INFO SUMMARY within-county share of the cell variance (variance job):
+year          1940    1980    2010
+feature                           
+plural_plc  0.4227  0.4193  0.4364
+plural_pq5  0.0855  0.1119  0.1340
+bui         0.8373  0.8231  0.8150
+nby         0.9296  0.9294  0.9294
+bldg_size   0.9559  0.9483  0.9485
+16:14:33 INFO SUMMARY interpretation table (tract MdAPE, points):
+pair  year            set  mdape_v57  mdape_plural  mdape_cm  gap_plural_v57  d_cm_v57  d_cm_plural  recovered      outcome  judged
+ pq5  1940            all     40.133        41.677    41.397           1.543     1.263       -0.280      0.181 county_level    True
+ pq5  1940      kept_t070     40.133        41.677    41.397           1.543     1.263       -0.280      0.181 county_level   False
+ pq5  1940  excluded_t070        NaN           NaN       NaN             NaN       NaN          NaN        NaN      partial   False
+ pq5  1940         no_gap     40.133        41.677    41.397           1.543     1.263       -0.280      0.181 county_level   False
+ pq5  1940            gap        NaN           NaN       NaN             NaN       NaN          NaN        NaN      partial   False
+ pq5  1940      dens_0_50    252.561       351.823   344.319          99.262    91.758       -7.504      0.076      partial   False
+ pq5  1940    dens_50_500     95.712       102.461   102.473           6.749     6.760        0.011     -0.002 county_level   False
+ pq5  1940  dens_500_2000     45.943        42.338    42.449          -3.606    -3.495        0.111      0.031 county_level   False
+ pq5  1940 dens_2000_plus     35.873        37.721    37.438           1.848     1.566       -0.282      0.153 county_level   False
+ pq5  1980            all     26.910        31.052    30.813           4.141     3.903       -0.238      0.058 county_level    True
+ pq5  1980      kept_t070     25.783        29.817    29.545           4.034     3.761       -0.272      0.068 county_level   False
+ pq5  1980  excluded_t070     59.568        67.222    68.873           7.654     9.305        1.651     -0.216      further   False
+ pq5  1980         no_gap     25.966        30.041    29.798           4.076     3.832       -0.244      0.060 county_level   False
+ pq5  1980            gap     71.680        77.813    79.789           6.133     8.108        1.976     -0.322      further   False
+ pq5  1980      dens_0_50     30.198        50.686    49.252          20.488    19.054       -1.433      0.070      partial   False
+ pq5  1980    dens_50_500     26.097        29.944    29.620           3.848     3.523       -0.324      0.084 county_level   False
+ pq5  1980  dens_500_2000     24.891        28.785    28.656           3.894     3.765       -0.129      0.033 county_level   False
+ pq5  1980 dens_2000_plus     28.984        30.945    30.798           1.961     1.814       -0.147      0.075 county_level   False
+ pq5  2010            all     24.897        27.536    28.756           2.640     3.860        1.220     -0.462      further    True
+ pq5  2010      kept_t070     23.934        26.634    27.679           2.700     3.744        1.044     -0.387      further   False
+ pq5  2010  excluded_t070     37.390        39.303    42.867           1.913     5.477        3.564     -1.863      further   False
+ pq5  2010         no_gap     24.009        26.770    27.907           2.761     3.898        1.137     -0.412      further   False
+ pq5  2010            gap     52.123        51.284    55.886          -0.839     3.764        4.602      5.487   not_judged   False
+ pq5  2010      dens_0_50     20.723        27.225    32.298           6.501    11.575        5.073     -0.780      further   False
+ pq5  2010    dens_50_500     22.086        25.492    26.097           3.406     4.011        0.605     -0.178      further   False
+ pq5  2010  dens_500_2000     23.281        24.743    25.514           1.462     2.233        0.771     -0.527      further   False
+ pq5  2010 dens_2000_plus     32.289        33.861    34.153           1.572     1.865        0.293     -0.186 county_level   False
+ plc  1940            all     40.133        40.925    41.751           0.792     1.618        0.826     -1.044   not_judged    True
+ plc  1940      kept_t070     40.133        40.925    41.751           0.792     1.618        0.826     -1.044   not_judged   False
+ plc  1940  excluded_t070        NaN           NaN       NaN             NaN       NaN          NaN        NaN      partial   False
+ plc  1940         no_gap     40.133        40.925    41.751           0.792     1.618        0.826     -1.044   not_judged   False
+ plc  1940            gap        NaN           NaN       NaN             NaN       NaN          NaN        NaN      partial   False
+ plc  1940      dens_0_50    252.561       340.227   346.101          87.666    93.541        5.874     -0.067      further   False
+ plc  1940    dens_50_500     95.712       102.829   105.078           7.116     9.365        2.249     -0.316      further   False
+ plc  1940  dens_500_2000     45.943        43.429    42.132          -2.515    -3.812       -1.297     -0.516      further   False
+ plc  1940 dens_2000_plus     35.873        36.783    37.329           0.910     1.457        0.546     -0.600   not_judged   False
+ plc  1980            all     26.910        32.982    35.476           6.072     8.566        2.495     -0.411      further    True
+ plc  1980      kept_t070     25.783        31.808    34.243           6.025     8.460        2.435     -0.404      further   False
+ plc  1980  excluded_t070     59.568        66.227    69.836           6.660    10.268        3.609     -0.542      further   False
+ plc  1980         no_gap     25.966        32.006    34.455           6.040     8.489        2.449     -0.405      further   False
+ plc  1980            gap     71.680        77.408    81.004           5.727     9.323        3.596     -0.628      further   False
+ plc  1980      dens_0_50     30.198        53.155    62.466          22.957    32.268        9.311     -0.406      further   False
+ plc  1980    dens_50_500     26.097        32.583    35.316           6.486     9.219        2.733     -0.421      further   False
+ plc  1980  dens_500_2000     24.891        30.751    33.557           5.860     8.667        2.806     -0.479      further   False
+ plc  1980 dens_2000_plus     28.984        32.207    33.687           3.223     4.702        1.479     -0.459      further   False
+ plc  2010            all     24.897        27.863    30.153           2.966     5.256        2.290     -0.772      further    True
+ plc  2010      kept_t070     23.934        26.982    29.168           3.048     5.234        2.186     -0.717      further   False
+ plc  2010  excluded_t070     37.390        39.192    42.870           1.802     5.480        3.678     -2.041      further   False
+ plc  2010         no_gap     24.009        27.123    29.364           3.114     5.355        2.240     -0.719      further   False
+ plc  2010            gap     52.123        50.698    55.010          -1.425     2.887        4.312      3.026   beyond_v57   False
+ plc  2010      dens_0_50     20.723        29.033    34.963           8.310    14.240        5.930     -0.714      further   False
+ plc  2010    dens_50_500     22.086        25.926    28.200           3.839     6.113        2.274     -0.592      further   False
+ plc  2010  dens_500_2000     23.281        25.043    26.589           1.761     3.308        1.546     -0.878      further   False
+ plc  2010 dens_2000_plus     32.289        33.344    34.705           1.056     2.416        1.360     -1.289      further   False
+16:14:33 INFO RULE: pq5 1940 all tracts: v5.7 40.13 | pq5 41.68 | pq5cm 41.40 -> county_level (recovered 0.18)
+16:14:33 INFO RULE: pq5 1980 all tracts: v5.7 26.91 | pq5 31.05 | pq5cm 30.81 -> county_level (recovered 0.06)
+16:14:33 INFO RULE: pq5 2010 all tracts: v5.7 24.90 | pq5 27.54 | pq5cm 28.76 -> further (recovered -0.46)
+16:14:33 INFO RULE: plc 1940 all tracts: v5.7 40.13 | plc 40.92 | plccm 41.75 -> not_judged (recovered -1.04)
+16:14:33 INFO RULE: plc 1980 all tracts: v5.7 26.91 | plc 32.98 | plccm 35.48 -> further (recovered -0.41)
+16:14:33 INFO RULE: plc 2010 all tracts: v5.7 24.90 | plc 27.86 | plccm 30.15 -> further (recovered -0.77)
+16:14:33 INFO RULE: a cause check, not a selection; the user decides
+16:14:33 INFO wrote results/validation/conus/plural_grid_v57/countymean
+16:14:33 INFO DONE
+== done 2026-11-18T16:14:33-07:00

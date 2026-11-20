@@ -1,0 +1,7 @@
+15:38:43 INFO arg cmd = config
+15:38:43 INFO arg pairs = ['pq5', 'plc']
+15:38:43 INFO arg cm_pattern = None
+15:38:43 INFO arg base = Dasy_CONUS_RF_v3_u070
+  pq5cm: configs/conus_rf_v3_all_nby_pq5cm.yaml = configs/conus_rf_v3_all_nby_pq5.yaml + model_from / compare_with Dasy_CONUS_RF_v3_all_nby_pq5, plural cell_value county_mean
+  plccm: configs/conus_rf_v3_all_nby_plccm.yaml = configs/conus_rf_v3_all_nby_plc.yaml + model_from / compare_with Dasy_CONUS_RF_v3_all_nby_plc, plural cell_value county_mean
+CONFIG OK: 2 cm configs = their PLURAL configs + plural cell_value county_mean + model_from (pq5cm, plccm); no features / train jobs

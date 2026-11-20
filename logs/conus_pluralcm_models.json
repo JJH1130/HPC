@@ -1,0 +1,82 @@
+{
+  "created": "2026-11-18T15:39:17",
+  "dasym_root": "/scratch/alpine/jaju1407/hisdac/dasymetric",
+  "versions": {
+    "Dasy_CONUS_RF_v3_all_nby_pq5": {
+      "Y1940": {
+        "model": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y1940/model/rf.joblib",
+          "sha256": "7b51881e18e909544c2ba2ed2c0caebe474358e5e213ad71612dd7b69805d829"
+        },
+        "county_features": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y1940/features/county_features.csv",
+          "sha256": "2e2e272582ad6997700c98083d6173c7186b780a4feaf8905cbaafb76301872e"
+        },
+        "plural_breaks": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y1940/features/plural_breaks.csv",
+          "sha256": "fbd7d2dfc1d90cf48b6d71f2668ca9b7e46c7db51a87d8b76423219835c5040e"
+        }
+      },
+      "Y1980": {
+        "model": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y1980/model/rf.joblib",
+          "sha256": "eda85c7d3b51f7349279e0c46b446a352133725ad3a17a868bc0e67ebd304f03"
+        },
+        "county_features": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y1980/features/county_features.csv",
+          "sha256": "c0330b417c07e618ffa816351a95b1bc6ae2b494a9be1620b0bd9459e8611a3f"
+        },
+        "plural_breaks": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y1980/features/plural_breaks.csv",
+          "sha256": "a8f63aaa4cbe3a8e430984508090551e7b896ec555bd341a386e23b6e211f6b5"
+        }
+      },
+      "Y2010": {
+        "model": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y2010/model/rf.joblib",
+          "sha256": "39ac3e56674f52546946c85ea40d023ee42f4019e5d73a0e929aa6315bf43ace"
+        },
+        "county_features": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y2010/features/county_features.csv",
+          "sha256": "4d928ded8931bb7c4beb96637b20f42113c27b239bf74c6f276bc39c866c4571"
+        },
+        "plural_breaks": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/Y2010/features/plural_breaks.csv",
+          "sha256": "748615b470127fe69c62871becf68c2a6a7aa1d1ee20937c77d5e3fbe0e8ef36"
+        }
+      }
+    },
+    "Dasy_CONUS_RF_v3_all_nby_plc": {
+      "Y1940": {
+        "model": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y1940/model/rf.joblib",
+          "sha256": "e75b49fab0dc93b6ee314e913c34555d6d9bafd6ea994f36fd857518f57ecd39"
+        },
+        "county_features": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y1940/features/county_features.csv",
+          "sha256": "bc4e75adf80086674aa02915b76756a79965b79bd60600b69f6c78b0d49b9896"
+        }
+      },
+      "Y1980": {
+        "model": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y1980/model/rf.joblib",
+          "sha256": "84b30d9cdb5cf9531ee93c7df68301a5e13651a728ee6825c93afbf9c92f14d0"
+        },
+        "county_features": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y1980/features/county_features.csv",
+          "sha256": "dd62193717ea99ab4602e0aec5c0a6d719542caa02d4ba8bb13fb92c7dd1d9b1"
+        }
+      },
+      "Y2010": {
+        "model": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y2010/model/rf.joblib",
+          "sha256": "1a4b8567cd07cd19f84e097a73bae99c71c359c4a8fcc62acc999ef13c19118e"
+        },
+        "county_features": {
+          "path": "/scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y2010/features/county_features.csv",
+          "sha256": "fb64f35a23426f6b5a65a6e3d0c82f198feaa620a45e4bc64898ed13138b70a0"
+        }
+      }
+    }
+  }
+}
