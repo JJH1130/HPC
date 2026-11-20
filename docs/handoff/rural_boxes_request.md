@@ -50,3 +50,13 @@ Urbanisation (DEGURBA) 정의로, 상자도 같은 기준으로 골라 진짜 �
   계산 잡; 한 번 제출). SMOD 다운로드는 러너북 26절 블록 0 (로그인 노드). 러너북 26절, docs/conus_plan.md 절 "DEGURBA boxes",
   CLAUDE.md, open_items 갱신.
 - Alpine 명령: (0) SMOD 다운로드 (로그인 노드), (1) 사전 확인 + 제출, (2) 로그 + 결과 커밋. 블록 끝마다 성공 표시 한 줄.
+
+[추가 2026-11-21, f5a1889 이후: 구간 B 구멍 메우기 / 가장자리 규칙 확인됨 -> 고쳐줘]
+- 출처: R 패키지 flexurba (DEGURBA 매뉴얼 구현) DoU_classify_grid_urban_centres 기본값
+  (https://www.rdocumentation.org/packages/flexurba/versions/0.2.3/topics/DoU_classify_grid_urban_centres).
+- 구멍 메우기: urban centre 안에 완전히 둘러싸인 비-centre 블록 덩어리 중 면적 < 15 km2 (블록 15개 미만)를 그 centre에 넣음
+  (max_gap = 15).
+- 가장자리 다듬기: 주변 8개 블록 중 5개 이상이 같은 urban centre인 블록을 그 centre에 넣고, 더 이상 추가되지 않을 때까지 반복
+  (majority rule).
+- built-up 조건 (built share >= 20 / 50 %)은 쓰지 않음 (GHS-BUILT 없음) -> RULE B 로그에 생략했다고 명시.
+- 순서: 덩어리 판정 (1,500 / 4-연결 / 50,000) -> 구멍 메우기 -> 다듬기. 테스트: 14개 블록 구멍은 메워지고 15개는 안 메워짐, 5/8 규칙 반복.
