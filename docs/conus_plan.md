@@ -285,6 +285,29 @@ v5.7 / v5.6 + nby_age rows matched the earlier tables.
   in 1910), so nby_age is close to 0 there and loses the record-quality signal that raw nby carries.
 - v5.7 (raw nby) kept as the base. Same result as on v5.6 (2026-11-04).
 
+## PLURAL at county level only: result (jobs 35925934-35925939, run 2026-11-20 MT, commit 43f7ff4)
+
+All six jobs COMPLETED (~45 min); reused models reproduce their TEST predictions (max |diff| 4e-15); v5.7 / pq5 / plc rows
+matched. Rule fixed before (cell_level if Pcm within 0.5 pp of v5.7, county_level if within 0.5 pp of P):
+
+| tract MdAPE (all) | v5.7 | pq5 | pq5cm | plc | plccm | verdict |
+|---|---|---|---|---|---|---|
+| 1940 | 40.1 | 41.7 | 41.4 | 40.9 | 41.8 | pq5 county_level; plc not judged (< 1 pp) |
+| 1980 | 26.9 | 31.1 | 30.8 | 33.0 | 35.5 | county_level / further |
+| 2010 | 24.9 | 27.5 | 28.8 | 27.9 | 30.2 | further / further |
+
+- Taking PLURAL's cell values out does not bring the tracts back (plc: worse). So the cell-level PLURAL values are not
+  the cause; the loss comes from the model trained with PLURAL itself.
+- Variance split (study cells): PLURAL varies mostly between counties (continuous 56-58 % between, pq5 classes 87-91 %);
+  BUI 82-84 %, nby 93 %, bldg_size 95 % within counties. As expected.
+- Built contrast (per-county median of people per km2 on built cells / on BUI = 0 cells): v5.7 38 / 45 / 45 (1940 / 1980
+  / 2010); pq5 23 / 24 / 26; pq5cm 23 / 25 / 24. Versus BUI = 0 cells without any record: v5.7 67 / 153 / 149, pq5 24 / 37 /
+  50. The PLURAL-trained model flattens the built vs unbuilt contrast whether or not cells carry their own PLURAL value:
+  it leans on PLURAL for the county level and less on the cell features (SHAP: nby / BUI / dist_built lose weight), and
+  that learned relation is what spreads people within counties. County gain and tract loss come from the same model.
+- Decision unchanged: v5.7 without PLURAL (user, 2026-11-19). PLURAL as a county-only covariate would need a different
+  model design (e.g. county-level adjustment kept out of the cell weights), not a prediction-time switch.
+
 ## City boxes by density class: result (job 35916297, run 2026-11-18 MT, commit d99e0fc)
 
 COMPLETED (1.5 min); v5.7 whole boxes and the meeting gap-block shares matched. Boston / Denver / Chicago 40 x 40 km,
