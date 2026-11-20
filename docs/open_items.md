@@ -231,7 +231,8 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
    density as a check). Run 2026-11-18 MT for v5.7 + pq5 (`docs/conus_plan.md` "City boxes by density class: result"):
    urban / peri-urban close to the products; cells without dated buildings hold people in GHS-POP / WorldPop
    (rural 24-43 %), v5.7 6-10 %, pq5 closer. Rural class totals depend on the class basis (selection effect), no
-   over-allocation shown.
+   over-allocation shown. The boxes are metro areas only ("rural" = metro fringe); rural boxes requested 2026-11-21:
+   `docs/handoff/rural_boxes_request.md` (one per Census region, median-density county among counties < 10 per km2).
    - **Status (2026-11-19):** code + tests only, NOT run (`docs/conus_plan.md` "City boxes by density class"; runbook
      section 24, `bash sbatch/submit_conus.sh citydensity [VERSION LABEL]`): `src/validation/external_city_density.py`
      (`city_density:` block of `configs/external_grids.yaml`; whole box checked against the version's meeting
