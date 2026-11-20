@@ -345,6 +345,33 @@ Block level (`density_class_summary.csv`, means over the 3 cities; ours / GHS-PO
 - Urban / peri-urban: v5.7 and pq5 agree with the products about as well (Spearman 0.65-0.74).
 - Scope: 3 city boxes only (rural = the fringe of a metro area); for meetings with the "agreement, not accuracy" note.
 
+## DEGURBA boxes: result (select + run, rerun 36045150 with the flexurba gap fill / smoothing, 2026-11-20 MT, commits 6528565 / 4619fc8)
+
+Boxes chosen by the fixed rule (GHS-SMOD 2010 classes of the 2010 counties, median density per Census region):
+rural = Tioga PA (NE, 2nd candidate), Turner SD (MW), Henry AL (S), Toole MT (W); peri-urban = Genesee NY, Hocking OH,
+Victoria TX, Douglas WA. The peri-urban boxes are still mostly rural SMOD blocks (6,316 of 6,400). City checks matched.
+Classes A = GHS-SMOD; B (own density) moved by up to 0.27 in the class total ratios with the flexurba rules (the
+conclusions below use A).
+
+People share by cell type, boxes pooled per type, class A (GHS-POP / WorldPop / v5.7 / v5.7 + PLURAL pq5):
+
+| boxes, year | building in HISDAC | undated records only | no record |
+|---|---|---|---|
+| rural boxes 1980 | 70 / - / 76 / 72 % | 18 / - / 17 / 15 % | 12 / - / 7 / 13 % |
+| rural boxes 2010 | 80 / 62 / 80 / 74 % | 13 / 12 / 15 / 16 % | 7 / 26 / 6 / 11 % |
+| peri-urban boxes 2010 | 86 / 74 / 91 / 85 % | 10 / 12 / 7 / 8 % | 3 / 14 / 2 / 7 % |
+| city boxes, rural blocks 2010 | 88 / 82 / 97 / 93 % | 10 / 12 / 3 / 5 % | 2 / 7 / 0 / 3 % |
+
+- Whole-box totals (ours / GHS-POP): rural 1.05 / 0.97, peri-urban 0.97 / 0.99, city 1.08 / 0.94 (1980 / 2010); the box
+  totals agree, so no over- or under-allocation between box types.
+- In true rural boxes v5.7 already gives about as many people to unbuilt cells as GHS-POP (2010: 20 % vs 20 %); PLURAL
+  goes beyond (26 %). Only at the metro fringe (city boxes) does v5.7 give unbuilt cells far fewer people than the
+  products (3 % vs 12 %). This fits the tract result: PLURAL hurts most in rural tracts, where v5.7 is already right.
+- Spearman of 1 km blocks vs GHS-POP 2010: city 0.89-0.93, peri-urban 0.88-0.90 (Douglas WA 0.49), rural Tioga 0.92 /
+  Henry 0.84 / Turner 0.59 / Toole 0.40 (very sparse; ranks of near-empty blocks are noise). PLURAL equal or lower.
+- About half of the rural blocks are > 4 x GHS-POP (v5.7 0.51, pq5 0.53; 2010), with the box totals equal: we spread the
+  same people more evenly over blocks, GHS-POP concentrates them.
+
 ## BUI outliers (request 2026-10-27): look first, decide after
 
 Pilot BUI maxima in one 250 m cell (62,500 m2): 306,635,538 (1920), 709,978,539 (1960), 5,447,140,510 (2010). Even a
