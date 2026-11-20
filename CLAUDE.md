@@ -154,7 +154,7 @@ GHS-SMOD R2023A 1980 / 2010 by `PRODUCTS=ghs_smod bash sbatch/external_download.
 `boxes` is filled; the submit adds it only then) picks 4 rural + 4 peri-urban boxes per Census region from the SMOD 2010
 classes of the 2010 counties (median density, fixed rule) and writes them into the config + `boxes_selected.csv`; `run` = those
 + the 3 city boxes, classes A (SMOD code of each cell centre, block majority, tie -> more urban) and B (stage I rules on v5.7's
-block density on the box + 20 km; holes = four-side fallback, no smoothing), v5.7 + pq5, `external_city_density` metrics +
+block density on the box + 20 km; then gaps < 15 km2 filled and 5-of-8 edge smoothing repeated, as flexurba; no built-up condition), v5.7 + pq5, `external_city_density` metrics +
 cell types per box and per box type, totals side by side, city boxes checked against the meeting table ->
 `results/validation/conus/external/degurba_boxes_v57/`. `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
 figure, a row per version: mean |SHAP| bar + beeswarm from the era's `shap_values.csv` / `county_features.csv`, bars checked
@@ -265,7 +265,7 @@ unchanged (sha256 = model_from.json), a changed source TEST prediction stops; sn
 contrast = brute force; compare on a synthetic world from the earlier scripts (cm county rows, tracts, the rule by hand; changed
 numbers / model check stop); the tracked numbers),
 `python tests/test_degurba_boxes.py` (SMOD per cell centre / block majority by hand; scheme B
-4- / 8-connectivity, thresholds, four-side holes, margin = not cut; box selection on synthetic counties: candidates, median /
+4- / 8-connectivity, thresholds, gaps 14 filled / 15 not, 5-of-8 smoothing repeated, margin = not cut; box selection on synthetic counties: candidates, median /
 even / tie, 50 km, outside CONUS, config written once; run end to end on the meeting city world, city check stops on a change),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).

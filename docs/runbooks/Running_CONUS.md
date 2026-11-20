@@ -2396,8 +2396,8 @@ echo "== end of block 2 (success = 2 COMPLETED, 8 CHOSEN, SELECT OK, MATCH, 'cla
 ```
 
 Good: both jobs `COMPLETED`; select log: eight `... -> CHOSEN` lines (one per region x type; `REFUSED` lines before
-them are normal), `SMOD codes in the counties`, `SELECT OK`; run log: `RULE A`, `RULE B` (says the gap rule is not
-verified and no edge smoothing), `MATCH .../meeting_summary_v56_v57.csv`, `classes add up to all`, `cell types add up`,
+them are normal), `SMOD codes in the counties`, `SELECT OK`; run log: `RULE A`, `RULE B` (gap filling < 15 km2, 5-of-8
+smoothing repeated, built-up condition NOT used; per box `gap blocks filled`, `blocks added by smoothing`), `MATCH .../meeting_summary_v56_v57.csv`, `classes add up to all`, `cell types add up`,
 `DONE`; `git diff --stat` shows `configs/external_grids.yaml` changed (the 8 boxes); in the folder 5 CSV
 (`boxes_selected`, `density_class_summary`, `cell_type_shares`, `totals_side_by_side`, `box_classes`) + 16 maps + 22
 cell-type PNGs; `git push` ends with `main -> main`; `== end of block 2`. A `FAILED` job or an `ERROR` line (e.g.

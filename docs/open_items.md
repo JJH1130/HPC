@@ -251,9 +251,9 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
      `src/validation/degurba_boxes.py` select (once: 4 rural + 4 peri-urban boxes by Census region, rule fixed before
      any result, written into `rural_boxes.boxes` of `configs/external_grids.yaml`) and run (classes A = GHS-SMOD, B =
      stage I rules on v5.7's density; 8 new + 3 city boxes; v5.7 + pq5) -> `degurba_boxes_v57/`. Not verified: the
-     SMOD class codes (checked against the Data Package at download and against the raster in the run) and the
-     manual's urban centre gap-filling rule (scheme B uses the request's fallback: four-side holes only; no edge
-     smoothing).
+     SMOD class codes (checked against the Data Package at download and against the raster in the run). Scheme B
+     gap filling / edge smoothing fixed 2026-11-21 (request addendum, from flexurba's DEGURBA defaults: gaps < 15 km2
+     enclosed by one centre filled, then 5-of-8 majority smoothing repeated; built-up share condition not used).
 - **For the next meeting write-up:** item 1 result = `docs/conus_plan.md` "v5.7 with nby_age instead of nby: result"
   (nby_age worse by county CV in all 5 years, on v5.7 as on v5.6; early-year factors near 0).
 5. **(Later, next meeting) Separate models for rural / peri-urban / urban.** Idea only; how to split (by county,

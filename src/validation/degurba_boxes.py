@@ -20,8 +20,10 @@ Block classes, two schemes, both written:
             peri_urban = 21-23, rural = 11-13, excluded = water (10) / nodata (kept as a class so the classes add up).
             A code not in the config's code table stops the run (codes found are logged per box).
   B (check) the stage I rules on v5.7's block density of the year: urban centre = 4-connected blocks >= 1,500 per km2
-            with >= 50,000 people, holes filled (`hole_fill: four_sides`: a block whose four side neighbours all belong
-            to one centre joins it, one pass; the manual's gap rule could not be read, logged; no edge smoothing);
+            with >= 50,000 people, then gap filling (a group of non-centre blocks, 8-connected, enclosed by one centre
+            and < 15 km2, joins it) and edge smoothing (a block with >= 5 of its 8 neighbours in one centre joins it,
+            repeated until none is added); rules of the DEGURBA manual as implemented by the R package flexurba
+            (DoU_classify_grid_urban_centres defaults); the built-up share condition is not used (no GHS-BUILT);
             urban cluster = 8-connected blocks >= 300 per km2 with >= 5,000 people, minus the centres; the rest rural.
             Computed on the box + margin_km on every side (masked cells = 0 people), then cut to the box.
 Per box x year x scheme x version x product x class (+ all): the metrics of external_city_density.class_metrics
@@ -154,26 +156,63 @@ def _clusters(flag: np.ndarray, pop: np.ndarray, connectivity: int, min_pop: flo
     return keep[lab], np.where(keep[lab], lab, 0)
 
 
-def fill_four_sides(lab: np.ndarray) -> np.ndarray:
-    """Labels after one pass: a 0 block whose four side neighbours carry the same label > 0 gets that label."""
-    p = np.pad(lab, 1)
-    up, down, left, right = p[:-2, 1:-1], p[2:, 1:-1], p[1:-1, :-2], p[1:-1, 2:]
-    hole = (lab == 0) & (up > 0) & (up == down) & (up == left) & (up == right)
-    return np.where(hole, up, lab)
+def fill_gaps(lab: np.ndarray, max_blocks: float) -> np.ndarray:
+    """Gap filling (DEGURBA manual; flexurba DoU_classify_grid_urban_centres, max_gap = 15 km2): a group of non-centre
+    blocks (8-connected: a group touching the outside only diagonally is not enclosed) completely surrounded by ONE
+    urban centre (every 8-neighbour of the group carries that label; a group at the window edge is not enclosed) with
+    fewer than max_blocks blocks joins that centre."""
+    from scipy import ndimage
+    st8 = ndimage.generate_binary_structure(2, 2)
+    g, n = ndimage.label(lab == 0, structure=st8)
+    out = lab.copy()
+    h, w = lab.shape
+    for i, sl in enumerate(ndimage.find_objects(g), start=1):
+        if sl is None:
+            continue
+        r0, r1, c0, c1 = sl[0].start, sl[0].stop, sl[1].start, sl[1].stop
+        if r0 == 0 or c0 == 0 or r1 == h or c1 == w:
+            continue                                       # touches the window edge: not enclosed
+        sub = g[r0 - 1:r1 + 1, c0 - 1:c1 + 1] == i
+        if sub.sum() >= max_blocks:
+            continue
+        ring = ndimage.binary_dilation(sub, structure=st8) & ~sub
+        around = lab[r0 - 1:r1 + 1, c0 - 1:c1 + 1][ring]
+        if around.min() > 0 and around.min() == around.max():
+            out[r0 - 1:r1 + 1, c0 - 1:c1 + 1][sub] = around[0]
+    return out
+
+
+def smooth_edges(lab: np.ndarray, min_neighbours: int):
+    """Edge smoothing (majority rule): a non-centre block with >= min_neighbours of its 8 neighbours in one urban
+    centre joins it; repeated until no block is added. Returns (labels, passes)."""
+    from scipy import ndimage
+    k = np.ones((3, 3), int)
+    k[1, 1] = 0
+    out, passes = lab.copy(), 0
+    while True:
+        add = np.zeros_like(out)
+        for c in np.unique(out[out > 0]):
+            cnt = ndimage.convolve((out == c).astype(int), k, mode="constant", cval=0)
+            add = np.where((out == 0) & (add == 0) & (cnt >= min_neighbours), c, add)
+        passes += 1
+        if not (add > 0).any():
+            return out, passes
+        out = np.where(add > 0, add, out)
 
 
 def own_classes(pop_blocks: np.ndarray, block_km2: float, rules: dict):
-    """(class index of CLASSES per block, info) by the stage I rules on block people."""
+    """(class index of CLASSES per block, info) by the stage I rules on block people: centres (density / connectivity
+    / people), then gap filling, then edge smoothing; clusters; the rest rural. Built-up share condition not used."""
     dens = pop_blocks / block_km2
     c, u = rules["centre"], rules["cluster"]
     _, lab = _clusters(dens >= c["min_density"], pop_blocks, c["connectivity"], c["min_pop"])
-    if rules.get("hole_fill", "four_sides") != "four_sides":
-        sys.exit(f"ERROR: hole_fill {rules['hole_fill']!r}: only four_sides is implemented")
-    filled = fill_four_sides(lab)
-    uc = filled > 0
+    filled = fill_gaps(lab, rules["gap_fill_max_km2"] / block_km2)
+    smoothed, passes = smooth_edges(filled, rules["smooth_min_neighbours"])
+    uc = smoothed > 0
     ucl, _ = _clusters(dens >= u["min_density"], pop_blocks, u["connectivity"], u["min_pop"])
     cls = np.where(uc, 2, np.where(ucl, 1, 0))
-    return cls, {"n_centres": int(len(np.unique(lab[lab > 0]))), "holes_filled": int((filled != lab).sum())}
+    return cls, {"n_centres": int(len(np.unique(lab[lab > 0]))), "gap_blocks_filled": int((filled != lab).sum()),
+                 "smoothing_blocks_added": int((smoothed != filled).sum()), "smoothing_passes": passes}
 
 
 def own_classes_box(vpath: Path, win: Window, grid_t, f: int, rules: dict):
@@ -439,8 +478,9 @@ def run_box(args, cfg, rb, key, spec, year, nb_path, smod_path):
     cls_a = scheme_a(bcode, rb["smod"]["scheme_a"])
     # scheme B
     cls_b, info = own_classes_box(vpath, win, grid_t, f, rb["own_rules"])
-    log.info("  scheme B: %d urban centres in the box + margin, %d hole blocks filled", info["n_centres"],
-             info["holes_filled"])
+    log.info("  scheme B: %d urban centres in the box + margin, %d gap blocks filled, %d blocks added by smoothing "
+             "(%d passes)", info["n_centres"], info["gap_blocks_filled"], info["smoothing_blocks_added"],
+             info["smoothing_passes"])
     base = {"box": key, "box_label": spec["label"], "box_type": spec["box_type"], "year": year}
     schemes = {"A": (cls_a, A_CLASSES), "B": (cls_b, CLASSES)}
     rows, pool = [], []
@@ -665,12 +705,14 @@ def run(args, cfg, rb):
     log.info("RULE A: block = most frequent SMOD code of its 16 cells (tie -> higher code); %s; 10 / nodata -> "
              "excluded", rb["smod"]["scheme_a"])
     o = rb["own_rules"]
-    log.info("RULE B: urban centre = %d-connected blocks >= %s per km2, >= %s people; holes: %s (a block whose four side "
-             "neighbours all belong to one centre joins it, one pass; the manual's gap rule NOT verified); edge "
-             "smoothing: NOT applied; urban cluster = %d-connected blocks >= %s per km2, >= %s people, minus centres; "
-             "computed on the box + %s km", o["centre"]["connectivity"], o["centre"]["min_density"],
-             o["centre"]["min_pop"], o["hole_fill"], o["cluster"]["connectivity"], o["cluster"]["min_density"],
-             o["cluster"]["min_pop"], o["margin_km"])
+    log.info("RULE B: urban centre = %d-connected blocks >= %s per km2, >= %s people; then gap filling: a group of "
+             "non-centre blocks (8-connected) enclosed by one centre and < %s km2 joins it; then edge smoothing: a "
+             "block with >= %d of its 8 neighbours in one centre joins it, repeated until none is added (DEGURBA manual "
+             "as in flexurba DoU_classify_grid_urban_centres); built-up share condition (>= 20 / 50 %%) NOT used (no "
+             "GHS-BUILT); urban cluster = %d-connected blocks >= %s per km2, >= %s people, minus centres; computed on "
+             "the box + %s km", o["centre"]["connectivity"], o["centre"]["min_density"], o["centre"]["min_pop"],
+             o["gap_fill_max_km2"], o["smooth_min_neighbours"], o["cluster"]["connectivity"],
+             o["cluster"]["min_density"], o["cluster"]["min_pop"], o["margin_km"])
     band = cfg["city_density"]["ratio_band"]
     rows, pool, cells, bx, bcs, figs = [], [], [], [], [], []
     for year in rb["years"]:

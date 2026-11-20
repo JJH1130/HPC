@@ -5,7 +5,9 @@
   test_smod_cells     SMOD code of the SMOD cell each 250 m cell centre falls in (aligned, shifted, Mollweide grid =
                       by hand with pyproj), nodata; block majority with ties to the higher code; scheme A classes
   test_own_rules      scheme B by hand: 4-connected centres (a diagonal pair is two centres), 50,000 / 5,000 people,
-                      hole filled only when the four side neighbours are one centre, 8-connected clusters, centres
+                      gap filling (8-connected non-centre group enclosed by one centre, 14 blocks filled, 15 not,
+                      open to the edge / diagonal leak / two centres not), edge smoothing 5 of 8 repeated (a block
+                      added only in the second pass), 8-connected clusters, centres
                       not counted as clusters; the box + margin window keeps a centre that crosses the box edge
                       (margin 0 cuts it below 50,000)
   test_candidate_order median (odd / even = lower middle), ties by GISJOIN, next by |density - median| (tie -> lower)
@@ -49,7 +51,7 @@ CODES = {30: "urban centre", 23: "duc", 22: "sduc", 21: "suburban", 13: "rural c
 SCHEME_A = {"urban": [30], "peri_urban": [21, 22, 23], "rural": [11, 12, 13]}
 RULES = {"centre": {"min_density": 1500, "connectivity": 4, "min_pop": 50000},
          "cluster": {"min_density": 300, "connectivity": 8, "min_pop": 5000}, "margin_km": 20,
-         "hole_fill": "four_sides"}
+         "gap_fill_max_km2": 15, "smooth_min_neighbours": 5}
 
 
 def write_int(path: Path, a: np.ndarray, transform, crs, nodata):
@@ -123,7 +125,8 @@ def test_own_rules(tmp: Path):
     z[5, 9], z[5, 10] = 2450.0, 2450.0
     # a hole with only 3 sides in a centre (open to the edge of the centre): not filled
     cls, info = db.own_classes(z, 1.0, RULES)
-    assert info["n_centres"] == 1 and info["holes_filled"] == 1, info
+    assert info["n_centres"] == 1 and info["gap_blocks_filled"] == 1, info
+    assert info["smoothing_blocks_added"] == 0, info                 # no outside block has 5 centre neighbours
     assert cls[2, 2] == 2 and (cls[1:4, 1:4] == 2).all() and cls[1, 4] == 2
     assert cls[8, 8] == cls[9, 9] == 1                               # no centre (4-conn), cluster (8-conn)
     assert cls[8, 1] == cls[11, 4] == 1                              # diagonal chain cluster
@@ -134,16 +137,47 @@ def test_own_rules(tmp: Path):
     z2[1, 4] = 1000.0                                                # 49,000: no centre; blocks >= 300 -> cluster
     c2, i2 = db.own_classes(z2, 1.0, RULES)
     assert i2["n_centres"] == 0 and c2[2, 2] == 0 and c2[1, 1] == 1
-    # hole only filled with four sides in one centre
-    lab = np.zeros((5, 5), int)
-    lab[1:4, 1:4] = 1
-    lab[2, 2] = 0
-    lab2 = lab.copy()
-    lab2[2, 3] = 0                                                   # (2,2) now has a 0 neighbour
-    assert db.fill_four_sides(lab)[2, 2] == 1 and db.fill_four_sides(lab2)[2, 2] == 0
-    lab3 = lab.copy()
-    lab3[1:4, 3] = 2                                                 # neighbours of two centres: not filled
-    assert db.fill_four_sides(lab3)[2, 2] == 0
+    # gap filling: enclosed by one centre and < 15 blocks (1 km2 blocks: < 15 km2)
+    lab = np.ones((8, 11), int)
+    lab[2:4, 2:9] = 0                                                # 2 x 7 = 14 blocks: filled
+    assert (db.fill_gaps(lab, 15) == 1).all()
+    lab = np.ones((9, 11), int)
+    lab[2:5, 2:7] = 0                                                # 3 x 5 = 15 blocks: not filled
+    assert np.array_equal(db.fill_gaps(lab, 15), lab)
+    assert (db.fill_gaps(lab, 16) == 1).all()                        # (the same gap with a larger limit)
+    lab = np.ones((6, 6), int)
+    lab[2, 2] = lab[1, 1] = lab[0, 0] = 0                            # diagonal chain to the window edge: not enclosed
+    assert np.array_equal(db.fill_gaps(lab, 15), lab)
+    lab[0, 0] = 1                                                    # now enclosed (2 blocks): filled
+    assert (db.fill_gaps(lab, 15) == 1).all()
+    lab = np.ones((6, 6), int)
+    lab[:, 3:] = 2
+    lab[2, 2] = lab[2, 3] = 0                                        # a gap between two centres: not filled
+    assert np.array_equal(db.fill_gaps(lab, 15), lab)
+    lab = np.ones((5, 7), int)
+    lab[0, 3] = lab[1, 3] = 0                                        # open to the window edge: not filled
+    assert np.array_equal(db.fill_gaps(lab, 15), lab)
+    # edge smoothing, repeated: a 2-block notch in a 5 x 5 centre; (3, 4) has 7 centre neighbours -> pass 1;
+    # (2, 4) has 4 before and 5 after -> pass 2; pass 3 adds nothing; nothing else reaches 5
+    lab = np.zeros((9, 9), int)
+    lab[2:7, 2:7] = 1
+    lab[2, 4] = lab[3, 4] = 0
+    assert np.array_equal(db.fill_gaps(lab, 15), lab)                # the notch is open: no gap
+    sm, passes = db.smooth_edges(lab, 5)
+    want = np.zeros((9, 9), int)
+    want[2:7, 2:7] = 1
+    assert np.array_equal(sm, want) and passes == 3, (sm, passes)
+    one = lab.copy()
+    one[3, 4] = 1                                                    # after pass 1 only: (2, 4) still out
+    assert one[2, 4] == 0 and not np.array_equal(one, sm)
+    # in own_classes: the 14-block gap of a centre is filled (after the 50,000 test), the 15-block gap is not filled
+    # as a gap (smoothing may still add blocks of it, counted apart)
+    for n_rows, n_cols, filled in ((2, 7, 14), (3, 5, 0)):
+        zz = np.zeros((14, 14))
+        zz[2:2 + n_rows + 4, 2:2 + n_cols + 4] = 2000.0
+        zz[4:4 + n_rows, 4:4 + n_cols] = 0.0
+        _, ii = db.own_classes(zz, 1.0, RULES)
+        assert ii["n_centres"] == 1 and ii["gap_blocks_filled"] == filled, ii
     # margin: a centre of 60,000 people crossing the box edge (only 20,000 inside the box)
     gt = from_origin(0.0, 40_000.0, 250.0, 250.0)
     a = np.zeros((160, 160), "float32")                              # 40 x 40 km, 1 km blocks = 4 x 4 cells
@@ -158,7 +192,8 @@ def test_own_rules(tmp: Path):
     assert (cb[inside] == 2).all() and (cb[~inside] == 0).all(), cb
     cb0, _ = db.own_classes_box(tmp / "v.tif", win, gt, 4, {**RULES, "margin_km": 0})
     assert (cb0[inside] == 1).all()                                  # cut: 45,000 in the box -> not a centre
-    print("ok own rules: 4- / 8-connectivity, 50,000 / 5,000, four-side holes, margin keeps a centre at the box edge")
+    print("ok own rules: 4- / 8-connectivity, 50,000 / 5,000, gaps < 15 blocks, 5 / 8 smoothing repeated, margin "
+          "keeps a centre at the box edge")
 
 
 def test_candidate_order():
@@ -467,6 +502,8 @@ def test_real_config():
     assert rb["smod"]["scheme_a"] == SCHEME_A and set(rb["smod"]["codes"]) == set(CODES)
     assert rb["own_rules"]["centre"] == RULES["centre"] and rb["own_rules"]["cluster"] == RULES["cluster"]
     assert rb["own_rules"]["margin_km"] == 20 and rb["select"]["min_dist_km"] == 50
+    assert rb["own_rules"]["gap_fill_max_km2"] == 15 and rb["own_rules"]["smooth_min_neighbours"] == 5
+    assert "hole_fill" not in rb["own_rules"]
     st = [s for ss in rb["select"]["regions"].values() for s in ss]
     assert len(st) == len(set(st)) == 49                                    # 48 states + DC
     assert rb["select"]["train_status"] == yaml.safe_load(

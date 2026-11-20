@@ -138,8 +138,10 @@ rural_boxes:
     centre: {min_density: 1500, connectivity: 4, min_pop: 50000}
     cluster: {min_density: 300, connectivity: 8, min_pop: 5000}
     margin_km: 20
-    hole_fill: four_sides   # a block whose 4 side neighbours all belong to one urban centre joins it (one pass);
-                            # the manual's own gap rule could not be read 2026-11-21; edge smoothing left out
+    # after the centres: gap filling, then edge smoothing (DEGURBA manual as implemented by the R package flexurba,
+    # DoU_classify_grid_urban_centres defaults; request addendum 2026-11-21). The built-up share condition is not used.
+    gap_fill_max_km2: 15       # a group of non-centre blocks (8-connected) enclosed by one centre and < 15 km2 joins it
+    smooth_min_neighbours: 5   # a block with >= 5 of its 8 neighbours in one centre joins it; repeated until none added
   select:
     counties: counties_2010.gpkg          # in $DATA_ROOT/processed/census_conus (our 2010 polygons)
     train_status: [ok, filled_nhgis]      # = train_status of configs/conus_rf_v3_all_nby.yaml

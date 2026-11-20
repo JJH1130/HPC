@@ -228,9 +228,10 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
   there, and checked by `degurba_boxes.py`, which stops on a code outside this list): 30 urban centre; 23 dense urban
   cluster, 22 semi-dense urban cluster, 21 suburban or peri-urban (21-23 = urban cluster); 13 rural cluster, 12 low
   density rural, 11 very low density rural; 10 water; nodata = the file's nodata value (logged). The documents could
-  not be read from the laptop on 2026-11-21 (PDF size limit), so the codes and the urban centre gap-filling rule are
-  not verified here: our own scheme B fills only blocks whose four side neighbours are one urban centre and leaves
-  out edge smoothing (logged by the run).
+  not be read from the laptop on 2026-11-21 (PDF size limit), so the codes are not verified here. Our own scheme B
+  takes the urban centre gap filling (< 15 km2) and the 5-of-8 edge smoothing from the R package flexurba
+  (`DoU_classify_grid_urban_centres` defaults, https://www.rdocumentation.org/packages/flexurba/versions/0.2.3/topics/DoU_classify_grid_urban_centres;
+  request addendum 2026-11-21).
 - Caveat: SMOD is built from GHS-POP, i.e. (from 2000 on) from block-level census input; it is a validation class
   here, not a model input (a model input would carry that year's fine census into a county-input model).
 - Files (JRC's AWS bucket, no account):
