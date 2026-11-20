@@ -1,0 +1,13 @@
+Job ID: 36045900
+Cluster: alpine
+User/Group: jaju1407/jaju1407pgrp
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 4
+
+-------- CPU Metrics --------
+CPU Utilized: 00:00:38
+CPU Efficiency: 2.97% of 00:21:20 core-walltime
+Job Wall-clock time: 00:05:20
+Memory Utilized: 640.51 MiB
+Memory Efficiency: 4.17% of 15.00 GiB (3.75 GiB/core)

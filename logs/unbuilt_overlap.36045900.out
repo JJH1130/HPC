@@ -1,0 +1,340 @@
+== job 36045900 (unbuilt_overlap) on c3cpu-e2-u5 at 2026-11-20T09:40:06-07:00
+== cores=4 gpus=none restart=0
+== git e5337c2
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  mode overlap  args: 
+09:40:17 INFO arg mode = overlap
+09:40:17 INFO arg config = configs/external_grids.yaml
+09:40:17 INFO arg data_root = /projects/jaju1407/data/raw/external
+09:40:17 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+09:40:17 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:40:17 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+09:40:17 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+09:40:17 INFO arg name = conus
+09:40:17 INFO arg out_dir = None
+09:40:17 INFO arg check_with = results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv
+09:40:17 INFO arg check = False
+09:40:18 INFO   input 2010 version Dasy_CONUS_RF_v3_all_nby       /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+09:40:18 INFO   input 2010 version Dasy_CONUS_RF_v3_all_nby_pq5   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_2010.tif
+09:40:18 INFO   input 2010 BUI /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+09:40:18 INFO   input 2010 product ghs_pop   /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+09:40:18 INFO   input 2010 product worldpop  /projects/jaju1407/data/raw/external/worldpop/usa_ppp_2010.tif
+09:40:18 INFO   input 2010 SMOD /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif
+09:40:18 INFO   input 1980 version Dasy_CONUS_RF_v3_all_nby       /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+09:40:18 INFO   input 1980 version Dasy_CONUS_RF_v3_all_nby_pq5   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1980.tif
+09:40:18 INFO   input 1980 BUI /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+09:40:18 INFO   input 1980 product ghs_pop   /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+09:40:18 INFO   input 1980 SMOD /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif
+09:40:18 INFO   input NobuiltYear /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+09:40:18 INFO   input meeting check results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv 
+09:40:18 INFO   boxes: 3 city + 8 chosen ['rural_northeast', 'peri_urban_northeast', 'rural_midwest', 'peri_urban_midwest', 'rural_south', 'peri_urban_south', 'rural_west', 'peri_urban_west']
+09:40:18 INFO   input results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv 
+09:40:18 INFO RULE overlap: cell groups unbuilt (BUI of the year = 0) = undated (NobuiltYear > 0) + no_record, and built (BUI > 0), over the 250 m cells of the full blocks (as the cell types; subset rural_A = the scheme A rural blocks only); pairs ['v57', 'v57pq5'] x products of the year + the products against each other (reference); overlap_dist = sum min(a_i / A, b_i / B), overlap_amount = sum min(a_i, b_i) / B (B = the product), overlap_random = the same with a spread evenly; Spearman over all cells and the cells not 0 in both; box types = cells of their boxes pooled
+09:40:26 INFO ===== Boston, MA (city) 2010: window Window(col_off=17417, row_off=2941, width=160, height=160), 19376 of 25600 cells in the mask
+09:40:39 INFO   SMOD 2010 codes on the box cells: {10: 4193, 11: 1559, 12: 2988, 13: 15, 21: 6625, 22: 498, 23: 909, 30: 8813}
+09:40:46 INFO   scheme B: 2 urban centres in the box + margin, 14 gap blocks filled, 32 blocks added by smoothing (6 passes)
+09:40:46 INFO   scheme A blocks: {'rural': 221, 'peri_urban': 476, 'urban': 443, 'excluded': 0} (of 1140 full blocks)
+09:40:46 INFO   scheme B blocks: {'rural': 155, 'peri_urban': 676, 'urban': 309} (of 1140 full blocks)
+09:40:46 INFO   A, v5.7 vs GHS-POP: rural 221 rho 0.827 ratio 1.756 | peri_urban 476 rho 0.774 ratio 0.956 | urban 443 rho 0.868 ratio 0.780 | excluded 0 rho nan ratio nan | all 1140 rho 0.934 ratio 0.835
+09:40:51 INFO ===== Denver, CO (city) 2010: window Window(col_off=6295, row_off=5036, width=160, height=160), 25600 of 25600 cells in the mask
+09:40:56 INFO   SMOD 2010 codes on the box cells: {10: 87, 11: 5111, 12: 1810, 13: 65, 21: 2852, 22: 236, 23: 108, 30: 15331}
+09:41:00 INFO   scheme B: 2 urban centres in the box + margin, 25 gap blocks filled, 87 blocks added by smoothing (7 passes)
+09:41:00 INFO   scheme A blocks: {'rural': 428, 'peri_urban': 198, 'urban': 970, 'excluded': 4} (of 1600 full blocks)
+09:41:00 INFO   scheme B blocks: {'rural': 455, 'peri_urban': 599, 'urban': 546} (of 1600 full blocks)
+09:41:00 INFO   A, v5.7 vs GHS-POP: rural 428 rho 0.806 ratio 1.514 | peri_urban 198 rho 0.795 ratio 1.051 | urban 970 rho 0.708 ratio 0.940 | excluded 4 rho 0.775 ratio 113.819 | all 1600 rho 0.891 ratio 0.960
+09:41:03 INFO ===== Chicago, IL (city) 2010: window Window(col_off=12101, row_off=4101, width=160, height=160), 14078 of 25600 cells in the mask
+09:41:07 INFO   SMOD 2010 codes on the box cells: {10: 10896, 11: 439, 12: 86, 21: 173, 30: 14006}
+09:41:08 INFO   scheme B: 4 urban centres in the box + margin, 43 gap blocks filled, 126 blocks added by smoothing (8 passes)
+09:41:08 INFO   scheme A blocks: {'rural': 12, 'peri_urban': 11, 'urban': 833, 'excluded': 0} (of 856 full blocks)
+09:41:08 INFO   scheme B blocks: {'rural': 26, 'peri_urban': 31, 'urban': 799} (of 856 full blocks)
+09:41:08 INFO   A, v5.7 vs GHS-POP: rural 12 rho 0.869 ratio 1.082 | peri_urban 11 rho 0.827 ratio 1.107 | urban 833 rho 0.877 ratio 1.031 | excluded 0 rho nan ratio nan | all 856 rho 0.885 ratio 1.031
+09:41:26 INFO ===== Tioga County, 42 (rural, Northeast) (rural) 2010: window Window(col_off=15494, row_off=3661, width=160, height=160), 25600 of 25600 cells in the mask
+09:41:39 INFO   SMOD 2010 codes on the box cells: {10: 15, 11: 24424, 12: 950, 13: 211}
+09:41:42 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:41:42 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:41:42 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:41:42 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.920 ratio 0.957 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.920 ratio 0.957
+09:41:47 INFO ===== Genesee County, 36 (peri-urban, Northeast) (peri_urban) 2010: window Window(col_off=15087, row_off=3181, width=160, height=160), 25600 of 25600 cells in the mask
+09:41:57 INFO   SMOD 2010 codes on the box cells: {11: 21777, 12: 3325, 13: 172, 21: 215, 22: 32, 23: 79}
+09:41:57 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:41:57 INFO   scheme A blocks: {'rural': 1578, 'peri_urban': 22, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:41:57 INFO   scheme B blocks: {'rural': 1585, 'peri_urban': 15, 'urban': 0} (of 1600 full blocks)
+09:41:57 INFO   A, v5.7 vs GHS-POP: rural 1578 rho 0.876 ratio 1.072 | peri_urban 22 rho 0.668 ratio 0.683 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.880 ratio 0.956
+09:41:57 INFO ===== Turner County, 46 (rural, Midwest) (rural) 2010: window Window(col_off=8974, row_off=3580, width=160, height=160), 25600 of 25600 cells in the mask
+09:42:01 INFO   SMOD 2010 codes on the box cells: {10: 3, 11: 25314, 12: 205, 13: 78}
+09:42:01 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:42:01 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:42:01 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:42:01 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.586 ratio 1.115 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.586 ratio 1.115
+09:42:13 INFO ===== Hocking County, 39 (peri-urban, Midwest) (peri_urban) 2010: window Window(col_off=13938, row_off=4962, width=160, height=160), 25600 of 25600 cells in the mask
+09:42:18 INFO   SMOD 2010 codes on the box cells: {11: 23136, 12: 2256, 13: 64, 21: 79, 22: 65}
+09:42:18 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:42:18 INFO   scheme A blocks: {'rural': 1589, 'peri_urban': 11, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:42:18 INFO   scheme B blocks: {'rural': 1592, 'peri_urban': 8, 'urban': 0} (of 1600 full blocks)
+09:42:18 INFO   A, v5.7 vs GHS-POP: rural 1589 rho 0.895 ratio 1.120 | peri_urban 11 rho 0.873 ratio 0.725 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.897 ratio 1.047
+09:42:26 INFO ===== Henry County, 01 (rural, South) (rural) 2010: window Window(col_off=13408, row_off=8630, width=160, height=160), 25600 of 25600 cells in the mask
+09:42:36 INFO   SMOD 2010 codes on the box cells: {10: 314, 11: 24422, 12: 733, 13: 131}
+09:42:41 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:42:41 INFO   scheme A blocks: {'rural': 1582, 'peri_urban': 0, 'urban': 0, 'excluded': 18} (of 1600 full blocks)
+09:42:41 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:42:41 INFO   A, v5.7 vs GHS-POP: rural 1582 rho 0.840 ratio 0.963 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 18 rho 0.385 ratio 9.577 | all 1600 rho 0.842 ratio 0.964
+09:42:41 INFO ===== Victoria County, 48 (peri-urban, South) (peri_urban) 2010: window Window(col_off=8965, row_off=10066, width=160, height=160), 25600 of 25600 cells in the mask
+09:42:43 INFO   SMOD 2010 codes on the box cells: {10: 26, 11: 22533, 12: 2132, 13: 92, 21: 566, 23: 251}
+09:42:43 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:42:43 INFO   scheme A blocks: {'rural': 1547, 'peri_urban': 52, 'urban': 0, 'excluded': 1} (of 1600 full blocks)
+09:42:43 INFO   scheme B blocks: {'rural': 1541, 'peri_urban': 59, 'urban': 0} (of 1600 full blocks)
+09:42:43 INFO   A, v5.7 vs GHS-POP: rural 1547 rho 0.871 ratio 1.277 | peri_urban 52 rho 0.631 ratio 0.804 | urban 0 rho nan ratio nan | excluded 1 rho nan ratio nan | all 1600 rho 0.884 ratio 0.962
+09:42:43 INFO ===== Toole County, 30 (rural, West) (rural) 2010: window Window(col_off=4690, row_off=825, width=160, height=160), 25600 of 25600 cells in the mask
+09:42:45 INFO   SMOD 2010 codes on the box cells: {10: 30, 11: 25394, 12: 94, 13: 82}
+09:42:49 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:42:49 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:42:49 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:42:49 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.403 ratio 0.749 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.403 ratio 0.749
+09:42:49 INFO ===== Douglas County, 53 (peri-urban, West) (peri_urban) 2010: window Window(col_off=2259, row_off=728, width=160, height=160), 25600 of 25600 cells in the mask
+09:42:51 INFO   SMOD 2010 codes on the box cells: {11: 25482, 12: 112, 13: 6}
+09:42:51 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:42:51 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:42:51 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:42:51 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.493 ratio 2.195 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.493 ratio 2.195
+09:42:58 INFO ===== Boston, MA (city) 1980: window Window(col_off=17417, row_off=2941, width=160, height=160), 19376 of 25600 cells in the mask
+09:43:08 INFO   SMOD 1980 codes on the box cells: {10: 4210, 11: 1771, 12: 3571, 13: 59, 21: 7583, 22: 436, 23: 789, 30: 7181}
+09:43:13 INFO   scheme B: 3 urban centres in the box + margin, 20 gap blocks filled, 38 blocks added by smoothing (6 passes)
+09:43:13 INFO   scheme A blocks: {'rural': 269, 'peri_urban': 519, 'urban': 352, 'excluded': 0} (of 1140 full blocks)
+09:43:13 INFO   scheme B blocks: {'rural': 210, 'peri_urban': 605, 'urban': 325} (of 1140 full blocks)
+09:43:13 INFO   A, v5.7 vs GHS-POP: rural 269 rho 0.822 ratio 1.631 | peri_urban 519 rho 0.773 ratio 1.090 | urban 352 rho 0.841 ratio 0.947 | excluded 0 rho nan ratio nan | all 1140 rho 0.937 ratio 1.004
+09:43:18 INFO ===== Denver, CO (city) 1980: window Window(col_off=6295, row_off=5036, width=160, height=160), 25445 of 25600 cells in the mask
+09:43:25 INFO   SMOD 1980 codes on the box cells: {10: 87, 11: 6151, 12: 2771, 13: 231, 21: 6084, 22: 627, 23: 1270, 30: 8379}
+09:43:33 INFO   scheme B: 1 urban centres in the box + margin, 7 gap blocks filled, 46 blocks added by smoothing (7 passes)
+09:43:33 INFO   scheme A blocks: {'rural': 541, 'peri_urban': 502, 'urban': 534, 'excluded': 4} (of 1581 full blocks)
+09:43:33 INFO   scheme B blocks: {'rural': 703, 'peri_urban': 626, 'urban': 252} (of 1581 full blocks)
+09:43:33 INFO   A, v5.7 vs GHS-POP: rural 541 rho 0.757 ratio 0.889 | peri_urban 502 rho 0.420 ratio 0.811 | urban 534 rho 0.553 ratio 1.214 | excluded 4 rho 0.775 ratio 97.665 | all 1581 rho 0.816 ratio 1.051
+09:43:41 INFO ===== Chicago, IL (city) 1980: window Window(col_off=12101, row_off=4101, width=160, height=160), 14078 of 25600 cells in the mask
+09:43:48 INFO   SMOD 1980 codes on the box cells: {10: 10896, 11: 471, 12: 103, 21: 229, 30: 13901}
+09:43:51 INFO   scheme B: 4 urban centres in the box + margin, 43 gap blocks filled, 105 blocks added by smoothing (9 passes)
+09:43:51 INFO   scheme A blocks: {'rural': 14, 'peri_urban': 14, 'urban': 828, 'excluded': 0} (of 856 full blocks)
+09:43:51 INFO   scheme B blocks: {'rural': 31, 'peri_urban': 29, 'urban': 796} (of 856 full blocks)
+09:43:51 INFO   A, v5.7 vs GHS-POP: rural 14 rho 0.785 ratio 0.913 | peri_urban 14 rho 0.824 ratio 1.126 | urban 828 rho 0.868 ratio 1.166 | excluded 0 rho nan ratio nan | all 856 rho 0.878 ratio 1.165
+09:43:55 INFO ===== Tioga County, 42 (rural, Northeast) (rural) 1980: window Window(col_off=15494, row_off=3661, width=160, height=160), 25600 of 25600 cells in the mask
+09:44:01 INFO   SMOD 1980 codes on the box cells: {10: 15, 11: 24421, 12: 970, 13: 194}
+09:44:06 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:44:06 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:44:06 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:44:06 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.899 ratio 0.950 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.899 ratio 0.950
+09:44:10 INFO ===== Genesee County, 36 (peri-urban, Northeast) (peri_urban) 1980: window Window(col_off=15087, row_off=3181, width=160, height=160), 25600 of 25600 cells in the mask
+09:44:19 INFO   SMOD 1980 codes on the box cells: {11: 21972, 12: 3161, 13: 141, 21: 215, 22: 32, 23: 79}
+09:44:21 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:44:21 INFO   scheme A blocks: {'rural': 1578, 'peri_urban': 22, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:44:21 INFO   scheme B blocks: {'rural': 1586, 'peri_urban': 14, 'urban': 0} (of 1600 full blocks)
+09:44:21 INFO   A, v5.7 vs GHS-POP: rural 1578 rho 0.841 ratio 1.088 | peri_urban 22 rho 0.650 ratio 0.664 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.845 ratio 0.961
+09:44:22 INFO ===== Turner County, 46 (rural, Midwest) (rural) 1980: window Window(col_off=8974, row_off=3580, width=160, height=160), 25600 of 25600 cells in the mask
+09:44:22 INFO   SMOD 1980 codes on the box cells: {10: 3, 11: 25299, 12: 227, 13: 71}
+09:44:22 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:44:22 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:44:22 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:44:22 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.528 ratio 1.209 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.528 ratio 1.209
+09:44:35 INFO ===== Hocking County, 39 (peri-urban, Midwest) (peri_urban) 1980: window Window(col_off=13938, row_off=4962, width=160, height=160), 25600 of 25600 cells in the mask
+09:44:44 INFO   SMOD 1980 codes on the box cells: {11: 23847, 12: 1574, 13: 35, 21: 95, 22: 49}
+09:44:46 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:44:46 INFO   scheme A blocks: {'rural': 1589, 'peri_urban': 11, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:44:46 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:44:46 INFO   A, v5.7 vs GHS-POP: rural 1589 rho 0.857 ratio 1.035 | peri_urban 11 rho 0.873 ratio 0.758 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.860 ratio 0.980
+09:44:55 INFO ===== Henry County, 01 (rural, South) (rural) 1980: window Window(col_off=13408, row_off=8630, width=160, height=160), 25600 of 25600 cells in the mask
+09:44:59 INFO   SMOD 1980 codes on the box cells: {10: 314, 11: 24586, 12: 619, 13: 81}
+09:45:01 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:45:01 INFO   scheme A blocks: {'rural': 1582, 'peri_urban': 0, 'urban': 0, 'excluded': 18} (of 1600 full blocks)
+09:45:01 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:45:01 INFO   A, v5.7 vs GHS-POP: rural 1582 rho 0.822 ratio 1.192 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 18 rho 0.325 ratio 17.362 | all 1600 rho 0.825 ratio 1.193
+09:45:02 INFO ===== Victoria County, 48 (peri-urban, South) (peri_urban) 1980: window Window(col_off=8965, row_off=10066, width=160, height=160), 25600 of 25600 cells in the mask
+09:45:05 INFO   SMOD 1980 codes on the box cells: {10: 26, 11: 23019, 12: 1680, 13: 76, 21: 492, 22: 307}
+09:45:06 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:45:06 INFO   scheme A blocks: {'rural': 1549, 'peri_urban': 50, 'urban': 0, 'excluded': 1} (of 1600 full blocks)
+09:45:06 INFO   scheme B blocks: {'rural': 1556, 'peri_urban': 44, 'urban': 0} (of 1600 full blocks)
+09:45:06 INFO   A, v5.7 vs GHS-POP: rural 1549 rho 0.846 ratio 1.272 | peri_urban 50 rho 0.566 ratio 0.788 | urban 0 rho nan ratio nan | excluded 1 rho nan ratio nan | all 1600 rho 0.860 ratio 0.953
+09:45:06 INFO ===== Toole County, 30 (rural, West) (rural) 1980: window Window(col_off=4690, row_off=825, width=160, height=160), 25600 of 25600 cells in the mask
+09:45:07 INFO   SMOD 1980 codes on the box cells: {10: 30, 11: 25409, 12: 95, 13: 66}
+09:45:13 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:45:13 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:45:13 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:45:13 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.369 ratio 0.870 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.369 ratio 0.870
+09:45:13 INFO ===== Douglas County, 53 (peri-urban, West) (peri_urban) 1980: window Window(col_off=2259, row_off=728, width=160, height=160), 25600 of 25600 cells in the mask
+09:45:14 INFO   SMOD 1980 codes on the box cells: {11: 25519, 12: 75, 13: 6}
+09:45:14 INFO   scheme B: 0 urban centres in the box + margin, 0 gap blocks filled, 0 blocks added by smoothing (1 passes)
+09:45:14 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:45:14 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:45:14 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.476 ratio 2.474 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.476 ratio 2.474
+09:45:17 INFO checks (a difference stops the run before writing):
+09:45:17 INFO   overlaps within 0 - 1: 784 rows
+09:45:18 INFO   MATCH results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv: 1568 group sums (people of both maps, cells; boxes and box types)
+09:45:19 INFO   wrote results/validation/conus/external/degurba_boxes_v57/unbuilt_overlap.png
+09:45:19 INFO SUMMARY box types (cells pooled): overlap of distributions / amounts, random baseline, Spearman:
+  box_type  year  subset     group   map_a    map_b  n_cells  overlap_dist  overlap_amount  overlap_random  spearman_all_cells  spearman_nonzero_cells
+      city  2010     all   unbuilt     v57  ghs_pop    15129         0.303           0.050           0.166               0.430                   0.423
+      city  2010     all   unbuilt  v57pq5  ghs_pop    15129         0.284           0.084           0.166               0.404                   0.397
+      city  2010     all   unbuilt     v57 worldpop    15129         0.333           0.049           0.233               0.289                   0.279
+      city  2010     all   unbuilt  v57pq5 worldpop    15129         0.325           0.087           0.233               0.240                   0.228
+      city  2010     all   unbuilt ghs_pop worldpop    15129         0.771           0.733           0.233               0.766                   0.679
+      city  2010     all   undated     v57  ghs_pop     6762         0.321           0.057           0.228               0.318                   0.316
+      city  2010     all   undated  v57pq5  ghs_pop     6762         0.314           0.090           0.228               0.272                   0.270
+      city  2010     all   undated     v57 worldpop     6762         0.350           0.057           0.283               0.199                   0.197
+      city  2010     all   undated  v57pq5 worldpop     6762         0.343           0.091           0.283               0.120                   0.118
+      city  2010     all   undated ghs_pop worldpop     6762         0.798           0.774           0.283               0.839                   0.748
+      city  2010     all no_record     v57  ghs_pop     8367         0.134           0.008           0.118               0.198                   0.185
+      city  2010     all no_record  v57pq5  ghs_pop     8367         0.133           0.048           0.118               0.188                   0.174
+      city  2010     all no_record     v57 worldpop     8367         0.245           0.011           0.231               0.122                   0.100
+      city  2010     all no_record  v57pq5 worldpop     8367         0.242           0.069           0.231               0.079                   0.056
+      city  2010     all no_record ghs_pop worldpop     8367         0.644           0.549           0.231               0.635                   0.514
+      city  2010     all     built     v57  ghs_pop    42407         0.769           0.762           0.607               0.789                   0.789
+      city  2010     all     built  v57pq5  ghs_pop    42407         0.769           0.753           0.607               0.790                   0.790
+      city  2010     all     built     v57 worldpop    42407         0.769           0.766           0.609               0.785                   0.785
+      city  2010     all     built  v57pq5 worldpop    42407         0.769           0.757           0.609               0.785                   0.785
+      city  2010     all     built ghs_pop worldpop    42407         0.919           0.924           0.609               0.973                   0.971
+      city  2010 rural_A   unbuilt     v57  ghs_pop     7477         0.296           0.152           0.150               0.349                   0.346
+      city  2010 rural_A   unbuilt  v57pq5  ghs_pop     7477         0.254           0.270           0.150               0.320                   0.316
+      city  2010 rural_A   unbuilt     v57 worldpop     7477         0.329           0.122           0.284               0.218                   0.211
+      city  2010 rural_A   unbuilt  v57pq5 worldpop     7477         0.333           0.251           0.284               0.142                   0.134
+      city  2010 rural_A   unbuilt ghs_pop worldpop     7477         0.546           0.458           0.284               0.628                   0.474
+      city  2010 rural_A   undated     v57  ghs_pop     2253         0.324           0.178           0.244               0.258                   0.256
+      city  2010 rural_A   undated  v57pq5  ghs_pop     2253         0.313           0.286           0.244               0.110                   0.108
+      city  2010 rural_A   undated     v57 worldpop     2253         0.369           0.170           0.339               0.141                   0.139
+      city  2010 rural_A   undated  v57pq5 worldpop     2253         0.349           0.269           0.339              -0.106                  -0.108
+      city  2010 rural_A   undated ghs_pop worldpop     2253         0.641           0.584           0.339               0.758                   0.609
+      city  2010 rural_A no_record     v57  ghs_pop     5224         0.124           0.039           0.115               0.101                   0.095
+      city  2010 rural_A no_record  v57pq5  ghs_pop     5224         0.122           0.198           0.115               0.078                   0.071
+      city  2010 rural_A no_record     v57 worldpop     5224         0.304           0.036           0.295               0.055                   0.044
+      city  2010 rural_A no_record  v57pq5 worldpop     5224         0.304           0.218           0.295              -0.046                  -0.059
+      city  2010 rural_A no_record ghs_pop worldpop     5224         0.384           0.233           0.295               0.504                   0.306
+      city  2010 rural_A     built     v57  ghs_pop     3099         0.644           0.832           0.499               0.566                   0.566
+      city  2010 rural_A     built  v57pq5  ghs_pop     3099         0.638           0.835           0.499               0.559                   0.559
+      city  2010 rural_A     built     v57 worldpop     3099         0.617           0.824           0.491               0.494                   0.494
+      city  2010 rural_A     built  v57pq5 worldpop     3099         0.611           0.828           0.491               0.487                   0.487
+      city  2010 rural_A     built ghs_pop worldpop     3099         0.842           0.856           0.491               0.895                   0.866
+peri_urban  2010     all   unbuilt     v57  ghs_pop    86043         0.318           0.241           0.152               0.386                   0.386
+peri_urban  2010     all   unbuilt  v57pq5  ghs_pop    86043         0.281           0.298           0.152               0.419                   0.419
+peri_urban  2010     all   unbuilt     v57 worldpop    86043         0.392           0.214           0.403               0.516                   0.515
+peri_urban  2010     all   unbuilt  v57pq5 worldpop    86043         0.472           0.350           0.403               0.647                   0.647
+peri_urban  2010     all   unbuilt ghs_pop worldpop    86043         0.433           0.349           0.403               0.487                   0.433
+peri_urban  2010     all   undated     v57  ghs_pop    17493         0.371           0.289           0.290               0.433                   0.433
+peri_urban  2010     all   undated  v57pq5  ghs_pop    17493         0.356           0.306           0.290               0.428                   0.428
+peri_urban  2010     all   undated     v57 worldpop    17493         0.442           0.335           0.417               0.389                   0.389
+peri_urban  2010     all   undated  v57pq5 worldpop    17493         0.458           0.379           0.417               0.462                   0.462
+peri_urban  2010     all   undated ghs_pop worldpop    17493         0.590           0.556           0.417               0.558                   0.494
+peri_urban  2010     all no_record     v57  ghs_pop    68550         0.144           0.093           0.120               0.239                   0.239
+peri_urban  2010     all no_record  v57pq5  ghs_pop    68550         0.167           0.275           0.120               0.295                   0.295
+peri_urban  2010     all no_record     v57 worldpop    68550         0.473           0.107           0.417               0.539                   0.538
+peri_urban  2010     all no_record  v57pq5 worldpop    68550         0.496           0.325           0.417               0.701                   0.701
+peri_urban  2010     all no_record ghs_pop worldpop    68550         0.298           0.166           0.417               0.413                   0.361
+peri_urban  2010     all     built     v57  ghs_pop    16357         0.703           0.717           0.421               0.647                   0.647
+peri_urban  2010     all     built  v57pq5  ghs_pop    16357         0.703           0.697           0.421               0.648                   0.648
+peri_urban  2010     all     built     v57 worldpop    16357         0.647           0.719           0.347               0.509                   0.509
+peri_urban  2010     all     built  v57pq5 worldpop    16357         0.648           0.702           0.347               0.533                   0.533
+peri_urban  2010     all     built ghs_pop worldpop    16357         0.810           0.881           0.347               0.693                   0.687
+peri_urban  2010 rural_A   unbuilt     v57  ghs_pop    85764         0.334           0.288           0.157               0.384                   0.384
+peri_urban  2010 rural_A   unbuilt  v57pq5  ghs_pop    85764         0.290           0.356           0.157               0.417                   0.417
+peri_urban  2010 rural_A   unbuilt     v57 worldpop    85764         0.408           0.237           0.421               0.515                   0.514
+peri_urban  2010 rural_A   unbuilt  v57pq5 worldpop    85764         0.495           0.389           0.421               0.647                   0.646
+peri_urban  2010 rural_A   unbuilt ghs_pop worldpop    85764         0.383           0.293           0.421               0.484                   0.430
+peri_urban  2010 rural_A   undated     v57  ghs_pop    17342         0.395           0.362           0.309               0.429                   0.429
+peri_urban  2010 rural_A   undated  v57pq5  ghs_pop    17342         0.377           0.381           0.309               0.423                   0.423
+peri_urban  2010 rural_A   undated     v57 worldpop    17342         0.489           0.417           0.466               0.386                   0.386
+peri_urban  2010 rural_A   undated  v57pq5 worldpop    17342         0.507           0.470           0.466               0.459                   0.459
+peri_urban  2010 rural_A   undated ghs_pop worldpop    17342         0.514           0.484           0.466               0.553                   0.488
+peri_urban  2010 rural_A no_record     v57  ghs_pop    68422         0.145           0.099           0.121               0.239                   0.239
+peri_urban  2010 rural_A no_record  v57pq5  ghs_pop    68422         0.169           0.292           0.121               0.295                   0.295
+peri_urban  2010 rural_A no_record     v57 worldpop    68422         0.476           0.109           0.420               0.539                   0.538
+peri_urban  2010 rural_A no_record  v57pq5 worldpop    68422         0.500           0.332           0.420               0.702                   0.702
+peri_urban  2010 rural_A no_record ghs_pop worldpop    68422         0.292           0.158           0.420               0.412                   0.359
+peri_urban  2010 rural_A     built     v57  ghs_pop    15260         0.697           0.770           0.536               0.585                   0.585
+peri_urban  2010 rural_A     built  v57pq5  ghs_pop    15260         0.692           0.744           0.536               0.584                   0.584
+peri_urban  2010 rural_A     built     v57 worldpop    15260         0.618           0.776           0.461               0.417                   0.417
+peri_urban  2010 rural_A     built  v57pq5 worldpop    15260         0.616           0.757           0.461               0.442                   0.442
+peri_urban  2010 rural_A     built ghs_pop worldpop    15260         0.725           0.838           0.461               0.633                   0.626
+     rural  2010     all   unbuilt     v57  ghs_pop    93289         0.279           0.274           0.114               0.308                   0.307
+     rural  2010     all   unbuilt  v57pq5  ghs_pop    93289         0.250           0.296           0.114               0.328                   0.327
+     rural  2010     all   unbuilt     v57 worldpop    93289         0.353           0.239           0.372               0.506                   0.501
+     rural  2010     all   unbuilt  v57pq5 worldpop    93289         0.413           0.326           0.372               0.526                   0.521
+     rural  2010     all   unbuilt ghs_pop worldpop    93289         0.332           0.262           0.372               0.398                   0.377
+     rural  2010     all   undated     v57  ghs_pop    14237         0.356           0.383           0.262               0.417                   0.417
+     rural  2010     all   undated  v57pq5  ghs_pop    14237         0.337           0.376           0.262               0.434                   0.433
+     rural  2010     all   undated     v57 worldpop    14237         0.415           0.449           0.404               0.389                   0.388
+     rural  2010     all   undated  v57pq5 worldpop    14237         0.445           0.494           0.404               0.470                   0.469
+     rural  2010     all   undated ghs_pop worldpop    14237         0.463           0.472           0.404               0.489                   0.445
+     rural  2010     all no_record     v57  ghs_pop    79052         0.106           0.082           0.090               0.198                   0.196
+     rural  2010     all no_record  v57pq5  ghs_pop    79052         0.117           0.154           0.090               0.225                   0.223
+     rural  2010     all no_record     v57 worldpop    79052         0.425           0.139           0.375               0.547                   0.542
+     rural  2010     all no_record  v57pq5 worldpop    79052         0.444           0.246           0.375               0.559                   0.554
+     rural  2010     all no_record ghs_pop worldpop    79052         0.266           0.161           0.375               0.348                   0.330
+     rural  2010     all     built     v57  ghs_pop     9111         0.685           0.671           0.443               0.561                   0.561
+     rural  2010     all     built  v57pq5  ghs_pop     9111         0.688           0.639           0.443               0.570                   0.570
+     rural  2010     all     built     v57 worldpop     9111         0.610           0.690           0.353               0.478                   0.478
+     rural  2010     all     built  v57pq5 worldpop     9111         0.620           0.668           0.353               0.511                   0.511
+     rural  2010     all     built ghs_pop worldpop     9111         0.746           0.858           0.353               0.652                   0.645
+     rural  2010 rural_A   unbuilt     v57  ghs_pop    93001         0.279           0.274           0.115               0.307                   0.307
+     rural  2010 rural_A   unbuilt  v57pq5  ghs_pop    93001         0.250           0.296           0.115               0.327                   0.327
+     rural  2010 rural_A   unbuilt     v57 worldpop    93001         0.353           0.239           0.372               0.503                   0.501
+     rural  2010 rural_A   unbuilt  v57pq5 worldpop    93001         0.413           0.326           0.372               0.523                   0.521
+     rural  2010 rural_A   unbuilt ghs_pop worldpop    93001         0.332           0.262           0.372               0.398                   0.377
+     rural  2010 rural_A   undated     v57  ghs_pop    14231         0.356           0.383           0.262               0.417                   0.417
+     rural  2010 rural_A   undated  v57pq5  ghs_pop    14231         0.337           0.376           0.262               0.433                   0.433
+     rural  2010 rural_A   undated     v57 worldpop    14231         0.415           0.449           0.404               0.388                   0.388
+     rural  2010 rural_A   undated  v57pq5 worldpop    14231         0.445           0.494           0.404               0.470                   0.469
+     rural  2010 rural_A   undated ghs_pop worldpop    14231         0.463           0.472           0.404               0.489                   0.445
+     rural  2010 rural_A no_record     v57  ghs_pop    78770         0.106           0.082           0.090               0.197                   0.196
+     rural  2010 rural_A no_record  v57pq5  ghs_pop    78770         0.117           0.154           0.090               0.224                   0.223
+     rural  2010 rural_A no_record     v57 worldpop    78770         0.425           0.139           0.376               0.544                   0.542
+     rural  2010 rural_A no_record  v57pq5 worldpop    78770         0.444           0.246           0.376               0.556                   0.554
+     rural  2010 rural_A no_record ghs_pop worldpop    78770         0.266           0.161           0.376               0.348                   0.330
+     rural  2010 rural_A     built     v57  ghs_pop     9111         0.685           0.671           0.443               0.561                   0.561
+     rural  2010 rural_A     built  v57pq5  ghs_pop     9111         0.688           0.639           0.443               0.570                   0.570
+     rural  2010 rural_A     built     v57 worldpop     9111         0.610           0.690           0.353               0.478                   0.478
+     rural  2010 rural_A     built  v57pq5 worldpop     9111         0.620           0.668           0.353               0.511                   0.511
+     rural  2010 rural_A     built ghs_pop worldpop     9111         0.746           0.858           0.353               0.652                   0.645
+      city  1980     all   unbuilt     v57  ghs_pop    19756         0.419           0.039           0.247               0.538                   0.533
+      city  1980     all   unbuilt  v57pq5  ghs_pop    19756         0.380           0.069           0.247               0.461                   0.455
+      city  1980     all   undated     v57  ghs_pop    10799         0.433           0.041           0.343               0.388                   0.387
+      city  1980     all   undated  v57pq5  ghs_pop    10799         0.458           0.068           0.343               0.437                   0.435
+      city  1980     all no_record     v57  ghs_pop     8957         0.148           0.008           0.133               0.190                   0.176
+      city  1980     all no_record  v57pq5  ghs_pop     8957         0.144           0.083           0.133               0.187                   0.173
+      city  1980     all     built     v57  ghs_pop    37476         0.781           0.832           0.590               0.806                   0.806
+      city  1980     all     built  v57pq5  ghs_pop    37476         0.783           0.826           0.590               0.813                   0.813
+      city  1980 rural_A   unbuilt     v57  ghs_pop     9938         0.348           0.084           0.185               0.455                   0.452
+      city  1980 rural_A   unbuilt  v57pq5  ghs_pop     9938         0.276           0.159           0.185               0.338                   0.334
+      city  1980 rural_A   undated     v57  ghs_pop     3991         0.370           0.090           0.294               0.349                   0.348
+      city  1980 rural_A   undated  v57pq5  ghs_pop     3991         0.367           0.152           0.294               0.273                   0.272
+      city  1980 rural_A no_record     v57  ghs_pop     5947         0.131           0.024           0.120               0.121                   0.113
+      city  1980 rural_A no_record  v57pq5  ghs_pop     5947         0.130           0.212           0.120               0.112                   0.105
+      city  1980 rural_A     built     v57  ghs_pop     3246         0.647           0.834           0.543               0.545                   0.545
+      city  1980 rural_A     built  v57pq5  ghs_pop     3246         0.653           0.841           0.543               0.574                   0.574
+peri_urban  1980     all   unbuilt     v57  ghs_pop    91032         0.361           0.228           0.169               0.432                   0.432
+peri_urban  1980     all   unbuilt  v57pq5  ghs_pop    91032         0.271           0.262           0.169               0.394                   0.394
+peri_urban  1980     all   undated     v57  ghs_pop    21066         0.422           0.277           0.333               0.477                   0.477
+peri_urban  1980     all   undated  v57pq5  ghs_pop    21066         0.400           0.245           0.333               0.454                   0.454
+peri_urban  1980     all no_record     v57  ghs_pop    69966         0.144           0.071           0.118               0.223                   0.223
+peri_urban  1980     all no_record  v57pq5  ghs_pop    69966         0.172           0.315           0.118               0.282                   0.282
+peri_urban  1980     all     built     v57  ghs_pop    11368         0.681           0.721           0.427               0.641                   0.641
+peri_urban  1980     all     built  v57pq5  ghs_pop    11368         0.681           0.678           0.427               0.631                   0.631
+peri_urban  1980 rural_A   unbuilt     v57  ghs_pop    90639         0.385           0.281           0.175               0.428                   0.428
+peri_urban  1980 rural_A   unbuilt  v57pq5  ghs_pop    90639         0.281           0.322           0.175               0.391                   0.391
+peri_urban  1980 rural_A   undated     v57  ghs_pop    20827         0.453           0.351           0.355               0.475                   0.475
+peri_urban  1980 rural_A   undated  v57pq5  ghs_pop    20827         0.425           0.308           0.355               0.450                   0.450
+peri_urban  1980 rural_A no_record     v57  ghs_pop    69812         0.148           0.081           0.121               0.222                   0.222
+peri_urban  1980 rural_A no_record  v57pq5  ghs_pop    69812         0.177           0.360           0.121               0.280                   0.280
+peri_urban  1980 rural_A     built     v57  ghs_pop    10417         0.674           0.778           0.535               0.563                   0.563
+peri_urban  1980 rural_A     built  v57pq5  ghs_pop    10417         0.672           0.738           0.535               0.549                   0.549
+     rural  1980     all   unbuilt     v57  ghs_pop    96113         0.280           0.247           0.125               0.335                   0.334
+     rural  1980     all   unbuilt  v57pq5  ghs_pop    96113         0.248           0.240           0.125               0.349                   0.348
+     rural  1980     all   undated     v57  ghs_pop    15497         0.364           0.356           0.283               0.398                   0.398
+     rural  1980     all   undated  v57pq5  ghs_pop    15497         0.345           0.303           0.283               0.383                   0.382
+     rural  1980     all no_record     v57  ghs_pop    80616         0.112           0.075           0.094               0.218                   0.216
+     rural  1980     all no_record  v57pq5  ghs_pop    80616         0.127           0.142           0.094               0.235                   0.234
+     rural  1980     all     built     v57  ghs_pop     6287         0.679           0.724           0.439               0.568                   0.568
+     rural  1980     all     built  v57pq5  ghs_pop     6287         0.684           0.700           0.439               0.576                   0.576
+     rural  1980 rural_A   unbuilt     v57  ghs_pop    95825         0.280           0.247           0.125               0.334                   0.334
+     rural  1980 rural_A   unbuilt  v57pq5  ghs_pop    95825         0.248           0.240           0.125               0.348                   0.348
+     rural  1980 rural_A   undated     v57  ghs_pop    15491         0.364           0.356           0.284               0.398                   0.398
+     rural  1980 rural_A   undated  v57pq5  ghs_pop    15491         0.345           0.303           0.284               0.383                   0.382
+     rural  1980 rural_A no_record     v57  ghs_pop    80334         0.112           0.075           0.094               0.217                   0.217
+     rural  1980 rural_A no_record  v57pq5  ghs_pop    80334         0.127           0.142           0.094               0.234                   0.234
+     rural  1980 rural_A     built     v57  ghs_pop     6287         0.679           0.724           0.439               0.568                   0.568
+     rural  1980 rural_A     built  v57pq5  ghs_pop     6287         0.684           0.700           0.439               0.576                   0.576
+09:45:19 INFO wrote results/validation/conus/external/degurba_boxes_v57/unbuilt_overlap.csv, results/validation/conus/external/degurba_boxes_v57/unbuilt_overlap.png
+09:45:19 INFO DONE
+== done 2026-11-20T09:45:19-07:00
