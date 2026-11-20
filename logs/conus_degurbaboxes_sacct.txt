@@ -1,27 +1,9 @@
 JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
 ------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
-36044672             degurba_select  COMPLETED   00:02:33                   4  00:57.833 
-36044672.ba+                  batch  COMPLETED   00:02:33   3284100K        4  00:57.832 
-36044672.ex+                 extern  COMPLETED   00:02:33          0        4   00:00:00 
-Job ID: 36044672
-Cluster: alpine
-User/Group: jaju1407/jaju1407pgrp
-State: COMPLETED (exit code 0)
-Nodes: 1
-Cores per node: 4
-
--------- CPU Metrics --------
-CPU Utilized: 00:00:58
-CPU Efficiency: 9.48% of 00:10:12 core-walltime
-Job Wall-clock time: 00:02:33
-Memory Utilized: 3.13 GiB
-Memory Efficiency: 20.88% of 15.00 GiB (3.75 GiB/core)
-JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
------------- ---------------------- ---------- ---------- ---------- -------- ---------- 
-36044673                degurba_run  COMPLETED   00:04:24                   4  00:53.027 
-36044673.ba+                  batch  COMPLETED   00:04:24    401288K        4  00:53.025 
-36044673.ex+                 extern  COMPLETED   00:04:24          0        4  00:00.001 
-Job ID: 36044673
+36045150                degurba_run  COMPLETED   00:04:13                   4  00:52.699 
+36045150.ba+                  batch  COMPLETED   00:04:13    331892K        4  00:52.697 
+36045150.ex+                 extern  COMPLETED   00:04:13          0        4  00:00.001 
+Job ID: 36045150
 Cluster: alpine
 User/Group: jaju1407/jaju1407pgrp
 State: COMPLETED (exit code 0)
@@ -30,7 +12,7 @@ Cores per node: 4
 
 -------- CPU Metrics --------
 CPU Utilized: 00:00:53
-CPU Efficiency: 5.02% of 00:17:36 core-walltime
-Job Wall-clock time: 00:04:24
-Memory Utilized: 391.88 MiB
-Memory Efficiency: 2.55% of 15.00 GiB (3.75 GiB/core)
+CPU Efficiency: 5.24% of 00:16:52 core-walltime
+Job Wall-clock time: 00:04:13
+Memory Utilized: 324.11 MiB
+Memory Efficiency: 2.11% of 15.00 GiB (3.75 GiB/core)
