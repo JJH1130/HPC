@@ -372,6 +372,28 @@ People share by cell type, boxes pooled per type, class A (GHS-POP / WorldPop / 
 - About half of the rural blocks are > 4 x GHS-POP (v5.7 0.51, pq5 0.53; 2010), with the box totals equal: we spread the
   same people more evenly over blocks, GHS-POP concentrates them.
 
+## Unbuilt-cell overlap: result (job 36045900, run 2026-11-20 MT, commit 989f48c)
+
+COMPLETED (5 min); group sums matched `cell_type_shares.csv`. 250 m cells of the 11 DEGURBA boxes, pooled per box type,
+2010, distribution overlap sum min(a_i / A, b_i / B) (1 = same cells in the same shares), with an even-spread baseline:
+
+| box type, cell group | v5.7 vs GHS-POP | pq5 vs GHS-POP | even spread vs GHS-POP | GHS-POP vs WorldPop |
+|---|---|---|---|---|
+| rural, unbuilt | 0.28 | 0.25 | 0.11 | 0.33 (even 0.37) |
+| rural, built | 0.68 | 0.69 | 0.44 | 0.75 |
+| peri-urban, unbuilt | 0.32 | 0.28 | 0.15 | 0.43 |
+| city, unbuilt | 0.30 | 0.28 | 0.17 | 0.77 |
+| city fringe (rural blocks), unbuilt | 0.30 | 0.25 | 0.15 | 0.55 |
+
+- The same share (rural 20 % vs 20 %) is not the same cells: on unbuilt cells v5.7 overlaps GHS-POP 0.28, about 2.5 x the
+  even-spread baseline but far below built cells (0.68). Cells without any record: 0.11-0.14, near the baseline (no
+  location information there).
+- PLURAL lowers the unbuilt overlap in every box type (0.25-0.28): the people it adds to unbuilt cells go to the wrong
+  cells. Built cells unchanged.
+- The two references disagree on rural unbuilt cells as much as an even spread (GHS-POP vs WorldPop 0.33, even 0.37), but
+  agree in cities (0.77). In rural areas there is no cell-level reference for unbuilt cells; v5.7's 0.28 is close to the
+  references' own agreement.
+
 ## BUI outliers (request 2026-10-27): look first, decide after
 
 Pilot BUI maxima in one 250 m cell (62,500 m2): 306,635,538 (1920), 709,978,539 (1960), 5,447,140,510 (2010). Even a
