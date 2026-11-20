@@ -268,7 +268,11 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
    grew), (2) the same absolute rule per year (fits one model per year; few urban counties in early years), (3) relative
    classes per year (density ranks; stable counts, meaning changes). GHS-SMOD only from 1975 and carries block-census
    information from 1990; county census density works in every year but must not choose the model when scoring county
-   TEST predictions. Decide after the unbuilt-cell overlap result. Idea only; how to split (by county,
+   TEST predictions. User: (2) is hardly usable - today's absolute
+   thresholds (DEGURBA 300 / 1,500 per km2) miss most of what was urban in 1900. Era-aware options: relative classes per
+   year; the Census's own historical urban rule (places >= 2,500, share of the county's people in them; place data before
+   1930 needed); PLURAL as a county classifier only (computed per year from that year's places, 1930+). Decide after
+   the unbuilt-cell overlap result. Idea only; how to split (by county,
    by cell, by which variable) is the hard part. Discuss next meeting, no analysis now.
 
 ### Meeting with Stefan, 2026-10-28 (to do; details to be settled)
