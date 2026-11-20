@@ -263,7 +263,12 @@ Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 
      cell group and pair, boxes and box types) -> `degurba_boxes_v57/unbuilt_overlap.{csv,png}`.
 - **For the next meeting write-up:** item 1 result = `docs/conus_plan.md` "v5.7 with nby_age instead of nby: result"
   (nby_age worse by county CV in all 5 years, on v5.7 as on v5.6; early-year factors near 0).
-5. **(Later, next meeting) Separate models for rural / peri-urban / urban.** Idea only; how to split (by county,
+5. **(Later, next meeting) Separate models for rural / peri-urban / urban.** Notes 2026-11-21 (user / Claude): how to class
+   counties per year - (1) the 2010 classes for every year (simple, but 1900 suburbs would count as urban: population
+   grew), (2) the same absolute rule per year (fits one model per year; few urban counties in early years), (3) relative
+   classes per year (density ranks; stable counts, meaning changes). GHS-SMOD only from 1975 and carries block-census
+   information from 1990; county census density works in every year but must not choose the model when scoring county
+   TEST predictions. Decide after the unbuilt-cell overlap result. Idea only; how to split (by county,
    by cell, by which variable) is the hard part. Discuss next meeting, no analysis now.
 
 ### Meeting with Stefan, 2026-10-28 (to do; details to be settled)
