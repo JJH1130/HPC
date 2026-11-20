@@ -1,35 +1,52 @@
-git pull 받고 아래를 해줘. 배경: docs/conus_plan.md "City boxes by density class: result". 지금 비교 상자 (Boston / Denver /
-Chicago 40 x 40 km)의 "rural"은 대도시 외곽뿐임. 사용자: 진짜 시골에서도 봐야 함 (Stefan 11/17 4번: rural에서 GHS-POP / WorldPop과
-얼마나 비슷하거나 다른지). -> 시골 상자 4개 + 근교 / 소도시 (peri-urban) 상자 4개를 고정 규칙으로 골라 같은 계산 (사용자 2026-11-21: peri-urban도).
+git pull 받고 아래를 해줘. (이 파일은 2026-11-21에 다시 썼음: 임의 밀도 경계 대신 Degree of Urbanisation. 예전 판으로 시작한 작업이
+있으면 이 판에 맞춰 고칠 것.)
 
-[1. 상자 고르기 (결과 보기 전에 규칙 고정, 골라진 상자를 config에 기록하고 커밋)]
-- 후보: 2010 카운티 (우리 2010 경계, 학습에 쓰는 status) 중 2010 인구 밀도 < 10 명 / km2.
-- Census region 4개 (Northeast / Midwest / South / West; 주 FIPS로)마다, 후보 중 밀도가 중앙값인 카운티 하나 (짝수면 낮은 쪽; 같으면
-  GISJOIN 작은 쪽). 상자 = 그 카운티 중심점 (polygon centroid, ESRI:102039)에서 40 x 40 km, 우리 250 m 격자에 맞춤 (기존 상자와 같은
-  방식).
-- peri-urban 상자 (같은 방식, 별도 4개): 후보 = 2010 밀도 20 - 100 명 / km2 카운티, 그리고 그 중심점에서 기존 도시 상자
-  (Boston / Denver / Chicago)와 다른 상자까지 50 km 이상. region마다 밀도 중앙값 카운티 하나. 상자 종류 열 box_type = rural /
-  peri_urban.
-- 확인용 출력 (로그 + rural_boxes.csv): 고른 카운티, 주, 밀도, 후보 수, 상자 안 v5.7 인구 (1980 / 2010), 상자 안 마스크 밖 셀 비율,
-  상자 안에 인구 1만 이상 place가 있는지 (PLURAL place 자료가 있으면; 없으면 생략하고 로그). 상자가 CONUS 밖으로 나가면 그 region의
-  다음 순위 카운티 (중앙값에서 가까운 순).
-- configs/external_grids.yaml에 rural_boxes: 블록 (선택 규칙 + 골라진 8개 상자, box_type). 이 블록은 선택 스크립트가 만들고, 이후 실행은 그
-  고정 값을 읽음 (다시 고르지 않음).
+배경: docs/conus_plan.md "City boxes by density class: result". 지금 비교 상자 (Boston / Denver / Chicago 40 x 40 km)의 "rural"은
+대도시 외곽뿐이고, 구간 경계 (블록 밀도 100 / 1,000)는 근거 없는 값이었음. 사용자 결정 (2026-11-21): 구간은 EU / UN Degree of
+Urbanisation (DEGURBA) 정의로, 상자도 같은 기준으로 골라 진짜 시골 / 근교 상자를 추가.
 
-[2. 같은 계산 (external_city_density.py 재사용)]
-- 버전: v5.7 (주) + v5.7 + PLURAL pq5 (extra), 1980 (GHS-POP) / 2010 (GHS-POP, WorldPop). 기존 도시 상자 결과는 건드리지 않음.
-- 구간: 같은 경계 (GHS-POP 블록 밀도 rural < 100, peri-urban 100 - 1,000, urban >= 1,000). 시골 상자는 대부분 rural이 될 것.
-- 표: density_class_summary.csv (상자 / 구간별 Spearman, 총인구 비율, x4 비율 등), cell_type_shares.csv (셀 종류별 인구 비율: BUI > 0 /
-  BUI = 0 이고 NobuiltYear > 0 / 기록 없음; GHS-POP / WorldPop / v5.7 / pq5), 상자 전체 + 구간별 + box_type별 4개 상자 합.
-- 구간 기준 착시 주의 (도시 상자 결과의 교훈): 총인구 비율은 (a) GHS-POP 밀도로 구간, (b) 우리 밀도로 구간 둘 다 쓰고, 상자 전체
-  총인구 비율 (우리 / GHS-POP, 구간 없이)도 같이. 로그 요약표에 세 가지 나란히.
-- 그림: 상자마다 지도 한 장 (v5.7 | GHS-POP | WorldPop(2010), 기존 미팅 지도와 같은 색 범위 / 축척막대 / 회색 마스크) + 셀 종류 막대
-  그림. 미팅 지도 코드 재사용 (city_maps_meeting 형식, 산점도 포함; 고정 축 0.01 - 30,000).
-- 출력: results/validation/conus/external/rural_boxes_v57/.
+[0. 데이터: GHS-SMOD R2023A]
+- JRC GHS-SMOD R2023A (DEGURBA stage I을 GHS-POP R2023A + GHS-BUILT-S R2023A에 적용한 격자, 1 km Mollweide, 1975-2030 5년 간격).
+  1980 / 2010 (+ 상자 고르기에는 2010). docs/data_sources.md에 먼저 행 + Details (인용, 다운로드 URL, 버전, 클래스 코드: 30 urban centre,
+  23 / 22 / 21 urban cluster 계열, 13 / 12 / 11 rural 계열, 10 water). sbatch/external_download.sh에 추가 (로그인 노드, 기존 GHS-POP과
+  같은 방식, 체크섬 기록). 클래스 코드는 받은 파일의 문서로 확인하고 로그에 출력.
+- 우리 250 m 격자로: 각 250 m 셀 중심이 들어가는 SMOD 1 km 셀의 클래스 (nearest). 1 km 블록 클래스 = 블록 안 16개 셀의 다수결
+  (동수면 더 도시 쪽).
+
+[1. 블록 구간 (두 가지, 둘 다 출력)]
+- A (주): GHS-SMOD 클래스 -> urban (30), peri_urban (21-23 = urban cluster, urban centre 제외), rural (11-13). 물 (10)은 제외.
+- B (확인): 같은 규칙을 우리 v5.7 밀도의 1 km 블록에 직접: urban centre = 밀도 >= 1,500 / km2 블록의 4-연결 (대각선 제외) 덩어리, 덩어리
+  인구 >= 50,000, 덩어리 안 구멍 메우기; urban cluster = 밀도 >= 300 블록의 8-연결 (대각선 포함) 덩어리, 덩어리 인구 >= 5,000 (urban centre
+  제외 나머지); 나머지 rural. 상자 경계에서 덩어리가 잘리지 않게 상자보다 사방 20 km 넓게 계산 후 잘라냄. 구멍 메우기는 매뉴얼 규칙을
+  확인해서 구현하고 (확인 못 하면: 사방이 urban centre인 블록만 메움) 로그에 적은 규칙 출력. 가장자리 다듬기는 생략하고 로그에 명시.
+- 기존 도시 상자 (Boston / Denver / Chicago)도 A / B 구간으로 다시 계산 (예전 100 / 1,000 결과 파일은 그대로 두고, 새 폴더).
+
+[2. 상자 고르기 (결과 보기 전에 규칙 고정; 골라진 상자를 config에 기록하고 커밋)]
+- 2010 카운티 (우리 2010 경계, 학습 status)마다 GHS-SMOD 2010의 카운티 안 셀 클래스 집계.
+- rural 후보: 카운티 안에 urban cluster / urban centre 셀이 하나도 없는 카운티. peri_urban 후보: urban cluster 셀은 있고 urban centre 셀은
+  없는 카운티.
+- Census region 4개 (주 FIPS)마다, 종류별로 후보 중 2010 밀도가 중앙값인 카운티 하나 (짝수면 낮은 쪽, 동률이면 GISJOIN 작은 쪽) ->
+  rural 4 + peri_urban 4 = 8개. 상자 = 그 카운티 중심점 (polygon centroid, ESRI:102039)에서 40 x 40 km, 우리 250 m 격자에 맞춤.
+- 기존 도시 상자나 다른 새 상자와 중심 간 50 km 미만이면, 상자가 CONUS 밖으로 나가면 -> 그 region / 종류의 다음 후보 (중앙값에서 가까운 순).
+- 확인용 출력 (로그 + boxes_selected.csv): 카운티, 주, 밀도, 후보 수, 상자 안 SMOD 클래스별 셀 비율, 상자 안 v5.7 인구 (1980 / 2010),
+  마스크 밖 셀 비율.
+- configs/external_grids.yaml에 rural_boxes: 블록 (규칙 + 골라진 8개 상자, box_type rural / peri_urban). 이후 실행은 이 값을 읽음 (다시
+  고르지 않음).
+
+[3. 계산 (external_city_density.py 재사용)]
+- 상자: 새 8개 + 기존 도시 3개. 버전: v5.7 (주) + v5.7 + PLURAL pq5 (extra). 1980 (GHS-POP) / 2010 (GHS-POP, WorldPop).
+- 구간 A와 B 각각: density_class_summary (상자 / 구간별 블록 수, Spearman, 총인구 비율, x4 비율 등), cell_type_shares (셀 종류별 인구 비율:
+  BUI > 0 / BUI = 0 이고 NobuiltYear > 0 / 기록 없음; GHS-POP / WorldPop / v5.7 / pq5). 상자별 + box_type별 합 (city / peri_urban / rural).
+- 총인구 비율은 구간 A, 구간 B, 상자 전체 (구간 없이) 세 가지를 로그 요약표에 나란히 (구간 기준 착시 확인용).
+- 그림: 새 상자마다 미팅 지도 형식 한 장 (v5.7 | GHS-POP | WorldPop(2010), 같은 색 범위 / 축척막대 / 회색 마스크 / 고정 축 산점도) + 셀
+  종류 막대 그림 (구간 A).
+- 출력: results/validation/conus/external/degurba_boxes_v57/. 기존 city_density_classes_v57/는 건드리지 않음.
 
 [공통]
-- 로컬 테스트 (선택 규칙: 합성 카운티 표에서 region별 중앙값 / 짝수 / 동률 / CONUS 밖 처리 손계산; 고정 상자 읽기; 기존 도시 상자 결과
-  그대로), 커밋, push.
-- submit_conus.sh 모드 ruralboxes (선택은 사전 확인에서 로그인 노드로 또는 첫 잡으로 -> 계산 잡; 한 번 제출). 러너북 26절,
-  docs/conus_plan.md 절 "Rural boxes", CLAUDE.md, open_items 갱신. docs/data_sources.md는 새 데이터가 없으면 그대로.
-- Alpine 명령: (1) 사전 확인 + 제출, (2) 로그 + 결과 커밋. 블록 끝마다 성공 표시 한 줄.
+- 로컬 테스트 (SMOD 클래스 -> 우리 셀 / 블록 다수결 손계산; B의 덩어리 규칙: 4- / 8-연결, 인구 문턱, 구멍 메우기, 넓힌 창 = 잘리지
+  않음 손계산; 상자 고르기: 합성 카운티에서 후보 / 중앙값 / 짝수 / 동률 / 50 km / CONUS 밖 손계산; 기존 도시 상자 예전 결과 그대로),
+  커밋, push.
+- submit_conus.sh 모드 degurbaboxes (사전 확인: SMOD 파일 / 상자 config; 상자 고르기는 config가 없을 때만 첫 잡으로, 있으면 그대로 ->
+  계산 잡; 한 번 제출). SMOD 다운로드는 러너북 26절 블록 0 (로그인 노드). 러너북 26절, docs/conus_plan.md 절 "DEGURBA boxes",
+  CLAUDE.md, open_items 갱신.
+- Alpine 명령: (0) SMOD 다운로드 (로그인 노드), (1) 사전 확인 + 제출, (2) 로그 + 결과 커밋. 블록 끝마다 성공 표시 한 줄.
