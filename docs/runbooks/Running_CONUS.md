@@ -2324,6 +2324,89 @@ Failed jobs: commit anyway (same block) and tell Claude.
 What to look for in the logs: `pluralcm_compare` lines `SUMMARY` (county numbers = the PLURAL versions', tracts by set
 and their change vs v5.7, people on cells, built contrast, variance table, the interpretation table) and `RULE`.
 
+## 26. DEGURBA boxes: rural / peri-urban / urban by the Degree of Urbanisation, 8 new boxes + 3 cities (2026-11-21)
+
+Request `docs/handoff/rural_boxes_request.md`; design `docs/conus_plan.md` "DEGURBA boxes". Classes A = GHS-SMOD R2023A
+(main), B = the stage I rules on v5.7's density (check). Box choice once by a fixed rule (`select` job, only while
+`rural_boxes.boxes` of `configs/external_grids.yaml` is empty; it writes the 8 boxes there), then the `run` job. Needs
+on scratch the v5.7 / v5.7 pq5 predictions 1980 / 2010 and the cutout BUI (as section 24), in `$DATA_ROOT` GHS-POP /
+WorldPop (section 8), GHS-SMOD (block 0) and `processed/census_conus/counties_2010.gpkg`, in git the meeting table.
+The earlier `city_density_classes_v57/` is not touched.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| 0 | login node | GHS-SMOD 1980 / 2010 (~31 MB) + GHSL Data Package PDF | minutes |
+| select | `degurba_select` | candidates per county, 8 boxes -> config + `boxes_selected.csv` | 4 cores, 1 h wall |
+| run | `degurba_run` | 11 boxes x 2 years, A / B classes, cell types, 22 PNGs | 4 cores, 1 h wall |
+
+Block 0, GHS-SMOD download (login node, not a job):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+PRODUCTS=ghs_smod bash sbatch/external_download.sh 2>&1 | tee logs/ghs_smod_download.txt
+ls -l $DATA_ROOT/raw/external/ghs_smod/
+echo "== end of block 0 (success = 2 'size ok' lines, 2 sha256 lines, the class-code lines, ghs_smod: ok)"
+```
+
+(`$DATA_ROOT` comes from `source sbatch/cluster_env.sh`; if `ls` says it is empty, run `source sbatch/cluster_env.sh`
+first.) Good: `GHS_SMOD_E1980_..._V2_0.tif: size ok (14642448 bytes)` and `E2010 ... (16230068 bytes)`, two `sha256`
+lines, `docs/GHSL_Data_Package_2023.pdf (...)`, lines `SMOD class codes in the Data Package` with 30 / 23 / 22 / 21 / 13 /
+12 / 11 / 10 next to the class names (or `pdftotext not found`), two header lines (`ESRI:54009` or a Mollweide WKT, 1000 m
+res, nodata), `ghs_smod: ok`. A `WARNING ... size changed`, codes other than these, or `FAILED`: send the output to
+Claude before block 1.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+bash sbatch/submit_conus.sh degurbaboxes
+squeue -u $USER
+echo "== end of block 1 (success = 'BOXES EMPTY', CHECK OK, a 'box selection job N' line, one 'select N | run M' line)"
+```
+
+Good: `boxes in configs/external_grids.yaml: BOXES EMPTY`, `CHECK OK: inputs for 2 years; boxes EMPTY`, `input NobuiltYear
+... (hisdac)`, `box selection job N (the run waits for it)`, `select N | run M`; `== end of block 1`. `MISSING ...` /
+`ERROR: nothing submitted`: send the output to Claude. (If the boxes are chosen already the select job is left out:
+`boxes chosen already`, then only `run M`.)
+
+Block 2, close the loop (after both jobs left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+cat logs/conus_degurbaboxes_jobs.txt
+for j in $(grep -oE '[0-9]{6,}' logs/conus_degurbaboxes_jobs.txt); do
+    sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU
+    seff "$j"
+done | tee logs/conus_degurbaboxes_sacct.txt
+grep -hE "CHOSEN|SELECT OK|SMOD codes in the counties|ERROR" logs/degurba_select.*.out
+grep -hE "RULE|MATCH|add up|DONE|ERROR" logs/degurba_run.*.out
+git diff --stat configs/external_grids.yaml
+ls results/validation/conus/external/degurba_boxes_v57/
+git add logs/ configs/external_grids.yaml results/validation/conus/external/degurba_boxes_v57/
+git commit -m "run: DEGURBA boxes, 8 rural / peri-urban boxes chosen + classes A / B, v5.7 and v5.7 pq5 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = 2 COMPLETED, 8 CHOSEN, SELECT OK, MATCH, 'classes add up', 'cell types add up', DONE, config +8 lines, push main -> main)"
+```
+
+Good: both jobs `COMPLETED`; select log: eight `... -> CHOSEN` lines (one per region x type; `REFUSED` lines before
+them are normal), `SMOD codes in the counties`, `SELECT OK`; run log: `RULE A`, `RULE B` (says the gap rule is not
+verified and no edge smoothing), `MATCH .../meeting_summary_v56_v57.csv`, `classes add up to all`, `cell types add up`,
+`DONE`; `git diff --stat` shows `configs/external_grids.yaml` changed (the 8 boxes); in the folder 5 CSV
+(`boxes_selected`, `density_class_summary`, `cell_type_shares`, `totals_side_by_side`, `box_classes`) + 16 maps + 22
+cell-type PNGs; `git push` ends with `main -> main`; `== end of block 2`. A `FAILED` job or an `ERROR` line (e.g.
+`SMOD codes [..] not in the config's code table`, `every rural candidate in ... refused`, `whole box differs`): commit
+anyway (same block) and tell Claude.
+
+What to look for in the run log: `SUMMARY totals` (our / product per A class | B class | full blocks | whole box),
+`SUMMARY per box type` (pooled city / peri_urban / rural blocks), `SUMMARY cell types per box type`.
+
 ## If it fails
 
 | Symptom | Fix |

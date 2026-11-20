@@ -467,9 +467,10 @@ TYPE_LABELS = {"bui_gt0": "BUI > 0", "bui0_nobuilt_gt0": "BUI = 0, NobuiltYear >
 BAR_FIGSIZE = (15.0, 5.2)
 
 
-def draw_cells(path: Path, city_label: str, year: int, crow: list, cols: list, names: dict, dc: dict):
+def draw_cells(path: Path, city_label: str, year: int, crow: list, cols: list, names: dict, dc: dict,
+               class_note: str = "GHS-POP 1 km block density"):
     """One panel per class (+ the whole box): a stacked bar per product / version = the cell-type shares within the
-    class; above the bar the class's share of the box people."""
+    class; above the bar the class's share of the box people. class_note: what the classes are (title)."""
     plots = ecm._plots()
     plt = plots.plt
     colors = plots.SERIES[:3]  # fixed order: BUI > 0, undated records only, no record
@@ -509,8 +510,8 @@ def draw_cells(path: Path, city_label: str, year: int, crow: list, cols: list, n
     axes[0].set_ylabel("% of the class's people on cells of the type", fontsize=8, color=plots.INK)
     h, lab = axes[0].get_legend_handles_labels()
     fig.legend(h, lab, loc="outside lower center", ncol=3, fontsize=7.5, frameon=False)
-    fig.suptitle(f"{city_label}, {year}: people by HISDAC record of their 250 m cell (classes = GHS-POP 1 km block "
-                 f"density; grey number above a bar = the class's share of the box people)", fontsize=9,
+    fig.suptitle(f"{city_label}, {year}: people by HISDAC record of their 250 m cell (classes = {class_note}; "
+                 f"grey number above a bar = the class's share of the box people)", fontsize=9,
                  color=plots.INK)
     path.parent.mkdir(parents=True, exist_ok=True)
     from matplotlib.transforms import Bbox

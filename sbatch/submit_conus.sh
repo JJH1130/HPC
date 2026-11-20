@@ -102,6 +102,9 @@
 #                                       # model snapshot (logs/conus_pluralcm_models.json) -> predict / validate of
 #                                       # Dasy_CONUS_RF_v3_all_nby_{pq5,plc}cm (pq5 / plc models, county plural) and the
 #                                       # variance job side by side -> plural_countymean compare; one submit
+#   bash sbatch/submit_conus.sh degurbaboxes  # DEGURBA boxes (after the GHS-SMOD download, section 26 block 0): input
+#                                       # check -> (only while rural_boxes.boxes is empty) box selection job -> run
+#                                       # job (A = GHS-SMOD, B = own density classes, 8 new + 3 city boxes); one submit
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -159,10 +162,12 @@
 # citydensity: as citymeeting (same boxes and product moves, 6 small figures): 2 cores, 30 min (DENS_TIME).
 # pluralcm: predict / validate as one v57plural variant (jobs 35904624 / 35904625: predict 15 min / 14 GB on 32 cores,
 # validate 9 min / 17 GB); variance and compare 4 cores, 1 h each (DIAG_TIME, COMPARE_TIME; estimates).
+# degurbaboxes: select 4 cores 1 h (SELECT_TIME), run 4 cores 1 h (DEG_TIME; city density took 1.5 min for 6 of
+# the 22 box-years, estimate).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -1150,6 +1155,33 @@ elif [[ $mode == citydensity ]]; then
     jd=$(sub "" --time=${DENS_TIME:-00:30:00} \
          --export=ALL,DENS_VERSION=$V,DENS_LABEL=$L,DENS_CHECK_WITH=$CHK,DENS_EXTRA=$X sbatch/external_city_density.sh)
     echo "city_density $jd ($V $L; extra $X)" | tee logs/conus_citydensity_jobs.txt
+elif [[ $mode == degurbaboxes ]]; then
+    miss=()
+    for y in 1980 2010; do
+        f=$DATA_ROOT/raw/external/ghs_smod/GHS_SMOD_E${y}_GLOBE_R2023A_54009_1000_V2_0.tif
+        [[ -f $f ]] || miss+=("$f (PRECHECK: PRODUCTS=ghs_smod bash sbatch/external_download.sh, section 26 block 0)")
+    done
+    [[ -f $DATA_ROOT/processed/census_conus/counties_2010.gpkg ]] || miss+=("$DATA_ROOT/processed/census_conus/counties_2010.gpkg")
+    if (( ${#miss[@]} )); then printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    st=$( (activate_env hisdac >/dev/null && python -u src/validation/degurba_boxes.py status) | tail -1)
+    echo "boxes in configs/external_grids.yaml: $st"
+    if ! bash sbatch/degurba_boxes.sh run --check > logs/conus_degurbaboxes_check.txt 2>&1; then
+        grep -E "MISSING|ERROR" logs/conus_degurbaboxes_check.txt || tail -5 logs/conus_degurbaboxes_check.txt
+        echo "ERROR: nothing submitted (see logs/conus_degurbaboxes_check.txt)"; exit 1
+    fi
+    grep -E "CHECK OK|NobuiltYear" logs/conus_degurbaboxes_check.txt || true
+    js=""
+    if [[ $st == "BOXES EMPTY" ]]; then
+        if ! bash sbatch/degurba_boxes.sh select --check >> logs/conus_degurbaboxes_check.txt 2>&1; then
+            tail -5 logs/conus_degurbaboxes_check.txt; echo "ERROR: nothing submitted (select inputs)"; exit 1
+        fi
+        js=$(sub "" --time=${SELECT_TIME:-01:00:00} --job-name=degurba_select sbatch/degurba_boxes.sh select)
+        echo "box selection job $js (the run waits for it)"
+    else
+        echo "boxes chosen already: no selection job (the run reads them)"
+    fi
+    jr=$(sub "$js" --time=${DEG_TIME:-01:00:00} --job-name=degurba_run sbatch/degurba_boxes.sh run)
+    echo "${js:+select $js | }run $jr" | tee logs/conus_degurbaboxes_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

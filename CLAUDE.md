@@ -148,7 +148,15 @@ county_level / partial; v5.7 / pq5 / plc rows must equal `plural_v57_*.csv`, mod
 [VERSION LABEL]`; `city_density:` block of `configs/external_grids.yaml`): the meeting boxes / blocks split by GHS-POP block density
 (rural < 100, peri_urban 100 - 1,000, urban >= 1,000 per km2, a break = the upper class; same breaks on our density as a check),
 per class blocks / Spearman / totals / block-ratio quantiles / zero blocks / x4 shares + one figure per city and year; whole box =
-the version's `meeting_summary_<a>_<b>.csv`, else stop -> `results/validation/conus/external/city_density_classes_<label>/`; `--extra-version V=LABEL` (sbatch env `DENS_EXTRA`, default v5.7 + PLURAL pq5) adds a version's class rows without the whole-box check, and `cell_type_shares.csv` + `<city>_<year>_cell_types.png` give the people share of each product / version on cells with BUI > 0 / BUI = 0 and NobuiltYear > 0 / no record (BUI from the cutout, NobuiltYear as the meeting maps; per class and the box; the meeting `gap_blocks.csv` cell shares recomputed, else stop). `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
+the version's `meeting_summary_<a>_<b>.csv`, else stop -> `results/validation/conus/external/city_density_classes_<label>/`; `--extra-version V=LABEL` (sbatch env `DENS_EXTRA`, default v5.7 + PLURAL pq5) adds a version's class rows without the whole-box check, and `cell_type_shares.csv` + `<city>_<year>_cell_types.png` give the people share of each product / version on cells with BUI > 0 / BUI = 0 and NobuiltYear > 0 / no record (BUI from the cutout, NobuiltYear as the meeting maps; per class and the box; the meeting `gap_blocks.csv` cell shares recomputed, else stop). DEGURBA boxes (`docs/conus_plan.md` "DEGURBA boxes", runbook section 26, `bash sbatch/submit_conus.sh degurbaboxes`;
+GHS-SMOD R2023A 1980 / 2010 by `PRODUCTS=ghs_smod bash sbatch/external_download.sh`, login node): `src/validation/degurba_boxes.py`
+(`sbatch/degurba_boxes.sh select|run`, `rural_boxes:` block of `configs/external_grids.yaml`): `select` (once, refused while
+`boxes` is filled; the submit adds it only then) picks 4 rural + 4 peri-urban boxes per Census region from the SMOD 2010
+classes of the 2010 counties (median density, fixed rule) and writes them into the config + `boxes_selected.csv`; `run` = those
++ the 3 city boxes, classes A (SMOD code of each cell centre, block majority, tie -> more urban) and B (stage I rules on v5.7's
+block density on the box + 20 km; holes = four-side fallback, no smoothing), v5.7 + pq5, `external_city_density` metrics +
+cell types per box and per box type, totals side by side, city boxes checked against the meeting table ->
+`results/validation/conus/external/degurba_boxes_v57/`. `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
 figure, a row per version: mean |SHAP| bar + beeswarm from the era's `shap_values.csv` / `county_features.csv`, bars checked
 against `shap_importance.csv`) -> `results/validation/conus/shap_figures/` (Stefan 2026-11-17 item 3). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
@@ -188,7 +196,7 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm` (`v57plural` / `citydensity` / `pluralcm` = PLURAL on v5.7 / city boxes by density class / PLURAL at county level only, see above; `v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes` (`v57plural` / `citydensity` / `pluralcm` / `degurbaboxes` = PLURAL on v5.7 / city boxes by density class / PLURAL at county level only / DEGURBA boxes, see above; `v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
 `undated_age_diag` side by side; the pre-check prints the time left before a CURC maintenance window (`MAINT_START` / `MAINT_END`,
 MT) and which jobs would wait; `nobuilt` = NOBUILT layer -> nby / nbya features / train / predict / validate side by side -> `nobuilt_compare`; `uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
 `filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `externalv56` = pre-check of the reused tract sums + map inputs, then evaluate and city maps side by side; `citymeeting` = pre-check of the meeting-map inputs, one job; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
@@ -256,6 +264,9 @@ changed meeting number stops; a second version + cell types / shares by hand, a 
 unchanged (sha256 = model_from.json), a changed source TEST prediction stops; snapshot / model check; variance split and built
 contrast = brute force; compare on a synthetic world from the earlier scripts (cm county rows, tracts, the rule by hand; changed
 numbers / model check stop); the tracked numbers),
+`python tests/test_degurba_boxes.py` (SMOD per cell centre / block majority by hand; scheme B
+4- / 8-connectivity, thresholds, four-side holes, margin = not cut; box selection on synthetic counties: candidates, median /
+even / tie, 50 km, outside CONUS, config written once; run end to end on the meeting city world, city check stops on a change),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 

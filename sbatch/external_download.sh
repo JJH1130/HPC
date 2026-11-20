@@ -4,10 +4,15 @@
 # Not a job: run it on a login node from the repo root (like sbatch/ntlv_download.sh; IO only, ~27 GB in all).
 #   bash sbatch/external_download.sh                      # all products
 #   PRODUCTS="worldpop fang_jawitz" bash sbatch/external_download.sh
+#   PRODUCTS=ghs_smod bash sbatch/external_download.sh  # GHS-SMOD R2023A 1980 / 2010 only (DEGURBA boxes,
+#                                                       # docs/runbooks/Running_CONUS.md section 26 block 0)
 #
 # Public (no login): GHS-POP R2023A 100 m Mollweide, 1980 / 1990 / 2000 / 2010 (JRC's own AWS bucket, 4.2-5.1 GB
 # each, size checked against the bucket listing recorded 2026-10-28); WorldPop USA 100 m unconstrained, 2000 / 2010
 # (~4 GB each, size checked); Fang & Jawitz (2018) figshare .7z (602 MB, md5 checked; unpacked to grids/).
+# GHS-SMOD R2023A V2-0 1 km Mollweide, 1980 / 2010 (same JRC bucket, 15-16 MB each, size checked against the
+# bucket listing of 2026-11-21, sha256 recorded in ghs_smod/SHA256SUMS) + the GHSL Data Package 2023 PDF (the class
+# codes of the SMOD layer; the lines naming them are printed if pdftotext is there).
 # NASA Earthdata login (~/.netrc entry for urs.earthdata.nasa.gov; docs/runbooks/Running_CONUS.md section 8):
 # GPW v4.11 population count 30 arc-sec 2000 / 2010 (not UN-adjusted), GRUMP v1 population count 30 arc-sec
 # 1990 / 2000 (global .bil), and the GPWv4 / GPWv3 documents (US input units). Without the .netrc entry these are
@@ -18,7 +23,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 
-PRODUCTS=${PRODUCTS:-ghs_pop worldpop fang_jawitz gpw4 grump1}
+PRODUCTS=${PRODUCTS:-ghs_pop worldpop fang_jawitz gpw4 grump1 ghs_smod}
 OUT=$DATA_ROOT/raw/external
 COOKIES=$HOME/.urs_cookies
 mkdir -p "$OUT"
@@ -74,6 +79,40 @@ ghs_pop() {
 1990 4542378023
 2000 4742953518
 2010 5121499452"
+}
+
+ghs_smod() {
+    # year bytes, from https://jrc-ghsl.s3.eu-central-1.amazonaws.com/?list-type=2&prefix=ghs-smod/ (2026-11-21;
+    # multipart ETags, no md5 listed: sha256 of the files is recorded instead)
+    local y b f
+    while read -r y b; do
+        f=GHS_SMOD_E${y}_GLOBE_R2023A_54009_1000_V2_0.tif
+        by_size ghs_smod "https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-smod/r2023a/54009/1000m/$y/$f" \
+            "$OUT/ghs_smod/$f" "$b" || return 1
+    done <<< "1980 14642448
+2010 16230068"
+    (cd "$OUT/ghs_smod" && sha256sum GHS_SMOD_E*_GLOBE_R2023A_54009_1000_V2_0.tif | tee SHA256SUMS | sed 's/^/   sha256 /')
+    local doc=$OUT/docs/GHSL_Data_Package_2023.pdf
+    if [[ -s $doc ]]; then
+        echo "== docs/$(basename "$doc"): already there"
+    else
+        fetch https://ghsl.jrc.ec.europa.eu/documents/GHSL_Data_Package_2023.pdf "$doc" \
+            && echo "== docs/$(basename "$doc") ($(du -h "$doc" | cut -f1))" \
+            || echo "WARNING: GHSL Data Package not downloaded: check the SMOD class codes by hand (configs/external_grids.yaml rural_boxes.smod.codes)"
+    fi
+    if [[ -s $doc ]] && command -v pdftotext >/dev/null; then
+        echo "   SMOD class codes in the Data Package (lines with the class names; compare with rural_boxes.smod.codes):"
+        pdftotext -layout "$doc" - 2>/dev/null | grep -iE "urban centre|dense urban cluster|semi-dense|suburban|rural cluster|low density rural|water grid|NoData" \
+            | grep -E "\b(30|23|22|21|13|12|11|10|-200)\b" | sort -u | head -30 | sed 's/^/     /'
+    elif [[ -s $doc ]]; then
+        echo "   pdftotext not found: SMOD class codes not printed (the run logs the codes found in the raster and stops on an unknown one)"
+    fi
+    "$ENVS/hisdac/bin/python" - "$OUT/ghs_smod" <<'PY' || echo "WARNING: header check of the SMOD files failed"
+import sys, pathlib, rasterio
+for p in sorted(pathlib.Path(sys.argv[1]).glob("*.tif")):
+    with rasterio.open(p) as s:
+        print(f"   {p.name}: {s.crs}, {s.width} x {s.height}, res {s.res}, dtype {s.dtypes[0]}, nodata {s.nodata}, tags {s.tags()}")
+PY
 }
 
 worldpop() {

@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-11-04 (HISDAC FBUY read for the undated-record age diagnosis); 2026-11-04 (HISDAC NobuiltYear as a CONUS cutout layer / feature, NobuiltYear feature test); 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-11-21 (GHS-SMOD R2023A for the DEGURBA boxes); 2026-11-04 (HISDAC FBUY read for the undated-record age diagnosis); 2026-11-04 (HISDAC NobuiltYear as a CONUS cutout layer / feature, NobuiltYear feature test); 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -21,6 +21,7 @@ Last updated: 2026-11-04 (HISDAC FBUY read for the undated-record age diagnosis)
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | NPP-VIIRS-like global NTL | Chen et al. (2021), Harvard Dataverse doi:10.7910/DVN/YGIVCD, **Version1**, 2000 and 2010 | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/` | CONUS feature test `ntlv` (`Dasy_CONUS_RF_v3_ntlv`, cutout layer `NTLV`) | Registered 2026-10-28; download by `sbatch/ntlv_download.sh`, not run yet |
 | GHS-POP R2023A (JRC) | R2023A V1-0, 100 m Mollweide, epochs 1980 / 1990 / 2000 / 2010 | `/projects/jaju1407/data/raw/external/ghs_pop/` | External comparison on tracts (`configs/external_grids.yaml`) | Registered 2026-10-28; `sbatch/external_download.sh`, not run yet |
+| GHS-SMOD R2023A (JRC; Degree of Urbanisation stage I) | R2023A V2-0, 1 km Mollweide, epochs 1980 / 2010 | `/projects/jaju1407/data/raw/external/ghs_smod/` | DEGURBA boxes: block classes (urban centre / urban cluster / rural) and the choice of rural / peri-urban boxes (`src/validation/degurba_boxes.py`, `rural_boxes:` block of `configs/external_grids.yaml`); validation only, not a model input | Registered 2026-11-21; `PRODUCTS=ghs_smod bash sbatch/external_download.sh`, not run yet |
 | WorldPop USA, unconstrained top-down | Global 2000-2020 (2018 release), `usa_ppp_{2000,2010}.tif`, 3 arc-sec, not UN-adjusted | `/projects/jaju1407/data/raw/external/worldpop/` | External comparison on tracts | Registered 2026-10-28; not downloaded yet |
 | GPW v4.11 population count (CIESIN, NASA SEDAC) | Revision 11, 30 arc-sec, 2000 / 2010, not UN-adjusted | `/projects/jaju1407/data/raw/external/gpw4/` | External comparison on tracts | Registered 2026-10-28; needs an Earthdata login; not downloaded yet |
 | GRUMP v1 population count (CIESIN et al., NASA SEDAC) | v1.00, 30 arc-sec, 1990 / 2000, global `.bil` | `/projects/jaju1407/data/raw/external/grump1/` | External comparison on tracts | Registered 2026-10-28; needs an Earthdata login; **no redistribution**; not downloaded yet |
@@ -218,6 +219,37 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
 - Citation: Schiavina, M., Freire, S., Carioli, A., & MacManus, K. (2023). GHS-POP R2023A - GHS population grid
   multitemporal (1975-2030). European Commission, Joint Research Centre.
   https://doi.org/10.2905/2FF68A52-5B5B-4A22-8F40-C41DA8332CFE
+
+#### GHS-SMOD R2023A
+
+- What: the EU / UN Degree of Urbanisation stage I applied by JRC to GHS-POP R2023A and GHS-BUILT-S R2023A: one class per
+  1 km cell (World Mollweide, ESRI:54009), epochs 1975-2030 every 5 years; used: 1980, 2010 (box choice: 2010).
+- Class codes (expected; to confirm from the GHSL Data Package 2023, which the download prints if `pdftotext` is
+  there, and checked by `degurba_boxes.py`, which stops on a code outside this list): 30 urban centre; 23 dense urban
+  cluster, 22 semi-dense urban cluster, 21 suburban or peri-urban (21-23 = urban cluster); 13 rural cluster, 12 low
+  density rural, 11 very low density rural; 10 water; nodata = the file's nodata value (logged). The documents could
+  not be read from the laptop on 2026-11-21 (PDF size limit), so the codes and the urban centre gap-filling rule are
+  not verified here: our own scheme B fills only blocks whose four side neighbours are one urban centre and leaves
+  out edge smoothing (logged by the run).
+- Caveat: SMOD is built from GHS-POP, i.e. (from 2000 on) from block-level census input; it is a validation class
+  here, not a model input (a model input would carry that year's fine census into a county-input model).
+- Files (JRC's AWS bucket, no account):
+  `https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-smod/r2023a/54009/1000m/<YEAR>/GHS_SMOD_E<YEAR>_GLOBE_R2023A_54009_1000_V2_0.tif`;
+  bytes (bucket listing 2026-11-21): 1980 14,642,448; 2010 16,230,068 (size checked; ETags multipart, no md5 listed:
+  sha256 written to `ghs_smod/SHA256SUMS` by the download). Same data as zips on the JRC FTP:
+  `https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_SMOD_GLOBE_R2023A/GHS_SMOD_E<YEAR>_GLOBE_R2023A_54009_1000/V2-0/`.
+  Documentation: GHSL Data Package 2023, `https://ghsl.jrc.ec.europa.eu/documents/GHSL_Data_Package_2023.pdf` (saved to
+  `raw/external/docs/`).
+- License: CC BY 4.0 (GHSL terms: cite the dataset and the GHSL reference publication).
+- Citation: Schiavina, M., Melchiorri, M., & Pesaresi, M. (2023). GHS-SMOD R2023A - GHS settlement layers, application
+  of the Degree of Urbanisation methodology (stage I) to GHS-POP R2023A and GHS-BUILT-S R2023A, multitemporal
+  (1975-2030). European Commission, Joint Research Centre. https://doi.org/10.2905/A0DF7A6F-49DE-46EA-9BDE-563437A6E2BA
+- Reference publication: Pesaresi, M., Schiavina, M., Politis, P., Freire, S., Krasnodębska, K., Uhl, J. H., et al.
+  (2024). Advances on the Global Human Settlement Layer by joint assessment of Earth Observation and population survey
+  data. International Journal of Digital Earth, 17(1). https://doi.org/10.1080/17538947.2024.2390454
+- Method: European Commission and Statistical Office of the European Union (2021). Applying the degree of urbanisation:
+  a methodological manual to define cities, towns and rural areas for international comparisons. Publications Office
+  of the European Union. https://doi.org/10.2785/706535
 
 #### WorldPop USA (unconstrained, top-down)
 

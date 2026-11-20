@@ -108,3 +108,52 @@ city_density:
   breaks: [100, 1000]
   classes: [rural, peri_urban, urban]
   ratio_band: 4
+
+# DEGURBA boxes (src/validation/degurba_boxes.py; request docs/handoff/rural_boxes_request.md, user decision 2026-11-21;
+# docs/conus_plan.md "DEGURBA boxes"): classes and box choice by the EU / UN Degree of Urbanisation (stage I).
+#   scheme A (main): GHS-SMOD R2023A of the year, each 250 m cell = the SMOD 1 km cell its centre falls in, a 1 km block
+#     (4 x 4 cells) = the most frequent code of its 16 cells (a tie -> the higher = more urban code), then
+#     urban = 30, peri_urban = 21-23 (urban cluster, not centre), rural = 11-13; water (10) / nodata -> class excluded.
+#   scheme B (check): the same stage I rules on our version's 1 km block density (rules below), computed on the box +
+#     margin_km on every side (clusters not cut at the box edge), then cut to the box.
+# Boxes: the city boxes of city_maps / city_meeting (box_type city) + `boxes` below (box_type rural / peri_urban),
+# chosen ONCE by `degurba_boxes.py select` with the rule below (fixed 2026-11-21 before any result) and written into
+# `boxes`; later runs read them (select refuses to run again while `boxes` is filled).
+rural_boxes:
+  version: Dasy_CONUS_RF_v3_all_nby
+  version_label: v5.7
+  extra_versions: {Dasy_CONUS_RF_v3_all_nby_pq5: v5.7_pq5}
+  years: {2010: [ghs_pop, worldpop], 1980: [ghs_pop]}
+  cities: [boston, denver, chicago]
+  box_km: 40
+  smod:
+    label: GHS-SMOD R2023A (1 km, DEGURBA stage I)
+    path: ghs_smod/GHS_SMOD_E{YEAR}_GLOBE_R2023A_54009_1000_V2_0.tif
+    years: [1980, 2010]
+    select_year: 2010
+    codes: {30: urban centre, 23: dense urban cluster, 22: semi-dense urban cluster, 21: suburban or peri-urban,
+            13: rural cluster, 12: low density rural, 11: very low density rural, 10: water}
+    scheme_a: {urban: [30], peri_urban: [21, 22, 23], rural: [11, 12, 13]}   # 10 / nodata -> excluded
+  own_rules:          # scheme B on our 1 km blocks (people per km2 of the version, masked cells = 0 people)
+    centre: {min_density: 1500, connectivity: 4, min_pop: 50000}
+    cluster: {min_density: 300, connectivity: 8, min_pop: 5000}
+    margin_km: 20
+    hole_fill: four_sides   # a block whose 4 side neighbours all belong to one urban centre joins it (one pass);
+                            # the manual's own gap rule could not be read 2026-11-21; edge smoothing left out
+  select:
+    counties: counties_2010.gpkg          # in $DATA_ROOT/processed/census_conus (our 2010 polygons)
+    train_status: [ok, filled_nhgis]      # = train_status of configs/conus_rf_v3_all_nby.yaml
+    # rural: no SMOD cell of 21-23 or 30 in the county; peri_urban: a 21-23 cell, no 30 cell; cell in county = centre
+    # inside the polygon (SMOD grid); a county without any land cell (codes 11-30) is no candidate.
+    # per region and type: the candidate with the median 2010 density (pop / area_km2; sorted by density, then
+    # GISJOIN; an even count -> the lower middle); if refused, the next by |density - median| (a tie -> the lower
+    # density, then GISJOIN). Refused: centre < min_dist_km from a city box or an earlier chosen box, or the box not
+    # inside the union of all 2010 county polygons (= outside CONUS). Order: regions as listed, rural before peri_urban.
+    # Box = box_km square around the polygon centroid (ESRI:102039) snapped to our 250 m grid (as the city boxes).
+    min_dist_km: 50
+    regions:   # Census regions by state FIPS
+      Northeast: ["09", "23", "25", "33", "34", "36", "42", "44", "50"]
+      Midwest: ["17", "18", "19", "20", "26", "27", "29", "31", "38", "39", "46", "55"]
+      South: ["01", "05", "10", "11", "12", "13", "21", "22", "24", "28", "37", "40", "45", "47", "48", "51", "54"]
+      West: ["04", "06", "08", "16", "30", "32", "35", "41", "49", "53", "56"]
+  boxes: {}   # filled by degurba_boxes.py select (do not edit by hand); this key must stay the last of the file
