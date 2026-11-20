@@ -19,6 +19,10 @@
                       rows by hand, classes add up, pooled box-type rows, totals side by side, cell types add up, city
                       boxes = the meeting numbers (a changed one stops with nothing written), PNGs; the earlier
                       city_density_classes_v57 outputs are not touched
+  test_overlap_metrics overlap of the distributions / amounts, random baseline, Spearman by hand; a map with itself
+                      = 1, two maps without a shared cell = 0; the pairs of a year
+                      (test_run also runs `overlap`: per group / subset / pair by hand for the rural box and the pooled
+                      city boxes, the run's tables untouched, a changed cell_type_shares sum stops)
   test_real_config    the rural_boxes block of configs/external_grids.yaml (rules; boxes empty or 8 boxes)
 """
 from __future__ import annotations
@@ -39,6 +43,7 @@ import yaml  # noqa: E402
 from pyproj import Transformer  # noqa: E402
 from rasterio.transform import from_origin  # noqa: E402
 from rasterio.windows import Window  # noqa: E402
+from scipy.stats import spearmanr  # noqa: E402
 
 import degurba_boxes as db  # noqa: E402
 import external_city_maps as ecm  # noqa: E402
@@ -466,6 +471,90 @@ def test_run(tmp: Path):
                                                                         for y in (2010, 1980)]), pngs
     import matplotlib.image as mpimg
     assert len({mpimg.imread(out / p).shape for p in pngs if "cell_types" not in p}) == 1
+    # overlap: same boxes and cells; by hand for the rural box and the pooled city boxes
+    keep_files = {f: (out / f).read_bytes() for f in ("density_class_summary.csv", "cell_type_shares.csv")}
+    ov = ["overlap" if a == "run" else a for a in run]
+    assert db.main(ov + ["--check"]) == 0
+    assert db.main(ov) == 0
+    assert all((out / f).read_bytes() == b for f, b in keep_files.items())     # the run's tables untouched
+    o = pd.read_csv(out / "unbuilt_overlap.csv")
+    assert (out / "unbuilt_overlap.png").exists()
+    assert set(o["group"]) == {"unbuilt", "undated", "no_record", "built"} and set(o["subset"]) == {"all", "rural_A"}
+    assert set(zip(o.loc[o["year"] == 1980, "map_a"], o.loc[o["year"] == 1980, "map_b"])) == {
+        ("v57", "ghs_pop"), ("v57pq5", "ghs_pop")}
+    assert o.loc[o["reference"], ["map_a", "map_b"]].drop_duplicates().values.tolist() == [["ghs_pop", "worldpop"]]
+
+    def cells_by_hand(ccx, ccy, year):
+        win = ecm.box_window(gt, ccx, ccy, 12)
+        vp, mask, bt = ecm.read_box(p57 / f"pop_{year}.tif", win, gt)
+        qp, qmask, _ = ecm.read_box(pq / f"pop_{year}.tif", win, gt)
+        full = ecm.block_sums(mask.astype(int), 4) == 16
+        sel = np.kron(full, np.ones((4, 4))).astype(bool)
+        r0, c0 = int(win.row_off), int(win.col_off)
+        bw = (w["bui"] if year == 2010 else w["bui80"])[r0:r0 + 48, c0:c0 + 48]
+        nw = w["nby"][r0:r0 + 48, c0:c0 + 48]
+        sm = (s10 if year == 2010 else s80)
+        codes = sm[np.ix_((r0 + np.arange(48)) // 4, (c0 + np.arange(48)) // 4)]   # SMOD cell of each cell centre
+        codes = np.where(codes == -200, db.NODATA, codes)
+        maj = np.zeros((12, 12), int)
+        for bi in range(12):
+            for bj in range(12):
+                v, k = np.unique(codes[4 * bi:4 * bi + 4, 4 * bj:4 * bj + 4], return_counts=True)
+                maj[bi, bj] = max(zip(k, v))[1]                       # most cells, a tie -> the higher code
+        rural = np.kron(full & np.isin(maj, [11, 12, 13]), np.ones((4, 4))).astype(bool)
+        maps = {"v57": np.where(mask, vp, 0.0), "v57pq5": np.where(mask & qmask, qp, 0.0)}
+        for prod in (["ghs_pop", "worldpop"] if year == 2010 else ["ghs_pop"]):
+            g, _ = ecm.to_grid(w["data"] / cfgp[prod]["path"].replace("{YEAR}", str(year)), bt, vp.shape, OUR, 25)
+            maps[prod] = np.where(sel, g, 0.0)
+        groups = {"unbuilt": bw <= 0, "undated": (bw <= 0) & (nw > 0), "no_record": (bw <= 0) & (nw <= 0),
+                  "built": bw > 0}
+        return maps, sel, rural, groups
+
+    def by_hand(xs, ys):
+        x, y = np.concatenate(xs), np.concatenate(ys)
+        n = len(x)
+        return (np.minimum(x / x.sum(), y / y.sum()).sum(), np.minimum(x, y).sum() / y.sum(),
+                np.minimum(1 / n, y / y.sum()).sum(), n)
+
+    tr = Transformer.from_crs("EPSG:4326", OUR, always_xy=True)
+    city_c = {k: tr.transform(cfg["city_maps"]["cities"][k]["lon"], cfg["city_maps"]["cities"][k]["lat"])
+              for k in ("boston", "chicago")}
+    for year in (2010, 1980):
+        hand = {"rural_r1": cells_by_hand(cx, cy, year), **{k: cells_by_hand(*c, year) for k, c in city_c.items()}}
+        for sub in ("all", "rural_A"):
+            for g in ("unbuilt", "undated", "no_record", "built"):
+                for a_, b_ in (("v57", "ghs_pop"), ("v57pq5", "ghs_pop")) + ((("ghs_pop", "worldpop"),) if year == 2010
+                                                                           else ()):
+                    for box, keys in (("rural_r1", ["rural_r1"]), ("all_city", ["boston", "chicago"])):
+                        xs, ys = [], []
+                        for k in keys:
+                            maps, sel, rural, groups = hand[k]
+                            f = sel & groups[g] & (rural if sub == "rural_A" else True)
+                            xs.append(maps[a_][f])
+                            ys.append(maps[b_][f])
+                        r = o[(o["box"] == box) & (o["year"] == year) & (o["subset"] == sub) & (o["group"] == g)
+                              & (o["map_a"] == a_) & (o["map_b"] == b_)].iloc[0]
+                        if sum(len(v) for v in xs) == 0 or np.concatenate(ys).sum() == 0:
+                            continue
+                        dist, amount, rnd, n = by_hand(xs, ys)
+                        assert r["n_cells"] == n, (box, year, sub, g, a_, b_)
+                        if np.concatenate(xs).sum() > 0:
+                            assert np.isclose(r["overlap_dist"], dist), (box, year, sub, g, a_, b_)
+                        assert np.isclose(r["overlap_amount"], amount) and np.isclose(r["overlap_random"], rnd)
+    assert (o["overlap_dist"].dropna().between(0, 1 + 1e-9)).all()
+    # a changed people sum in cell_type_shares.csv stops before anything is written
+    (out / "unbuilt_overlap.csv").unlink()
+    c = pd.read_csv(out / "cell_type_shares.csv")
+    c.loc[(c["box"] == "rural_r1") & (c["cell_type"] == "bui0_no_record"), "pop_v57"] += 1.0
+    c.to_csv(out / "cell_type_shares.csv", index=False)
+    try:
+        db.main(ov)
+    except SystemExit as e:
+        assert "people of v57" in str(e), e
+    else:
+        raise AssertionError("a changed group sum did not stop the overlap")
+    assert not (out / "unbuilt_overlap.csv").exists()
+    (out / "cell_type_shares.csv").write_bytes(keep_files["cell_type_shares.csv"])
     # a changed meeting number of a city box stops before anything is written
     keep = side.read_text()
     x = pd.read_csv(side)
@@ -491,6 +580,35 @@ def test_run(tmp: Path):
     else:
         raise AssertionError("run without boxes accepted")
     print("ok run: A / B class rows by hand, pooled rows, totals side by side, cell types, city boxes = meeting, PNGs")
+
+
+def test_overlap_metrics():
+    x = np.array([4.0, 0.0, 1.0, 5.0, 0.0])
+    y = np.array([2.0, 2.0, 0.0, 6.0, 0.0])
+    m = db.overlap_metrics(x, y)
+    a, b = x / 10, y / 10                     # 0.4 0 0.1 0.5 0 | 0.2 0.2 0 0.6 0
+    assert np.isclose(m["overlap_dist"], 0.2 + 0 + 0 + 0.5 + 0)
+    assert np.isclose(m["overlap_amount"], (2 + 0 + 0 + 5 + 0) / 10)
+    assert np.isclose(m["overlap_random"], sum(min(0.2, v) for v in b))   # 1 / 5 = 0.2 each: 0.2 + 0.2 + 0 + 0.2 + 0
+    assert np.isclose(m["overlap_random"], 0.6)
+    assert m["n_cells"] == 5 and m["n_nonzero_a"] == 3 and m["n_nonzero_b"] == 3 and m["n_nonzero_both"] == 2
+    assert m["pop_a"] == 10 and m["pop_b"] == 10
+    assert np.isclose(m["spearman_all_cells"], spearmanr(x, y)[0])
+    nz = (x > 0) | (y > 0)
+    assert np.isclose(m["spearman_nonzero_cells"], spearmanr(x[nz], y[nz])[0])
+    s1 = db.overlap_metrics(x, x)                                     # a map with itself = 1
+    assert np.isclose(s1["overlap_dist"], 1.0) and np.isclose(s1["overlap_amount"], 1.0)
+    assert np.isclose(db.overlap_metrics(x, 3 * x)["overlap_dist"], 1.0)   # same shares, other total
+    d = db.overlap_metrics(np.array([1.0, 0, 0]), np.array([0, 2.0, 3.0]))  # no shared cell = 0
+    assert d["overlap_dist"] == 0 and d["overlap_amount"] == 0
+    e = db.overlap_metrics(np.zeros(3), np.array([1.0, 0, 0]))
+    assert np.isnan(e["overlap_dist"]) and e["overlap_amount"] == 0
+    assert db.overlap_pairs(["ghs_pop", "worldpop", "v57", "v57pq5"], ["v57", "v57pq5"], ["ghs_pop", "worldpop"]) == [
+        ("v57", "ghs_pop", False), ("v57pq5", "ghs_pop", False), ("v57", "worldpop", False),
+        ("v57pq5", "worldpop", False), ("ghs_pop", "worldpop", True)]
+    assert db.overlap_pairs(["ghs_pop", "v57", "v57pq5"], ["v57", "v57pq5"], ["ghs_pop"]) == [
+        ("v57", "ghs_pop", False), ("v57pq5", "ghs_pop", False)]
+    print("ok overlap metrics: distributions / amounts / random baseline / Spearman by hand, self = 1, disjoint = 0")
 
 
 def test_real_config():
@@ -525,6 +643,7 @@ if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as d:
         test_own_rules(Path(d))
     test_candidate_order()
+    test_overlap_metrics()
     with tempfile.TemporaryDirectory() as d:
         test_select(Path(d))
     with tempfile.TemporaryDirectory() as d:

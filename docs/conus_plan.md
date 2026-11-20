@@ -1473,6 +1473,23 @@ sbatch/submit_conus.sh degurbaboxes`). Earlier `city_density_classes_v57/` kept 
 | Output | `results/validation/conus/external/degurba_boxes_v57/`: `density_class_summary.csv`, `cell_type_shares.csv`, `totals_side_by_side.csv`, `box_classes.csv`, `boxes_selected.csv`, PNGs |
 | Tests | `tests/test_degurba_boxes.py`: SMOD code per cell (aligned, shifted, Mollweide) and block majority with ties by hand; scheme B by hand (4- / 8-connectivity, 50,000 / 5,000, gaps: 14 blocks filled / 15 not, open to the edge / diagonal leak / two centres not filled, 5-of-8 smoothing repeated (a block added only in pass 2), margin keeps a centre at the box edge, margin 0 cuts it); candidate order (median, even, tie); select on synthetic counties (no_value / no land cell left out, 50 km from a city and a chosen box, box outside the counties, numbers in the box by hand, config written once, unknown code stops); run end to end on the meeting test's city world (A / B rows by hand, pooled rows, totals, cell types, city check stops on a change, PNGs); the real config. `test_external_city_density.py` unchanged and passing |
 
+## Unbuilt-cell overlap (request 2026-11-21, `docs/handoff/unbuilt_overlap_request.md`; runbook section 27)
+
+Background ("DEGURBA boxes: result"): in the rural boxes v5.7 gives unbuilt cells (BUI = 0) the same people share as
+GHS-POP (2010 20 % vs 20 %), but the same share need not be the same cells (user). Check at 250 m cells. No new data
+or boxes: the 11 boxes of `rural_boxes` (config, not chosen again) and the cell values of `degurba_boxes.py run`
+(`run_box`: products on our cells, mask, BUI / NobuiltYear reads unchanged). Code + tests 2026-11-21, not run (`bash
+sbatch/submit_conus.sh unbuiltoverlap`).
+
+| Topic | Decision |
+|---|---|
+| Cells | The 250 m cells of the full 1 km blocks (as the cell types: blocks fully inside the v5.7 mask); groups unbuilt = BUI of the year = 0 (= undated, NobuiltYear > 0, + no_record), undated, no_record, and built (BUI > 0) as the comparison. Subsets: `all` and `rural_A` (cells of the scheme A rural blocks only: in the city boxes = the metro fringe) |
+| Pairs | (v5.7, GHS-POP), (pq5, GHS-POP), (v5.7, WorldPop), (pq5, WorldPop), and the reference (GHS-POP, WorldPop) = the two products' own agreement (`reference = True`); 1980 GHS-POP pairs only |
+| Numbers | Per box and per box type (cells of its boxes pooled, not a mean of boxes): `overlap_dist` = sum min(a_i / A, b_i / B) (0-1; 1 = same cells, same shares), `overlap_amount` = sum min(a_i, b_i) / B (of the product's people in the group, the share we also put on the same cells), `overlap_random` = overlap_dist of an even spread of the group's people over its cells vs the product (the baseline), Spearman over all cells and over the cells not 0 in both, cells / cells not 0 per map / both, people of both maps |
+| Checks | Group people (and cells) = the run's `cell_type_shares.csv` (scheme A, class all / rural, the group's cell types added; boxes and box types), overlaps within 0-1; a difference stops before writing |
+| Output | `results/validation/conus/external/degurba_boxes_v57/unbuilt_overlap.csv` + `unbuilt_overlap.png` (box types, cells of all full blocks: panel per year x group, bar per pair = overlap_dist, dashed = random baseline); `SUMMARY box types` in the log. The run's tables are not rewritten |
+| Tests | `tests/test_degurba_boxes.py`: `test_overlap_metrics` (all numbers by hand, a map with itself = 1, no shared cell = 0, the pairs); `test_run` runs `overlap` on the synthetic world: per group / subset / pair by hand for the rural box and the pooled city boxes (independent SMOD majority), the run's tables untouched, a changed `cell_type_shares.csv` sum stops |
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6

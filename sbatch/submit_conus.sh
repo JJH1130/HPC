@@ -105,6 +105,8 @@
 #   bash sbatch/submit_conus.sh degurbaboxes  # DEGURBA boxes (after the GHS-SMOD download, section 26 block 0): input
 #                                       # check -> (only while rural_boxes.boxes is empty) box selection job -> run
 #                                       # job (A = GHS-SMOD, B = own density classes, 8 new + 3 city boxes); one submit
+#   bash sbatch/submit_conus.sh unbuiltoverlap  # after degurbaboxes: same boxes (config, not chosen again) and cells,
+#                                       # overlap of v5.7 / pq5 with GHS-POP / WorldPop on unbuilt / built cells; one job
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -164,10 +166,12 @@
 # validate 9 min / 17 GB); variance and compare 4 cores, 1 h each (DIAG_TIME, COMPARE_TIME; estimates).
 # degurbaboxes: select 4 cores 1 h (SELECT_TIME), run 4 cores 1 h (DEG_TIME; city density took 1.5 min for 6 of
 # the 22 box-years, estimate).
+# unbuiltoverlap: the cells of the run job again (the run took minutes) + sums over 11 x 2 box-years: 4 cores, 1 h
+# (OVERLAP_TIME).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -1182,6 +1186,17 @@ elif [[ $mode == degurbaboxes ]]; then
     fi
     jr=$(sub "$js" --time=${DEG_TIME:-01:00:00} --job-name=degurba_run sbatch/degurba_boxes.sh run)
     echo "${js:+select $js | }run $jr" | tee logs/conus_degurbaboxes_jobs.txt
+elif [[ $mode == unbuiltoverlap ]]; then
+    st=$( (activate_env hisdac >/dev/null && python -u src/validation/degurba_boxes.py status) | tail -1)
+    echo "boxes in configs/external_grids.yaml: $st"
+    [[ $st == "BOXES SET 8" ]] || { echo "ERROR: nothing submitted (the 8 boxes of degurbaboxes are not in the config)"; exit 1; }
+    if ! bash sbatch/degurba_boxes.sh overlap --check > logs/conus_unbuiltoverlap_check.txt 2>&1; then
+        grep -E "MISSING|ERROR" logs/conus_unbuiltoverlap_check.txt || tail -5 logs/conus_unbuiltoverlap_check.txt
+        echo "ERROR: nothing submitted (see logs/conus_unbuiltoverlap_check.txt)"; exit 1
+    fi
+    grep -E "CHECK OK|cell_type_shares" logs/conus_unbuiltoverlap_check.txt || true
+    jo=$(sub "" --time=${OVERLAP_TIME:-01:00:00} --job-name=unbuilt_overlap sbatch/degurba_boxes.sh overlap)
+    echo "overlap $jo" | tee logs/conus_unbuiltoverlap_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

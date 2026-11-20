@@ -156,7 +156,11 @@ classes of the 2010 counties (median density, fixed rule) and writes them into t
 + the 3 city boxes, classes A (SMOD code of each cell centre, block majority, tie -> more urban) and B (stage I rules on v5.7's
 block density on the box + 20 km; then gaps < 15 km2 filled and 5-of-8 edge smoothing repeated, as flexurba; no built-up condition), v5.7 + pq5, `external_city_density` metrics +
 cell types per box and per box type, totals side by side, city boxes checked against the meeting table ->
-`results/validation/conus/external/degurba_boxes_v57/`. `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
+`results/validation/conus/external/degurba_boxes_v57/`; `overlap` (`bash sbatch/submit_conus.sh unbuiltoverlap`, runbook section 27,
+`docs/conus_plan.md` "Unbuilt-cell overlap"): the same boxes / cells (`run_box`), per box and box type (cells pooled), cell group
+(unbuilt = undated + no_record, built) and pair (v5.7 / pq5 vs GHS-POP / WorldPop + GHS-POP vs WorldPop) overlap sum min of the
+shares / of the people, even-spread baseline, Spearman (also on scheme A rural blocks); group sums = the run's
+`cell_type_shares.csv`, else stop -> `unbuilt_overlap.csv` + `.png`. `src/validation/shap_figures.py` (local, tracked files only: `--versions V=LABEL ... --years ... --out`; per year one
 figure, a row per version: mean |SHAP| bar + beeswarm from the era's `shap_values.csv` / `county_features.csv`, bars checked
 against `shap_importance.csv`) -> `results/validation/conus/shap_figures/` (Stefan 2026-11-17 item 3). Compute allocation: Ascent account `ucb852_asc1` (450,000 SU, approved 2026-10, **valid until 2027-10-05**); every
 `sbatch/*.sh` has `#SBATCH --account=ucb852_asc1` (renew or remove the line before it expires). Publications must include the Alpine
@@ -196,7 +200,7 @@ ok / filled_nhgis (2010 polygons without a CSV row, pop from NHGIS, area ratio 0
 train) / filled_nhgis_alloc (ratio outside: allocated only, `train_status`) / no_value /
 zero_pop; 2020 = NHGIS 2020 counties on the 2010 polygons with the 2010 -> 2020 changes in `NHGIS_REMAP` / `NHGIS_MERGED`,
 decisions in `results/census_conus/counties_2020_nhgis_match.csv`; `--years` keeps the other years' summary rows), all
-submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes` (`v57plural` / `citydensity` / `pluralcm` / `degurbaboxes` = PLURAL on v5.7 / city boxes by density class / PLURAL at county level only / DEGURBA boxes, see above; `v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
+submitted by `bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap` (`v57plural` / `citydensity` / `pluralcm` / `degurbaboxes` / `unbuiltoverlap` = PLURAL on v5.7 / city boxes by density class / PLURAL at county level only / DEGURBA boxes / their unbuilt-cell overlap, see above; `v57nbya` = v5.7 with nby_age, see above; `v57all` = v5.7 all years, see above; `v54nby` = v5.4 + nby features / train / predict / validate -> `v54_nby_compare`,
 `undated_age_diag` side by side; the pre-check prints the time left before a CURC maintenance window (`MAINT_START` / `MAINT_END`,
 MT) and which jobs would wait; `nobuilt` = NOBUILT layer -> nby / nbya features / train / predict / validate side by side -> `nobuilt_compare`; `uncfilter` = exclusion sets, then u090 / u070 / u050 side by side, then
 `filter_compare`; `plural` = PLURAL layers -> plural_qa, v5.6 `--years 1940 1980`, six plural variants, `plural_compare`; `externalv56` = pre-check of the reused tract sums + map inputs, then evaluate and city maps side by side; `citymeeting` = pre-check of the meeting-map inputs, one job; `v56all` = v5.6 `--years` of the 7 missing years -> validation of every tract year -> `compare_models` + `metrics_over_time`, one chain; `y2020` =
@@ -266,7 +270,8 @@ contrast = brute force; compare on a synthetic world from the earlier scripts (c
 numbers / model check stop); the tracked numbers),
 `python tests/test_degurba_boxes.py` (SMOD per cell centre / block majority by hand; scheme B
 4- / 8-connectivity, thresholds, gaps 14 filled / 15 not, 5-of-8 smoothing repeated, margin = not cut; box selection on synthetic counties: candidates, median /
-even / tie, 50 km, outside CONUS, config written once; run end to end on the meeting city world, city check stops on a change),
+even / tie, 50 km, outside CONUS, config written once; run end to end on the meeting city world, city check stops on a change; overlap metrics by hand (self = 1, disjoint
+= 0) and the overlap step on the same world by hand, a changed cell_type_shares sum stops),
 `python tests/test_water_frac_parallel.py` (block worker processes = one process, GDW year switch,
 `only_zone_blocks`).
 

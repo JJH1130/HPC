@@ -2407,6 +2407,56 @@ anyway (same block) and tell Claude.
 What to look for in the run log: `SUMMARY totals` (our / product per A class | B class | full blocks | whole box),
 `SUMMARY per box type` (pooled city / peri_urban / rural blocks), `SUMMARY cell types per box type`.
 
+## 27. Unbuilt-cell overlap: same cells as GHS-POP / WorldPop, 11 DEGURBA boxes (2026-11-21)
+
+Request `docs/handoff/unbuilt_overlap_request.md`; design `docs/conus_plan.md` "Unbuilt-cell overlap". One job, after
+section 26: the same boxes (the 8 in `configs/external_grids.yaml` + 3 cities; not chosen again) and cell values, the
+run's `cell_type_shares.csv` in git as the check. Same inputs as section 26 (scratch predictions, cutout BUI, GHS-POP /
+WorldPop, GHS-SMOD, NobuiltYear). 4 cores, 1 h wall (`OVERLAP_TIME`).
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh unbuiltoverlap
+squeue -u $USER
+echo "== end of block 1 (success = 'BOXES SET 8', CHECK OK, one 'overlap N' line)"
+```
+
+Good: `boxes in configs/external_grids.yaml: BOXES SET 8`, `CHECK OK: inputs for 2 years; boxes SET`, the
+`cell_type_shares.csv` input line without MISSING, `overlap N`; `== end of block 1`. `ERROR: nothing submitted`: send
+the output to Claude.
+
+Block 2, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_unbuiltoverlap_jobs.txt | head -1)
+sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_unbuiltoverlap_sacct.txt
+seff "$j" | tee logs/conus_unbuiltoverlap_seff.txt
+grep -hE "RULE overlap|within 0 - 1|MATCH|DONE|ERROR" logs/unbuilt_overlap.$j.out
+ls -l results/validation/conus/external/degurba_boxes_v57/unbuilt_overlap.*
+git status --short results/
+git add logs/ results/validation/conus/external/degurba_boxes_v57/unbuilt_overlap.*
+git commit -m "run: unbuilt-cell overlap with GHS-POP / WorldPop, 11 DEGURBA boxes (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, 'within 0 - 1', MATCH cell_type_shares, DONE, 2 files, push main -> main)"
+```
+
+Good: `COMPLETED`; `RULE overlap ...`, `overlaps within 0 - 1: N rows`, `MATCH .../cell_type_shares.csv: N group sums`,
+`DONE`; `unbuilt_overlap.csv` and `unbuilt_overlap.png`; `git status --short results/` lists only these two (the run's
+other tables unchanged); `git push` ends with `main -> main`; `== end of block 2`. `FAILED` or an `ERROR` line (e.g.
+`people of v57 in ... here, ... in cell_type_shares.csv`): commit the log anyway (same block) and tell Claude.
+
+What to look for in the log: `SUMMARY box types` (per box type x year x subset x group x pair: overlap_dist /
+overlap_amount / overlap_random / Spearman).
+
 ## If it fails
 
 | Symptom | Fix |

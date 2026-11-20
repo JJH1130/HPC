@@ -9,6 +9,13 @@ accuracy (both use block-level census input in the US).
            SMOD class shares in the box, v5.7 people 1980 / 2010 in the box, share of box cells outside the mask)
   run      the 8 boxes + the city boxes (Boston / Denver / Chicago), 1980 (GHS-POP) / 2010 (GHS-POP, WorldPop), v5.7
            (main) + extra versions (v5.7 + PLURAL pq5) on the same blocks
+  overlap  (after run; request docs/handoff/unbuilt_overlap_request.md, docs/conus_plan.md "Unbuilt-cell overlap")
+           do two maps put their people on the SAME 250 m cells, not only the same share? Same boxes and cell values as
+           run; per box and per box type (cells pooled), cell group (unbuilt = BUI 0 = undated + no_record; built) and
+           pair (v5.7 / pq5 vs GHS-POP / WorldPop, GHS-POP vs WorldPop as a reference): overlap of the distributions
+           sum min(a_i / A, b_i / B), overlap of the amounts sum min(a_i, b_i) / B, the random baseline (a spread
+           evenly), Spearman (all cells / not 0 in both), counts; also on the scheme A rural blocks only. Group people
+           must equal the run's cell_type_shares.csv, else stop -> unbuilt_overlap.csv + unbuilt_overlap.png
   status   prints BOXES SET n / BOXES EMPTY (for the submit script)
 
 Boxes, product move to our 250 m cells (population kept), mask (cells with a v5.7 prediction) and 1 km blocks (4 x 4
@@ -74,7 +81,7 @@ TYPES = ("city", "peri_urban", "rural")
 
 def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("mode", choices=["select", "run", "status"])
+    p.add_argument("mode", choices=["select", "run", "overlap", "status"])
     p.add_argument("--config", type=Path, default=Path("configs/external_grids.yaml"))
     p.add_argument("--data-root", type=Path, help="$DATA_ROOT/raw/external (products + ghs_smod/)")
     p.add_argument("--dasym-root", type=Path, help="<dasym-root>/<name>/<version>/predictions/pop_{YEAR}.tif")
@@ -541,7 +548,8 @@ def run_box(args, cfg, rb, key, spec, year, nb_path, smod_path):
     figs.append(("bars", (args.out_dir / f"{key}_{year}_cell_types.png", spec["label"], year,
                           [r for r in crow if r["scheme"] == "A"], cols, names, {"classes": list(CLASSES)},
                           "GHS-SMOD 1 km block class (DEGURBA)")))
-    return rows, pool, crow, box, bc, figs
+    cells = {"sel": sel, "ctype": ctype, "pops": pops, "rural_a": np.kron(full & (cls_a == 0), up).astype(bool)}
+    return rows, pool, crow, box, bc, figs, cells
 
 
 def meeting_figure_args(args, cfg, rb, key, spec, year, vpop, mask, grids, full, vb, bkm2, f, grid_t, labels, bc):
@@ -661,7 +669,9 @@ def totals_side_by_side(t: pd.DataFrame) -> pd.DataFrame:
 
 # ---------------------------------------------------------------- run
 
-def run(args, cfg, rb):
+def check_inputs(args, cfg, rb, extra=()):
+    """(boxes, NobuiltYear path, SMOD paths per year) after listing the inputs (+ `extra` files); exits if one is
+    missing; None with --check."""
     nb_path, nb_how = ecd.nobuilt_path(args)
     boxes = all_boxes(cfg, rb)
     if rb["box_km"] != cfg["city_maps"]["box_km"]:
@@ -689,13 +699,24 @@ def run(args, cfg, rb):
     miss += [] if args.check_with.exists() else [str(args.check_with)]
     log.info("  boxes: %d city + %d chosen %s", len(rb["cities"]), len(rb["boxes"]),
              list(rb["boxes"]) if rb["boxes"] else "(none yet: the select job runs first)")
+    for f in extra:
+        log.info("  input %s %s", f, "" if f.exists() else "MISSING")
+        miss += [] if f.exists() else [str(f)]
     if miss:
         sys.exit(f"ERROR: {len(miss)} inputs missing: {miss}")
     if args.check:
         log.info("CHECK OK: inputs for %d years; boxes %s", len(rb["years"]), "SET" if rb["boxes"] else "EMPTY")
-        return 0
+        return None
     if not rb["boxes"]:
         sys.exit(f"ERROR: {args.config}: rural_boxes.boxes is empty (run `degurba_boxes.py select` first)")
+    return boxes, nb_path, smod
+
+
+def run(args, cfg, rb):
+    got = check_inputs(args, cfg, rb)
+    if got is None:
+        return 0
+    boxes, nb_path, smod = got
     log.info("SMOD code table (config, from the GHSL documentation; checked against the codes found): %s",
              rb["smod"]["codes"])
     for year, p in smod.items():
@@ -717,7 +738,7 @@ def run(args, cfg, rb):
     rows, pool, cells, bx, bcs, figs = [], [], [], [], [], []
     for year in rb["years"]:
         for key, spec in boxes.items():
-            r, pl, c, b, bc, fg = run_box(args, cfg, rb, key, spec, year, nb_path, smod[year])
+            r, pl, c, b, bc, fg, _ = run_box(args, cfg, rb, key, spec, year, nb_path, smod[year])
             rows += r
             pool += pl
             cells += c
@@ -761,6 +782,191 @@ def run(args, cfg, rb):
     return 0
 
 
+# ---------------------------------------------------------------- overlap: same cells, not only the same share
+
+GROUPS = {"unbuilt": (1, 2), "undated": (1,), "no_record": (2,), "built": (0,)}   # cell types of ecd.cell_types
+GROUP_TYPES = {"unbuilt": ("bui0_nobuilt_gt0", "bui0_no_record"), "undated": ("bui0_nobuilt_gt0",),
+               "no_record": ("bui0_no_record",), "built": ("bui_gt0",)}
+SUBSETS = {"all": "all", "rural_A": "rural"}   # cells of all full blocks / of the scheme A rural blocks (class name)
+
+
+def overlap_metrics(x: np.ndarray, y: np.ndarray) -> dict:
+    """Two maps over the same cells (y = the product / reference): overlap of the distributions sum min(x/X, y/Y),
+    overlap of the amounts sum min(x, y) / Y, the random baseline sum min(1/n, y/Y) (x spread evenly), Spearman over
+    all cells and over the cells not 0 in both, counts and sums."""
+    n = len(x)
+    X, Y = float(x.sum()), float(y.sum())
+    ok = X > 0 and Y > 0
+    nz = (x > 0) | (y > 0)
+    return {"n_cells": n, "n_nonzero_a": int((x > 0).sum()), "n_nonzero_b": int((y > 0).sum()),
+            "n_nonzero_both": int(((x > 0) & (y > 0)).sum()), "pop_a": X, "pop_b": Y,
+            "overlap_dist": float(np.minimum(x / X, y / Y).sum()) if ok else np.nan,
+            "overlap_amount": float(np.minimum(x, y).sum() / Y) if Y > 0 else np.nan,
+            "overlap_random": float(np.minimum(1.0 / n, y / Y).sum()) if n and Y > 0 else np.nan,
+            "spearman_all_cells": ecm.spearman(x, y), "spearman_nonzero_cells": ecm.spearman(x[nz], y[nz])}
+
+
+def overlap_pairs(maps: list, versions: list, products: list) -> list:
+    """(a, b, reference): every version against every product of the year, then the products against each other
+    (reference lines: the two products' own agreement)."""
+    pr = [p for p in products if p in maps]
+    out = [(v, p, False) for p in pr for v in versions if v in maps]
+    return out + [(pr[i], pr[j], True) for i in range(len(pr)) for j in range(i + 1, len(pr))]
+
+
+def group_cells(cells: dict) -> dict:
+    """{(subset, group): flags over the box cells} (only cells of the full blocks)."""
+    out = {}
+    for sub in SUBSETS:
+        base = cells["sel"] & (cells["rural_a"] if sub == "rural_A" else True)
+        for g, types in GROUPS.items():
+            out[(sub, g)] = base & np.isin(cells["ctype"], types)
+    return out
+
+
+def overlap_rows(items: list, versions: list, products: list) -> list:
+    """items: [(base dict, cells)] of the boxes to take together (one box, or all boxes of a type: cells pooled)."""
+    rows = []
+    maps = list(items[0][1]["pops"])
+    flags = [group_cells(c) for _, c in items]
+    for (sub, g) in flags[0]:
+        for a, b, ref in overlap_pairs(maps, versions, products):
+            x = np.concatenate([c["pops"][a][f[(sub, g)]] for (_, c), f in zip(items, flags)])
+            y = np.concatenate([c["pops"][b][f[(sub, g)]] for (_, c), f in zip(items, flags)])
+            rows.append({**items[0][0], "subset": sub, "group": g, "map_a": a, "map_b": b, "reference": ref,
+                         **overlap_metrics(x, y)})
+    return rows
+
+
+def check_overlap_sums(t: pd.DataFrame, path: Path):
+    """Group people (pop_a / pop_b) = cell_type_shares.csv of the run (scheme A, class all / rural; the types of the
+    group added up); stops on a difference."""
+    if not path.exists():
+        sys.exit(f"ERROR: {path} not found (the run's cell_type_shares.csv)")
+    ct = pd.read_csv(path)
+    ct = ct[ct["scheme"] == "A"]
+    n = 0
+    for _, r in t.iterrows():
+        sel = ct[(ct["box"] == r["box"]) & (ct["year"] == r["year"]) & (ct["class"] == SUBSETS[r["subset"]])
+                 & ct["cell_type"].isin(GROUP_TYPES[r["group"]])]
+        if len(sel) != len(GROUP_TYPES[r["group"]]):
+            sys.exit(f"ERROR: {path}: no rows for {r['box']} {r['year']} {r['subset']} {r['group']}")
+        for side in ("a", "b"):
+            want = float(sel[f"pop_{r['map_' + side]}"].sum())
+            if not np.isclose(r[f"pop_{side}"], want, rtol=1e-9, atol=1e-6):
+                sys.exit(f"ERROR: people of {r['map_' + side]} in {r['box']} {r['year']} {r['subset']} {r['group']}: "
+                         f"{r['pop_' + side]} here, {want} in {path}")
+            n += 1
+        if int(sel["n_cells"].sum()) != r["n_cells"]:
+            sys.exit(f"ERROR: cells of {r['box']} {r['year']} {r['subset']} {r['group']}: {r['n_cells']} here, "
+                     f"{int(sel['n_cells'].sum())} in {path}")
+    log.info("  MATCH %s: %d group sums (people of both maps, cells; boxes and box types)", path, n)
+
+
+def draw_overlap(path: Path, t: pd.DataFrame, names: dict):
+    """Pooled box types, cells of all full blocks: a panel per year x group, bars per pair = overlap of the
+    distributions, the random baseline as a dashed line on each bar."""
+    plots = ecm._plots()
+    plt = plots.plt
+    d = t[t["box"].str.startswith("all_") & (t["subset"] == "all")]
+    years = sorted(d["year"].unique(), reverse=True)
+    groups = list(GROUPS)
+    types = [b for b in ("rural", "peri_urban", "city") if b in set(d["box_type"])]
+    allp = list(dict.fromkeys(zip(d["map_a"], d["map_b"])))   # one colour per pair in every panel
+    fig = plt.figure(figsize=(16.0, 4.2 * len(years)), dpi=150, layout="constrained")
+    axes = fig.subplots(len(years), len(groups), sharey=True, squeeze=False)
+    for i, year in enumerate(years):
+        dy = d[d["year"] == year]
+        pairs = list(dict.fromkeys(zip(dy["map_a"], dy["map_b"])))   # the year's pairs, bars centred on the type
+        w = 0.8 / len(pairs)
+        for j, g in enumerate(groups):
+            ax = axes[i][j]
+            for k, (a, b) in enumerate(pairs):
+                for xi, bt in enumerate(types):
+                    r = d[(d["year"] == year) & (d["group"] == g) & (d["box_type"] == bt) & (d["map_a"] == a)
+                          & (d["map_b"] == b)]
+                    if r.empty or not np.isfinite(r["overlap_dist"].iloc[0]):
+                        continue
+                    x = xi - 0.4 + w * (k + 0.5)
+                    ax.bar(x, r["overlap_dist"].iloc[0], width=w * 0.9, color=plots.SERIES[allp.index((a, b)) % len(plots.SERIES)],
+                           label=f"{names.get(a, a)} vs {names.get(b, b)}" if xi == 0 else None)
+                    ax.plot([x - w * 0.45, x + w * 0.45], [r["overlap_random"].iloc[0]] * 2, color=plots.INK,
+                            lw=1.0, ls="--", label="random baseline (even spread)" if (xi == 0 and k == 0) else None)
+            ax.set_xticks(range(len(types)), [b.replace("_", "-") for b in types], fontsize=8)
+            ax.set_ylim(0, 1)
+            ax.set_title(f"{year}, {g.replace('_', ' ')} cells", fontsize=9, color=plots.INK)
+            ax.spines[["top", "right"]].set_visible(False)
+            ax.grid(axis="y", color="#e6e6e3", lw=0.6)
+            ax.set_axisbelow(True)
+            ax.tick_params(labelsize=7.5, colors=plots.INK)
+        axes[i][0].set_ylabel("overlap of the people distributions (0-1)", fontsize=8, color=plots.INK)
+    h, lab = [], []
+    for ax in axes.ravel():
+        for hh, ll in zip(*ax.get_legend_handles_labels()):
+            if ll not in lab:
+                h.append(hh)
+                lab.append(ll)
+    fig.legend(h, lab, loc="outside lower center", ncol=min(len(lab), 6), fontsize=8, frameon=False)
+    fig.suptitle("Same cells, not only the same share: overlap sum min(a_i, b_i) of the two maps' people shares over "
+                 "the 250 m cells of a group (boxes of a type pooled; 1 = same cells, same shares)", fontsize=9.5,
+                 color=plots.INK)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, facecolor="white")
+    plt.close(fig)
+    log.info("  wrote %s", path)
+
+
+def overlap(args, cfg, rb):
+    ctp = args.out_dir / "cell_type_shares.csv"
+    got = check_inputs(args, cfg, rb, extra=(ctp,))
+    if got is None:
+        return 0
+    boxes, nb_path, smod = got
+    versions = [ecmt.tag(rb["version_label"]), *(ecmt.tag(lab) for lab in rb.get("extra_versions", {}).values())]
+    log.info("RULE overlap: cell groups unbuilt (BUI of the year = 0) = undated (NobuiltYear > 0) + no_record, and "
+             "built (BUI > 0), over the 250 m cells of the full blocks (as the cell types; subset rural_A = the "
+             "scheme A rural blocks only); pairs %s x products of the year + the products against each other "
+             "(reference); overlap_dist = sum min(a_i / A, b_i / B), overlap_amount = sum min(a_i, b_i) / B (B = the "
+             "product), overlap_random = the same with a spread evenly; Spearman over all cells and the cells not 0 "
+             "in both; box types = cells of their boxes pooled", versions)
+    items = []
+    for year in rb["years"]:
+        for key, spec in boxes.items():
+            *_, cells = run_box(args, cfg, rb, key, spec, year, nb_path, smod[year])
+            base = {"box": key, "box_label": spec["label"], "box_type": spec["box_type"], "year": year}
+            items.append((base, cells))
+    rows = []
+    for base, cells in items:
+        rows += overlap_rows([(base, cells)], versions, rb["years"][base["year"]])
+    for year in rb["years"]:
+        for bt in TYPES:
+            grp = [(b, c) for b, c in items if b["year"] == year and b["box_type"] == bt]
+            if grp:
+                head = {"box": f"all_{bt}", "box_label": f"all {bt} boxes ({len(grp)})", "box_type": bt, "year": year}
+                rows += overlap_rows([(head, grp[0][1])] + grp[1:], versions, rb["years"][year])
+    t = pd.DataFrame(rows)
+    log.info("checks (a difference stops the run before writing):")
+    bad = t["overlap_dist"].dropna()
+    if ((bad < -1e-12) | (bad > 1 + 1e-9)).any() or ((t["overlap_random"].dropna() > 1 + 1e-9)).any():
+        sys.exit("ERROR: an overlap outside 0 - 1")
+    log.info("  overlaps within 0 - 1: %d rows", len(t))
+    check_overlap_sums(t, ctp)
+    labels = cfg["city_meeting"].get("labels", {})
+    names = {**labels, ecmt.tag(rb["version_label"]): rb["version_label"],
+             **{ecmt.tag(lab): lab for lab in rb.get("extra_versions", {}).values()}}
+    draw_overlap(args.out_dir / "unbuilt_overlap.png", t, names)
+    t.to_csv(args.out_dir / "unbuilt_overlap.csv", index=False)
+    with pd.option_context("display.width", 250, "display.max_rows", 500, "display.max_columns", 30):
+        s = t[t["box"].str.startswith("all_")]
+        log.info("SUMMARY box types (cells pooled): overlap of distributions / amounts, random baseline, Spearman:\n%s",
+                 s[["box_type", "year", "subset", "group", "map_a", "map_b", "n_cells", "overlap_dist",
+                    "overlap_amount", "overlap_random", "spearman_all_cells", "spearman_nonzero_cells"]]
+                 .round(3).to_string(index=False))
+    log.info("wrote %s, %s", args.out_dir / "unbuilt_overlap.csv", args.out_dir / "unbuilt_overlap.png")
+    log.info("DONE")
+    return 0
+
+
 def main(argv=None):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s", datefmt="%H:%M:%S",
                         stream=sys.stdout, force=True)
@@ -774,7 +980,9 @@ def main(argv=None):
     if args.mode == "status":
         print(f"BOXES SET {len(rb['boxes'])}" if rb["boxes"] else "BOXES EMPTY")
         return 0
-    return select(args, cfg, rb) if args.mode == "select" else run(args, cfg, rb)
+    if args.mode == "select":
+        return select(args, cfg, rb)
+    return overlap(args, cfg, rb) if args.mode == "overlap" else run(args, cfg, rb)
 
 
 if __name__ == "__main__":
