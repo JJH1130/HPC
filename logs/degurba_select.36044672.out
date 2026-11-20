@@ -1,0 +1,52 @@
+== job 36044672 (degurba_select) on c3cpu-e2-u1 at 2026-11-20T09:05:55-07:00
+== cores=4 gpus=none restart=0
+== git a15e388
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  mode select  args: 
+09:06:05 INFO arg mode = select
+09:06:05 INFO arg config = configs/external_grids.yaml
+09:06:05 INFO arg data_root = /projects/jaju1407/data/raw/external
+09:06:05 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+09:06:05 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:06:05 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+09:06:05 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+09:06:05 INFO arg name = conus
+09:06:05 INFO arg out_dir = None
+09:06:05 INFO arg check_with = results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv
+09:06:05 INFO arg check = False
+09:06:05 INFO   input SMOD 2010 /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif
+09:06:05 INFO   input counties /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+09:06:05 INFO   input version /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+09:06:05 INFO   input version /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+09:06:05 INFO RULE (fixed 2026-11-21 before any result): rural = no SMOD 2010 cell of 21-23 / 30 in the county; peri_urban = a 21-23 cell, no 30 cell; train_status ['ok', 'filled_nhgis']; per region the median 2010 density (pop / area_km2; even -> lower middle; tie -> smaller GISJOIN), else the next by |density - median|; refused if < 50 km from a city / chosen box centre or more than 0.1 % of the box outside the 2010 counties
+09:06:37 INFO   SMOD tags: {'AREA_OR_POINT': 'Area'}
+09:06:37 INFO   SMOD codes in the counties (cells): {'10 water': 56670, '11 very low density rural': 7139631, '12 low density rural': 392470, '13 rural cluster': 26451, '21 suburban or peri-urban': 107204, '22 semi-dense urban cluster': 12899, '23 dense urban cluster': 13543, '30 urban centre': 47352}
+09:06:38 INFO   counties: 3109, candidates (train status, a region, a land cell): 3109; no land cell: 0
+09:06:38 INFO   candidates by region x type:
+type       peri_urban  rural  urban
+region                             
+Midwest           459    527     69
+Northeast         121     33     63
+South             671    661     91
+West              168    176     70
+09:07:18 INFO   Northeast rural      #0 G5000190 Orleans County, 50: density 14.58 (median 14.58, 33 candidates) -> REFUSED: 3.02 % of the box outside the counties
+09:07:19 INFO   Northeast rural      #1 G4201170 Tioga County, 42: density 14.26 (median 14.58, 33 candidates) -> CHOSEN
+09:07:32 INFO   Northeast peri_urban #0 G3600370 Genesee County, 36: density 46.83 (median 46.83, 121 candidates) -> CHOSEN
+09:07:45 INFO   Midwest   rural      #0 G4601250 Turner County, 46: density 5.22 (median 5.22, 527 candidates) -> CHOSEN
+09:07:54 INFO   Midwest   peri_urban #0 G3900730 Hocking County, 39: density 26.78 (median 26.78, 459 candidates) -> CHOSEN
+09:08:05 INFO   South     rural      #0 G0100670 Henry County, 01: density 11.75 (median 11.75, 661 candidates) -> CHOSEN
+09:08:16 INFO   South     peri_urban #0 G4804690 Victoria County, 48: density 37.73 (median 37.73, 671 candidates) -> CHOSEN
+09:08:20 INFO   West      rural      #0 G3001010 Toole County, 30: density 1.06 (median 1.06, 176 candidates) -> CHOSEN
+09:08:21 INFO   West      peri_urban #0 G5300170 Douglas County, 53: density 8.03 (median 8.03, 168 candidates) -> CHOSEN
+09:08:21 INFO SELECTED:
+                 box   box_type    region  GISJOIN          county state_fips  density_2010  median_density  n_candidates  candidate_order            x           y  n_smod_land  n_smod_cluster  n_smod_centre  smod_share_10  smod_share_11  smod_share_12  smod_share_13  smod_share_21  smod_share_22  smod_share_23  smod_share_30  smod_share_nodata  pop_v57_2010  share_cells_outside_mask  pop_v57_1980
+     rural_northeast      rural Northeast G4201170    Tioga County         42        14.256          14.579            33                1  1537158.961 2237509.641         2965               0              0          0.001          0.954          0.037          0.008          0.000          0.000          0.000            0.0                0.0     25126.392                       0.0     24225.111
+peri_urban_northeast peri_urban Northeast G3600370  Genesee County         36        46.833          46.833           121                0  1435456.759 2357681.264         1266              13              0          0.000          0.851          0.130          0.007          0.008          0.001          0.003            0.0                0.0     69491.827                       0.0     68227.427
+       rural_midwest      rural   Midwest G4601250   Turner County         46         5.217           5.217           527                0   -92716.699 2257965.449         1610               0              0          0.000          0.989          0.008          0.003          0.000          0.000          0.000            0.0                0.0      8325.698                       0.0      8842.623
+  peri_urban_midwest peri_urban   Midwest G3900730  Hocking County         39        26.777          26.777           459                0  1148291.269 1912440.799         1098               9              0          0.000          0.904          0.088          0.002          0.003          0.003          0.000            0.0                0.0     42260.780                       0.0     33771.330
+         rural_south      rural     South G0100670    Henry County         01        11.755          11.755           661                0  1015710.526  995278.992         1475               0              0          0.012          0.954          0.029          0.005          0.000          0.000          0.000            0.0                0.0     16194.721                       0.0     16265.390
+    peri_urban_south peri_urban     South G4804690 Victoria County         48        37.734          37.734           671                0   -95025.809  636476.804         2302              51              0          0.001          0.880          0.083          0.004          0.022          0.000          0.010            0.0                0.0     82867.778                       0.0     65494.553
+          rural_west      rural      West G3001010    Toole County         30         1.056           1.056           176                0 -1163776.807 2946581.641         4988               0              0          0.001          0.992          0.004          0.003          0.000          0.000          0.000            0.0                0.0      2917.039                       0.0      2974.074
+     peri_urban_west peri_urban      West G5300170  Douglas County         53         8.027           8.027           168                0 -1771584.169 2970975.908         4766              28              0          0.000          0.995          0.004          0.000          0.000          0.000          0.000            0.0                0.0      4462.071                       0.0      3241.333
+09:08:21 INFO wrote results/validation/conus/external/degurba_boxes_v57/boxes_selected.csv and the 8 boxes into configs/external_grids.yaml (commit both)
+09:08:21 INFO SELECT OK
+== done 2026-11-20T09:08:21-07:00

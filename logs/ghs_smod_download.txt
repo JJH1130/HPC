@@ -1,0 +1,28 @@
+== 2026-11-20T09:02:20-07:00 host login-ci3 | products: ghs_smod -> /projects/jaju1407/data/raw/external
+isilon1-data.rc.int.colorado.edu:/ifs/curc/projects  250G   84G  167G  34% /projects
+/projects/jaju1407               (B[m       84G (B[m         167G           250G
+===== ghs_smod (09:02:21)
+   downloading https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-smod/r2023a/54009/1000m/1980/GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif
+   14642448 bytes in 1.845154 s
+== GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif: size ok (14642448 bytes)
+   downloading https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-smod/r2023a/54009/1000m/2010/GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif
+   16230068 bytes in 1.811873 s
+== GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif: size ok (16230068 bytes)
+   sha256 4f61936737e51bbad21c4c84d1ca07e48a689aba8fdc1faf9d01bbee61d11a5e  GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif
+   sha256 58756912e1f0cb15b7a77c5a9387599dad0ad1f080ba38b8822db60df21b2433  GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif
+   downloading https://ghsl.jrc.ec.europa.eu/documents/GHSL_Data_Package_2023.pdf
+   15139500 bytes in 23.650719 s
+== docs/GHSL_Data_Package_2023.pdf (19M)
+   pdftotext not found: SMOD class codes not printed (the run logs the codes found in the raster and stops on an unknown one)
+   GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif: ESRI:54009, 36082 x 18000, res (1000.0, 1000.0), dtype int16, nodata -200.0, tags {'AREA_OR_POINT': 'Area'}
+   GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif: ESRI:54009, 36082 x 18000, res (1000.0, 1000.0), dtype int16, nodata -200.0, tags {'AREA_OR_POINT': 'Area'}
+===== summary (2026-11-20T09:03:16-07:00)
+   ghs_smod: ok
+   19M	/projects/jaju1407/data/raw/external/docs
+   2.7G	/projects/jaju1407/data/raw/external/fang_jawitz
+   20G	/projects/jaju1407/data/raw/external/ghs_pop
+   39M	/projects/jaju1407/data/raw/external/ghs_smod
+   32K	/projects/jaju1407/data/raw/external/gpw4
+   32K	/projects/jaju1407/data/raw/external/grump1
+   9.4G	/projects/jaju1407/data/raw/external/worldpop
+== next: the inventory (headers only, login node): bash sbatch/external_compare.sh inventory

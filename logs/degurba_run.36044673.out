@@ -1,0 +1,472 @@
+== job 36044673 (degurba_run) on c3cpu-e2-u1 at 2026-11-20T09:08:27-07:00
+== cores=4 gpus=none restart=0
+== git a15e388 (DIRTY tree)
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  mode run  args: 
+09:08:31 INFO arg mode = run
+09:08:31 INFO arg config = configs/external_grids.yaml
+09:08:31 INFO arg data_root = /projects/jaju1407/data/raw/external
+09:08:31 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+09:08:31 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:08:31 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+09:08:31 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+09:08:31 INFO arg name = conus
+09:08:31 INFO arg out_dir = None
+09:08:31 INFO arg check_with = results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv
+09:08:31 INFO arg check = False
+09:08:32 INFO   input 2010 version Dasy_CONUS_RF_v3_all_nby       /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+09:08:32 INFO   input 2010 version Dasy_CONUS_RF_v3_all_nby_pq5   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_2010.tif
+09:08:32 INFO   input 2010 BUI /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+09:08:32 INFO   input 2010 product ghs_pop   /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+09:08:32 INFO   input 2010 product worldpop  /projects/jaju1407/data/raw/external/worldpop/usa_ppp_2010.tif
+09:08:32 INFO   input 2010 SMOD /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif
+09:08:32 INFO   input 1980 version Dasy_CONUS_RF_v3_all_nby       /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+09:08:32 INFO   input 1980 version Dasy_CONUS_RF_v3_all_nby_pq5   /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1980.tif
+09:08:32 INFO   input 1980 BUI /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+09:08:32 INFO   input 1980 product ghs_pop   /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+09:08:32 INFO   input 1980 SMOD /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif
+09:08:32 INFO   input NobuiltYear /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+09:08:32 INFO   input meeting check results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv 
+09:08:32 INFO   boxes: 3 city + 8 chosen ['rural_northeast', 'peri_urban_northeast', 'rural_midwest', 'peri_urban_midwest', 'rural_south', 'peri_urban_south', 'rural_west', 'peri_urban_west']
+09:08:32 INFO SMOD code table (config, from the GHSL documentation; checked against the codes found): {30: 'urban centre', 23: 'dense urban cluster', 22: 'semi-dense urban cluster', 21: 'suburban or peri-urban', 13: 'rural cluster', 12: 'low density rural', 11: 'very low density rural', 10: 'water'}
+09:08:32 INFO   SMOD 2010: GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif, ESRI:54009, 36082 x 18000, res (1000.0, 1000.0), nodata -200.0, dtype int16, tags {'AREA_OR_POINT': 'Area'}
+09:08:32 INFO   SMOD 1980: GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif, ESRI:54009, 36082 x 18000, res (1000.0, 1000.0), nodata -200.0, dtype int16, tags {'AREA_OR_POINT': 'Area'}
+09:08:32 INFO RULE A: block = most frequent SMOD code of its 16 cells (tie -> higher code); {'urban': [30], 'peri_urban': [21, 22, 23], 'rural': [11, 12, 13]}; 10 / nodata -> excluded
+09:08:32 INFO RULE B: urban centre = 4-connected blocks >= 1500 per km2, >= 50000 people; holes: four_sides (a block whose four side neighbours all belong to one centre joins it, one pass; the manual's gap rule NOT verified); edge smoothing: NOT applied; urban cluster = 8-connected blocks >= 300 per km2, >= 5000 people, minus centres; computed on the box + 20 km
+09:08:35 INFO ===== Boston, MA (city) 2010: window Window(col_off=17417, row_off=2941, width=160, height=160), 19376 of 25600 cells in the mask
+09:08:45 INFO   SMOD 2010 codes on the box cells: {10: 4193, 11: 1559, 12: 2988, 13: 15, 21: 6625, 22: 498, 23: 909, 30: 8813}
+09:08:47 INFO   scheme B: 2 urban centres in the box + margin, 8 hole blocks filled
+09:08:47 INFO   scheme A blocks: {'rural': 221, 'peri_urban': 476, 'urban': 443, 'excluded': 0} (of 1140 full blocks)
+09:08:47 INFO   scheme B blocks: {'rural': 160, 'peri_urban': 703, 'urban': 277} (of 1140 full blocks)
+09:08:47 INFO   A, v5.7 vs GHS-POP: rural 221 rho 0.827 ratio 1.756 | peri_urban 476 rho 0.774 ratio 0.956 | urban 443 rho 0.868 ratio 0.780 | excluded 0 rho nan ratio nan | all 1140 rho 0.934 ratio 0.835
+09:08:53 INFO ===== Denver, CO (city) 2010: window Window(col_off=6295, row_off=5036, width=160, height=160), 25600 of 25600 cells in the mask
+09:08:57 INFO   SMOD 2010 codes on the box cells: {10: 87, 11: 5111, 12: 1810, 13: 65, 21: 2852, 22: 236, 23: 108, 30: 15331}
+09:08:57 INFO   scheme B: 2 urban centres in the box + margin, 18 hole blocks filled
+09:08:57 INFO   scheme A blocks: {'rural': 428, 'peri_urban': 198, 'urban': 970, 'excluded': 4} (of 1600 full blocks)
+09:08:57 INFO   scheme B blocks: {'rural': 456, 'peri_urban': 687, 'urban': 457} (of 1600 full blocks)
+09:08:57 INFO   A, v5.7 vs GHS-POP: rural 428 rho 0.806 ratio 1.514 | peri_urban 198 rho 0.795 ratio 1.051 | urban 970 rho 0.708 ratio 0.940 | excluded 4 rho 0.775 ratio 113.819 | all 1600 rho 0.891 ratio 0.960
+09:09:05 INFO ===== Chicago, IL (city) 2010: window Window(col_off=12101, row_off=4101, width=160, height=160), 14078 of 25600 cells in the mask
+09:09:10 INFO   SMOD 2010 codes on the box cells: {10: 10896, 11: 439, 12: 86, 21: 173, 30: 14006}
+09:09:12 INFO   scheme B: 4 urban centres in the box + margin, 23 hole blocks filled
+09:09:12 INFO   scheme A blocks: {'rural': 12, 'peri_urban': 11, 'urban': 833, 'excluded': 0} (of 856 full blocks)
+09:09:12 INFO   scheme B blocks: {'rural': 60, 'peri_urban': 94, 'urban': 702} (of 856 full blocks)
+09:09:12 INFO   A, v5.7 vs GHS-POP: rural 12 rho 0.869 ratio 1.082 | peri_urban 11 rho 0.827 ratio 1.107 | urban 833 rho 0.877 ratio 1.031 | excluded 0 rho nan ratio nan | all 856 rho 0.885 ratio 1.031
+09:09:12 INFO ===== Tioga County, 42 (rural, Northeast) (rural) 2010: window Window(col_off=15494, row_off=3661, width=160, height=160), 25600 of 25600 cells in the mask
+09:09:17 INFO   SMOD 2010 codes on the box cells: {10: 15, 11: 24424, 12: 950, 13: 211}
+09:09:20 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:09:20 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:09:20 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:09:20 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.920 ratio 0.957 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.920 ratio 0.957
+09:09:38 INFO ===== Genesee County, 36 (peri-urban, Northeast) (peri_urban) 2010: window Window(col_off=15087, row_off=3181, width=160, height=160), 25600 of 25600 cells in the mask
+09:09:50 INFO   SMOD 2010 codes on the box cells: {11: 21777, 12: 3325, 13: 172, 21: 215, 22: 32, 23: 79}
+09:09:56 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:09:56 INFO   scheme A blocks: {'rural': 1578, 'peri_urban': 22, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:09:56 INFO   scheme B blocks: {'rural': 1585, 'peri_urban': 15, 'urban': 0} (of 1600 full blocks)
+09:09:56 INFO   A, v5.7 vs GHS-POP: rural 1578 rho 0.876 ratio 1.072 | peri_urban 22 rho 0.668 ratio 0.683 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.880 ratio 0.956
+09:09:57 INFO ===== Turner County, 46 (rural, Midwest) (rural) 2010: window Window(col_off=8974, row_off=3580, width=160, height=160), 25600 of 25600 cells in the mask
+09:09:59 INFO   SMOD 2010 codes on the box cells: {10: 3, 11: 25314, 12: 205, 13: 78}
+09:09:59 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:09:59 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:09:59 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:09:59 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.586 ratio 1.115 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.586 ratio 1.115
+09:10:00 INFO ===== Hocking County, 39 (peri-urban, Midwest) (peri_urban) 2010: window Window(col_off=13938, row_off=4962, width=160, height=160), 25600 of 25600 cells in the mask
+09:10:08 INFO   SMOD 2010 codes on the box cells: {11: 23136, 12: 2256, 13: 64, 21: 79, 22: 65}
+09:10:12 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:10:12 INFO   scheme A blocks: {'rural': 1589, 'peri_urban': 11, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:10:12 INFO   scheme B blocks: {'rural': 1592, 'peri_urban': 8, 'urban': 0} (of 1600 full blocks)
+09:10:12 INFO   A, v5.7 vs GHS-POP: rural 1589 rho 0.895 ratio 1.120 | peri_urban 11 rho 0.873 ratio 0.725 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.897 ratio 1.047
+09:10:20 INFO ===== Henry County, 01 (rural, South) (rural) 2010: window Window(col_off=13408, row_off=8630, width=160, height=160), 25600 of 25600 cells in the mask
+09:10:27 INFO   SMOD 2010 codes on the box cells: {10: 314, 11: 24422, 12: 733, 13: 131}
+09:10:34 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:10:34 INFO   scheme A blocks: {'rural': 1582, 'peri_urban': 0, 'urban': 0, 'excluded': 18} (of 1600 full blocks)
+09:10:34 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:10:34 INFO   A, v5.7 vs GHS-POP: rural 1582 rho 0.840 ratio 0.963 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 18 rho 0.385 ratio 9.577 | all 1600 rho 0.842 ratio 0.964
+09:10:36 INFO ===== Victoria County, 48 (peri-urban, South) (peri_urban) 2010: window Window(col_off=8965, row_off=10066, width=160, height=160), 25600 of 25600 cells in the mask
+09:10:38 INFO   SMOD 2010 codes on the box cells: {10: 26, 11: 22533, 12: 2132, 13: 92, 21: 566, 23: 251}
+09:10:41 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:10:41 INFO   scheme A blocks: {'rural': 1547, 'peri_urban': 52, 'urban': 0, 'excluded': 1} (of 1600 full blocks)
+09:10:41 INFO   scheme B blocks: {'rural': 1541, 'peri_urban': 59, 'urban': 0} (of 1600 full blocks)
+09:10:41 INFO   A, v5.7 vs GHS-POP: rural 1547 rho 0.871 ratio 1.277 | peri_urban 52 rho 0.631 ratio 0.804 | urban 0 rho nan ratio nan | excluded 1 rho nan ratio nan | all 1600 rho 0.884 ratio 0.962
+09:10:41 INFO ===== Toole County, 30 (rural, West) (rural) 2010: window Window(col_off=4690, row_off=825, width=160, height=160), 25600 of 25600 cells in the mask
+09:10:43 INFO   SMOD 2010 codes on the box cells: {10: 30, 11: 25394, 12: 94, 13: 82}
+09:10:48 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:10:48 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:10:48 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:10:48 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.403 ratio 0.749 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.403 ratio 0.749
+09:10:48 INFO ===== Douglas County, 53 (peri-urban, West) (peri_urban) 2010: window Window(col_off=2259, row_off=728, width=160, height=160), 25600 of 25600 cells in the mask
+09:10:50 INFO   SMOD 2010 codes on the box cells: {11: 25482, 12: 112, 13: 6}
+09:10:50 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:10:50 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:10:50 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:10:50 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.493 ratio 2.195 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.493 ratio 2.195
+09:10:53 INFO ===== Boston, MA (city) 1980: window Window(col_off=17417, row_off=2941, width=160, height=160), 19376 of 25600 cells in the mask
+09:11:01 INFO   SMOD 1980 codes on the box cells: {10: 4210, 11: 1771, 12: 3571, 13: 59, 21: 7583, 22: 436, 23: 789, 30: 7181}
+09:11:05 INFO   scheme B: 3 urban centres in the box + margin, 4 hole blocks filled
+09:11:05 INFO   scheme A blocks: {'rural': 269, 'peri_urban': 519, 'urban': 352, 'excluded': 0} (of 1140 full blocks)
+09:11:05 INFO   scheme B blocks: {'rural': 216, 'peri_urban': 639, 'urban': 285} (of 1140 full blocks)
+09:11:05 INFO   A, v5.7 vs GHS-POP: rural 269 rho 0.822 ratio 1.631 | peri_urban 519 rho 0.773 ratio 1.090 | urban 352 rho 0.841 ratio 0.947 | excluded 0 rho nan ratio nan | all 1140 rho 0.937 ratio 1.004
+09:11:11 INFO ===== Denver, CO (city) 1980: window Window(col_off=6295, row_off=5036, width=160, height=160), 25445 of 25600 cells in the mask
+09:11:21 INFO   SMOD 1980 codes on the box cells: {10: 87, 11: 6151, 12: 2771, 13: 231, 21: 6084, 22: 627, 23: 1270, 30: 8379}
+09:11:23 INFO   scheme B: 1 urban centres in the box + margin, 4 hole blocks filled
+09:11:23 INFO   scheme A blocks: {'rural': 541, 'peri_urban': 502, 'urban': 534, 'excluded': 4} (of 1581 full blocks)
+09:11:23 INFO   scheme B blocks: {'rural': 704, 'peri_urban': 674, 'urban': 203} (of 1581 full blocks)
+09:11:23 INFO   A, v5.7 vs GHS-POP: rural 541 rho 0.757 ratio 0.889 | peri_urban 502 rho 0.420 ratio 0.811 | urban 534 rho 0.553 ratio 1.214 | excluded 4 rho 0.775 ratio 97.665 | all 1581 rho 0.816 ratio 1.051
+09:11:29 INFO ===== Chicago, IL (city) 1980: window Window(col_off=12101, row_off=4101, width=160, height=160), 14078 of 25600 cells in the mask
+09:11:30 INFO   SMOD 1980 codes on the box cells: {10: 10896, 11: 471, 12: 103, 21: 229, 30: 13901}
+09:11:35 INFO   scheme B: 4 urban centres in the box + margin, 21 hole blocks filled
+09:11:35 INFO   scheme A blocks: {'rural': 14, 'peri_urban': 14, 'urban': 828, 'excluded': 0} (of 856 full blocks)
+09:11:35 INFO   scheme B blocks: {'rural': 58, 'peri_urban': 92, 'urban': 706} (of 856 full blocks)
+09:11:35 INFO   A, v5.7 vs GHS-POP: rural 14 rho 0.785 ratio 0.913 | peri_urban 14 rho 0.824 ratio 1.126 | urban 828 rho 0.868 ratio 1.166 | excluded 0 rho nan ratio nan | all 856 rho 0.878 ratio 1.165
+09:11:42 INFO ===== Tioga County, 42 (rural, Northeast) (rural) 1980: window Window(col_off=15494, row_off=3661, width=160, height=160), 25600 of 25600 cells in the mask
+09:11:47 INFO   SMOD 1980 codes on the box cells: {10: 15, 11: 24421, 12: 970, 13: 194}
+09:11:48 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:11:48 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:11:48 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:11:48 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.899 ratio 0.950 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.899 ratio 0.950
+09:11:51 INFO ===== Genesee County, 36 (peri-urban, Northeast) (peri_urban) 1980: window Window(col_off=15087, row_off=3181, width=160, height=160), 25600 of 25600 cells in the mask
+09:11:57 INFO   SMOD 1980 codes on the box cells: {11: 21972, 12: 3161, 13: 141, 21: 215, 22: 32, 23: 79}
+09:11:58 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:11:58 INFO   scheme A blocks: {'rural': 1578, 'peri_urban': 22, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:11:58 INFO   scheme B blocks: {'rural': 1586, 'peri_urban': 14, 'urban': 0} (of 1600 full blocks)
+09:11:58 INFO   A, v5.7 vs GHS-POP: rural 1578 rho 0.841 ratio 1.088 | peri_urban 22 rho 0.650 ratio 0.664 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.845 ratio 0.961
+09:11:58 INFO ===== Turner County, 46 (rural, Midwest) (rural) 1980: window Window(col_off=8974, row_off=3580, width=160, height=160), 25600 of 25600 cells in the mask
+09:11:59 INFO   SMOD 1980 codes on the box cells: {10: 3, 11: 25299, 12: 227, 13: 71}
+09:11:59 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:11:59 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:11:59 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:11:59 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.528 ratio 1.209 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.528 ratio 1.209
+09:12:01 INFO ===== Hocking County, 39 (peri-urban, Midwest) (peri_urban) 1980: window Window(col_off=13938, row_off=4962, width=160, height=160), 25600 of 25600 cells in the mask
+09:12:09 INFO   SMOD 1980 codes on the box cells: {11: 23847, 12: 1574, 13: 35, 21: 95, 22: 49}
+09:12:10 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:12:10 INFO   scheme A blocks: {'rural': 1589, 'peri_urban': 11, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:12:10 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:12:10 INFO   A, v5.7 vs GHS-POP: rural 1589 rho 0.857 ratio 1.035 | peri_urban 11 rho 0.873 ratio 0.758 | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.860 ratio 0.980
+09:12:19 INFO ===== Henry County, 01 (rural, South) (rural) 1980: window Window(col_off=13408, row_off=8630, width=160, height=160), 25600 of 25600 cells in the mask
+09:12:20 INFO   SMOD 1980 codes on the box cells: {10: 314, 11: 24586, 12: 619, 13: 81}
+09:12:22 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:12:22 INFO   scheme A blocks: {'rural': 1582, 'peri_urban': 0, 'urban': 0, 'excluded': 18} (of 1600 full blocks)
+09:12:22 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:12:22 INFO   A, v5.7 vs GHS-POP: rural 1582 rho 0.822 ratio 1.192 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 18 rho 0.325 ratio 17.362 | all 1600 rho 0.825 ratio 1.193
+09:12:22 INFO ===== Victoria County, 48 (peri-urban, South) (peri_urban) 1980: window Window(col_off=8965, row_off=10066, width=160, height=160), 25600 of 25600 cells in the mask
+09:12:23 INFO   SMOD 1980 codes on the box cells: {10: 26, 11: 23019, 12: 1680, 13: 76, 21: 492, 22: 307}
+09:12:23 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:12:23 INFO   scheme A blocks: {'rural': 1549, 'peri_urban': 50, 'urban': 0, 'excluded': 1} (of 1600 full blocks)
+09:12:23 INFO   scheme B blocks: {'rural': 1556, 'peri_urban': 44, 'urban': 0} (of 1600 full blocks)
+09:12:23 INFO   A, v5.7 vs GHS-POP: rural 1549 rho 0.846 ratio 1.272 | peri_urban 50 rho 0.566 ratio 0.788 | urban 0 rho nan ratio nan | excluded 1 rho nan ratio nan | all 1600 rho 0.860 ratio 0.953
+09:12:23 INFO ===== Toole County, 30 (rural, West) (rural) 1980: window Window(col_off=4690, row_off=825, width=160, height=160), 25600 of 25600 cells in the mask
+09:12:23 INFO   SMOD 1980 codes on the box cells: {10: 30, 11: 25409, 12: 95, 13: 66}
+09:12:25 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:12:25 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:12:25 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:12:25 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.369 ratio 0.870 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.369 ratio 0.870
+09:12:26 INFO ===== Douglas County, 53 (peri-urban, West) (peri_urban) 1980: window Window(col_off=2259, row_off=728, width=160, height=160), 25600 of 25600 cells in the mask
+09:12:26 INFO   SMOD 1980 codes on the box cells: {11: 25519, 12: 75, 13: 6}
+09:12:26 INFO   scheme B: 0 urban centres in the box + margin, 0 hole blocks filled
+09:12:26 INFO   scheme A blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0, 'excluded': 0} (of 1600 full blocks)
+09:12:26 INFO   scheme B blocks: {'rural': 1600, 'peri_urban': 0, 'urban': 0} (of 1600 full blocks)
+09:12:26 INFO   A, v5.7 vs GHS-POP: rural 1600 rho 0.476 ratio 2.474 | peri_urban 0 rho nan ratio nan | urban 0 rho nan ratio nan | excluded 0 rho nan ratio nan | all 1600 rho 0.476 ratio 2.474
+09:12:26 INFO checks (a difference stops the run before writing):
+09:12:26 INFO   classes add up to all: 168 groups (box x year x scheme x version x product; blocks, people)
+09:12:27 INFO   cell types add up: 44 box-year-schemes (box shares = 1, classes = all, cells = 16 x blocks)
+09:12:27 INFO   MATCH results/validation/conus/external/city_maps_meeting_v57/meeting_summary_v56_v57.csv: 39 whole-box numbers of v5.7 (Spearman, blocks, people in the box)
+09:12:28 INFO   wrote results/validation/conus/external/degurba_boxes_v57/boston_2010_cell_types.png
+09:12:28 INFO   wrote results/validation/conus/external/degurba_boxes_v57/denver_2010_cell_types.png
+09:12:29 INFO   wrote results/validation/conus/external/degurba_boxes_v57/chicago_2010_cell_types.png
+09:12:30 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_northeast_2010.png
+09:12:30 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_northeast_2010_cell_types.png
+09:12:31 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_northeast_2010.png
+09:12:31 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_northeast_2010_cell_types.png
+09:12:32 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_midwest_2010.png
+09:12:32 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_midwest_2010_cell_types.png
+09:12:33 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_midwest_2010.png
+09:12:33 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_midwest_2010_cell_types.png
+09:12:34 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_south_2010.png
+09:12:34 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_south_2010_cell_types.png
+09:12:35 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_south_2010.png
+09:12:36 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_south_2010_cell_types.png
+09:12:36 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_west_2010.png
+09:12:37 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_west_2010_cell_types.png
+09:12:37 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_west_2010.png
+09:12:38 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_west_2010_cell_types.png
+09:12:38 INFO   wrote results/validation/conus/external/degurba_boxes_v57/boston_1980_cell_types.png
+09:12:39 INFO   wrote results/validation/conus/external/degurba_boxes_v57/denver_1980_cell_types.png
+09:12:39 INFO   wrote results/validation/conus/external/degurba_boxes_v57/chicago_1980_cell_types.png
+09:12:39 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_northeast_1980.png
+09:12:40 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_northeast_1980_cell_types.png
+09:12:40 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_northeast_1980.png
+09:12:41 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_northeast_1980_cell_types.png
+09:12:41 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_midwest_1980.png
+09:12:42 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_midwest_1980_cell_types.png
+09:12:42 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_midwest_1980.png
+09:12:43 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_midwest_1980_cell_types.png
+09:12:43 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_south_1980.png
+09:12:44 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_south_1980_cell_types.png
+09:12:44 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_south_1980.png
+09:12:45 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_south_1980_cell_types.png
+09:12:45 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_west_1980.png
+09:12:46 INFO   wrote results/validation/conus/external/degurba_boxes_v57/rural_west_1980_cell_types.png
+09:12:46 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_west_1980.png
+09:12:47 INFO   wrote results/validation/conus/external/degurba_boxes_v57/peri_urban_west_1980_cell_types.png
+09:12:47 INFO SUMMARY totals our / product: A classes | B classes | all full blocks | whole box:
+                 box   box_type  year version_label  product  ratio_A_rural  ratio_A_peri_urban  ratio_A_urban  ratio_A_excluded  ratio_B_rural  ratio_B_peri_urban  ratio_B_urban  ratio_full_blocks  ratio_whole_box
+            all_city       city  1980          v5.7  ghs_pop          1.241               0.949          1.123            97.665          0.372               1.000          1.165              1.098            1.077
+              boston       city  1980          v5.7  ghs_pop          1.631               1.090          0.947               NaN          0.998               1.081          0.966              1.004            1.002
+             chicago       city  1980          v5.7  ghs_pop          0.913               1.126          1.166               NaN          0.666               0.532          1.201              1.165            1.130
+              denver       city  1980          v5.7  ghs_pop          0.889               0.811          1.214            97.665          0.261               1.043          1.470              1.051            1.047
+      all_peri_urban peri_urban  1980          v5.7  ghs_pop          1.134               0.750            NaN               NaN          1.016               0.879            NaN              0.973            0.973
+  peri_urban_midwest peri_urban  1980          v5.7  ghs_pop          1.035               0.758            NaN               NaN          0.980                 NaN            NaN              0.980            0.980
+peri_urban_northeast peri_urban  1980          v5.7  ghs_pop          1.088               0.664            NaN               NaN          0.996               0.828            NaN              0.961            0.961
+    peri_urban_south peri_urban  1980          v5.7  ghs_pop          1.272               0.788            NaN               NaN          1.033               0.898            NaN              0.953            0.953
+     peri_urban_west peri_urban  1980          v5.7  ghs_pop          2.474                 NaN            NaN               NaN          2.474                 NaN            NaN              2.474            2.474
+           all_rural      rural  1980          v5.7  ghs_pop          1.049                 NaN            NaN            17.362          1.049                 NaN            NaN              1.049            1.049
+       rural_midwest      rural  1980          v5.7  ghs_pop          1.209                 NaN            NaN               NaN          1.209                 NaN            NaN              1.209            1.209
+     rural_northeast      rural  1980          v5.7  ghs_pop          0.950                 NaN            NaN               NaN          0.950                 NaN            NaN              0.950            0.950
+         rural_south      rural  1980          v5.7  ghs_pop          1.192                 NaN            NaN            17.362          1.193                 NaN            NaN              1.193            1.193
+          rural_west      rural  1980          v5.7  ghs_pop          0.870                 NaN            NaN               NaN          0.870                 NaN            NaN              0.870            0.870
+            all_city       city  1980      v5.7_pq5  ghs_pop          1.344               0.908          1.091           442.047          0.452               0.957          1.133              1.067            1.048
+              boston       city  1980      v5.7_pq5  ghs_pop          1.694               1.070          0.939               NaN          1.100               1.064          0.958              0.995            0.992
+             chicago       city  1980      v5.7_pq5  ghs_pop          1.465               1.207          1.133               NaN          1.032               0.569          1.164              1.133            1.100
+              denver       city  1980      v5.7_pq5  ghs_pop          1.017               0.749          1.149           442.047          0.325               0.963          1.401              0.994            0.991
+      all_peri_urban peri_urban  1980      v5.7_pq5  ghs_pop          1.208               0.672            NaN               NaN          1.070               0.797            NaN              0.984            0.984
+  peri_urban_midwest peri_urban  1980      v5.7_pq5  ghs_pop          1.067               0.667            NaN               NaN          0.988                 NaN            NaN              0.988            0.988
+peri_urban_northeast peri_urban  1980      v5.7_pq5  ghs_pop          1.196               0.482            NaN               NaN          1.079               0.606            NaN              0.982            0.982
+    peri_urban_south peri_urban  1980      v5.7_pq5  ghs_pop          1.348               0.761            NaN               NaN          1.102               0.865            NaN              0.961            0.961
+     peri_urban_west peri_urban  1980      v5.7_pq5  ghs_pop          2.169                 NaN            NaN               NaN          2.169                 NaN            NaN              2.169            2.169
+           all_rural      rural  1980      v5.7_pq5  ghs_pop          1.020                 NaN            NaN            32.330          1.020                 NaN            NaN              1.020            1.020
+       rural_midwest      rural  1980      v5.7_pq5  ghs_pop          1.181                 NaN            NaN               NaN          1.181                 NaN            NaN              1.181            1.181
+     rural_northeast      rural  1980      v5.7_pq5  ghs_pop          0.931                 NaN            NaN               NaN          0.931                 NaN            NaN              0.931            0.931
+         rural_south      rural  1980      v5.7_pq5  ghs_pop          1.173                 NaN            NaN            32.330          1.173                 NaN            NaN              1.173            1.173
+          rural_west      rural  1980      v5.7_pq5  ghs_pop          0.727                 NaN            NaN               NaN          0.727                 NaN            NaN              0.727            0.727
+            all_city       city  2010          v5.7  ghs_pop          1.627               0.983          0.948           113.819          0.916               0.894          0.977              0.958            0.943
+              boston       city  2010          v5.7  ghs_pop          1.756               0.956          0.780               NaN          0.995               0.931          0.782              0.835            0.838
+             chicago       city  2010          v5.7  ghs_pop          1.082               1.107          1.031               NaN          0.413               0.677          1.048              1.031            1.001
+              denver       city  2010          v5.7  ghs_pop          1.514               1.051          0.940           113.819          1.090               0.896          1.007              0.960            0.960
+      all_peri_urban peri_urban  2010          v5.7  ghs_pop          1.157               0.767            NaN               NaN          1.105               0.824            NaN              0.989            0.989
+  peri_urban_midwest peri_urban  2010          v5.7  ghs_pop          1.120               0.725            NaN               NaN          1.110               0.738            NaN              1.047            1.047
+peri_urban_northeast peri_urban  2010          v5.7  ghs_pop          1.072               0.683            NaN               NaN          0.994               0.817            NaN              0.956            0.956
+    peri_urban_south peri_urban  2010          v5.7  ghs_pop          1.277               0.804            NaN               NaN          1.256               0.835            NaN              0.962            0.962
+     peri_urban_west peri_urban  2010          v5.7  ghs_pop          2.195                 NaN            NaN               NaN          2.195                 NaN            NaN              2.195            2.195
+           all_rural      rural  2010          v5.7  ghs_pop          0.966                 NaN            NaN             9.577          0.966                 NaN            NaN              0.966            0.966
+       rural_midwest      rural  2010          v5.7  ghs_pop          1.115                 NaN            NaN               NaN          1.115                 NaN            NaN              1.115            1.115
+     rural_northeast      rural  2010          v5.7  ghs_pop          0.957                 NaN            NaN               NaN          0.957                 NaN            NaN              0.957            0.957
+         rural_south      rural  2010          v5.7  ghs_pop          0.963                 NaN            NaN             9.577          0.964                 NaN            NaN              0.964            0.964
+          rural_west      rural  2010          v5.7  ghs_pop          0.749                 NaN            NaN               NaN          0.749                 NaN            NaN              0.749            0.749
+            all_city       city  2010      v5.7_pq5  ghs_pop          1.760               0.974          0.927           345.805          1.110               0.884          0.954              0.939            0.926
+              boston       city  2010      v5.7_pq5  ghs_pop          1.864               0.948          0.762               NaN          1.116               0.923          0.763              0.822            0.825
+             chicago       city  2010      v5.7_pq5  ghs_pop          1.419               1.163          1.013               NaN          0.569               0.706          1.028              1.013            0.984
+              denver       city  2010      v5.7_pq5  ghs_pop          1.665               1.036          0.911           345.805          1.359               0.878          0.971              0.936            0.936
+      all_peri_urban peri_urban  2010      v5.7_pq5  ghs_pop          1.189               0.747            NaN               NaN          1.136               0.802            NaN              0.999            0.999
+  peri_urban_midwest peri_urban  2010      v5.7_pq5  ghs_pop          1.129               0.723            NaN               NaN          1.119               0.735            NaN              1.053            1.053
+peri_urban_northeast peri_urban  2010      v5.7_pq5  ghs_pop          1.167               0.537            NaN               NaN          1.071               0.641            NaN              0.979            0.979
+    peri_urban_south peri_urban  2010      v5.7_pq5  ghs_pop          1.222               0.830            NaN               NaN          1.214               0.852            NaN              0.961            0.961
+     peri_urban_west peri_urban  2010      v5.7_pq5  ghs_pop          2.255                 NaN            NaN               NaN          2.255                 NaN            NaN              2.255            2.255
+           all_rural      rural  2010      v5.7_pq5  ghs_pop          0.956                 NaN            NaN            14.807          0.956                 NaN            NaN              0.956            0.956
+       rural_midwest      rural  2010      v5.7_pq5  ghs_pop          1.130                 NaN            NaN               NaN          1.130                 NaN            NaN              1.130            1.130
+     rural_northeast      rural  2010      v5.7_pq5  ghs_pop          0.945                 NaN            NaN               NaN          0.945                 NaN            NaN              0.945            0.945
+         rural_south      rural  2010      v5.7_pq5  ghs_pop          0.962                 NaN            NaN            14.807          0.962                 NaN            NaN              0.962            0.962
+          rural_west      rural  2010      v5.7_pq5  ghs_pop          0.668                 NaN            NaN               NaN          0.668                 NaN            NaN              0.668            0.668
+            all_city       city  2010          v5.7 worldpop          1.558               0.994          0.956            14.964          0.833               0.904          0.986              0.965            0.951
+              boston       city  2010          v5.7 worldpop          1.650               0.964          0.787               NaN          0.851               0.943          0.788              0.842            0.845
+             chicago       city  2010          v5.7 worldpop          0.918               1.137          1.040               NaN          0.402               0.688          1.057              1.040            1.009
+              denver       city  2010          v5.7 worldpop          1.486               1.064          0.947            14.964          1.011               0.904          1.017              0.968            0.968
+      all_peri_urban peri_urban  2010          v5.7 worldpop          1.160               0.780            NaN             0.132          1.107               0.838            NaN              0.998            0.998
+  peri_urban_midwest peri_urban  2010          v5.7 worldpop          1.126               0.732            NaN               NaN          1.112               0.755            NaN              1.052            1.052
+peri_urban_northeast peri_urban  2010          v5.7 worldpop          1.072               0.695            NaN               NaN          0.994               0.834            NaN              0.961            0.961
+    peri_urban_south peri_urban  2010          v5.7 worldpop          1.286               0.818            NaN             0.132          1.267               0.849            NaN              0.975            0.975
+     peri_urban_west peri_urban  2010          v5.7 worldpop          2.144                 NaN            NaN               NaN          2.144                 NaN            NaN              2.144            2.144
+           all_rural      rural  2010          v5.7 worldpop          0.972                 NaN            NaN             0.256          0.972                 NaN            NaN              0.972            0.972
+       rural_midwest      rural  2010          v5.7 worldpop          1.126                 NaN            NaN               NaN          1.126                 NaN            NaN              1.126            1.126
+     rural_northeast      rural  2010          v5.7 worldpop          0.960                 NaN            NaN               NaN          0.960                 NaN            NaN              0.960            0.960
+         rural_south      rural  2010          v5.7 worldpop          0.975                 NaN            NaN             0.256          0.975                 NaN            NaN              0.975            0.975
+          rural_west      rural  2010          v5.7 worldpop          0.752                 NaN            NaN               NaN          0.752                 NaN            NaN              0.752            0.752
+            all_city       city  2010      v5.7_pq5 worldpop          1.686               0.984          0.935            45.462          1.011               0.893          0.963              0.947            0.933
+              boston       city  2010      v5.7_pq5 worldpop          1.752               0.957          0.769               NaN          0.955               0.935          0.770              0.828            0.832
+             chicago       city  2010      v5.7_pq5 worldpop          1.205               1.195          1.022               NaN          0.554               0.718          1.036              1.022            0.992
+              denver       city  2010      v5.7_pq5 worldpop          1.634               1.049          0.919            45.462          1.259               0.886          0.981              0.944            0.944
+      all_peri_urban peri_urban  2010      v5.7_pq5 worldpop          1.192               0.760            NaN             0.217          1.139               0.817            NaN              1.008            1.008
+  peri_urban_midwest peri_urban  2010      v5.7_pq5 worldpop          1.134               0.729            NaN               NaN          1.121               0.752            NaN              1.059            1.059
+peri_urban_northeast peri_urban  2010      v5.7_pq5 worldpop          1.167               0.547            NaN               NaN          1.072               0.655            NaN              0.984            0.984
+    peri_urban_south peri_urban  2010      v5.7_pq5 worldpop          1.231               0.845            NaN             0.217          1.225               0.866            NaN              0.975            0.975
+     peri_urban_west peri_urban  2010      v5.7_pq5 worldpop          2.203                 NaN            NaN               NaN          2.203                 NaN            NaN              2.203            2.203
+           all_rural      rural  2010      v5.7_pq5 worldpop          0.962                 NaN            NaN             0.395          0.962                 NaN            NaN              0.962            0.962
+       rural_midwest      rural  2010      v5.7_pq5 worldpop          1.141                 NaN            NaN               NaN          1.141                 NaN            NaN              1.141            1.141
+     rural_northeast      rural  2010      v5.7_pq5 worldpop          0.948                 NaN            NaN               NaN          0.948                 NaN            NaN              0.948            0.948
+         rural_south      rural  2010      v5.7_pq5 worldpop          0.973                 NaN            NaN             0.395          0.973                 NaN            NaN              0.973            0.973
+          rural_west      rural  2010      v5.7_pq5 worldpop          0.671                 NaN            NaN               NaN          0.671                 NaN            NaN              0.671            0.671
+09:12:47 INFO SUMMARY per box type (v5.7; pooled blocks):
+  box_type  year scheme  product      class  n_blocks  spearman  ratio_total  ratio_median  share_above  share_below
+      city  2010      A  ghs_pop      rural       661     0.869        1.627         2.067        0.418        0.014
+      city  2010      A  ghs_pop peri_urban       685     0.780        0.983         1.077        0.015        0.018
+      city  2010      A  ghs_pop      urban      2246     0.848        0.948         1.017        0.042        0.012
+      city  2010      A  ghs_pop   excluded         4     0.775      113.819        45.401        1.000        0.000
+      city  2010      A  ghs_pop        all      3596     0.928        0.958         1.088        0.107        0.013
+      city  2010      A worldpop      rural       661     0.821        1.558         1.587        0.333        0.074
+      city  2010      A worldpop peri_urban       685     0.771        0.994         1.068        0.010        0.020
+      city  2010      A worldpop      urban      2246     0.850        0.956         1.031        0.041        0.012
+      city  2010      A worldpop   excluded         4     0.600       14.964        10.604        1.000        0.000
+      city  2010      A worldpop        all      3596     0.927        0.965         1.073        0.090        0.025
+      city  2010      B  ghs_pop      rural       676     0.775        0.916         1.843        0.465        0.041
+      city  2010      B  ghs_pop peri_urban      1484     0.761        0.894         1.032        0.041        0.009
+      city  2010      B  ghs_pop      urban      1436     0.786        0.977         1.073        0.007        0.005
+      city  2010      B  ghs_pop        all      3596     0.928        0.958         1.088        0.107        0.013
+      city  2010      B worldpop      rural       676     0.709        0.833         1.304        0.361        0.102
+      city  2010      B worldpop peri_urban      1484     0.754        0.904         1.025        0.044        0.009
+      city  2010      B worldpop      urban      1436     0.788        0.986         1.086        0.008        0.005
+      city  2010      B worldpop        all      3596     0.927        0.965         1.073        0.090        0.025
+     rural  2010      A  ghs_pop      rural      6382     0.847        0.966         1.388        0.508        0.007
+     rural  2010      A  ghs_pop peri_urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      A  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      A  ghs_pop   excluded        18     0.385        9.577         1.902        0.800        0.000
+     rural  2010      A  ghs_pop        all      6400     0.847        0.966         1.388        0.508        0.007
+     rural  2010      A worldpop      rural      6382     0.800        0.972         1.715        0.331        0.034
+     rural  2010      A worldpop peri_urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      A worldpop      urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      A worldpop   excluded        18     0.782        0.256         3.851        0.600        0.400
+     rural  2010      A worldpop        all      6400     0.801        0.972         1.715        0.331        0.034
+     rural  2010      B  ghs_pop      rural      6400     0.847        0.966         1.388        0.508        0.007
+     rural  2010      B  ghs_pop peri_urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      B  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      B  ghs_pop        all      6400     0.847        0.966         1.388        0.508        0.007
+     rural  2010      B worldpop      rural      6400     0.801        0.972         1.715        0.331        0.034
+     rural  2010      B worldpop peri_urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      B worldpop      urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  2010      B worldpop        all      6400     0.801        0.972         1.715        0.331        0.034
+peri_urban  2010      A  ghs_pop      rural      6314     0.918        1.157         1.408        0.414        0.008
+peri_urban  2010      A  ghs_pop peri_urban        85     0.724        0.767         0.780        0.000        0.035
+peri_urban  2010      A  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+peri_urban  2010      A  ghs_pop   excluded         1       NaN          NaN           NaN        1.000        0.000
+peri_urban  2010      A  ghs_pop        all      6400     0.921        0.989         1.388        0.408        0.008
+peri_urban  2010      A worldpop      rural      6314     0.864        1.160         1.465        0.307        0.029
+peri_urban  2010      A worldpop peri_urban        85     0.725        0.780         0.775        0.000        0.035
+peri_urban  2010      A worldpop      urban         0       NaN          NaN           NaN          NaN          NaN
+peri_urban  2010      A worldpop   excluded         1       NaN        0.132         0.132        0.000        1.000
+peri_urban  2010      A worldpop        all      6400     0.869        0.998         1.445        0.302        0.029
+peri_urban  2010      B  ghs_pop      rural      6318     0.917        1.105         1.402        0.414        0.009
+peri_urban  2010      B  ghs_pop peri_urban        82     0.771        0.824         0.853        0.000        0.000
+peri_urban  2010      B  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+peri_urban  2010      B  ghs_pop        all      6400     0.921        0.989         1.388        0.408        0.008
+peri_urban  2010      B worldpop      rural      6318     0.864        1.107         1.462        0.306        0.030
+peri_urban  2010      B worldpop peri_urban        82     0.770        0.838         0.889        0.000        0.000
+peri_urban  2010      B worldpop      urban         0       NaN          NaN           NaN          NaN          NaN
+peri_urban  2010      B worldpop        all      6400     0.869        0.998         1.445        0.302        0.029
+      city  1980      A  ghs_pop      rural       824     0.797        1.241         1.708        0.362        0.079
+      city  1980      A  ghs_pop peri_urban      1035     0.554        0.949         1.059        0.012        0.118
+      city  1980      A  ghs_pop      urban      1714     0.858        1.123         1.236        0.033        0.022
+      city  1980      A  ghs_pop   excluded         4     0.775       97.665        38.061        1.000        0.000
+      city  1980      A  ghs_pop        all      3577     0.905        1.098         1.212        0.103        0.063
+      city  1980      B  ghs_pop      rural       978     0.671        0.372         0.971        0.334        0.209
+      city  1980      B  ghs_pop peri_urban      1405     0.631        1.000         1.162        0.024        0.014
+      city  1980      B  ghs_pop      urban      1194     0.840        1.165         1.301        0.008        0.002
+      city  1980      B  ghs_pop        all      3577     0.905        1.098         1.212        0.103        0.063
+     rural  1980      A  ghs_pop      rural      6382     0.821        1.049         1.454        0.525        0.011
+     rural  1980      A  ghs_pop peri_urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  1980      A  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  1980      A  ghs_pop   excluded        18     0.325       17.362         2.743        0.800        0.000
+     rural  1980      A  ghs_pop        all      6400     0.821        1.049         1.455        0.526        0.011
+     rural  1980      B  ghs_pop      rural      6400     0.821        1.049         1.455        0.526        0.011
+     rural  1980      B  ghs_pop peri_urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  1980      B  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+     rural  1980      B  ghs_pop        all      6400     0.821        1.049         1.455        0.526        0.011
+peri_urban  1980      A  ghs_pop      rural      6316     0.905        1.134         1.381        0.422        0.011
+peri_urban  1980      A  ghs_pop peri_urban        83     0.667        0.750         0.730        0.012        0.133
+peri_urban  1980      A  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+peri_urban  1980      A  ghs_pop   excluded         1       NaN          NaN           NaN        1.000        0.000
+peri_urban  1980      A  ghs_pop        all      6400     0.908        0.973         1.361        0.417        0.012
+peri_urban  1980      B  ghs_pop      rural      6342     0.906        1.016         1.371        0.421        0.012
+peri_urban  1980      B  ghs_pop peri_urban        58     0.631        0.879         0.911        0.000        0.017
+peri_urban  1980      B  ghs_pop      urban         0       NaN          NaN           NaN          NaN          NaN
+peri_urban  1980      B  ghs_pop        all      6400     0.908        0.973         1.361        0.417        0.012
+09:12:47 INFO SUMMARY cell types per box type, scheme A (% of the class's people):
+  box_type  year      class        cell_type  n_cells  share_class_ghs_pop  share_class_worldpop  share_class_v57  share_class_v57pq5
+      city  2010      rural          bui_gt0     3099                 88.3                  81.6             97.0                92.8
+      city  2010      rural bui0_nobuilt_gt0     2253                  9.5                  11.8              2.6                 4.8
+      city  2010      rural   bui0_no_record     5224                  2.2                   6.6              0.3                 2.5
+      city  2010 peri_urban          bui_gt0     8698                 95.6                  94.2             99.6                99.2
+      city  2010 peri_urban bui0_nobuilt_gt0     1235                  3.2                   4.1              0.4                 0.7
+      city  2010 peri_urban   bui0_no_record     1027                  1.1                   1.7              0.0                 0.1
+      city  2010      urban          bui_gt0    30610                 97.8                  97.6             99.8                99.7
+      city  2010      urban bui0_nobuilt_gt0     3261                  1.9                   2.0              0.2                 0.3
+      city  2010      urban   bui0_no_record     2065                  0.3                   0.3              0.0                 0.0
+      city  2010   excluded          bui_gt0        0                  0.0                   0.0              0.0                 0.0
+      city  2010   excluded bui0_nobuilt_gt0       13                100.0                  57.1             88.6                69.0
+      city  2010   excluded   bui0_no_record       51                  0.0                  42.9             11.4                31.0
+      city  2010        all          bui_gt0    42407                 97.5                  97.2             99.8                99.5
+      city  2010        all bui0_nobuilt_gt0     6762                  2.1                   2.3              0.2                 0.4
+      city  2010        all   bui0_no_record     8367                  0.3                   0.5              0.0                 0.1
+     rural  2010      rural          bui_gt0     9111                 79.8                  61.6             79.6                73.5
+     rural  2010      rural bui0_nobuilt_gt0    14231                 12.9                  12.4             14.9                15.7
+     rural  2010      rural   bui0_no_record    78770                  7.3                  26.0              5.6                10.8
+     rural  2010 peri_urban          bui_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  2010 peri_urban bui0_nobuilt_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  2010 peri_urban   bui0_no_record        0                  NaN                   NaN              NaN                 NaN
+     rural  2010      urban          bui_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  2010      urban bui0_nobuilt_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  2010      urban   bui0_no_record        0                  NaN                   NaN              NaN                 NaN
+     rural  2010   excluded          bui_gt0        0                  0.0                   0.0              0.0                 0.0
+     rural  2010   excluded bui0_nobuilt_gt0        6                  0.0                   1.6              0.0                 0.0
+     rural  2010   excluded   bui0_no_record      282                100.0                  98.4            100.0               100.0
+     rural  2010        all          bui_gt0     9111                 79.8                  61.6             79.6                73.5
+     rural  2010        all bui0_nobuilt_gt0    14237                 12.9                  12.4             14.9                15.7
+     rural  2010        all   bui0_no_record    79052                  7.3                  26.0              5.6                10.8
+peri_urban  2010      rural          bui_gt0    15260                 80.3                  59.9             86.1                78.1
+peri_urban  2010      rural bui0_nobuilt_gt0    17342                 14.2                  16.6             10.8                12.1
+peri_urban  2010      rural   bui0_no_record    68422                  5.6                  23.5              3.1                 9.8
+peri_urban  2010 peri_urban          bui_gt0     1097                 94.1                  93.1             99.7                99.5
+peri_urban  2010 peri_urban bui0_nobuilt_gt0      151                  5.4                   6.1              0.3                 0.4
+peri_urban  2010 peri_urban   bui0_no_record      112                  0.5                   0.8              0.0                 0.1
+peri_urban  2010      urban          bui_gt0        0                  NaN                   NaN              NaN                 NaN
+peri_urban  2010      urban bui0_nobuilt_gt0        0                  NaN                   NaN              NaN                 NaN
+peri_urban  2010      urban   bui0_no_record        0                  NaN                   NaN              NaN                 NaN
+peri_urban  2010   excluded          bui_gt0        0                  NaN                   0.0              0.0                 0.0
+peri_urban  2010   excluded bui0_nobuilt_gt0        0                  NaN                   0.0              0.0                 0.0
+peri_urban  2010   excluded   bui0_no_record       16                  NaN                 100.0            100.0               100.0
+peri_urban  2010        all          bui_gt0    16357                 86.2                  74.1             90.6                85.0
+peri_urban  2010        all bui0_nobuilt_gt0    17493                 10.4                  12.2              7.3                 8.3
+peri_urban  2010        all   bui0_no_record    68550                  3.4                  13.8              2.0                 6.7
+      city  1980      rural          bui_gt0     3246                 63.8                   NaN             95.3                86.8
+      city  1980      rural bui0_nobuilt_gt0     3991                 32.4                   NaN              4.3                 7.6
+      city  1980      rural   bui0_no_record     5947                  3.7                   NaN              0.4                 5.6
+      city  1980 peri_urban          bui_gt0    11390                 80.7                   NaN             99.2                98.2
+      city  1980 peri_urban bui0_nobuilt_gt0     3660                 17.5                   NaN              0.8                 1.5
+      city  1980 peri_urban   bui0_no_record     1510                  1.9                   NaN              0.0                 0.3
+      city  1980      urban          bui_gt0    22840                 96.3                   NaN             99.8                99.6
+      city  1980      urban bui0_nobuilt_gt0     3135                  3.5                   NaN              0.2                 0.3
+      city  1980      urban   bui0_no_record     1449                  0.2                   NaN              0.0                 0.1
+      city  1980   excluded          bui_gt0        0                  0.0                   NaN              0.0                 0.0
+      city  1980   excluded bui0_nobuilt_gt0       13                100.0                   NaN             85.0                49.7
+      city  1980   excluded   bui0_no_record       51                  0.0                   NaN             15.0                50.3
+      city  1980        all          bui_gt0    37476                 93.3                   NaN             99.6                99.2
+      city  1980        all bui0_nobuilt_gt0    10799                  6.1                   NaN              0.3                 0.6
+      city  1980        all   bui0_no_record     8957                  0.5                   NaN              0.0                 0.2
+     rural  1980      rural          bui_gt0     6287                 70.3                   NaN             76.3                72.1
+     rural  1980      rural bui0_nobuilt_gt0    15491                 18.2                   NaN             16.8                14.9
+     rural  1980      rural   bui0_no_record    80334                 11.5                   NaN              6.9                12.9
+     rural  1980 peri_urban          bui_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  1980 peri_urban bui0_nobuilt_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  1980 peri_urban   bui0_no_record        0                  NaN                   NaN              NaN                 NaN
+     rural  1980      urban          bui_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  1980      urban bui0_nobuilt_gt0        0                  NaN                   NaN              NaN                 NaN
+     rural  1980      urban   bui0_no_record        0                  NaN                   NaN              NaN                 NaN
+     rural  1980   excluded          bui_gt0        0                  0.0                   NaN              0.0                 0.0
+     rural  1980   excluded bui0_nobuilt_gt0        6                  0.0                   NaN              0.0                 0.0
+     rural  1980   excluded   bui0_no_record      282                100.0                   NaN            100.0               100.0
+     rural  1980        all          bui_gt0     6287                 70.3                   NaN             76.3                72.1
+     rural  1980        all bui0_nobuilt_gt0    15497                 18.2                   NaN             16.8                14.9
+     rural  1980        all   bui0_no_record    80616                 11.5                   NaN              6.9                12.9
+peri_urban  1980      rural          bui_gt0    10417                 66.2                   NaN             80.7                66.6
+peri_urban  1980      rural bui0_nobuilt_gt0    20827                 25.0                   NaN             15.5                13.5
+peri_urban  1980      rural   bui0_no_record    69812                  8.8                   NaN              3.8                20.0
+peri_urban  1980 peri_urban          bui_gt0      951                 87.6                   NaN             99.4                99.0
+peri_urban  1980 peri_urban bui0_nobuilt_gt0      239                 10.4                   NaN              0.6                 0.7
+peri_urban  1980 peri_urban   bui0_no_record      138                  2.0                   NaN              0.0                 0.3
+peri_urban  1980      urban          bui_gt0        0                  NaN                   NaN              NaN                 NaN
+peri_urban  1980      urban bui0_nobuilt_gt0        0                  NaN                   NaN              NaN                 NaN
+peri_urban  1980      urban   bui0_no_record        0                  NaN                   NaN              NaN                 NaN
+peri_urban  1980   excluded          bui_gt0        0                  NaN                   NaN              0.0                 0.0
+peri_urban  1980   excluded bui0_nobuilt_gt0        0                  NaN                   NaN              0.0                 0.0
+peri_urban  1980   excluded   bui0_no_record       16                  NaN                   NaN            100.0               100.0
+peri_urban  1980        all          bui_gt0    11368                 75.2                   NaN             86.7                75.8
+peri_urban  1980        all bui0_nobuilt_gt0    21066                 18.9                   NaN             10.7                 9.8
+peri_urban  1980        all   bui0_no_record    69966                  5.9                   NaN              2.6                14.4
+09:12:47 INFO wrote results/validation/conus/external/degurba_boxes_v57 (4 CSV + 38 PNG)
+09:12:47 INFO DONE
+== done 2026-11-20T09:12:47-07:00

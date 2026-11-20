@@ -158,4 +158,12 @@ rural_boxes:
       Midwest: ["17", "18", "19", "20", "26", "27", "29", "31", "38", "39", "46", "55"]
       South: ["01", "05", "10", "11", "12", "13", "21", "22", "24", "28", "37", "40", "45", "47", "48", "51", "54"]
       West: ["04", "06", "08", "16", "30", "32", "35", "41", "49", "53", "56"]
-  boxes: {}   # filled by degurba_boxes.py select (do not edit by hand); this key must stay the last of the file
+  boxes:   # written by degurba_boxes.py select 2026-11-20 (SMOD 2010, GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif); do not edit by hand
+    rural_northeast: {label: 'Tioga County, 42 (rural, Northeast)', box_type: rural, region: Northeast, gisjoin: G4201170, county: Tioga County, state_fips: '42', density_2010: 14.2563, x: 1537158.961, y: 2237509.641, crs: 'ESRI:102039'}
+    peri_urban_northeast: {label: 'Genesee County, 36 (peri-urban, Northeast)', box_type: peri_urban, region: Northeast, gisjoin: G3600370, county: Genesee County, state_fips: '36', density_2010: 46.8328, x: 1435456.759, y: 2357681.264, crs: 'ESRI:102039'}
+    rural_midwest: {label: 'Turner County, 46 (rural, Midwest)', box_type: rural, region: Midwest, gisjoin: G4601250, county: Turner County, state_fips: '46', density_2010: 5.2175, x: -92716.699, y: 2257965.449, crs: 'ESRI:102039'}
+    peri_urban_midwest: {label: 'Hocking County, 39 (peri-urban, Midwest)', box_type: peri_urban, region: Midwest, gisjoin: G3900730, county: Hocking County, state_fips: '39', density_2010: 26.7775, x: 1148291.269, y: 1912440.799, crs: 'ESRI:102039'}
+    rural_south: {label: 'Henry County, 01 (rural, South)', box_type: rural, region: South, gisjoin: G0100670, county: Henry County, state_fips: '01', density_2010: 11.7548, x: 1015710.526, y: 995278.992, crs: 'ESRI:102039'}
+    peri_urban_south: {label: 'Victoria County, 48 (peri-urban, South)', box_type: peri_urban, region: South, gisjoin: G4804690, county: Victoria County, state_fips: '48', density_2010: 37.7339, x: -95025.809, y: 636476.804, crs: 'ESRI:102039'}
+    rural_west: {label: 'Toole County, 30 (rural, West)', box_type: rural, region: West, gisjoin: G3001010, county: Toole County, state_fips: '30', density_2010: 1.0565, x: -1163776.807, y: 2946581.641, crs: 'ESRI:102039'}
+    peri_urban_west: {label: 'Douglas County, 53 (peri-urban, West)', box_type: peri_urban, region: West, gisjoin: G5300170, county: Douglas County, state_fips: '53', density_2010: 8.0265, x: -1771584.169, y: 2970975.908, crs: 'ESRI:102039'}
