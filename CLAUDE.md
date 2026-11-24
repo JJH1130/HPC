@@ -4,6 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
+Dissertation plan (Ch1 dasymetric population, Ch2 settlement patch trajectories + hazard exposure decomposition,
+Ch3 ConvLSTM BUI projection + SSP downscaling): `docs/proposal/research_plan.md` (+ the proposal docx files there). The
+goal is all three chapters; read it before planning Ch2 / Ch3 work.
+
 This repository is an early-stage project (MIT licensed, Jaeheon Jung) for computational work on CU
 Boulder's Alpine HPC cluster. Structure so far: `sbatch/` (Slurm submission scripts + `cluster_env.sh`,
 the one place this repo's Alpine paths live), `logs/` (tracked job logs pulled back from the cluster),
