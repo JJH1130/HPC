@@ -171,7 +171,39 @@ Last updated: 2026-11-21 (unbuilt-cell overlap run); 2026-11-21 (unbuilt-cell ov
   as train (existing rows unchanged) and trained on when the area ratio is within 0.95-1.05 (status `filled_nhgis`);
   outside it they are `filled_nhgis_alloc`, allocated only.
 
-### Meeting with Stefan, 2026-11-17 (to do; not started)
+### Meeting with Stefan, 2026-11-25 (ideas; nothing decided or started)
+
+Presented: the follow-up notes of Nov 17 (nby_age, PLURAL on v5.7, PLURAL county-value test, DEGURBA boxes + unbuilt
+overlap, SHAP). Stefan's points (from the live captions; "his deck / his stack" = HISDAC):
+
+1. **Control at county level.** The county model should give an expected number of people per unit (per built cell,
+   per building). Built cells x that ratio = people the records explain; the rest of the census total is what
+   unbuilt / unrecorded cells must take, per county.
+2. **PLURAL** is a related, not a constraining variable: a smooth surface, good over large areas, wrong at fine
+   granularity (it does not catch real built-up areas). Within a county it favours low-remoteness cells on average.
+   (Our county-value test: the loss stays without any within-county PLURAL variation, i.e. it is in the trained
+   model; both points agree that PLURAL should not drive cell weights.)
+3. **1980 GHS anchor ("asymmetric refinement").** Take the last reliable modern point (GHS-BUILT / GHS-POP 1980).
+   Find cells populated in GHS-POP 1980 but not built in HISDAC, keep them (or clusters) in ranked order; allocate
+   first to them and to the most probable PLURAL / remoteness values where people were in 1980. Those places are the
+   likeliest to have been populated in 1970 / 1940 / 1910 too; then adjust how many people were there earlier
+   ("re-channeling"). At least for 1970 this narrows where people should be and tests whether PLURAL translates to
+   it. He does not yet know the mathematical form. Close to the imputation idea (Tim's HISDAC imputations): if they
+   fit and improve accuracy, that is evidence for them. Use the modern GHS cohort and extrapolate back in time.
+4. **Change of the expected value over time.** Build in a progression: how people per building count change by year,
+   including counties whose population declines.
+5. **Strata.** Urban / peri-urban / rural have very different extents (urban ~2.5 % of the land). Open: classify
+   whole counties and model them separately, or partition at fine granularity.
+6. **Ratios as helper variables / calibration.** People per building, buildings per capita, etc., per area type, to
+   calibrate what the model should estimate: avoid over-estimating rural (wrong per-capita ratio) and
+   under-estimating urban.
+
+Caveats to settle before any run (Claude, 2026-11-25): GHS-POP 1980 in the US is modelled (census back-cast with
+GHS-BUILT), not a block count, so it is a reference, not a hard fact; GHS-BUILT 1975 / 1980 (Landsat) is the more
+independent anchor. Any GHS layer used as an input or constraint can no longer be used to validate (tracts stay the
+independent check). GHS-SMOD / -POP start in 1975.
+
+### Meeting with Stefan, 2026-11-17 (done 2026-11-24; results in docs/conus_plan.md)
 
 Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 3 and 4 can run beside them; 5 later.
 
