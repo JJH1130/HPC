@@ -112,6 +112,8 @@
 #   bash sbatch/submit_conus.sh captransfer # cap transfer (section 30; after PRODUCTS=ghs_built_2015 download): input
 #                                       # check -> one job (group shares learned in 2010 from GHS-POP / GHS-BUILT-S res,
 #                                       # applied to 1940 / 1960 / 1980 / 2010, tract metrics per year)
+#   bash sbatch/submit_conus.sh unitratios  # unit ratios part B (section 31; part A runs on the laptop): input check ->
+#                                       # one job (v5.7 people per BUPR record / built cell per county, vs tract MdAPE)
 #   bash sbatch/submit_conus.sh missed1980  # 1980 missed cells (after the GHS-BUILT-S download, section 28 block 0):
 #                                       # input check -> one job (GHS-POP / GHS-BUILT on BUI = 0 cells per county and
 #                                       # DEGURBA class, v5.7 / pq5 / v5.4 there, PLURAL capture curves)
@@ -182,10 +184,11 @@
 # (CAP_TIME; CAP_TASKS for more memory; estimates).
 # captransfer: cap1980 (job 36298987: 10 min, 23 GB) + 3 product moves in 2010 + 3 more year passes + ~73 allocations:
 # 12 cores, 4 h (TRANSFER_TIME; TRANSFER_TASKS for more memory; estimates).
+# unitratios: four strip passes without product moves, county sums only: 8 cores, 1 h (RATIOS_TIME; estimate).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer|unitratios)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer|unitratios"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -1282,6 +1285,26 @@ elif [[ $mode == captransfer ]]; then
     grep -E "CHECK OK|FEATURES|NRES|NobuiltYear source" logs/conus_captransfer_check.txt || true
     jt=$(sub "" --ntasks=${TRANSFER_TASKS:-12} --time=${TRANSFER_TIME:-04:00:00} sbatch/cap_transfer.sh)
     echo "cap_transfer $jt" | tee logs/conus_captransfer_jobs.txt
+elif [[ $mode == unitratios ]]; then
+    miss=()
+    V=$HISDAC_SCRATCH/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    for y in 1940 1960 1980 2010; do
+        for f in $V/predictions/pop_$y.tif $CUT/layers/BUI/${y}_BUI.tif $CUT/layers/BUPR/${y}_BUPR.tif \
+                 $CUT/zones/zones_$y.tif results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_$y.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    if (( ${#miss[@]} )); then
+        printf 'MISSING %s\n' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1
+    fi
+    if ! bash sbatch/unit_ratios.sh --check > logs/conus_unitratios_check.txt 2>&1; then
+        grep -E "MISSING|ERROR" logs/conus_unitratios_check.txt || tail -5 logs/conus_unitratios_check.txt
+        echo "ERROR: nothing submitted (see logs/conus_unitratios_check.txt)"; exit 1
+    fi
+    grep -E "CHECK OK|NobuiltYear source" logs/conus_unitratios_check.txt || true
+    ju=$(sub "" --ntasks=8 --time=${RATIOS_TIME:-01:00:00} sbatch/unit_ratios.sh)
+    echo "unit_ratios $ju" | tee logs/conus_unitratios_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

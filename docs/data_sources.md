@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-11-26 (GHS-BUILT-S R2023A total + NRES 2015 for the cap transfer; GHSL generation from JRC144209); 2026-11-25 (GHS-BUILT-S R2023A 1980 for the 1980 missed-cell diagnosis); 2026-11-21 (GHS-SMOD R2023A for the DEGURBA boxes); 2026-11-04 (HISDAC FBUY read for the undated-record age diagnosis); 2026-11-04 (HISDAC NobuiltYear as a CONUS cutout layer / feature, NobuiltYear feature test); 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-11-26 (Census Bureau HH-6 average household size for the unit ratios); 2026-11-26 (GHS-BUILT-S R2023A total + NRES 2015 for the cap transfer; GHSL generation from JRC144209); 2026-11-25 (GHS-BUILT-S R2023A 1980 for the 1980 missed-cell diagnosis); 2026-11-21 (GHS-SMOD R2023A for the DEGURBA boxes); 2026-11-04 (HISDAC FBUY read for the undated-record age diagnosis); 2026-11-04 (HISDAC NobuiltYear as a CONUS cutout layer / feature, NobuiltYear feature test); 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -21,6 +21,7 @@ Last updated: 2026-11-26 (GHS-BUILT-S R2023A total + NRES 2015 for the cap trans
 | Harmonized global NTL | Li et al. (2020), extended release | `/projects/jaju1407/data/raw/ntl/` | Ch1 feature (E3) | In use |
 | NPP-VIIRS-like global NTL | Chen et al. (2021), Harvard Dataverse doi:10.7910/DVN/YGIVCD, **Version1**, 2000 and 2010 | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/` | CONUS feature test `ntlv` (`Dasy_CONUS_RF_v3_ntlv`, cutout layer `NTLV`) | Registered 2026-10-28; download by `sbatch/ntlv_download.sh`, not run yet |
 | GHS-POP R2023A (JRC) | R2023A V1-0, 100 m Mollweide, epochs 1980 / 1990 / 2000 / 2010 | `/projects/jaju1407/data/raw/external/ghs_pop/` | External comparison on tracts (`configs/external_grids.yaml`) | Registered 2026-10-28; `sbatch/external_download.sh`, not run yet |
+| US Census Bureau HH-6 (households) | "HH-6. Average Population Per Household and Family: 1940 to Present", Historical Households Tables, release November 2026 (`hh6.xls`, 44,544 bytes, sha256 0d9c96766b97e275c638db7a403b6efbb42055852d072a7c0e30e40c3369f72f) | `configs/household_size_hh6.csv` (the census-year rows, tracked); the xls itself not kept | Unit ratios: US average population per household as a reference line next to people per building record (`src/validation/unit_ratios.py`); reference only | Registered and read 2026-11-26 |
 | GHS-SMOD R2023A (JRC; Degree of Urbanisation stage I) | R2023A V2-0, 1 km Mollweide, epochs 1980 / 2010 | `/projects/jaju1407/data/raw/external/ghs_smod/` | DEGURBA boxes: block classes (urban centre / urban cluster / rural) and the choice of rural / peri-urban boxes (`src/validation/degurba_boxes.py`, `rural_boxes:` block of `configs/external_grids.yaml`); validation only, not a model input | Registered 2026-11-21; `PRODUCTS=ghs_smod bash sbatch/external_download.sh`, not run yet |
 | GHS-BUILT-S R2023A (JRC; built-up surface) | R2023A V1-0, 100 m Mollweide, epoch 1980 (total), epoch 2015 (total + NRES = non-residential), built-up surface (m2 per cell) | `/projects/jaju1407/data/raw/external/ghs_built/`, `.../ghs_built_nres/` | 1980 missed cells: satellite built-up surface on cells HISDAC calls unbuilt (BUI = 0), per county / DEGURBA class (`src/validation/missed_cells.py`); cap transfer: 2015 residential surface (total - NRES) group shares per 2010 county = target B of the county cap model learned in 2010 (`cap_allocation.py transfer`, `cap_transfer:` block of `configs/external_grids.yaml`); validation / diagnosis, not a dasymetric model input | 1980 registered 2026-11-25 (`PRODUCTS=ghs_built`, downloaded); 2015 total + NRES registered 2026-11-26 (`PRODUCTS=ghs_built_2015 bash sbatch/external_download.sh`, not run yet) |
 | WorldPop USA, unconstrained top-down | Global 2000-2020 (2018 release), `usa_ppp_{2000,2010}.tif`, 3 arc-sec, not UN-adjusted | `/projects/jaju1407/data/raw/external/worldpop/` | External comparison on tracts | Registered 2026-10-28; not downloaded yet |
@@ -293,6 +294,22 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
   composite and Landsat, multitemporal (1975-2030). European Commission, Joint Research Centre (JRC).
   https://doi.org/10.2905/9F06F36F-4B11-47EC-ABB0-4F8B7B1D72EA (DOI from memory, not opened from the laptop on
   2026-11-25: check it on the JRC data catalogue before a publication).
+
+#### US Census Bureau HH-6: average population per household
+
+- What: "HH-6. Average Population Per Household and Family: 1940 to Present" (Historical Households Tables), column
+  "All households - Average population per household - All ages". Source line of the table: "U.S. Census Bureau,
+  Decennial Census, 1940, and Current Population Survey, March and Annual Social and Economic Supplements (CPS-ASEC ...),
+  1947 to 2026". So 1940 = the 1940 census, 1950-2020 = the CPS of March of that year, not the decennial census counts.
+- File: `https://www2.census.gov/programs-surveys/demo/tables/families/time-series/households/hh6.xls` (table page
+  https://www.census.gov/data/tables/time-series/demo/families/households.html), downloaded 2026-11-26, 44,544 bytes,
+  sha256 0d9c96766b97e275c638db7a403b6efbb42055852d072a7c0e30e40c3369f72f, "Internet Release Date: November 2026".
+- Used: the rows labelled 1940 Census, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020 (values read from the file, not
+  typed from memory) -> `configs/household_size_hh6.csv`. The table also has revised rows (2011r, 2021r, 1993r): not
+  census years, not used. 1900-1930 are not in HH-6: left empty (no verified source read).
+- License: US government work (public domain).
+- Citation: U.S. Census Bureau (2026). Historical Households Tables, Table HH-6: Average Population Per Household and
+  Family: 1940 to Present. https://www.census.gov/data/tables/time-series/demo/families/households.html
 
 #### WorldPop USA (unconstrained, top-down)
 

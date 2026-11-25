@@ -1,0 +1,14 @@
+# US average population per household (all households, all ages), Census Bureau Historical Households Tables HH-6
+# (hh6.xls, release November 2026, sha256 0d9c96766b97e275c638db7a403b6efbb42055852d072a7c0e30e40c3369f72f, read
+# 2026-11-26; docs/data_sources.md). 1940 = 1940 census; 1950-2020 = CPS March / ASEC of that year. 1900-1930 not in
+# HH-6 (empty in the unit-ratio tables).
+year,avg_pop_per_household,hh6_row
+1940,3.67,1940 Census
+1950,3.37,1950
+1960,3.33,1960
+1970,3.14,1970
+1980,2.76,1980
+1990,2.63,1990
+2000,2.62,2000
+2010,2.59,2010
+2020,2.53,2020

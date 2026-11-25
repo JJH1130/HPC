@@ -1,0 +1,159 @@
+03:12:34 INFO arg mode = local
+03:12:34 INFO arg config = configs\external_grids.yaml
+03:12:34 INFO arg out_dir = results\validation\conus\unit_ratios
+03:12:34 INFO arg dasym_root = None
+03:12:34 INFO arg cutout_root = None
+03:12:34 INFO arg hisdac_dir = None
+03:12:34 INFO arg workers = 1
+03:12:34 INFO arg block_rows = None
+03:12:34 INFO arg check = False
+03:12:34 INFO   input bupr            results\hisdac_uncertainty\county_record_uncertainty.csv
+03:12:34 INFO   input county_class    results\validation\conus\missed_cells_1980\county_missed_1980.csv
+03:12:34 INFO   input exclusions      results\hisdac_uncertainty\excluded_counties_t070.csv
+03:12:34 INFO   input household       configs\household_size_hh6.csv
+03:12:35 INFO   built cells per county from results\validation\conus\cap_transfer\caps.csv (method v57 rows = v5.7 cells, BUI_year > 0): years [1940, 1960, 1980, 2010]
+03:12:35 INFO RULE ratios per county and year: ratio_dated = pop / BUPR_year, ratio_lower = pop / (BUPR_year + NobuiltYear), records_per_capita = BUPR_year / pop, pop_per_built_cell = pop / built cells (v5.7 cells); a zero denominator -> no ratio (counted); pooled = sum numerator / sum denominator over the counties with a ratio
+03:12:35 INFO RULE county class = fixed 1980 GHS labels of results/validation/conus/missed_cells_1980/county_missed_1980.csv for every year; flags outside the [0.01, 0.99] quantiles of the county's class and year (+ people without a dated record)
+03:12:35 INFO   wrote results\validation\conus\unit_ratios\ratio_by_year.png
+03:12:35 INFO SUMMARY ratio_dated (pooled / median) by year and class:
+       median                                    pooled                                   
+group     all    city   none   rural town_suburb    all    city   none   rural town_suburb
+year                                                                                      
+1900   25.468  13.783    NaN  31.561      13.700  9.873  14.195    NaN  10.690       7.586
+1910   19.728   8.588    NaN  25.244      10.047  8.297   9.858    NaN   9.369       6.548
+1920   12.991   6.116    NaN  16.331       6.805  6.326   6.844    NaN   7.330       5.149
+1930    9.240   4.654    NaN  11.351       5.055  5.125   5.190    NaN   6.031       4.365
+1940    6.994   4.012    NaN   8.350       3.904  4.371   4.530    NaN   5.104       3.720
+1950    4.840   3.431    NaN   5.466       3.351  3.613   3.949    NaN   3.951       3.200
+1960    3.501   2.983    NaN   3.875       2.735  2.998   3.438    NaN   3.074       2.746
+1970    2.605   2.603    NaN   2.780       2.298  2.627   3.221    NaN   2.451       2.486
+1980    2.249   2.308    NaN   2.383       2.068  2.307   2.844    NaN   2.155       2.209
+1990    1.956   2.195  4.161   1.993       1.841  2.080   2.735  4.219   1.844       2.020
+2000    1.785   2.050  4.076   1.799       1.707  1.952   2.751  4.092   1.668       1.915
+2010    1.680   2.022  3.208   1.666       1.667  1.882   2.647  2.895   1.591       1.880
+2020    1.648   2.095  2.674   1.599       1.692  1.915   2.724  2.904   1.576       1.941
+03:12:35 INFO SUMMARY ratio_lower (pooled / median) by year and class:
+      median                                  pooled                                 
+group    all   city   none  rural town_suburb    all   city   none  rural town_suburb
+year                                                                                 
+1900   0.691  1.909    NaN  0.698       0.647  0.684  1.732    NaN  0.578       0.662
+1910   0.762  2.077    NaN  0.759       0.746  0.787  2.108    NaN  0.629       0.787
+1920   0.767  2.099    NaN  0.758       0.776  0.850  2.228    NaN  0.641       0.883
+1930   0.783  1.993    NaN  0.752       0.885  0.927  2.353    NaN  0.645       1.011
+1940   0.794  1.996    NaN  0.757       0.921  0.951  2.293    NaN  0.658       1.040
+1950   0.780  2.060    NaN  0.714       1.051  1.004  2.302    NaN  0.643       1.157
+1960   0.749  1.994    NaN  0.672       1.154  1.063  2.254    NaN  0.630       1.280
+1970   0.727  2.044    NaN  0.633       1.189  1.091  2.225    NaN  0.623       1.337
+1980   0.771  1.794    NaN  0.670       1.224  1.094  2.034    NaN  0.675       1.323
+1990   0.738  1.747  0.740  0.648       1.196  1.089  2.008  0.750  0.672       1.310
+2000   0.751  1.785  0.877  0.666       1.192  1.112  2.054  0.866  0.703       1.323
+2010   0.742  1.728  0.920  0.657       1.188  1.131  2.005  1.228  0.731       1.350
+2020   0.721  1.751  0.855  0.631       1.213  1.175  2.076  1.322  0.748       1.415
+03:12:35 INFO SUMMARY records_per_capita (pooled / median) by year and class:
+      median                                  pooled                                 
+group    all   city   none  rural town_suburb    all   city   none  rural town_suburb
+year                                                                                 
+1900   0.030  0.073    NaN  0.023       0.067  0.097  0.070    NaN  0.086       0.130
+1910   0.039  0.117    NaN  0.029       0.094  0.116  0.101    NaN  0.099       0.151
+1920   0.063  0.164    NaN  0.047       0.139  0.153  0.146    NaN  0.127       0.192
+1930   0.092  0.215    NaN  0.073       0.189  0.190  0.193    NaN  0.156       0.228
+1940   0.128  0.249    NaN  0.106       0.251  0.224  0.221    NaN  0.186       0.267
+1950   0.191  0.291    NaN  0.163       0.297  0.272  0.253    NaN  0.242       0.311
+1960   0.262  0.335    NaN  0.227       0.364  0.329  0.291    NaN  0.312       0.363
+1970   0.355  0.384    NaN  0.324       0.430  0.377  0.310    NaN  0.394       0.402
+1980   0.414  0.433    NaN  0.384       0.482  0.429  0.352    NaN  0.451       0.452
+1990   0.487  0.456  0.250  0.465       0.540  0.477  0.366  0.237  0.529       0.495
+2000   0.535  0.488  0.247  0.525       0.585  0.509  0.364  0.244  0.587       0.522
+2010   0.573  0.495  0.312  0.566       0.599  0.528  0.378  0.345  0.617       0.532
+2020   0.588  0.477  0.374  0.595       0.591  0.520  0.367  0.344  0.624       0.515
+03:12:35 INFO SUMMARY pop_per_built_cell (pooled / median) by year and class:
+       median                                       pooled                                     
+group     all     city    none   rural town_suburb     all     city    none   rural town_suburb
+year                                                                                           
+1940   34.055  140.183     NaN  31.624      41.106  46.360  212.120     NaN  29.692      48.506
+1960   21.653  163.288     NaN  17.993      41.147  39.521  189.196     NaN  19.926      48.800
+1980   15.653  157.011     NaN  13.034      35.609  31.387  164.136     NaN  14.992      43.926
+2010   12.449  146.237  43.471  10.048      33.251  27.941  160.506  43.307  12.970      43.785
+03:12:35 INFO SUMMARY no ratio (zero denominator) per year: {1900: 286, 1910: 270, 1920: 258, 1930: 228, 1940: 202, 1950: 180, 1960: 161, 1970: 146, 1980: 131, 1990: 122, 2000: 112, 2010: 107, 2020: 105}
+03:12:35 INFO SUMMARY flags (share excluded at t070 / median ratio_A_nby, flagged vs all):
+    measure  year  n_all  excluded_share_all  ratio_A_nby_median_all       side  n_flagged  excluded_share_flagged  ratio_A_nby_median_flagged
+ratio_dated  1900   2815               0.315                   0.544        low         27                   0.000                       0.371
+ratio_dated  1900   2815               0.315                   0.544       high         27                   0.963                       1.000
+ratio_dated  1900   2815               0.315                   0.544 no_records        286                   0.962                       1.000
+ratio_dated  1910   2940               0.320                   0.550        low         29                   0.000                       0.376
+ratio_dated  1910   2940               0.320                   0.550       high         29                   0.966                       1.000
+ratio_dated  1910   2940               0.320                   0.550 no_records        270                   0.985                       1.000
+ratio_dated  1920   3056               0.329                   0.555        low         30                   0.000                       0.373
+ratio_dated  1920   3056               0.329                   0.555       high         30                   1.000                       1.000
+ratio_dated  1920   3056               0.329                   0.555 no_records        258                   0.992                       1.000
+ratio_dated  1930   3087               0.329                   0.554        low         30                   0.000                       0.353
+ratio_dated  1930   3087               0.329                   0.554       high         30                   1.000                       1.000
+ratio_dated  1930   3087               0.329                   0.554 no_records        228                   0.991                       1.000
+ratio_dated  1940   3087               0.329                   0.554        low         31                   0.000                       0.361
+ratio_dated  1940   3087               0.329                   0.554       high         31                   0.968                       1.000
+ratio_dated  1940   3087               0.329                   0.554 no_records        202                   1.000                       1.000
+ratio_dated  1950   3091               0.329                   0.554        low         31                   0.000                       0.366
+ratio_dated  1950   3091               0.329                   0.554       high         31                   0.968                       1.000
+ratio_dated  1950   3091               0.329                   0.554 no_records        180                   1.000                       1.000
+ratio_dated  1960   3095               0.329                   0.554        low         31                   0.000                       0.400
+ratio_dated  1960   3095               0.329                   0.554       high         31                   1.000                       1.000
+ratio_dated  1960   3095               0.329                   0.554 no_records        161                   1.000                       1.000
+ratio_dated  1970   3103               0.328                   0.553        low         31                   0.000                       0.439
+ratio_dated  1970   3103               0.328                   0.553       high         31                   1.000                       1.000
+ratio_dated  1970   3103               0.328                   0.553 no_records        146                   1.000                       1.000
+ratio_dated  1980   3106               0.328                   0.553        low         31                   0.032                       0.476
+ratio_dated  1980   3106               0.328                   0.553       high         31                   1.000                       1.000
+ratio_dated  1980   3106               0.328                   0.553 no_records        131                   1.000                       1.000
+ratio_dated  1990   3108               0.328                   0.553        low         32                   0.031                       0.497
+ratio_dated  1990   3108               0.328                   0.553       high         32                   1.000                       1.000
+ratio_dated  1990   3108               0.328                   0.553 no_records        122                   1.000                       1.000
+ratio_dated  2000   3108               0.328                   0.553        low         32                   0.031                       0.497
+ratio_dated  2000   3108               0.328                   0.553       high         32                   1.000                       1.000
+ratio_dated  2000   3108               0.328                   0.553 no_records        112                   1.000                       1.000
+ratio_dated  2010   3109               0.328                   0.553        low         32                   0.000                       0.497
+ratio_dated  2010   3109               0.328                   0.553       high         32                   1.000                       1.000
+ratio_dated  2010   3109               0.328                   0.553 no_records        107                   1.000                       1.000
+ratio_dated  2020   3108               0.328                   0.553        low         32                   0.031                       0.511
+ratio_dated  2020   3108               0.328                   0.553       high         32                   1.000                       1.000
+ratio_dated  2020   3108               0.328                   0.553 no_records        105                   1.000                       1.000
+ratio_lower  1900   2815               0.315                   0.544        low         30                   0.667                       0.812
+ratio_lower  1900   2815               0.315                   0.544       high         30                   0.133                       0.459
+ratio_lower  1900   2815               0.315                   0.544 no_records          0                     NaN                         NaN
+ratio_lower  1910   2940               0.320                   0.550        low         31                   0.613                       0.900
+ratio_lower  1910   2940               0.320                   0.550       high         31                   0.258                       0.535
+ratio_lower  1910   2940               0.320                   0.550 no_records          0                     NaN                         NaN
+ratio_lower  1920   3056               0.329                   0.555        low         32                   0.594                       0.812
+ratio_lower  1920   3056               0.329                   0.555       high         32                   0.312                       0.530
+ratio_lower  1920   3056               0.329                   0.555 no_records          0                     NaN                         NaN
+ratio_lower  1930   3087               0.329                   0.554        low         32                   0.469                       0.676
+ratio_lower  1930   3087               0.329                   0.554       high         32                   0.344                       0.609
+ratio_lower  1930   3087               0.329                   0.554 no_records          0                     NaN                         NaN
+ratio_lower  1940   3087               0.329                   0.554        low         32                   0.562                       0.873
+ratio_lower  1940   3087               0.329                   0.554       high         32                   0.281                       0.587
+ratio_lower  1940   3087               0.329                   0.554 no_records          0                     NaN                         NaN
+ratio_lower  1950   3091               0.329                   0.554        low         32                   0.500                       0.741
+ratio_lower  1950   3091               0.329                   0.554       high         32                   0.250                       0.484
+ratio_lower  1950   3091               0.329                   0.554 no_records          0                     NaN                         NaN
+ratio_lower  1960   3095               0.329                   0.554        low         32                   0.688                       0.959
+ratio_lower  1960   3095               0.329                   0.554       high         32                   0.281                       0.452
+ratio_lower  1960   3095               0.329                   0.554 no_records          0                     NaN                         NaN
+ratio_lower  1970   3103               0.328                   0.553        low         32                   0.812                       0.989
+ratio_lower  1970   3103               0.328                   0.553       high         32                   0.219                       0.428
+ratio_lower  1970   3103               0.328                   0.553 no_records          0                     NaN                         NaN
+ratio_lower  1980   3106               0.328                   0.553        low         32                   0.812                       0.970
+ratio_lower  1980   3106               0.328                   0.553       high         32                   0.281                       0.452
+ratio_lower  1980   3106               0.328                   0.553 no_records          0                     NaN                         NaN
+ratio_lower  1990   3108               0.328                   0.553        low         33                   0.879                       0.996
+ratio_lower  1990   3108               0.328                   0.553       high         33                   0.242                       0.441
+ratio_lower  1990   3108               0.328                   0.553 no_records          0                     NaN                         NaN
+ratio_lower  2000   3108               0.328                   0.553        low         33                   0.909                       0.999
+ratio_lower  2000   3108               0.328                   0.553       high         33                   0.333                       0.458
+ratio_lower  2000   3108               0.328                   0.553 no_records          0                     NaN                         NaN
+ratio_lower  2010   3109               0.328                   0.553        low         33                   0.879                       0.995
+ratio_lower  2010   3109               0.328                   0.553       high         33                   0.424                       0.571
+ratio_lower  2010   3109               0.328                   0.553 no_records          0                     NaN                         NaN
+ratio_lower  2020   3108               0.328                   0.553        low         33                   0.879                       0.996
+ratio_lower  2020   3108               0.328                   0.553       high         33                   0.364                       0.504
+ratio_lower  2020   3108               0.328                   0.553 no_records          0                     NaN                         NaN
+03:12:35 INFO wrote results\validation\conus\unit_ratios (4 CSV + 1 PNG): 39813 county-years, 3940 flags
+03:12:35 INFO DONE

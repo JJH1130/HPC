@@ -190,6 +190,24 @@ cap_transfer:
   scores: [v57, plural_inv, mixed, pq5_unbuilt]
   mape_min: 10
 
+# Unit ratios (src/validation/unit_ratios.py; request docs/handoff/unit_ratios_request.md; docs/conus_plan.md "Unit
+# ratios"): people per building record / per built cell, records per person by county, fixed 1980 county class, region
+# (rural_boxes.select.regions) and year; descriptive only. local = tracked files, job = v5.7 rasters (job_years).
+unit_ratios:
+  version: Dasy_CONUS_RF_v3_all_nby
+  model_config: configs/conus_rf_v3_all_nby.yaml
+  years: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020]
+  county_features: results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y{YEAR}/county_features.csv
+  bupr: results/hisdac_uncertainty/county_record_uncertainty.csv
+  county_class: results/validation/conus/missed_cells_1980/county_missed_1980.csv   # fixed DEGURBA labels (1980 GHS)
+  exclusions: results/hisdac_uncertainty/excluded_counties_t070.csv
+  built_cells: results/validation/conus/cap_transfer/caps.csv   # method v57 rows: built cells of the v5.7 cells
+  household: configs/household_size_hh6.csv
+  flag_quantiles: [0.01, 0.99]
+  job_years: [1940, 1960, 1980, 2010]
+  tract_errors: results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_{YEAR}.csv
+  min_tracts: 5
+
 # DEGURBA boxes (src/validation/degurba_boxes.py; request docs/handoff/rural_boxes_request.md, user decision 2026-11-21;
 # docs/conus_plan.md "DEGURBA boxes"): classes and box choice by the EU / UN Degree of Urbanisation (stage I).
 #   scheme A (main): GHS-SMOD R2023A of the year, each 250 m cell = the SMOD 1 km cell its centre falls in, a 1 km block

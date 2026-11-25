@@ -1675,6 +1675,45 @@ share, then building size and nby.
 - Conclusion: setting group caps (from GHS, by year) does not improve tracts beyond v5.7, and PLURAL inside the caps
   does not either. The county-level "compensation" Stefan described is already done implicitly by v5.7's weights.
 
+## Unit ratios (request 2026-11-26, `docs/handoff/unit_ratios_request.md`; runbook section 31)
+
+Stefan 2026-11-25 points 4 + 6 (`docs/open_items.md` next step 3): people per building record, per built cell and
+records per person by county, area type and year, as a calibration / sanity reference and as a check on the past where
+tracts cover only cities. Descriptive only: no model change, no selection, no interpretation in the tables.
+`src/validation/unit_ratios.py` (`local` = part A, tracked files, run on the laptop 2026-11-26; `job` = part B, v5.7
+rasters, `bash sbatch/submit_conus.sh unitratios`, not run).
+
+| Topic | Decision |
+|---|---|
+| Counties / people | the counties of v5.7's `county_features.csv` of each year (used counties), `pop` = the census number of the year; 13 census years 1900-2020 |
+| Records | `county_record_uncertainty.csv`: `bupr_<year>` = dated records built <= year summed over the 2010 county (all cells), `nobuilt` = NobuiltYear records (static) |
+| Ratios (part A) | ratio_dated = pop / BUPR_year; ratio_lower = pop / (BUPR_year + NobuiltYear) (every undated record assumed to exist); records_per_capita = BUPR_year / pop; pop_per_built_cell = pop / built cells for 1940 / 1960 / 1980 / 2010 from the tracked `cap_transfer/caps.csv` (method v57 rows: v5.7 cells with BUI_year > 0). A zero denominator -> no ratio (counted) |
+| Groups | all; county class = the fixed DEGURBA level 1 labels of `county_missed_1980.csv` (1980 GHS) for every year (`county_class_1980`; counties without a label = none, e.g. counties first used after 1980); Census region by state FIPS (`rural_boxes.select.regions`) |
+| Summary | per year x group x measure: counties, counties with a ratio, median, p10 / p90, pooled = sum numerator / sum denominator over the counties with a ratio -> `ratio_summary.csv` |
+| Reference | US average population per household, Census Bureau HH-6 (`configs/household_size_hh6.csv`, `docs/data_sources.md`): 1940 census, 1950-2020 CPS March; 1900-1930 empty (not in HH-6) |
+| Flags | per year x class, ratio_dated and ratio_lower outside the 1-99 % quantiles of the class (low / high) + counties with people and no dated record (no_records); listed with ratio_A_nby and the t070 exclusion flag -> `ratio_flags.csv`; per measure / year / side: share excluded at t070 and median ratio_A_nby, flagged vs all -> `ratio_flag_summary.csv` |
+| Part B (job) | 1940 / 1960 / 1980 / 2010, v5.7 cells (mask, groups as missed_cells: built BUI_year > 0, undated BUI = 0 and NobuiltYear > 0): per county people on built cells / BUPR_year on those cells and / built cells; people on undated cells / NobuiltYear on those cells and / undated cells; v5.7 county sums = census, else stop. County tract MdAPE from v5.7's `tract_errors_<year>.csv` (evaluated tracts, counties with >= 5); Spearman of \|log(ratio / median of the class and year)\| vs county MdAPE by class and all, + the median MdAPE above / below the median deviation -> `allocated_ratios.csv`, `ratio_vs_tract.csv`, `ratio_vs_tract.png` |
+| Output | `results/validation/conus/unit_ratios/`: part A `county_ratios.csv`, `ratio_summary.csv`, `ratio_flags.csv`, `ratio_flag_summary.csv`, `ratio_by_year.png` (log `logs/unit_ratios_local.log`); part B the three files above |
+| Tests | `tests/test_unit_ratios.py`: part A ratios / summaries / pooled / flags / flag summary by hand on a synthetic table, a county missing in the bupr table stops, local end to end; part B on the cap-transfer test world + BUPR layers: allocated ratios by hand, county tract MdAPE by hand, Spearman = scipy, a census difference stops; the real config |
+
+### Unit ratios part A: numbers (laptop run 2026-11-26, `logs/unit_ratios_local.log`)
+
+| Year | 1900 | 1920 | 1940 | 1960 | 1980 | 2000 | 2010 | 2020 |
+|---|---|---|---|---|---|---|---|---|
+| People per dated record, pooled, all | 9.87 | 6.33 | 4.37 | 3.00 | 2.31 | 1.95 | 1.88 | 1.91 |
+| same, city / town_suburb / rural (pooled) | 14.2 / 7.6 / 10.7 | 6.8 / 5.1 / 7.3 | 4.5 / 3.7 / 5.1 | 3.4 / 2.7 / 3.1 | 2.8 / 2.2 / 2.2 | 2.8 / 1.9 / 1.7 | 2.6 / 1.9 / 1.6 | 2.7 / 1.9 / 1.6 |
+| same, county median, all | 25.5 | 13.0 | 7.0 | 3.5 | 2.2 | 1.8 | 1.7 | 1.6 |
+| People per record incl. undated, pooled, all | 0.68 | 0.85 | 0.95 | 1.06 | 1.09 | 1.11 | 1.13 | 1.17 |
+| US people per household (HH-6) | | | 3.67 | 3.33 | 2.76 | 2.62 | 2.59 | 2.53 |
+| Counties with people and no dated record | 286 | 258 | 202 | 161 | 131 | 112 | 107 | 105 |
+
+People per built cell (v5.7 cells, pooled, all / city / town_suburb / rural): 1940 46.4 / 212.1 / 48.5 / 29.7; 1960
+39.5 / 189.2 / 48.8 / 19.9; 1980 31.4 / 164.1 / 43.9 / 15.0; 2010 27.9 / 160.5 / 43.8 / 13.0.
+
+Flags (1-99 % of class and year, ratio_dated): high side 27-33 counties per year, 96-100 % of them excluded at t070
+(median ratio_A_nby 1.0); low side 0-3 % excluded (median ratio_A_nby 0.36-0.51); no-record counties 96-100 % excluded;
+all counties 32-33 % excluded (median ratio_A_nby 0.55). ratio_lower: low side 47-91 % excluded, high side 13-42 %.
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6

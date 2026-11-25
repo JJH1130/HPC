@@ -2640,6 +2640,54 @@ What to look for in the log: `tracts <year>: ...` and `tract part ...` lines (tr
 `SUMMARY cap models`, `SUMMARY f_c by year`, `SUMMARY pooled group shares`, `SUMMARY tract mdape`, `SUMMARY tract
 d_mdape`.
 
+## 31. Unit ratios part B: allocated people per record / built cell vs county tract error (2026-11-26)
+
+Request `docs/handoff/unit_ratios_request.md`; design `docs/conus_plan.md` "Unit ratios". Part A ran on the laptop
+(`python src/validation/unit_ratios.py local`, tracked files; results committed). Part B is one job: v5.7 predictions,
+cutout zones / BUI / BUPR of 1940 / 1960 / 1980 / 2010, NobuiltYear, and in git v5.7's `tract_errors_{YEAR}.csv`,
+`county_record_uncertainty.csv`, `county_missed_1980.csv`, `excluded_counties_t070.csv`. 8 cores, 1 h (`RATIOS_TIME`;
+estimate).
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+bash sbatch/submit_conus.sh unitratios
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK line, one 'unit_ratios N' line)"
+```
+
+Good: `CHECK OK: inputs for [1940, 1960, 1980, 2010], block_rows 512`, `NobuiltYear source: ...`, `unit_ratios N`;
+`== end of block 1`. `MISSING ...` / `ERROR: nothing submitted`: send the output to Claude.
+
+Block 2, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_unitratios_jobs.txt | head -1)
+sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_unitratios_sacct.txt
+seff "$j" | tee logs/conus_unitratios_seff.txt
+grep -hE "RULE|census (1940|1960|1980|2010)|counties with >=|DONE|ERROR" logs/unit_ratios.$j.out
+ls -l results/validation/conus/unit_ratios/
+git add logs/ results/validation/conus/unit_ratios/
+git commit -m "run: unit ratios part B, allocated people per record / built cell vs tract MdAPE (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, 4 census lines, DONE, 8 files, push main -> main)"
+```
+
+Good: `COMPLETED`; two `RULE` lines; `v5.7 county sums = census <year>` for the four years; four `<year>: N counties,
+...` lines; `DONE`; 8 files in the folder (part A's 5 + `allocated_ratios.csv`, `ratio_vs_tract.csv`,
+`ratio_vs_tract.png`); `git push` ends with `main -> main`. `FAILED` (`TIMEOUT`: `RATIOS_TIME=03:00:00`) or an `ERROR`
+line: commit the log anyway (same block) and tell Claude.
+
+What to look for in the log: the BUPR share on the v5.7 cells per year (`BUPR on the v5.7 cells ... of ... in the county
+table`), `SUMMARY alloc_*` (county medians by class), `SUMMARY Spearman ...`.
+
 ## If it fails
 
 | Symptom | Fix |
