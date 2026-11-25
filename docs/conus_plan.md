@@ -1644,6 +1644,37 @@ passes). Code + tests 2026-11-26, not run (`bash sbatch/submit_conus.sh captrans
 | Resources | one job, 12 cores, 4 h (estimate; `TRANSFER_TASKS`, `TRANSFER_TIME`) |
 | Tests | `tests/test_cap_transfer.py`: scaled shares by hand, f_c rules, common feature list + GHS-name stop, pq5_unbuilt; end to end on a 16-county two-year world (1980 + 2010 learn, PLURAL only 2010): targets by hand (products moved to the cells, NRES above total clipped), the forests refit by hand = the 1980 y1 / y2 (2010 models on 1980 features: other shares) and the 2010 TEST rows, scaled / direct by hand, v57 = v5.7, a 2010 combination's tract sums and MdAPE by hand, 1980 score v57 only, circular column; a changed tract `pop_model` / missing bupr county stops with nothing written; the real config |
 
+### Cap transfer: result (job 36340702, 16 min, 24 GB; read 2026-11-26)
+
+GHS-BUILT-S used at 2015 (R2023A has no 2014 file; 2015 = interpolated between the 2014 Landsat and 2018 Sentinel-2
+epochs), residential = total - NRES. Unbuilt (undated + no-record) share of people, all counties pooled, 2010: GHS-POP
+13.5 %, v5.7 10.0 %, GHS-BUILT residential surface 23.2 % (vs GHS-POP 1980 29 %: the 1980 back-cast spreads far more).
+Cap models (2010 county CV): share MAE 0.016-0.049 vs v5.7's own shares 0.074-0.082; driven by BUI and the built-cell
+share, then building size and nby.
+
+| Tract MdAPE (%), score v5.7 | 1940 | 1960 | 1980 | 2010 |
+|---|---|---|---|---|
+| v5.7 | **40.1** | **34.0** | **26.9** | 24.9 |
+| P_transfer (GHS-POP 2010 relation, that year's features) | 41.4 | 35.6 | 27.7 | 25.3 * |
+| P_scaled (+ undated x f_c) | 40.2 | **34.0** | **26.8** | 25.3 * |
+| B_transfer (GHS-BUILT residential) | 43.9 | 38.4 | 30.5 | 27.2 |
+| B_scaled | 40.8 | 35.3 | 28.6 | 27.1 |
+| P_direct (GHS-POP 2010 shares) | | | | **24.7** * |
+| B_direct | | | | 26.7 |
+
+\* circular: GHS-POP 2010 uses the 2010 census.
+
+- Even with GHS-POP 2010's own shares (block-census based, circular) 2010 tracts improve by only 0.2 pp (rural
+  18.2 -> 18.1, city 30.8 -> 30.0, sparsest tracts 20.7 -> 21.5). v5.7's split between built / undated / no-record
+  cells is already close to what the census implies; the remaining tract error is not in that split.
+- Transferred back in time the relation adds people to undated cells and loses (+0.8 to +1.6 pp); with the f_c
+  scaling it equals v5.7 (1940 +0.1, 1960 0.0, 1980 -0.1). Only 1960 rural counties gain (36.2 -> 33.2) and 1980 rural
+  (20.5 -> 19.9); 1940 rural loses (34.6 -> 35.5). GHS-BUILT targets are worse in every year.
+- Within-group scores: 1 - PLURAL is worse in every year (gap counties +6 to +9 pp); pq5 on the unbuilt groups is
+  within 0.1 pp overall and slightly better in gap counties (-2 pp); mixed = v5.7.
+- Conclusion: setting group caps (from GHS, by year) does not improve tracts beyond v5.7, and PLURAL inside the caps
+  does not either. The county-level "compensation" Stefan described is already done implicitly by v5.7's weights.
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6
