@@ -2523,6 +2523,56 @@ and tell Claude.
 What to look for in the log: `mask / outside` and `GHS people: ... outside the mask` lines, `SUMMARY unbuilt shares by
 county class`, `SUMMARY county class x cell class`, `SUMMARY capture`, `SUMMARY Spearman`.
 
+## 29. Cap allocation 1980: county caps per cell group x scores inside, 1980 tracts (2026-11-25)
+
+Request `docs/handoff/cap_allocation_1980_request.md`; design `docs/conus_plan.md` "Cap allocation 1980". One job, no
+new dasymetric training. Needs everything of section 28 (it rereads the same cells) plus `tracts_1980.gpkg` in
+`$DATA_ROOT/processed/tract` and, in git, `county_missed_1980.csv` (section 28's result), v5.7's
+`tract_errors_1980.csv`, the v5.7 / plc county features 1980, the split and `excluded_counties_t070.csv`. 12 cores,
+3 h wall (`CAP_TASKS`, `CAP_TIME`; estimate).
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+bash sbatch/submit_conus.sh cap1980
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK line, one 'cap_allocation N' line)"
+```
+
+Good: `CHECK OK: inputs for 1980, caps [...] x scores [...], block_rows 512`, `remoteness: ...`, `NobuiltYear source:
+hisdac`, `cap_allocation N`; `== end of block 1`. `MISSING ...` / `ERROR: nothing submitted`: send the output to Claude.
+
+Block 2, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_cap1980_jobs.txt | head -1)
+sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_cap1980_sacct.txt
+seff "$j" | tee logs/conus_cap1980_seff.txt
+grep -hE "RULE|MATCH|census 1980|cap model|group capture:|DONE|ERROR" logs/cap_allocation.$j.out
+ls -l results/validation/conus/cap_allocation_1980/
+git add logs/ results/validation/conus/cap_allocation_1980/
+git commit -m "run: cap allocation 1980, county caps per cell group x scores, 1980 tracts (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, 3 MATCH lines, 2 cap model lines, DONE, 7 files, push main -> main)"
+```
+
+Good: `COMPLETED`; `RULE ...` lines; `v5.7 county sums = census 1980`; three `MATCH` lines (`county_missed_1980.csv`,
+cap v57 + score v57 = v5.7 cells, the tract sums of `tract_errors_1980.csv`); two `cap model ...` lines (model,
+model_noplural); `group capture: ...`; `DONE`; 7 files (6 tables + 1 PNG); `git push` ends with `main -> main`.
+`FAILED` (`OUT_OF_MEMORY`: rerun block 1 with `CAP_TASKS=16 bash sbatch/submit_conus.sh cap1980`; `TIMEOUT`:
+`CAP_TIME=06:00:00`) or an `ERROR` line: commit the log anyway (same block) and tell Claude.
+
+What to look for in the log: `tracts 1980: ...` and `tract part ...` lines (tracts / counties per part), the per
+combination lines (renormalized counties, zero-score groups), `SUMMARY cap model`, `SUMMARY pooled group shares`,
+`SUMMARY tract MdAPE`, `SUMMARY tract d_mdape`, `SUMMARY group capture`.
+
 ## If it fails
 
 | Symptom | Fix |

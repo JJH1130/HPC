@@ -135,6 +135,26 @@ missed_cells:
   ks: [0.01, 0.02, 0.05, 0.10, 0.20, 0.50]
   tile_cols: 2048
 
+# Cap allocation 1980 (src/validation/cap_allocation.py; request docs/handoff/cap_allocation_1980_request.md;
+# docs/conus_plan.md "Cap allocation 1980"): cells, groups, classes and the year from `missed_cells` above; per county a
+# cap per group (v57 / ghs / model / model_noplural) x a score inside the group. Settings fixed 2026-11-25 before any
+# result: eps, the forest settings (no tuning), the features, the folds of the split. Paths relative to the repo root.
+cap_allocation:
+  missed_table: results/validation/conus/missed_cells_1980/county_missed_1980.csv          # must equal the run here
+  tract_errors: results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1980.csv    # v5.7: tracts, gap, check
+  county_features: results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/county_features.csv
+  plural_features: results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y1980/county_features.csv   # plural only
+  split: configs/conus_split.csv
+  exclusions: results/hisdac_uncertainty/excluded_counties_t070.csv
+  features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]   # + plural, cells, class
+  eps: 1.0e-4
+  rf: {n_estimators: 500, min_samples_leaf: 5, max_features: 0.5, random_state: 42}
+  perm_repeats: 10
+  caps: [v57, ghs, model, model_noplural]
+  scores: [v57, pq5, mixed, even, plural_inv]
+  ks: [0.05, 0.10, 0.20]
+  mape_min: 10
+
 # DEGURBA boxes (src/validation/degurba_boxes.py; request docs/handoff/rural_boxes_request.md, user decision 2026-11-21;
 # docs/conus_plan.md "DEGURBA boxes"): classes and box choice by the EU / UN Degree of Urbanisation (stage I).
 #   scheme A (main): GHS-SMOD R2023A of the year, each 250 m cell = the SMOD 1 km cell its centre falls in, a 1 km block

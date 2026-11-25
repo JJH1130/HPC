@@ -1566,6 +1566,29 @@ median 0.95 (10-90 %: 0.79-1.18); GHS-POP 1980 is a modelled back-cast, so its c
   County-median Spearman with GHS on unbuilt cells: NobuiltYear 0.44, v5.7 0.36, pq5 0.23, 1 - PLURAL 0.12. PLURAL
   does not locate the missed people within counties; NobuiltYear does best of the scores.
 
+## Cap allocation 1980 (request 2026-11-25, `docs/handoff/cap_allocation_1980_request.md`; runbook section 29)
+
+Background: "1980 missed cells: result" above: inside a county v5.7 splits people between built / undated / no-record
+cells differently from GHS-POP (too few on undated cells near towns, too many on no-record cells in very rural areas).
+Test: fix each county's people per cell group first (a cap), then spread each cap over the group's cells by a cell
+score. 1980, CONUS, no new dasymetric training (one small cap model), scored on the 1980 tracts. Code + tests
+2026-11-25, not run (`bash sbatch/submit_conus.sh cap1980`).
+
+| Topic | Decision |
+|---|---|
+| Cells | = `missed_cells.py` (its strip reads, groups, SMOD classes, county class); the county table here must equal `county_missed_1980.csv`, else stop |
+| Allocation | cell = P_c x s_cg x score_i / sum of the group's scores (P_c = census 1980); a group without cells: cap 0, the others scaled up; scores summing to 0: even inside the group (both counted in the log); county sums = P_c (rtol 1e-9), else stop |
+| Caps | v57 (v5.7's own group shares, = `county_missed_1980.csv`), ghs (GHS-POP 1980 group shares; reference upper bound, unavailable before 1975; no GHS people -> v57 cap, counted), model, model_noplural |
+| Cap model | two `RandomForestRegressor` (y1 = log(s_undated / s_built), y2 = log(s_no_record / s_built) of GHS-POP; a 0 share -> eps = 1e-4), fixed before any result: 500 trees, min_samples_leaf 5, max_features 0.5, random_state 42, no tuning; softmax back to three shares (a group without cells -> 0). Features: v5.7 county features 1980 (bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby), plural (county mean of `Dasy_CONUS_RF_v3_all_nby_plc` Y1980), the county's cell shares per group, DEGURBA level 1 class (one-hot; note: the class is derived from the county's own GHS-POP / SMOD 1980, as the request lists it). model_noplural = the same without plural |
+| Out of fold | folds of `configs/conus_split.csv`: a train county is predicted by the models fit on the other four folds; TEST counties (and any county outside the split) by the models fit on all train counties; no county's own target is ever fit (test). Performance = county CV, not tracts: OOF / TEST RMSE of y1 / y2, share MAE per group (also of the v57 cap vs GHS), permutation importance on the held-out folds (10 repeats, RMSE increase) -> `cap_model_1980.csv` |
+| Scores | v57 (v5.7 cell people), pq5, mixed (built / undated v57, no_record pq5), even, plural_inv (1 - PLURAL on the unbuilt groups, v57 on built; PLURAL nodata -> 0); 4 caps x 5 scores = 20 combinations |
+| Identity check | cap v57 + score v57 = v5.7: every cell = v5.7 x P_c / (its v5.7 county sum) at rtol 1e-9, and within 1e-6 of v5.7 itself (the v5.7 county sums differ from the census by up to 6.8e-9, missed_cells log, so 1e-9 against the raw v5.7 cells cannot hold with P_c = census); its tract sums = `pop_model` of v5.7's `tract_errors_1980.csv` x the same county factor (rtol 1e-9); else stop |
+| Tracts | `tract_validate.py` code (`read_tracts`, `tract_ids` - the rasterization, moved into a function, output unchanged - and `metrics`); the evaluated tracts and their parts = flag ok rows of v5.7's `tract_errors_1980.csv` (cells per tract checked). Per combination and part: MdAPE, MAPE (tracts >= 10 people), R2 log, RMSE, MAE, d_* vs v5.7; parts all, train / test, dens_*, kept / excluded t070, no_gap / gap (v5.6 gap counties, the file's column), city / town_suburb / rural. Tract counts and counties per part in the table and log (1980 tracts cover mostly metro areas). Reported only: no selection rule (selection by county CV; the user decides) |
+| Diagnosis | `group_capture_1980.csv`: within-county capture (as missed_cells) of the GHS people on undated / no_record cells by v57, pq5, plural_inv, nobuilt (undated only), even (= k), GHS = upper bound, k = 5 / 10 / 20 %; `group_shares_1980.csv`: pooled group shares per combination and county class (fixed by the cap, not the score) + the county gap median (GHS - combination) |
+| Output | `results/validation/conus/cap_allocation_1980/`: `cap_model_1980.csv`, `caps_1980.csv` (county x cap, the three shares + the model's y1 / y2 and pred_from), `group_shares_1980.csv`, `tract_metrics_1980.csv`, `tract_pop_1980.csv.gz` (one row per evaluated tract, every combination: one long table instead of 20 files), `group_capture_1980.csv`, `tract_mdape_1980.png`; no rasters |
+| Resources | one job, 12 cores (45 GB), 3 h (estimate; `CAP_TASKS`, `CAP_TIME`) |
+| Tests | `tests/test_cap_allocation.py`: allocation by hand (cap x score share, county sums, empty group rescaled, zero scores even), log ratios / softmax sum 1, OOF never sees a county's own target, group capture = an independent loop; end to end on the missed-cells test world with `missed_cells` and `tract_validate` run first (county table = missed table, cap v57 + v57 = v5.7 cells and tract file, a combination's tracts / metrics by hand, a changed missed number / tract pop_model stops); the real config |
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6

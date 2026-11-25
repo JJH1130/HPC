@@ -111,6 +111,12 @@ def read_tracts(path: Path, grid: dict, prefix: str = MA_PREFIX) -> gpd.GeoDataF
     return t.to_crs(grid["crs"].to_wkt())
 
 
+def tract_ids(t: gpd.GeoDataFrame, grid: dict) -> np.ndarray:
+    """Tract number (row + 1 of t; 0 = no tract) of each cell whose centre lies in the tract (also cap_allocation)."""
+    return rasterize(zip(t.geometry, range(1, len(t) + 1)), out_shape=grid["shape"], transform=grid["transform"],
+                     fill=0, all_touched=False, dtype="int32")
+
+
 def gap_counties(pred_dir: Path, year: int, share: float):
     """GISJOINs of the BUI gap counties of `year` + a summary dict, or (None, None) without features / bui."""
     if share <= 0:
@@ -201,8 +207,7 @@ def validate_year(year, args, pred_dir, cutout, realloc, coverage):
 
     # tracts -> cells (cell centre inside the tract)
     t = read_tracts(args.tract_dir / f"tracts_{year}.gpkg", grid, args.state_prefix)
-    tid = rasterize(zip(t.geometry, range(1, len(t) + 1)), out_shape=grid["shape"], transform=grid["transform"],
-                    fill=0, all_touched=False, dtype="int32")
+    tid = tract_ids(t, grid)
     n = len(t) + 1
     in_t = tid > 0
     t["n_cells"] = np.bincount(tid[in_t], minlength=n)[1:]
