@@ -203,6 +203,30 @@ GHS-BUILT), not a block count, so it is a reference, not a hard fact; GHS-BUILT 
 independent anchor. Any GHS layer used as an input or constraint can no longer be used to validate (tracts stay the
 independent check). GHS-SMOD / -POP start in 1975.
 
+**Next steps (proposed by Claude, agreed in order by the user 2026-11-25; 1980 first, then other years).** Each step
+decides the next; nothing beyond step 2 is planned in detail.
+
+1. *1980 missed-cell diagnosis (no model change).* Cells populated in GHS-POP 1980 but unbuilt in HISDAC (BUI_1980 =
+   0) = "missed cells"; per county and per area type (DEGURBA blocks): GHS-POP people on missed cells vs v5.7's people
+   on the same cells / on all unbuilt cells; where they are (rural / peri-urban / metro fringe, clusters). Also
+   GHS-BUILT 1980 (Landsat, to download; registered in `docs/data_sources.md` first) vs HISDAC built, as the more
+   independent anchor.
+2. *Does PLURAL / remoteness pick the missed cells?* Same data: overlap / ranking of missed cells by PLURAL vs GHS-POP
+   ("test if PLURAL translates to that"). Can run in the same job as 1.
+3. *Per-unit ratios (descriptive):* people per built cell, per building record (BUPR), buildings per capita, per
+   county, area type and year (Stefan points 4 and 6; for the county shares and calibration).
+4. *Allocation design (after 1-3):* county people split into a built-cell share and an unbuilt-cell share; the
+   unbuilt share to the missed cells by weight (e.g. proportional to GHS-POP 1980) or rank. Test on 1980 / 1975-1970
+   first.
+5. *Extend in time:* GHS years 1975-2020 (5-year steps) as checks (from 1990 GHS-POP uses block census: closer to
+   truth, but then not a validation reference); before 1975 only by carrying the 1980 locations back and adjusting
+   amounts (Stefan: "re-channeling"); the form is open.
+6. *Strata:* county classes vs fine partition, decided on 1-3 (is the missing population spread over counties or
+   concentrated at the fringe?).
+
+Also pending: move the needed rasters off scratch (90-day purge); ask Stefan about BUPR_contemp; the user shares the
+paper draft with co-authors and the abstract is revised after everyone has read it (Stefan).
+
 ### Meeting with Stefan, 2026-11-17 (done 2026-11-24; results in docs/conus_plan.md)
 
 Base = v5.7 (`Dasy_CONUS_RF_v3_all_nby`). Order: 1 first, then 2 on its result; 3 and 4 can run beside them; 5 later.
