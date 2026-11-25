@@ -1619,6 +1619,31 @@ tracts in 1,772 counties (DEGURBA county class: city 11,939 tracts / 43 counties
   not improve 1980 tracts. Left open: a targeted use only in HISDAC-poor counties (gap / excluded), where the GHS cap
   helps slightly.
 
+## Cap transfer (learn 2010, apply 1940-1980) (request 2026-11-26, `docs/handoff/cap_transfer_request.md`; runbook section 30)
+
+Background: "Cap allocation 1980: result" above. GHS-POP 1980 is the 2010 census input moved back along a trend
+(JRC144209, `docs/data_sources.md` GHS-POP), so it is a poor reference for 1980. Here the relation "county features ->
+group shares" is learned where GHS is close to its sources (2010) and applied to earlier years with each year's own
+features, so the shares change from year to year (Stefan 2026-11-25, "progression"); scored on each year's tracts.
+`cap_allocation.py transfer` (an extension; the `run` mode and its 1980 results unchanged, `tests/test_cap_allocation.py`
+passes). Code + tests 2026-11-26, not run (`bash sbatch/submit_conus.sh captransfer`).
+
+| Topic | Decision |
+|---|---|
+| Groups | as the 1980 run: built (BUI_year > 0) / undated (BUI_year = 0, NobuiltYear > 0) / no_record, on the v5.7 cells of the year (pop_{YEAR}.tif not nodata, used counties); P_c = census of the year (v5.7 county sums = census, else stop) |
+| Target P (main) | GHS-POP 2010 group shares per county, HISDAC groups of 2010. GHS-POP 2010 = GPWv4.11 polygon counts of the 2010 census round: circular with the 2010 tracts (column `circular` on the 2010 P rows) |
+| Target B (alternative) | GHS-BUILT-S residential surface = total - NRES (a negative cell after the move -> 0, logged) group shares, HISDAC groups of 2010. Epoch **2015**, not 2014: R2023A has 5-year epochs only (bucket listing 2026-11-26), 2015 is interpolated between the 2014 Landsat and 2018 Sentinel-2 observations (JRC144209 section 2.1); NRES 2015 exists (`ghs-built-s-nres`), downloaded with the total. Satellite surface, no census: not circular with tracts |
+| Cap models | per target two `RandomForestRegressor` on y1 = log(s_undated / s_built), y2 = log(s_no_record / s_built), eps 1e-4, 500 trees, min_samples_leaf 5, max_features 0.5, random_state 42 (the 1980 settings, no tuning). Features = the v5.7 county features common to the model config's eras Y1940 / Y1960 / Y1980 / Y2010 and present in each year's `county_features.csv` (computed and logged; on the tracked files all nine: bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby - res_share / rent_share exist from 1940 on, so nothing is dropped) + the year's cell shares per group. No PLURAL, nothing from GHS (the 1980 run's name check) |
+| Fit / apply | 2010: out of fold on the folds of `configs/conus_split.csv` for train counties, TEST and other counties by the model fit on all train counties with a target; 1940 / 1960 / 1980: the all-train models on that year's features + cell shares (`pred_from` = `model_2010`). County CV of 2010 (RMSE of y1 / y2, share MAE per group, also of v5.7's own shares, permutation importance) -> `cap_model.csv` |
+| Methods | v57 (own shares; identity check), P_transfer / B_transfer (softmax of the model; a group without cells -> 0), P_scaled / B_scaled (undated share x f_c(year), f_c = clip(bupr_year / bupr_2015, 0, 1), 1 where bupr_2015 = 0, from `county_record_uncertainty.csv` = the nby_age definition; the removed share to built / no_record in proportion to their shares, sum 1; a county with only undated cells keeps its shares, counted), 2010 only P_direct / B_direct (the target shares; a county without target -> v57, logged) |
+| Scores (user 2026-11-26) | PLURAL inside the groups, not in the cap model: v57 (all groups, main), plural_inv (built v57, unbuilt 1 - PLURAL), mixed (built + undated v57, no_record pq5), pq5_unbuilt (built v57, undated / no_record pq5). PLURAL grid and pq5 exist for 1940 / 1980 / 2010 only: 1960 = score v57 only (`plural_grid` = "no PLURAL grid"). Combinations = method x score |
+| Checks | every combination keeps the census county sums (rtol 1e-9); method v57 + score v57 = v5.7 cells x P_c / county sum and the year's `tract_errors_{YEAR}.csv` tract sums; v5.7 county sums = census; else stop before writing |
+| Tracts | per year the evaluated tracts of v5.7's `tract_errors_{YEAR}.csv` (cells per tract checked); parts all, train / test, dens_*, kept / excluded t070, no_gap / gap, city / town_suburb / rural = the **fixed** DEGURBA level 1 labels of `county_missed_1980.csv` (1980 GHS) for every year (column `county_class_1980`; counties without a label in no class); tracts / counties per part; d_mdape = combination - v5.7. Reported only, no selection rule, no interpretation in the tables |
+| Diagnosis | `group_shares.csv`: year x method x county class pooled group shares of the allocation (score v57; the cap fixes them) + the 2010 product rows (GHS-POP 2010, GHS-BUILT-S res 2015) = the progression; `fc_summary.csv`: f_c per year (p10 / median / p90, clipped, bupr_2015 = 0). Tracked f_c medians: 1940 0.17, 1960 0.34, 1980 0.62, 2010 0.98 |
+| Output | `results/validation/conus/cap_transfer/`: `cap_model.csv`, `caps.csv` (year x county x method: cells, shares, f_c, y1 / y2, pred_from), `group_shares.csv`, `fc_summary.csv`, `tract_metrics.csv` (year x combination x part), `tract_pop.csv.gz` (one row per year and evaluated tract), `tract_mdape.png` (a panel per year: methods x scores, v5.7 line) |
+| Resources | one job, 12 cores, 4 h (estimate; `TRANSFER_TASKS`, `TRANSFER_TIME`) |
+| Tests | `tests/test_cap_transfer.py`: scaled shares by hand, f_c rules, common feature list + GHS-name stop, pq5_unbuilt; end to end on a 16-county two-year world (1980 + 2010 learn, PLURAL only 2010): targets by hand (products moved to the cells, NRES above total clipped), the forests refit by hand = the 1980 y1 / y2 (2010 models on 1980 features: other shares) and the 2010 TEST rows, scaled / direct by hand, v57 = v5.7, a 2010 combination's tract sums and MdAPE by hand, 1980 score v57 only, circular column; a changed tract `pop_model` / missing bupr county stops with nothing written; the real config |
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6

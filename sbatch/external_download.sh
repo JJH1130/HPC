@@ -8,6 +8,8 @@
 #                                                       # docs/runbooks/Running_CONUS.md section 26 block 0)
 #   PRODUCTS=ghs_built bash sbatch/external_download.sh  # GHS-BUILT-S R2023A 1980 only (1980 missed cells,
 #                                                       # docs/runbooks/Running_CONUS.md section 28 block 0)
+#   PRODUCTS=ghs_built_2015 bash sbatch/external_download.sh  # GHS-BUILT-S R2023A total + NRES 2015 (cap transfer,
+#                                                       # docs/runbooks/Running_CONUS.md section 30 block 0)
 #
 # Public (no login): GHS-POP R2023A 100 m Mollweide, 1980 / 1990 / 2000 / 2010 (JRC's own AWS bucket, 4.2-5.1 GB
 # each, size checked against the bucket listing recorded 2026-10-28); WorldPop USA 100 m unconstrained, 2000 / 2010
@@ -17,6 +19,8 @@
 # codes of the SMOD layer; the lines naming them are printed if pdftotext is there).
 # GHS-BUILT-S R2023A V1-0 100 m Mollweide (built-up surface, m2 per cell), 1980 (same JRC bucket, 1.46 GB, size checked
 # against the bucket listing of 2026-11-25, sha256 recorded in ghs_built/SHA256SUMS). Not in the default list.
+# GHS-BUILT-S R2023A V1-0 total (1.97 GB) and NRES (non-residential, 0.31 GB) 100 m, epoch 2015 (ghs_built_2015; same
+# bucket, sizes of 2026-11-26, sha256 in ghs_built/SHA256SUMS_2015 and ghs_built_nres/SHA256SUMS). Not in the default list.
 # NASA Earthdata login (~/.netrc entry for urs.earthdata.nasa.gov; docs/runbooks/Running_CONUS.md section 8):
 # GPW v4.11 population count 30 arc-sec 2000 / 2010 (not UN-adjusted), GRUMP v1 population count 30 arc-sec
 # 1990 / 2000 (global .bil), and the GPWv4 / GPWv3 documents (US input units). Without the .netrc entry these are
@@ -133,6 +137,26 @@ import sys, pathlib, rasterio
 for p in sorted(pathlib.Path(sys.argv[1]).glob("*.tif")):
     with rasterio.open(p) as s:
         print(f"   {p.name}: {s.crs}, {s.width} x {s.height}, res {s.res}, dtype {s.dtypes[0]}, nodata {s.nodata}, tags {s.tags()}")
+PY
+}
+
+ghs_built_2015() {
+    # Cap transfer (docs/conus_plan.md "Cap transfer"): GHS-BUILT-S R2023A total + NRES (non-residential), epoch 2015 =
+    # the epoch next to the 2014 Landsat observation (R2023A has 5-year epochs, no 2014). Sizes from the bucket listings
+    # https://jrc-ghsl.s3.eu-central-1.amazonaws.com/?list-type=2&prefix=ghs-built-s/r2023a/54009/100m/2015/ and
+    # ...&prefix=ghs-built-s-nres/r2023a/54009/100m/2015/ (2026-11-26; LastModified 2026-10-06; multipart ETags, no md5
+    # listed: sha256 of the files recorded instead)
+    local base=https://jrc-ghsl.s3.eu-central-1.amazonaws.com
+    local f=GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif n=GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif
+    by_size ghs_built_2015 "$base/ghs-built-s/r2023a/54009/100m/2015/$f" "$OUT/ghs_built/$f" 1967811165 || return 1
+    by_size ghs_built_2015 "$base/ghs-built-s-nres/r2023a/54009/100m/2015/$n" "$OUT/ghs_built_nres/$n" 308623638 || return 1
+    (cd "$OUT/ghs_built" && sha256sum "$f" | tee SHA256SUMS_2015 | sed 's/^/   sha256 /')
+    (cd "$OUT/ghs_built_nres" && sha256sum "$n" | tee SHA256SUMS | sed 's/^/   sha256 /')
+    "$ENVS/hisdac/bin/python" - "$OUT/ghs_built/$f" "$OUT/ghs_built_nres/$n" <<'PY' || echo "WARNING: header check of the GHS-BUILT-S 2015 files failed"
+import sys, rasterio
+for p in sys.argv[1:]:
+    with rasterio.open(p) as s:
+        print(f"   {p.split('/')[-1]}: {s.crs}, {s.width} x {s.height}, res {s.res}, dtype {s.dtypes[0]}, nodata {s.nodata}, tags {s.tags()}")
 PY
 }
 

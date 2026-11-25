@@ -5,7 +5,7 @@ citation) before a dataset is used in any pipeline step. Keep download details
 precise enough that anyone can obtain the same files again. Acknowledgement text
 for compute resources (Alpine) is in `docs/acknowledgements.md`.
 
-Last updated: 2026-11-25 (GHS-BUILT-S R2023A 1980 for the 1980 missed-cell diagnosis); 2026-11-21 (GHS-SMOD R2023A for the DEGURBA boxes); 2026-11-04 (HISDAC FBUY read for the undated-record age diagnosis); 2026-11-04 (HISDAC NobuiltYear as a CONUS cutout layer / feature, NobuiltYear feature test); 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
+Last updated: 2026-11-26 (GHS-BUILT-S R2023A total + NRES 2015 for the cap transfer; GHSL generation from JRC144209); 2026-11-25 (GHS-BUILT-S R2023A 1980 for the 1980 missed-cell diagnosis); 2026-11-21 (GHS-SMOD R2023A for the DEGURBA boxes); 2026-11-04 (HISDAC FBUY read for the undated-record age diagnosis); 2026-11-04 (HISDAC NobuiltYear as a CONUS cutout layer / feature, NobuiltYear feature test); 2026-10-30 (PLURAL grid: feature test on v5.6, 1940 / 1980 / 2010); 2026-10-30 (BUPR_contemp not in the Dataverse BUPR.tar: record uncertainty from NobuiltYear until it is found); 2026-10-30 (HISDAC-US `BUPR_contemp.tif` for the record-uncertainty diagnosis; NHGIS 2020 counties as the CONUS 2020 input); 2026-10-28 (external gridded population products: GHS-POP, WorldPop, GPW v4.11, GRUMP v1, Fang & Jawitz 2018); 2026-10-28 (VIIRS-like NTL, Chen et al. 2021); 2026-10-24 (Siqiao's PLURAL grid + tract data); 2026-10-23 (PLURAL in v4.1 code; Stefan's CSV as the CONUS population input)
 
 ## Summary
 
@@ -22,7 +22,7 @@ Last updated: 2026-11-25 (GHS-BUILT-S R2023A 1980 for the 1980 missed-cell diagn
 | NPP-VIIRS-like global NTL | Chen et al. (2021), Harvard Dataverse doi:10.7910/DVN/YGIVCD, **Version1**, 2000 and 2010 | `/projects/jaju1407/data/raw/ntl/viirs_like/v1/` | CONUS feature test `ntlv` (`Dasy_CONUS_RF_v3_ntlv`, cutout layer `NTLV`) | Registered 2026-10-28; download by `sbatch/ntlv_download.sh`, not run yet |
 | GHS-POP R2023A (JRC) | R2023A V1-0, 100 m Mollweide, epochs 1980 / 1990 / 2000 / 2010 | `/projects/jaju1407/data/raw/external/ghs_pop/` | External comparison on tracts (`configs/external_grids.yaml`) | Registered 2026-10-28; `sbatch/external_download.sh`, not run yet |
 | GHS-SMOD R2023A (JRC; Degree of Urbanisation stage I) | R2023A V2-0, 1 km Mollweide, epochs 1980 / 2010 | `/projects/jaju1407/data/raw/external/ghs_smod/` | DEGURBA boxes: block classes (urban centre / urban cluster / rural) and the choice of rural / peri-urban boxes (`src/validation/degurba_boxes.py`, `rural_boxes:` block of `configs/external_grids.yaml`); validation only, not a model input | Registered 2026-11-21; `PRODUCTS=ghs_smod bash sbatch/external_download.sh`, not run yet |
-| GHS-BUILT-S R2023A (JRC; built-up surface) | R2023A V1-0, 100 m Mollweide, epoch 1980, total built-up surface (m2 per cell) | `/projects/jaju1407/data/raw/external/ghs_built/` | 1980 missed cells: satellite built-up surface on cells HISDAC calls unbuilt (BUI = 0), per county / DEGURBA class (`src/validation/missed_cells.py`, `missed_cells:` block of `configs/external_grids.yaml`); diagnosis only, not a model input | Registered 2026-11-25; `PRODUCTS=ghs_built bash sbatch/external_download.sh`, not run yet |
+| GHS-BUILT-S R2023A (JRC; built-up surface) | R2023A V1-0, 100 m Mollweide, epoch 1980 (total), epoch 2015 (total + NRES = non-residential), built-up surface (m2 per cell) | `/projects/jaju1407/data/raw/external/ghs_built/`, `.../ghs_built_nres/` | 1980 missed cells: satellite built-up surface on cells HISDAC calls unbuilt (BUI = 0), per county / DEGURBA class (`src/validation/missed_cells.py`); cap transfer: 2015 residential surface (total - NRES) group shares per 2010 county = target B of the county cap model learned in 2010 (`cap_allocation.py transfer`, `cap_transfer:` block of `configs/external_grids.yaml`); validation / diagnosis, not a dasymetric model input | 1980 registered 2026-11-25 (`PRODUCTS=ghs_built`, downloaded); 2015 total + NRES registered 2026-11-26 (`PRODUCTS=ghs_built_2015 bash sbatch/external_download.sh`, not run yet) |
 | WorldPop USA, unconstrained top-down | Global 2000-2020 (2018 release), `usa_ppp_{2000,2010}.tif`, 3 arc-sec, not UN-adjusted | `/projects/jaju1407/data/raw/external/worldpop/` | External comparison on tracts | Registered 2026-10-28; not downloaded yet |
 | GPW v4.11 population count (CIESIN, NASA SEDAC) | Revision 11, 30 arc-sec, 2000 / 2010, not UN-adjusted | `/projects/jaju1407/data/raw/external/gpw4/` | External comparison on tracts | Registered 2026-10-28; needs an Earthdata login; not downloaded yet |
 | GRUMP v1 population count (CIESIN et al., NASA SEDAC) | v1.00, 30 arc-sec, 1990 / 2000, global `.bil` | `/projects/jaju1407/data/raw/external/grump1/` | External comparison on tracts | Registered 2026-10-28; needs an Earthdata login; **no redistribution**; not downloaded yet |
@@ -209,6 +209,13 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
   or administrative units to grid cells"; https://data.europa.eu/89h/2ff68a52-5b5b-4a22-8f40-c41da8332cfe). So the US
   unit is GPWv4.11's (unverified, see GPW). GPWv4.11 starts in 2000: the 1980 and 1990 epochs are estimates for those
   units, not that year's census counts (method: GHSL Data Package 2023, not read here).
+- Generation (read 2026-11-26 in JRC144209, section 2.2, which describes the R2023 inputs of GHS-WUP): "Residential
+  population estimates at 5 years interval between 1975 and 2020 are derived from the raw global census data harmonized
+  by CIESIN for the Gridded Population of the World, version 4.11 (GPWv4.11) ... at polygon level combined with
+  population trends obtained from the Urban Agglomeration time series of the UN World Urbanisation Prospects 2018".
+  So every epoch is the GPWv4.11 polygon counts (US: the 2010 census round) moved along a trend: the 2010 epoch is the
+  closest to its census input (the cap transfer's target P; circular with 2010 tracts), 1980 a back-cast.
+  Source: Schiavina, M., Melchiorri, M., Mari Rivero, I., Florio, P., Freire, S. et al. (2025). GHSL WUP Projections Data Package 2025 - Public release GHS-WUP R2025. Publications Office of the European Union, Luxembourg, JRC144209, https://data.europa.eu/doi/10.2760/2416436.
 - Files (JRC's own AWS bucket, Registry of Open Data `ghs-pop`, no account):
   `https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-pop/r2023a/54009/100m/<YEAR>/GHS_POP_E<YEAR>_GLOBE_R2023A_54009_100_V1_0.tif`;
   bytes (bucket listing 2026-10-28): 1980 4,189,468,816; 1990 4,542,378,023; 2000 4,742,953,518; 2010 5,121,499,452
@@ -256,10 +263,16 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
 #### GHS-BUILT-S R2023A
 
 - What: built-up surface per 100 m cell (World Mollweide, ESRI:54009), m2 of the cell's 10,000 m2 (total built-up,
-  residential + non-residential; the NRES variant is not used), epochs 1975-2030 every 5 years; used: 1980 only (1980
-  missed-cell diagnosis, `docs/conus_plan.md` "1980 missed cells"). Derived from Landsat for the early epochs and
-  Sentinel-2 (2018); the epochs between the observed ones are interpolated (GHSL Data Package 2023; which observation
-  years feed 1980 not checked here), so 1980 is a model of the Landsat record, not a direct observation of 1980.
+  residential + non-residential), epochs 1975-2030 every 5 years; used: 1980 total (1980 missed-cell diagnosis,
+  `docs/conus_plan.md` "1980 missed cells") and 2015 total + NRES (cap transfer, `docs/conus_plan.md` "Cap transfer").
+  NRES = the non-residential part of the built-up surface (product `ghs-built-s-nres`, same grid and epochs);
+  residential = total - NRES (a negative cell after the move to our grid -> 0, counted in the log).
+- Generation (read 2026-11-26 in JRC144209, section 2.1): the 1975-2020 GHS-BUILT-S R2023 data were "made by
+  spatial-temporal interpolation of five observed collections of multiple-sensor, multiple-platform satellite
+  imageries: Landsat (MSS, TM, ETM sensor) data supports the 1975, 1990, 2000, and 2014 epochs, while a Sentinel-2 (S2)
+  image composite ... supports the 2018 epoch". So 1980 is interpolated between the 1975 and 1990 observations, and
+  2015 between 2014 and 2018 (the R2023A files have 5-year epochs only: no 2014 file, bucket listing 2026-11-26; 2015 is
+  the epoch next to an observation). Source: Schiavina, M., Melchiorri, M., Mari Rivero, I., Florio, P., Freire, S. et al. (2025). GHSL WUP Projections Data Package 2025 - Public release GHS-WUP R2025. Publications Office of the European Union, Luxembourg, JRC144209, https://data.europa.eu/doi/10.2760/2416436.
 - Why: the more independent anchor of the two GHS layers for 1980 (GHS-POP 1980 is a census back-cast spread with
   GHS-BUILT); a cell with GHS-BUILT surface but BUI = 0 is a cell the satellite calls built and HISDAC does not.
   Validation / diagnosis only: used as a model input or constraint it could no longer validate (docs/open_items.md,
@@ -269,6 +282,10 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
   1,463,166,581 bytes (bucket listing 2026-11-25, LastModified 2026-10-06; multipart ETag, no md5 listed: size checked,
   sha256 written to `ghs_built/SHA256SUMS` by the download; the header (CRS, size, dtype, nodata) is printed there).
   Same data as a zip on the JRC FTP: `https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_BUILT_S_GLOBE_R2023A/`.
+  2015 (cap transfer; bucket listings 2026-11-26, LastModified 2026-10-06, multipart ETags: size checked, sha256 written
+  to `ghs_built/SHA256SUMS_2015` and `ghs_built_nres/SHA256SUMS`):
+  `.../ghs-built-s/r2023a/54009/100m/2015/GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif` 1,967,811,165 bytes;
+  `.../ghs-built-s-nres/r2023a/54009/100m/2015/GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif` 308,623,638 bytes.
 - On our cells: moved to the 250 m HISDAC grid with the same k x k sub-point move as GHS-POP
   (`external_city_maps.to_grid`, surface kept), nodata / negative pixels = 0.
 - License: CC BY 4.0 (GHSL terms: cite the dataset and the GHSL reference publication, see GHS-SMOD).
@@ -300,6 +317,8 @@ summary once it is downloaded). Write the verified unit here and in `configs/ext
 - US input unit: **unverified** here: 2010-round census units at "the most detailed spatial resolution available"
   (https://www.earthdata.nasa.gov/data/projects/gpw). The US row of the country-level summary
   (`gpw-v4-rev11-country-level-summary-general-documentation.xlsx`, Earthdata login) is printed by the inventory step.
+  Tried again 2026-11-26 for the cap transfer: sedac.ciesin.columbia.edu refused the connection and the Earthdata copy
+  of the documentation needs a login, so it stays unverified (JRC144209 says only "at polygon level").
 - Files (NASA Earthdata login, `~/.netrc`):
   `https://data.earthdata.nasa.gov/nasa-earth/human-dimensions/sedac-root/downloads/data/gpw-v4/gpw-v4-population-count-rev11/gpw-v4-population-count-rev11_<YEAR>_30_sec_tif.zip`
   (~405 MB each, CMR granule listing 2026-10-28; zip integrity checked); documents in

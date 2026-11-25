@@ -155,6 +155,41 @@ cap_allocation:
   ks: [0.05, 0.10, 0.20]
   mape_min: 10
 
+# Cap transfer (src/validation/cap_allocation.py transfer; request docs/handoff/cap_transfer_request.md;
+# docs/conus_plan.md "Cap transfer (learn 2010, apply 1940-1980)"): county group shares (built / undated / no_record, the
+# groups of missed_cells on BUI_<year> and NobuiltYear) learned in learn_year from GHS close to its sources (P: GHS-POP
+# 2010 = GPWv4.11 2010 census input; B: GHS-BUILT-S residential surface = total - NRES of built_epoch, the R2023A epoch
+# next to the 2014 Landsat observation: there is no 2014 epoch, bucket listing 2026-11-26) and applied to every year with
+# that year's county features. Maps / model config / PLURAL layer / tile_cols from `missed_cells`. Settings fixed
+# 2026-11-26 before any result (the forest settings, eps and folds of cap_allocation; no tuning). {YEAR} = the year.
+cap_transfer:
+  learn_year: 2010
+  years: [1940, 1960, 1980, 2010]
+  plural_years: [1940, 1980, 2010]   # PLURAL cutout layer + pq5 predictions exist; other years: score v57 only
+  ghs_pop_year: 2010                 # products.ghs_pop
+  built_epoch: 2015
+  ghs_built:
+    label: GHS-BUILT-S R2023A (100 m, built-up surface m2)
+    path: ghs_built/GHS_BUILT_S_E{YEAR}_GLOBE_R2023A_54009_100_V1_0.tif
+    years: [1980, 2015]
+  ghs_built_nres:
+    label: GHS-BUILT-S NRES R2023A (100 m, non-residential built-up surface m2)
+    path: ghs_built_nres/GHS_BUILT_S_NRES_E{YEAR}_GLOBE_R2023A_54009_100_V1_0.tif
+    years: [2015]
+  tract_errors: results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_{YEAR}.csv
+  county_features: results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y{YEAR}/county_features.csv
+  county_class: results/validation/conus/missed_cells_1980/county_missed_1980.csv   # fixed DEGURBA labels (1980 GHS)
+  bupr: results/hisdac_uncertainty/county_record_uncertainty.csv
+  bupr_ref: 2015
+  split: configs/conus_split.csv
+  exclusions: results/hisdac_uncertainty/excluded_counties_t070.csv
+  eps: 1.0e-4
+  rf: {n_estimators: 500, min_samples_leaf: 5, max_features: 0.5, random_state: 42}
+  perm_repeats: 10
+  methods: [v57, P_transfer, P_scaled, B_transfer, B_scaled, P_direct, B_direct]   # *_direct: learn year only
+  scores: [v57, plural_inv, mixed, pq5_unbuilt]
+  mape_min: 10
+
 # DEGURBA boxes (src/validation/degurba_boxes.py; request docs/handoff/rural_boxes_request.md, user decision 2026-11-21;
 # docs/conus_plan.md "DEGURBA boxes"): classes and box choice by the EU / UN Degree of Urbanisation (stage I).
 #   scheme A (main): GHS-SMOD R2023A of the year, each 250 m cell = the SMOD 1 km cell its centre falls in, a 1 km block

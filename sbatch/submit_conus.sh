@@ -109,6 +109,9 @@
 #                                       # overlap of v5.7 / pq5 with GHS-POP / WorldPop on unbuilt / built cells; one job
 #   bash sbatch/submit_conus.sh cap1980     # cap allocation 1980 (section 29): input check -> one job (county caps per
 #                                       # cell group x scores inside, out-of-fold cap model, 1980 tract metrics)
+#   bash sbatch/submit_conus.sh captransfer # cap transfer (section 30; after PRODUCTS=ghs_built_2015 download): input
+#                                       # check -> one job (group shares learned in 2010 from GHS-POP / GHS-BUILT-S res,
+#                                       # applied to 1940 / 1960 / 1980 / 2010, tract metrics per year)
 #   bash sbatch/submit_conus.sh missed1980  # 1980 missed cells (after the GHS-BUILT-S download, section 28 block 0):
 #                                       # input check -> one job (GHS-POP / GHS-BUILT on BUI = 0 cells per county and
 #                                       # DEGURBA class, v5.7 / pq5 / v5.4 there, PLURAL capture curves)
@@ -177,10 +180,12 @@
 # + sorts of ~10^8 unbuilt cells: 8 cores, 3 h (MISSED_TIME; MISSED_TASKS for more memory; estimates).
 # cap1980: missed1980's strips without GHS-BUILT + every mask cell + 20 allocations + the tract grid: 12 cores, 3 h
 # (CAP_TIME; CAP_TASKS for more memory; estimates).
+# captransfer: cap1980 (job 36298987: 10 min, 23 GB) + 3 product moves in 2010 + 3 more year passes + ~73 allocations:
+# 12 cores, 4 h (TRANSFER_TIME; TRANSFER_TASKS for more memory; estimates).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -1240,6 +1245,43 @@ elif [[ $mode == cap1980 ]]; then
     grep -E "CHECK OK|remoteness|NobuiltYear source" logs/conus_cap1980_check.txt || true
     jc=$(sub "" --ntasks=${CAP_TASKS:-12} --time=${CAP_TIME:-03:00:00} sbatch/cap_allocation.sh)
     echo "cap_allocation $jc" | tee logs/conus_cap1980_jobs.txt
+elif [[ $mode == captransfer ]]; then
+    miss=()
+    E=$DATA_ROOT/raw/external
+    V=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    for f in $E/ghs_built/GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif \
+             $E/ghs_built_nres/GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif \
+             $E/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif \
+             results/hisdac_uncertainty/county_record_uncertainty.csv \
+             results/validation/conus/missed_cells_1980/county_missed_1980.csv \
+             configs/conus_split.csv results/hisdac_uncertainty/excluded_counties_t070.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    for y in 1940 1960 1980 2010; do
+        for f in $V/Dasy_CONUS_RF_v3_all_nby/predictions/pop_$y.tif $CUT/layers/BUI/${y}_BUI.tif \
+                 $CUT/zones/zones_$y.tif $DATA_ROOT/processed/tract/tracts_$y.gpkg \
+                 results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_$y.csv \
+                 results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y$y/county_features.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    for y in 1940 1980 2010; do
+        for f in $V/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_$y.tif $CUT/layers/PLURAL/${y}_PLURAL.tif; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    if (( ${#miss[@]} )); then
+        printf 'MISSING %s\n' "${miss[@]}"
+        echo "ERROR: nothing submitted (GHS-BUILT-S 2015: PRODUCTS=ghs_built_2015 bash sbatch/external_download.sh, section 30 block 0)"; exit 1
+    fi
+    if ! bash sbatch/cap_transfer.sh --check > logs/conus_captransfer_check.txt 2>&1; then
+        grep -E "MISSING|ERROR|WARNING.*NRES" logs/conus_captransfer_check.txt || tail -5 logs/conus_captransfer_check.txt
+        echo "ERROR: nothing submitted (see logs/conus_captransfer_check.txt)"; exit 1
+    fi
+    grep -E "CHECK OK|FEATURES|NRES|NobuiltYear source" logs/conus_captransfer_check.txt || true
+    jt=$(sub "" --ntasks=${TRANSFER_TASKS:-12} --time=${TRANSFER_TIME:-04:00:00} sbatch/cap_transfer.sh)
+    echo "cap_transfer $jt" | tee logs/conus_captransfer_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()

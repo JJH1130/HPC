@@ -2573,6 +2573,73 @@ What to look for in the log: `tracts 1980: ...` and `tract part ...` lines (trac
 combination lines (renormalized counties, zero-score groups), `SUMMARY cap model`, `SUMMARY pooled group shares`,
 `SUMMARY tract MdAPE`, `SUMMARY tract d_mdape`, `SUMMARY group capture`.
 
+## 30. Cap transfer: group shares learned in 2010, applied to 1940 / 1960 / 1980 / 2010 (2026-11-26)
+
+Request `docs/handoff/cap_transfer_request.md`; design `docs/conus_plan.md` "Cap transfer (learn 2010, apply
+1940-1980)". One job (`cap_allocation.py transfer`), no new dasymetric training. Needs GHS-POP 2010 (section 8),
+GHS-BUILT-S total + NRES 2015 (block 0), the v5.7 predictions / cutout zones / BUI of 1940 / 1960 / 1980 / 2010, pq5 and
+PLURAL of 1940 / 1980 / 2010, NobuiltYear, `tracts_{YEAR}.gpkg`, and in git v5.7's `tract_errors_{YEAR}.csv` / county
+features, `county_missed_1980.csv` (fixed county classes), `county_record_uncertainty.csv`, the split and
+`excluded_counties_t070.csv`. 12 cores, 4 h wall (`TRANSFER_TASKS`, `TRANSFER_TIME`; estimate). The 1980 results of
+section 29 are not touched.
+
+Block 0, GHS-BUILT-S 2015 total + NRES download (login node, IO only, 2.3 GB; minutes):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+PRODUCTS=ghs_built_2015 bash sbatch/external_download.sh 2>&1 | tee logs/external_download_ghs_built_2015.txt
+echo "== end of block 0 (success = '== ...E2015...: size ok' twice, two sha256 lines, 'ghs_built_2015: ok')"
+```
+
+Good: `GHS_BUILT_S_E2015_...tif: size ok (1967811165 bytes)`, `GHS_BUILT_S_NRES_E2015_...tif: size ok (308623638
+bytes)`, two `sha256` lines, two header lines (`ESRI:54009`, 100 m), summary `ghs_built_2015: ok`. `WARNING: ... size
+changed` or `ERROR`: send the output to Claude.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+bash sbatch/submit_conus.sh captransfer
+squeue -u $USER
+echo "== end of block 1 (success = FEATURES + CHECK OK lines, one 'cap_transfer N' line)"
+```
+
+Good: `FEATURES common to the eras of [2010, 1940, 1960, 1980] ... (9): [...]`, `CHECK OK: inputs for [2010, 1940,
+1960, 1980] ...`, `NobuiltYear source: ...`, `cap_transfer N`; no `NRES ... not found` warning; `== end of block 1`.
+`MISSING ...` / `ERROR: nothing submitted`: send the output to Claude.
+
+Block 2, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_captransfer_jobs.txt | head -1)
+sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_captransfer_sacct.txt
+seff "$j" | tee logs/conus_captransfer_seff.txt
+grep -hE "FEATURES|RULE|MATCH|census (1940|1960|1980|2010)|cap model|f_c |DONE|ERROR|NRES" logs/cap_transfer.$j.out
+ls -l results/validation/conus/cap_transfer/
+git add logs/ results/validation/conus/cap_transfer/
+git commit -m "run: cap transfer, group shares learned in 2010 applied to 1940-2010, tracts (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, 4 MATCH lines, 2 cap model lines, DONE, 7 files, push main -> main)"
+```
+
+Good: `COMPLETED`; `RULE ...` lines; `v5.7 county sums = census <year>` for the four years; four `MATCH <year>: v57 +
+v57 = v5.7 ...` lines; two `cap model P / B ...` lines; four `f_c <year>` lines; `DONE`; 7 files (6 tables + 1 PNG);
+`git push` ends with `main -> main`. `FAILED` (`OUT_OF_MEMORY`: rerun block 1 with `TRANSFER_TASKS=16 bash
+sbatch/submit_conus.sh captransfer`; `TIMEOUT`: `TRANSFER_TIME=08:00:00`) or an `ERROR` line: commit the log anyway
+(same block) and tell Claude.
+
+What to look for in the log: `tracts <year>: ...` and `tract part ...` lines (tracts / counties per part and year),
+`bres_negative_cells` in the 2010 cell line, the per combination lines (renormalized counties, zero-score groups),
+`SUMMARY cap models`, `SUMMARY f_c by year`, `SUMMARY pooled group shares`, `SUMMARY tract mdape`, `SUMMARY tract
+d_mdape`.
+
 ## If it fails
 
 | Symptom | Fix |
