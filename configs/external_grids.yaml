@@ -146,7 +146,7 @@ cap_allocation:
   plural_features: results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y1980/county_features.csv   # plural only
   split: configs/conus_split.csv
   exclusions: results/hisdac_uncertainty/excluded_counties_t070.csv
-  features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]   # + plural, cells, class
+  features: [bui, bldg_size, mu_ratio, dist_built, res_share, rent_share, elev, slope, nby]   # + plural, cell shares; nothing from GHS (no county class)
   eps: 1.0e-4
   rf: {n_estimators: 500, min_samples_leaf: 5, max_features: 0.5, random_state: 42}
   perm_repeats: 10

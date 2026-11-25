@@ -20,7 +20,9 @@ Definitions (= missed_cells.py; `cap_allocation:` block of configs/external_grid
              model           two random forests (y1 = log(s_undated / s_built), y2 = log(s_no_record / s_built) of
                              GHS-POP, a 0 share -> eps, fixed before the results), fixed settings, no tuning; features
                              = the v5.7 county features 1980 + plural (county mean of the plc variant) + the county's
-                             cell shares per group + the DEGURBA level 1 class (one-hot); out of fold: a train county
+                             cell shares per group (HISDAC); nothing derived from GHS (no DEGURBA county class: it is
+                             built on the county's own GHS-POP and there is no GHS before 1975; it only splits the
+                             result tables; a GHS-derived feature name stops the run); out of fold: a train county
                              is predicted by the model fit on the other four folds of configs/conus_split.csv, every
                              other county by the model fit on all train counties; shares back by softmax (a group
                              without cells -> 0)
@@ -81,6 +83,8 @@ NC, NT = mcm.NC, mcm.NT
 CAPS = ("v57", "ghs", "model", "model_noplural")
 SCORES = ("v57", "pq5", "mixed", "even", "plural_inv")
 CLASSES = mcm.COUNTY_CLASSES
+GHS_DERIVED = ("ghs", "county_class", "class_", "smod", "degurba", "bs_", "built_surface", "gap", "unbuilt_share",
+               "undated_share", "no_record_share")       # name prefixes refused as cap model features
 REF = "v5.7"                                             # the v5.7 file's tract numbers
 _SHARED: dict = {}                                       # tract ids of the grid, inherited by the forked workers
 
@@ -255,8 +259,18 @@ def oof_predict(X: np.ndarray, Y: np.ndarray, fold: np.ndarray, fit_rows: np.nda
     return pred, how, (imp / wsum if perm_repeats and wsum else np.full((Y.shape[1], f), np.nan))
 
 
+def ghs_derived(cols) -> list:
+    """Columns made from GHS (POP / SMOD / BUILT) or the county class built on them: never cap model features (the
+    target's own information; no GHS before 1975)."""
+    return [c for c in cols if any(str(c).lower().startswith(p) for p in GHS_DERIVED)]
+
+
 def county_design(ct: pd.DataFrame, cf: pd.DataFrame, pf: pd.DataFrame, feats: list, cnt: np.ndarray) -> pd.DataFrame:
-    """Feature table in the order of ct: county features, plural, cell shares per group, DEGURBA class one-hot."""
+    """Feature table in the order of ct: county features, plural, cell shares per group (HISDAC). No GHS-derived
+    column (the DEGURBA county class only splits the result tables)."""
+    bad = ghs_derived(feats)
+    if bad:
+        sys.exit(f"ERROR: cap model features derived from GHS: {bad}")
     key = ct[["GISJOIN"]]
     a = key.merge(cf[["GISJOIN", *feats]], on="GISJOIN", how="left")
     b = key.merge(pf[["GISJOIN", "plural"]], on="GISJOIN", how="left")
@@ -265,8 +279,7 @@ def county_design(ct: pd.DataFrame, cf: pd.DataFrame, pf: pd.DataFrame, feats: l
     tot = cnt.sum(axis=1)
     for i, g in enumerate(GROUPS):
         X[f"cells_{g}"] = np.where(tot > 0, cnt[:, i] / np.where(tot > 0, tot, 1), 0.0)
-    for c in CLASSES:
-        X[f"class_{c}"] = (ct["county_class"].to_numpy() == c).astype(float)
+    assert not ghs_derived(X.columns), ghs_derived(X.columns)
     bad = X.columns[X.isna().any()].tolist()
     if bad:
         miss = ct.loc[X.isna().any(axis=1).to_numpy(), "GISJOIN"].head(10).tolist()

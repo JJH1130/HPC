@@ -8,6 +8,8 @@
   test_shares       log ratios with eps, softmax back = the shares (sum 1), a group without cells -> 0
   test_oof          out of fold: changing a county's own target (or a TEST county's) leaves its own prediction
                     unchanged, changing another fold's target changes it; TEST rows = the all-train model; importance
+  test_design       cap model features = county features + plural + cell shares; no GHS-derived column (no
+                    DEGURBA county class: built on the county's own GHS-POP, no GHS before 1975); one stops the run
   test_group_capture group capture = an independent loop (test_missed_cells.capture_by_hand), even = k, GHS >= others
   test_run          end to end on the missed-cells test world (missed_cells and tract_validate run first): county table
                     = county_missed_1980.csv, cap v57 = its v57 shares, cap v57 + score v57 = v5.7 (cells and the
@@ -106,6 +108,22 @@ def test_oof(tmp: Path):
     print("ok oof: own target never seen (train and TEST), other folds see it, TEST from all train, importance")
 
 
+def test_design(tmp: Path):
+    ct = pd.DataFrame({"GISJOIN": ["A", "B"], "county_class": ["city", "rural"]})
+    cf = pd.DataFrame({"GISJOIN": ["B", "A"], "bui": [2.0, 1.0], "nby": [0.5, 0.1], "pop": [9.0, 8.0]})
+    pf = pd.DataFrame({"GISJOIN": ["A", "B"], "plural": [0.3, 0.7]})
+    cnt = np.array([[2, 1, 1], [0, 0, 5]])
+    X = ca.county_design(ct, cf, pf, ["bui", "nby"], cnt)
+    assert list(X.columns) == ["bui", "nby", "plural", "cells_built", "cells_undated", "cells_no_record"]
+    assert X["bui"].tolist() == [1.0, 2.0] and np.allclose(X.iloc[0, 3:], [0.5, 0.25, 0.25])
+    assert ca.ghs_derived(X.columns) == []                  # no GHS-derived feature (no county class)
+    assert ca.ghs_derived(["bui", "county_class", "class_city", "ghs_share", "smod_30", "gap"]) == [
+        "county_class", "class_city", "ghs_share", "smod_30", "gap"]
+    assert "derived from GHS" in expect_exit(ca.county_design, ct, cf.assign(county_class=1), pf,
+                                             ["bui", "county_class"], cnt)
+    print("ok design: features = county features + plural + cell shares; no GHS-derived column, one stops the run")
+
+
 def test_group_capture(tmp: Path):
     rng = np.random.default_rng(5)
     m = 900
@@ -132,6 +150,10 @@ def test_group_capture(tmp: Path):
 
 
 # ---------------------------------------------------------------- end to end
+
+def y_feats() -> list:
+    return ["bui", "bldg_size", "mu_ratio", "dist_built", "res_share", "rent_share", "elev", "slope", "nby"]
+
 
 def add_cap_inputs(w: dict, x: dict, tmp: Path) -> dict:
     """Tracts, the v5.7 tract validation (tract_validate.py), split, county features, exclusions, config block."""
@@ -161,7 +183,7 @@ def add_cap_inputs(w: dict, x: dict, tmp: Path) -> dict:
     split = tmp / "split.csv"
     pd.DataFrame({"GISJOIN": gj, "fips": ["01001", "01003", "01005"], "state": "Alabama", "name": ["A", "B", "C"],
                   "part": ["train", "train", "test"], "fold": [0, 1, -1]}).to_csv(split, index=False)
-    feats = ["bui", "bldg_size", "mu_ratio", "dist_built", "res_share", "rent_share", "elev", "slope", "nby"]
+    feats = y_feats()
     cf = pd.DataFrame({"year": 1980, "GISJOIN": gj, **{f: rng.random(3) for f in feats}, "pop": x["pops"][:3],
                        "n_cells": 1000, "n_masked": 0})
     (pred / "Y1980" / "features").mkdir(parents=True, exist_ok=True)
@@ -275,7 +297,10 @@ def test_run(tmp: Path):
     assert np.isclose(g0["share_undated"], (miss["pop_ghs"] * miss["undated_share_ghs"]).sum() / miss["pop_ghs"].sum())
     cm = pd.read_csv(out / "cap_model_1980.csv")
     assert {"model", "model_noplural", "v57"} == set(cm["variant"])
-    assert "plural" not in set(cm[cm["variant"] == "model_noplural"]["feature"].dropna())
+    used_feats = set(cm[cm["variant"] == "model"]["feature"].dropna())
+    assert used_feats == {*y_feats(), "plural", "cells_built", "cells_undated", "cells_no_record"}
+    assert ca.ghs_derived(used_feats) == []                 # no GHS-derived feature (county class not a feature)
+    assert used_feats - set(cm[cm["variant"] == "model_noplural"]["feature"].dropna()) == {"plural"}
     gc = pd.read_csv(out / "group_capture_1980.csv")
     assert set(gc["group"]) == {"undated", "no_record"}
     # a changed missed-table number / tract pop_model stops with nothing written
@@ -311,13 +336,14 @@ def test_real_config():
     for k in ("missed_table", "tract_errors", "county_features", "plural_features", "split", "exclusions"):
         assert (REPO / c[k]).exists(), c[k]
     cf = pd.read_csv(REPO / c["county_features"])
+    assert ca.ghs_derived(c["features"]) == []
     assert set(c["features"]) <= set(cf.columns) and "plural" in pd.read_csv(REPO / c["plural_features"]).columns
     print("ok real config: cap_allocation block, fixed settings, tracked inputs exist")
 
 
 if __name__ == "__main__":
     test_real_config()
-    for fn in (test_allocate, test_shares, test_oof, test_group_capture, test_run):
+    for fn in (test_allocate, test_shares, test_oof, test_design, test_group_capture, test_run):
         with tempfile.TemporaryDirectory() as d:
             fn(Path(d))
     print("ALL OK")
