@@ -1536,6 +1536,36 @@ tests 2026-11-25, not run (`bash sbatch/submit_conus.sh missed1980` after the GH
 | Output | `results/validation/conus/missed_cells_1980/` (3 CSV + 2 PNG); log `SUMMARY` tables (unbuilt shares and gap by county class, county x cell class, capture k = 5 / 10 / 20 %, Spearman). Numbers only; reading after the pull |
 | Tests | `tests/test_missed_cells.py`: strips x tiles = whole window and mass kept; cell groups, block classes (tie, padding), 50 % rule at the bounds; capture / Spearman by hand and an independent loop, upper bound, random = k; end to end on the DEGURBA test world (county / class / capture rows by hand, box MATCH, strips = one strip, a changed box or census number stops); the real config |
 
+### 1980 missed cells: result (job 36294511, 27 min, 17 GB; read 2026-11-25)
+
+Checks passed: v5.7 county sums = census (3,106 counties), the 11 DEGURBA boxes = `cell_type_shares.csv` (99 sums),
+the GHS upper bound >= every score. No PLACEDIST for 1980 in the cutout: PLURAL only. GHS-POP county totals / census:
+median 0.95 (10-90 %: 0.79-1.18); GHS-POP 1980 is a modelled back-cast, so its cell pattern is a reference, not a count.
+
+| People on HISDAC-unbuilt cells (BUI_1980 = 0), cells pooled | GHS-POP | v5.7 | v5.7 + PLURAL pq5 | v5.4 | GHS-BUILT surface |
+|---|---|---|---|---|---|
+| All counties | 29.3 % | 14.3 % | 20.9 % | 17.5 % | 37.0 % |
+| of which undated cells (NobuiltYear > 0) | 23.4 % | 11.3 % | 9.4 % | | 28.8 % |
+| of which no-record cells | 5.9 % | 3.0 % | 11.5 % | | 8.2 % |
+| City counties (43) | 9.6 % | 2.0 % | 3.7 % | 2.1 % | 15.3 % |
+| Town / suburb counties (563) | 29.1 % | 9.9 % | 16.9 % | 11.9 % | 30.7 % |
+| Rural counties (2,500) | 43.7 % | 30.5 % | 40.0 % | 37.8 % | 50.8 % |
+| Peri-urban cells (SMOD 21-23), any county | 27.5 % | 4.0 % | 4.7 % | 2.1 % | 22.0 % |
+| Rural cells in city counties (metro fringe) | 39.9 % | 17.8 % | 42.4 % | 27.7 % | 51.9 % |
+
+- The gap (GHS - v5.7 unbuilt share) is positive in 71 % of counties (median 0.079); its county pattern equals the
+  GHS-BUILT one (Spearman 0.85 of the county gaps), so it is not only GHS-POP's own model. Red (GHS more): the East,
+  South-east, Florida, California; blue (v5.7 more): the Plains, Mountain West and south Texas.
+- Where: most of the missed people are on undated cells (records without a built year, so BUI_1980 = 0); v5.7 gives
+  them half of GHS's share. The largest systematic gap is the peri-urban cells (27.5 % vs 4.0 %, 86 M GHS people),
+  i.e. towns and suburbs everywhere, not only the three metro boxes.
+- PLURAL raises the unbuilt share but on the wrong cells: pq5 adds people to no-record cells (11.5 % vs GHS 5.9 %) and
+  not to undated cells (9.4 % vs 23.4 %).
+- Capture (within county, share of GHS unbuilt people in the top 10 % of a county's unbuilt cells; random 10 %, GHS
+  itself 84 %): v5.7 56 %, NobuiltYear 56 %, pq5 49 %, 1 - PLURAL 37 %; same order in every county class.
+  County-median Spearman with GHS on unbuilt cells: NobuiltYear 0.44, v5.7 0.36, pq5 0.23, 1 - PLURAL 0.12. PLURAL
+  does not locate the missed people within counties; NobuiltYear does best of the scores.
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6
