@@ -2457,6 +2457,72 @@ other tables unchanged); `git push` ends with `main -> main`; `== end of block 2
 What to look for in the log: `SUMMARY box types` (per box type x year x subset x group x pair: overlap_dist /
 overlap_amount / overlap_random / Spearman).
 
+## 28. 1980 missed cells: GHS-POP / GHS-BUILT on HISDAC unbuilt cells, PLURAL capture (2026-11-25)
+
+Request `docs/handoff/missed_cells_1980_request.md`; design `docs/conus_plan.md` "1980 missed cells". One job, no model
+change. Needs on scratch the v5.7 / v5.7 pq5 / v5.4 predictions 1980 and the cutout zones / BUI / PLURAL 1980, in
+`$DATA_ROOT` GHS-POP 1980 (section 8), GHS-SMOD 1980 (section 26) and GHS-BUILT-S 1980 (block 0), in git the DEGURBA
+boxes' `cell_type_shares.csv` (box check). 8 cores, 3 h wall (`MISSED_TIME`, `MISSED_TASKS`; estimate).
+
+Block 0, GHS-BUILT-S download (login node, not a job; ~1.5 GB):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+PRODUCTS=ghs_built bash sbatch/external_download.sh 2>&1 | tee logs/ghs_built_download.txt
+source sbatch/cluster_env.sh
+ls -l $DATA_ROOT/raw/external/ghs_built/
+echo "== end of block 0 (success = 'size ok (1463166581 bytes)', one sha256 line, one header line, ghs_built: ok)"
+```
+
+Good: `GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif: size ok (1463166581 bytes)`, one `sha256` line, a header line
+(`ESRI:54009` or a Mollweide WKT, res 100, dtype, nodata), `ghs_built: ok`. A `WARNING ... size changed` or `FAILED`:
+send the output to Claude before block 1.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+mkdir -p logs
+bash sbatch/submit_conus.sh missed1980
+squeue -u $USER
+echo "== end of block 1 (success = CHECK OK, a 'remoteness' line, one 'missed_cells N' line)"
+```
+
+Good: `CHECK OK: inputs for 1980 (3 maps, ['v57', 'pq5', 'v54']), block_rows 512`, `remoteness: ...` (PLACEDIST 1980
+found, or `PLURAL only`), `NobuiltYear source: hisdac`, `missed_cells N`; `== end of block 1`. `MISSING ...` / `ERROR:
+nothing submitted`: send the output to Claude.
+
+Block 2, close the loop (after the job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+j=$(grep -oE '[0-9]{6,}' logs/conus_missed1980_jobs.txt | head -1)
+sacct -j "$j" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU | tee logs/conus_missed1980_sacct.txt
+seff "$j" | tee logs/conus_missed1980_seff.txt
+grep -hE "RULE|remoteness|census 1980|MATCH|capture:|DONE|ERROR" logs/missed_cells.$j.out
+ls -l results/validation/conus/missed_cells_1980/
+git add logs/ results/validation/conus/missed_cells_1980/
+git commit -m "run: 1980 missed cells, GHS-POP / GHS-BUILT on HISDAC unbuilt cells + PLURAL capture (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 2 (success = COMPLETED, census check, MATCH cell_type_shares, capture line, DONE, 5 files, push main -> main)"
+```
+
+Good: `COMPLETED`; `RULE ...` lines (no threshold, county class, groups), `v5.7 county sums = census 1980: N counties`,
+`MATCH .../cell_type_shares.csv: 297 box sums (11 boxes x ...)`, `capture: the GHS score >= every other score ...`,
+`DONE`; 3 CSV + 2 PNG; `git push` ends with `main -> main`; `== end of block 2`. `FAILED` (e.g. `OUT_OF_MEMORY`: rerun
+block 1 with `MISSED_TASKS=12 bash sbatch/submit_conus.sh missed1980`; `TIMEOUT`: `MISSED_TIME=06:00:00`) or an `ERROR`
+line (e.g. `box ... here, ... in cell_type_shares.csv`, `county sums != census`): commit the log anyway (same block)
+and tell Claude.
+
+What to look for in the log: `mask / outside` and `GHS people: ... outside the mask` lines, `SUMMARY unbuilt shares by
+county class`, `SUMMARY county class x cell class`, `SUMMARY capture`, `SUMMARY Spearman`.
+
 ## If it fails
 
 | Symptom | Fix |

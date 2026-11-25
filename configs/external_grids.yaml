@@ -109,6 +109,32 @@ city_density:
   classes: [rural, peri_urban, urban]
   ratio_band: 4
 
+
+# 1980 missed cells (src/validation/missed_cells.py; request docs/handoff/missed_cells_1980_request.md, Stefan
+# 2026-11-25 next steps 1 + 2; docs/conus_plan.md "1980 missed cells"): GHS-POP / GHS-BUILT-S of the year on the cells
+# HISDAC calls unbuilt (BUI = 0), per county (CONUS, the 2010 counties the mask map predicts) and DEGURBA class; what the
+# maps put there; whether PLURAL / remoteness ranks those cells. No threshold on GHS-POP (a continuous mass); classes
+# only from GHS-SMOD (rural_boxes.smod, scheme A). Products moved with city_maps.subpixel_m as the DEGURBA boxes.
+#   maps: key -> version (key = column tag); mask_map = the cell mask (cells with its prediction) and the main map.
+#   model_config: block_rows (strips), use_status / train_status, study area name of the mask map's version.
+#   county_rule: DEGURBA level 1 (2021 manual) on GHS-POP: share of the county's GHS people on urban centre (30)
+#     cells >= city_urban_share -> city; else on rural (11-13) cells >= rural_share -> rural; else town_suburb.
+#   ks: top k of the unbuilt cells (by count) of the capture curves. tile_cols: column tiles of the product moves.
+missed_cells:
+  year: 1980
+  model_config: configs/conus_rf_v3_all_nby.yaml
+  mask_map: v57
+  maps: {v57: Dasy_CONUS_RF_v3_all_nby, pq5: Dasy_CONUS_RF_v3_all_nby_pq5, v54: Dasy_CONUS_RF_v3_all}
+  ghs_built:
+    label: GHS-BUILT-S R2023A (100 m, built-up surface m2)
+    path: ghs_built/GHS_BUILT_S_E{YEAR}_GLOBE_R2023A_54009_100_V1_0.tif
+    years: [1980]
+  plural_layer: PLURAL          # cutout layers/PLURAL/{YEAR}_PLURAL.tif (bilinear from the 900 m grid)
+  placedist_layer: PLACEDIST    # cutout layers/PLACEDIST/d_*/{YEAR}_d_*.tif, used only if all five are there
+  county_rule: {city_urban_share: 0.5, rural_share: 0.5}
+  ks: [0.01, 0.02, 0.05, 0.10, 0.20, 0.50]
+  tile_cols: 2048
+
 # DEGURBA boxes (src/validation/degurba_boxes.py; request docs/handoff/rural_boxes_request.md, user decision 2026-11-21;
 # docs/conus_plan.md "DEGURBA boxes"): classes and box choice by the EU / UN Degree of Urbanisation (stage I).
 #   scheme A (main): GHS-SMOD R2023A of the year, each 250 m cell = the SMOD 1 km cell its centre falls in, a 1 km block

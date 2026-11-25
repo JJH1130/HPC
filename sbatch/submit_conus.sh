@@ -107,6 +107,9 @@
 #                                       # job (A = GHS-SMOD, B = own density classes, 8 new + 3 city boxes); one submit
 #   bash sbatch/submit_conus.sh unbuiltoverlap  # after degurbaboxes: same boxes (config, not chosen again) and cells,
 #                                       # overlap of v5.7 / pq5 with GHS-POP / WorldPop on unbuilt / built cells; one job
+#   bash sbatch/submit_conus.sh missed1980  # 1980 missed cells (after the GHS-BUILT-S download, section 28 block 0):
+#                                       # input check -> one job (GHS-POP / GHS-BUILT on BUI = 0 cells per county and
+#                                       # DEGURBA class, v5.7 / pq5 / v5.4 there, PLURAL capture curves)
 # The stage scripts are the Massachusetts ones (sbatch/*.sh, #SBATCH --account=ucb852_asc1); the CONUS config and
 # the resources below are passed on the sbatch command line (flags override the scripts' #SBATCH lines).
 # Pilot resources are set from the trial (jobs 34814376-34814382, docs/conus_plan.md "Trial result"): wall times
@@ -168,10 +171,12 @@
 # the 22 box-years, estimate).
 # unbuiltoverlap: the cells of the run job again (the run took minutes) + sums over 11 x 2 box-years: 4 cores, 1 h
 # (OVERLAP_TIME).
+# missed1980: the whole CONUS window in strips (as aggregation_diag, 8 cores 1:30) + two 100 m product moves per strip
+# + sorts of ~10^8 unbuilt cells: 8 cores, 3 h (MISSED_TIME; MISSED_TASKS for more memory; estimates).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -1197,6 +1202,24 @@ elif [[ $mode == unbuiltoverlap ]]; then
     grep -E "CHECK OK|cell_type_shares" logs/conus_unbuiltoverlap_check.txt || true
     jo=$(sub "" --time=${OVERLAP_TIME:-01:00:00} --job-name=unbuilt_overlap sbatch/degurba_boxes.sh overlap)
     echo "overlap $jo" | tee logs/conus_unbuiltoverlap_jobs.txt
+elif [[ $mode == missed1980 ]]; then
+    miss=()
+    E=$DATA_ROOT/raw/external
+    for f in $E/ghs_built/GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif              $E/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif              $E/ghs_smod/GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif              $DATA_ROOT/processed/census_conus/counties_2010.gpkg              results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    if (( ${#miss[@]} )); then
+        printf 'MISSING %s
+' "${miss[@]}"
+        echo "ERROR: nothing submitted (GHS-BUILT-S: PRODUCTS=ghs_built bash sbatch/external_download.sh, section 28 block 0)"; exit 1
+    fi
+    if ! bash sbatch/missed_cells.sh --check > logs/conus_missed1980_check.txt 2>&1; then
+        grep -E "MISSING|ERROR" logs/conus_missed1980_check.txt || tail -5 logs/conus_missed1980_check.txt
+        echo "ERROR: nothing submitted (see logs/conus_missed1980_check.txt)"; exit 1
+    fi
+    grep -E "CHECK OK|remoteness|NobuiltYear source" logs/conus_missed1980_check.txt || true
+    jm=$(sub "" --ntasks=${MISSED_TASKS:-8} --time=${MISSED_TIME:-03:00:00} sbatch/missed_cells.sh)
+    echo "missed_cells $jm" | tee logs/conus_missed1980_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()
