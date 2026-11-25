@@ -1589,6 +1589,36 @@ score. 1980, CONUS, no new dasymetric training (one small cap model), scored on 
 | Resources | one job, 12 cores (45 GB), 3 h (estimate; `CAP_TASKS`, `CAP_TIME`) |
 | Tests | `tests/test_cap_allocation.py`: allocation by hand (cap x score share, county sums, empty group rescaled, zero scores even), log ratios / softmax sum 1, OOF never sees a county's own target, no GHS-derived feature (a GHS-derived name stops), group capture = an independent loop; end to end on the missed-cells test world with `missed_cells` and `tract_validate` run first (county table = missed table, cap v57 + v57 = v5.7 cells and tract file, a combination's tracts / metrics by hand, a changed missed number / tract pop_model stops); the real config |
 
+### Cap allocation 1980: result (job 36298987, 10 min, 23 GB; read 2026-11-26)
+
+Checks passed: county table = `county_missed_1980.csv`; cap v57 + score v57 = v5.7 cells and its 1980 tract sums; every
+combination keeps the census county sums; no county rescaled or spread evenly. Tracts: v5.7's 44,586 evaluated 1980
+tracts in 1,772 counties (DEGURBA county class: city 11,939 tracts / 43 counties, town_suburb 24,279 / 541, rural 8,368 / 1,188).
+
+| Tract MdAPE 1980 (%) | all | dens 0-50 | rural counties | town / suburb | city | gap counties | excluded t070 |
+|---|---|---|---|---|---|---|---|
+| v5.7 | **26.9** | **30.2** | **20.5** | **28.2** | 28.8 | 71.7 | 59.6 |
+| cap v5.7, score pq5 | 27.8 | 35.1 | 22.9 | 29.4 | 28.3 | 69.6 | 58.1 |
+| cap v5.7, score 1 - PLURAL (unbuilt groups) | 27.1 | 31.4 | 21.0 | 28.4 | 28.9 | 79.7 | 66.6 |
+| cap GHS-POP, score v5.7 | 32.5 | 51.0 | 29.3 | 35.3 | 29.3 | **68.6** | **57.8** |
+| cap model (OOF), score v5.7 | 32.5 | 52.3 | 29.7 | 34.8 | 29.5 | 72.2 | 60.6 |
+| cap model without plural, score v5.7 | 32.5 | 52.3 | 29.7 | 34.8 | 29.5 | 72.3 | 60.9 |
+| any cap, score even | 57-61 | 98-112 | 66-71 | 61-66 | 42-45 | 80-83 | 73-75 |
+
+- Giving unbuilt cells GHS-POP's 1980 share makes tracts worse, even with GHS's own caps: +5.6 pp overall, +21 pp in
+  the sparsest tracts, +9 pp in rural counties. Only the HISDAC-poor counties gain a little (gap counties -3.1 pp,
+  excluded t070 -1.8 pp). In 1980 the census tracts side with v5.7's split between built and unbuilt cells, not with
+  GHS-POP's; GHS-POP 1980 on unbuilt cells is not a hard fact (a modelled back-cast; many undated records may also be
+  buildings built after 1980).
+- The cap model reproduces GHS's shares well (share MAE 0.06-0.07 vs v5.7's 0.13; county CV), so its tract loss is the
+  same as GHS's. PLURAL adds nothing to it (OOF RMSE with / without plural 0.684 / 0.686 and 0.754 / 0.752; importance
+  the smallest; BUI and the built-cell share dominate).
+- Within a group, v5.7's weights are best for tracts; pq5 and 1 - PLURAL are worse; mixed (no_record by pq5) = v5.7.
+  On no-record cells 1 - PLURAL picks GHS's people best (top 10 %: 31 % vs v5.7 25 %), but that does not help tracts.
+- Stefan's 1980-anchor idea in this form (GHS-POP 1980 as the unbuilt-cell constraint, PLURAL as the compensator) does
+  not improve 1980 tracts. Left open: a targeted use only in HISDAC-poor counties (gap / excluded), where the GHS cap
+  helps slightly.
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6
