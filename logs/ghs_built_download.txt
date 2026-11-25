@@ -1,0 +1,20 @@
+== 2026-11-24T18:15:12-07:00 host login-ci4 | products: ghs_built -> /projects/jaju1407/data/raw/external
+isilon1-data.rc.int.colorado.edu:/ifs/curc/projects  250G   83G  168G  34% /projects
+/projects/jaju1407               (B[m       83G (B[m         168G           250G
+===== ghs_built (18:15:13)
+   downloading https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-built-s/r2023a/54009/100m/1980/GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+   1463166581 bytes in 61.975038 s
+== GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif: size ok (1463166581 bytes)
+   sha256 d5fdf1417239d6d663754467ac511c2a48e2308147eeca80ecc8d723191383b3  GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+   GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif: ESRI:54009, 360820 x 180000, res (100.0, 100.0), dtype uint16, nodata 65535.0, tags {'AREA_OR_POINT': 'Area'}
+===== summary (2026-11-24T18:16:41-07:00)
+   ghs_built: ok
+   19M	/projects/jaju1407/data/raw/external/docs
+   2.7G	/projects/jaju1407/data/raw/external/fang_jawitz
+   1.7G	/projects/jaju1407/data/raw/external/ghs_built
+   20G	/projects/jaju1407/data/raw/external/ghs_pop
+   39M	/projects/jaju1407/data/raw/external/ghs_smod
+   32K	/projects/jaju1407/data/raw/external/gpw4
+   32K	/projects/jaju1407/data/raw/external/grump1
+   9.4G	/projects/jaju1407/data/raw/external/worldpop
+== next: the inventory (headers only, login node): bash sbatch/external_compare.sh inventory

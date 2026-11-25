@@ -1,0 +1,154 @@
+== job 36294511 (missed_cells) on c3cpu-c15-u11-3 at 2026-11-24T18:52:38-07:00
+== cores=8 gpus=none restart=0
+== git e899a07
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  workers 8  args: 
+18:52:48 INFO arg mode = run
+18:52:48 INFO arg config = configs/external_grids.yaml
+18:52:48 INFO arg data_root = /projects/jaju1407/data/raw/external
+18:52:48 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+18:52:48 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+18:52:48 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+18:52:48 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+18:52:48 INFO arg out_dir = results/validation/conus/missed_cells_1980
+18:52:48 INFO arg box_check = results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv
+18:52:48 INFO arg workers = 8
+18:52:48 INFO arg block_rows = None
+18:52:48 INFO arg check = False
+18:52:48 INFO   input zones      /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.tif
+18:52:48 INFO   input zones_csv  /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.csv
+18:52:48 INFO   input bui        /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+18:52:48 INFO   input plural     /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/PLURAL/1980_PLURAL.tif
+18:52:48 INFO   input counties   /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+18:52:48 INFO   input box_check  results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv
+18:52:48 INFO   input map_v57    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+18:52:48 INFO   input map_pq5    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1980.tif
+18:52:48 INFO   input map_v54    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1980.tif
+18:52:48 INFO   input ghs_pop    /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+18:52:48 INFO   input ghs_built  /projects/jaju1407/data/raw/external/ghs_built/GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+18:52:48 INFO   input smod       /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif
+18:52:48 INFO   input nobuilt    /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+18:52:48 INFO   input NobuiltYear source: hisdac
+18:52:48 INFO   remoteness: no PLACEDIST layers for 1980 in the cutout: PLURAL only (no new layer made)
+18:52:48 INFO RULE no threshold on GHS-POP: GHS people on unbuilt cells taken as a continuous mass; classes only from GHS-SMOD 1980 (block majority, scheme A: urban [30] / peri_urban [21, 22, 23] / rural [11, 12, 13]; water / nodata excluded)
+18:52:48 INFO RULE county class (DEGURBA level 1, 2021 manual) on GHS-POP 1980 of the mask cells: share on urban centre cells (30) >= 0.50 -> city; else share on rural cells (11-13) >= 0.50 -> rural; else town_suburb; no GHS people -> no_ghs
+18:52:48 INFO RULE groups: built = BUI_1980 > 0; unbuilt = BUI = 0 (BUI nodata counted unbuilt, as degurba_boxes): undated = NobuiltYear > 0, no_record = 0
+18:52:57 INFO grid 11615 x 18459, 23 strips of 512 rows, column tiles of 2048 cells, 8 workers, 3106 counties, 11 boxes
+18:54:03 INFO   strip rows 0-512 done
+18:54:15 INFO   strip rows 512-1024 done
+18:54:15 INFO   strip rows 1024-1536 done
+18:54:53 INFO   strip rows 1536-2048 done
+18:54:59 INFO   strip rows 2048-2560 done
+18:55:38 INFO   strip rows 2560-3072 done
+18:56:07 INFO   strip rows 3072-3584 done
+18:56:07 INFO   strip rows 3584-4096 done
+18:57:36 INFO   strip rows 4096-4608 done
+18:57:36 INFO   strip rows 4608-5120 done
+18:57:36 INFO   strip rows 5120-5632 done
+18:57:36 INFO   strip rows 5632-6144 done
+18:57:36 INFO   strip rows 6144-6656 done
+18:59:01 INFO   strip rows 6656-7168 done
+18:59:01 INFO   strip rows 7168-7680 done
+18:59:01 INFO   strip rows 7680-8192 done
+18:59:07 INFO   strip rows 8192-8704 done
+18:59:07 INFO   strip rows 8704-9216 done
+18:59:07 INFO   strip rows 9216-9728 done
+18:59:07 INFO   strip rows 9728-10240 done
+18:59:07 INFO   strip rows 10240-10752 done
+18:59:07 INFO   strip rows 10752-11264 done
+18:59:07 INFO   strip rows 11264-11615 done
+18:59:07 INFO SMOD 1980 codes on the cells: {10: 55110191, 11: 150476636, 12: 5919150, 13: 427239, 21: 1612614, 22: 185510, 23: 156358, 30: 513587}
+18:59:07 INFO mask / outside (logged, not in the tables): {'mask_cells_no_county': 0, 'pq5_people_outside_mask': 0.0, 'pq5_mask_cells_without_value': 0, 'v54_people_outside_mask': 0.0, 'v54_mask_cells_without_value': 0, 'bui_nodata_in_mask': 0, 'ghs_outside_mask_used': 0.0, 'ghs_unused_county': 54573.419, 'ghs_no_county': 29368686.875, 'bs_outside_mask': 2999224738.938, 'ghs_mask': 221471555.327}
+18:59:07 INFO   GHS people: 221471555 on the mask cells; outside the mask 0 on cells of used counties (water / masked), 54573 on cells of counties not used, 29368687 on cells outside every county (sea, outside CONUS)
+18:59:07 INFO   unbuilt cells 117103894 (undated 17050378, no_record 100053516); PLURAL missing on 0 of them
+18:59:45 INFO checks (a difference stops the run before writing):
+18:59:45 INFO   v5.7 county sums = census 1980: 3106 counties, max |d| / pop 6.79e-09
+18:59:46 INFO   MATCH results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv: 99 box sums (11 boxes x built / undated / no_record x ['ghs', 'v57', 'pq5'])
+19:10:56 INFO   capture: the GHS score >= every other score at every k (5 subset x ranking), random = k
+19:19:45 INFO   wrote results/validation/conus/missed_cells_1980/capture_1980.png
+19:19:58 INFO   wrote results/validation/conus/missed_cells_1980/county_gap_1980.png
+19:19:58 INFO SUMMARY counties per class: {'rural': 2500, 'town_suburb': 563, 'city': 43}
+19:19:58 INFO SUMMARY unbuilt shares by county class (cells pooled) and county gap = GHS - v5.7:
+county_class  n_counties  unbuilt_share_ghs  unbuilt_share_v57  unbuilt_share_pq5  unbuilt_share_v54  bs_unbuilt_share  ov_v57_dist  ov_v57_random  gap_median  gap_p10  gap_p90
+        city          43             0.0959             0.0197             0.0373             0.0209            0.1531       0.3320         0.1305      0.0442   0.0132   0.1833
+ town_suburb         563             0.2906             0.0989             0.1690             0.1194            0.3069       0.3196         0.1022      0.1299  -0.0160   0.3117
+       rural        2500             0.4365             0.3045             0.4001             0.3779            0.5084       0.3742         0.1096      0.0650  -0.1326   0.2471
+         all        3106             0.2928             0.1427             0.2088             0.1747            0.3703       0.3419         0.1027      0.0789  -0.1097   0.2611
+19:19:58 INFO SUMMARY county class x cell class (city counties' rural / peri_urban rows = metro fringe):
+county_class cell_class  n_cells_undated  n_cells_no_record      pop_ghs  unbuilt_share_ghs  unbuilt_share_v57  unbuilt_share_pq5  unbuilt_share_v54  bs_unbuilt_share  ov_v57_dist  ov_v57_random
+        city      rural            76409             364969 1.025682e+06             0.3988             0.1783             0.4242             0.2767            0.5186       0.2696         0.1034
+        city peri_urban            31195              16865 6.181799e+06             0.2909             0.0368             0.0481             0.0195            0.2335       0.4017         0.4583
+        city      urban            34767              14618 4.052806e+07             0.0585             0.0109             0.0112             0.0057            0.1154       0.3589         0.3204
+        city   excluded              361               9981 6.012832e+03             0.1398             0.3646             0.8182             0.8381            0.3993       0.0739         0.0079
+        city        all           142732             406433 4.774155e+07             0.0959             0.0197             0.0373             0.0209            0.1531       0.3320         0.1305
+ town_suburb      rural          3229160           17380030 2.463549e+07             0.4370             0.2437             0.3919             0.2959            0.5018       0.3173         0.1113
+ town_suburb peri_urban           384340             169714 6.601886e+07             0.2766             0.0398             0.0464             0.0219            0.2140       0.4176         0.4944
+ town_suburb      urban            25744              11681 1.595434e+07             0.1224             0.0199             0.0248             0.0163            0.1489       0.5111         0.4197
+ town_suburb   excluded             7037             209533 1.631651e+04             0.2746             0.4997             0.7897             0.7955            0.3124       0.0701         0.0063
+ town_suburb        all          3646281           17770958 1.066250e+08             0.2906             0.0989             0.1690             0.1194            0.3069       0.3196         0.1022
+       rural      rural         13138638           81225625 5.289298e+07             0.4832             0.3541             0.4539             0.4271            0.5472       0.3804         0.1118
+       rural peri_urban           105903              40054 1.417959e+07             0.2631             0.0447             0.0503             0.0196            0.2386       0.5080         0.4728
+       rural      urban               17                 14 1.782388e+04             0.0071             0.0036             0.0057             0.0021            0.0444       0.4842         0.3860
+       rural   excluded            16807             610432 1.460192e+04             0.4813             0.5983             0.8264             0.8529            0.5496       0.1431         0.0081
+       rural        all         13261365           81876125 6.710499e+07             0.4365             0.3045             0.4001             0.3779            0.5084       0.3742         0.1096
+         all      rural         16444207           98970624 7.855415e+07             0.4676             0.3110             0.4289             0.3732            0.5331       0.3612         0.1110
+         all peri_urban           521438             226633 8.638024e+07             0.2754             0.0402             0.0471             0.0214            0.2196       0.4306         0.4864
+         all      urban            60528              26313 5.650023e+07             0.0765             0.0135             0.0149             0.0085            0.1282       0.4254         0.3635
+         all   excluded            24205             829946 3.693126e+04             0.3344             0.5198             0.8076             0.8250            0.4409       0.1030         0.0076
+         all        all         17050378          100053516 2.214716e+08             0.2928             0.1427             0.2088             0.1747            0.3703       0.3419         0.1027
+19:19:58 INFO SUMMARY capture (share of GHS people on unbuilt cells in the top k % of cells):
+     subset       ranking      score   0.05    0.1    0.2
+        all         conus        ghs 0.9289 0.9910 1.0000
+        all         conus    nobuilt 0.5996 0.7161 0.8105
+        all         conus plural_inv 0.5056 0.6474 0.7840
+        all         conus        pq5 0.5756 0.7242 0.9031
+        all         conus     random 0.0500 0.1000 0.2000
+        all         conus        v57 0.6380 0.7737 0.8582
+        all within_county        ghs 0.6994 0.8397 0.9451
+        all within_county    nobuilt 0.4194 0.5559 0.6924
+        all within_county plural_inv 0.2476 0.3670 0.5284
+        all within_county        pq5 0.3757 0.4872 0.6068
+        all within_county     random 0.0500 0.1000 0.2000
+        all within_county        v57 0.4097 0.5567 0.7061
+       city within_county        ghs 0.6596 0.8270 0.9514
+       city within_county    nobuilt 0.3672 0.5490 0.7203
+       city within_county plural_inv 0.1177 0.2711 0.4667
+       city within_county        pq5 0.3287 0.4767 0.6576
+       city within_county     random 0.0500 0.1000 0.2000
+       city within_county        v57 0.3388 0.5289 0.7276
+      rural within_county        ghs 0.7039 0.8437 0.9516
+      rural within_county    nobuilt 0.4661 0.6014 0.7329
+      rural within_county plural_inv 0.2616 0.3618 0.4992
+      rural within_county        pq5 0.4119 0.5184 0.6362
+      rural within_county     random 0.0500 0.1000 0.2000
+      rural within_county        v57 0.4630 0.6048 0.7459
+town_suburb within_county        ghs 0.7009 0.8379 0.9381
+town_suburb within_county    nobuilt 0.3829 0.5138 0.6500
+town_suburb within_county plural_inv 0.2536 0.3861 0.5651
+town_suburb within_county        pq5 0.3484 0.4591 0.5714
+town_suburb within_county     random 0.0500 0.1000 0.2000
+town_suburb within_county        v57 0.3699 0.5152 0.6653
+19:19:58 INFO SUMMARY Spearman with GHS-POP on unbuilt cells (pooled cells / county median):
+     subset      score  spearman  spearman_county_median
+        all        ghs    1.0000                  1.0000
+        all    nobuilt    0.4968                  0.4438
+        all plural_inv    0.3517                  0.1201
+        all        pq5    0.4218                  0.2333
+        all        v57    0.4209                  0.3628
+       city        ghs    1.0000                  1.0000
+       city    nobuilt    0.5787                  0.4305
+       city plural_inv    0.3779                  0.1194
+       city        pq5    0.3458                  0.2123
+       city        v57    0.5141                  0.4212
+      rural        ghs    1.0000                  1.0000
+      rural    nobuilt    0.4916                  0.4507
+      rural plural_inv    0.3426                  0.1110
+      rural        pq5    0.4231                  0.2467
+      rural        v57    0.4157                  0.3571
+town_suburb        ghs    1.0000                  1.0000
+town_suburb    nobuilt    0.5108                  0.4215
+town_suburb plural_inv    0.4056                  0.1759
+town_suburb        pq5    0.4391                  0.1753
+town_suburb        v57    0.4433                  0.3764
+19:19:58 INFO wrote results/validation/conus/missed_cells_1980 (3 CSV + 2 PNG)
+19:19:58 INFO DONE
+== done 2026-11-24T19:19:59-07:00

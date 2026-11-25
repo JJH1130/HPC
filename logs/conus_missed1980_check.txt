@@ -1,0 +1,33 @@
+== job local () on login-ci4 at 2026-11-24T18:50:54-07:00
+== cores=1 gpus=none restart=0
+== git e899a07
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  workers 1  args: --check
+18:52:28 INFO arg mode = run
+18:52:28 INFO arg config = configs/external_grids.yaml
+18:52:28 INFO arg data_root = /projects/jaju1407/data/raw/external
+18:52:28 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+18:52:28 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+18:52:28 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+18:52:28 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+18:52:28 INFO arg out_dir = results/validation/conus/missed_cells_1980
+18:52:28 INFO arg box_check = results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv
+18:52:28 INFO arg workers = 1
+18:52:28 INFO arg block_rows = None
+18:52:28 INFO arg check = True
+18:52:28 INFO   input zones      /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.tif
+18:52:28 INFO   input zones_csv  /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.csv
+18:52:28 INFO   input bui        /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+18:52:28 INFO   input plural     /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/PLURAL/1980_PLURAL.tif
+18:52:28 INFO   input counties   /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+18:52:28 INFO   input box_check  results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv
+18:52:28 INFO   input map_v57    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+18:52:28 INFO   input map_pq5    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1980.tif
+18:52:28 INFO   input map_v54    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1980.tif
+18:52:28 INFO   input ghs_pop    /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+18:52:28 INFO   input ghs_built  /projects/jaju1407/data/raw/external/ghs_built/GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+18:52:28 INFO   input smod       /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif
+18:52:28 INFO   input nobuilt    /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+18:52:28 INFO   input NobuiltYear source: hisdac
+18:52:28 INFO   remoteness: no PLACEDIST layers for 1980 in the cutout: PLURAL only (no new layer made)
+18:52:28 INFO CHECK OK: inputs for 1980 (3 maps, ['v57', 'pq5', 'v54']), block_rows 512
+== done 2026-11-24T18:52:29-07:00
