@@ -58,3 +58,10 @@ git pull 받고 아래를 해줘. 배경: docs/conus_plan.md "Cap allocation 198
 - docs/conus_plan.md 절 "Cap transfer (learn 2010, apply 1940-1980)", 러너북 30절, CLAUDE.md, open_items, data_sources 갱신.
 - Alpine 명령: (0) 다운로드 (로그인 노드), (1) 사전 확인 + 제출, (2) 로그 + 결과 커밋. 블록 끝마다 성공 표시 한 줄.
 - 사용자에게 하는 보고는 한국어로.
+
+[추가 2026-11-26 (사용자): PLURAL을 몫 안 배분에 넣음]
+- cap 모델 피처에는 PLURAL 없음 (위 그대로). 대신 몫을 정한 뒤 빈 셀 그룹 안에서 나누는 점수에 PLURAL을 씀.
+- 점수 (그룹 안): v57 (모든 그룹, 주) / plural_inv (built 그룹 = v57, undated / no_record 그룹 = 1 - PLURAL) / mixed (built + undated = v57,
+  no_record = pq5) / pq5_unbuilt (built = v57, undated / no_record = pq5). 1980 run의 정의 그대로.
+- PLURAL 격자 (컷아웃 PLURAL)와 pq5 예측은 1940 / 1980 / 2010만 있음 -> 1960은 v57 점수만 (표에 "no PLURAL grid" 표시).
+- 조합 = 몫 방법 x 점수; tract 표 / 그림에 점수 축 추가. 확인 규칙 (카운티 합, v57 + v57 = v5.7)은 그대로.
