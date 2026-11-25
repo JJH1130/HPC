@@ -1,0 +1,62 @@
+== job local () on login-ci5 at 2026-11-25T09:17:24-07:00
+== cores=1 gpus=none restart=0
+== git b766f99
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  workers 1  args: --check
+09:18:09 INFO arg mode = transfer
+09:18:09 INFO arg config = configs/external_grids.yaml
+09:18:09 INFO arg data_root = /projects/jaju1407/data/raw/external
+09:18:09 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+09:18:09 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+09:18:09 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+09:18:09 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+09:18:09 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+09:18:09 INFO arg out_dir = None
+09:18:09 INFO arg box_check = results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv
+09:18:09 INFO arg workers = 1
+09:18:09 INFO arg block_rows = None
+09:18:09 INFO arg check = True
+09:18:09 INFO   input 2010 zones           /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2010.tif
+09:18:09 INFO   input 2010 zones_csv       /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2010.csv
+09:18:09 INFO   input 2010 bui             /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+09:18:09 INFO   input 2010 v57             /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+09:18:09 INFO   input 2010 tracts          /projects/jaju1407/data/processed/tract/tracts_2010.gpkg
+09:18:09 INFO   input 2010 tract_errors    results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_2010.csv
+09:18:09 INFO   input 2010 county_features results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y2010/county_features.csv
+09:18:09 INFO   input 2010 pq5             /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_2010.tif
+09:18:09 INFO   input 2010 plural          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/PLURAL/2010_PLURAL.tif
+09:18:09 INFO   input 2010 ghs_pop         /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E2010_GLOBE_R2023A_54009_100_V1_0.tif
+09:18:09 INFO   input 2010 bt              /projects/jaju1407/data/raw/external/ghs_built/GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif
+09:18:09 INFO   input 2010 bn              /projects/jaju1407/data/raw/external/ghs_built_nres/GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif
+09:18:09 INFO   input 1940 zones           /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1940.tif
+09:18:09 INFO   input 1940 zones_csv       /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1940.csv
+09:18:09 INFO   input 1940 bui             /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1940_BUI.tif
+09:18:09 INFO   input 1940 v57             /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1940.tif
+09:18:09 INFO   input 1940 tracts          /projects/jaju1407/data/processed/tract/tracts_1940.gpkg
+09:18:09 INFO   input 1940 tract_errors    results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1940.csv
+09:18:09 INFO   input 1940 county_features results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1940/county_features.csv
+09:18:09 INFO   input 1940 pq5             /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1940.tif
+09:18:09 INFO   input 1940 plural          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/PLURAL/1940_PLURAL.tif
+09:18:09 INFO   input 1960 zones           /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1960.tif
+09:18:09 INFO   input 1960 zones_csv       /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1960.csv
+09:18:09 INFO   input 1960 bui             /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1960_BUI.tif
+09:18:09 INFO   input 1960 v57             /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1960.tif
+09:18:09 INFO   input 1960 tracts          /projects/jaju1407/data/processed/tract/tracts_1960.gpkg
+09:18:09 INFO   input 1960 tract_errors    results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1960.csv
+09:18:09 INFO   input 1960 county_features results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1960/county_features.csv
+09:18:09 INFO   input 1980 zones           /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.tif
+09:18:09 INFO   input 1980 zones_csv       /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.csv
+09:18:09 INFO   input 1980 bui             /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+09:18:09 INFO   input 1980 v57             /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+09:18:09 INFO   input 1980 tracts          /projects/jaju1407/data/processed/tract/tracts_1980.gpkg
+09:18:09 INFO   input 1980 tract_errors    results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1980.csv
+09:18:09 INFO   input 1980 county_features results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/county_features.csv
+09:18:09 INFO   input 1980 pq5             /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1980.tif
+09:18:09 INFO   input 1980 plural          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/PLURAL/1980_PLURAL.tif
+09:18:09 INFO   input county_class    results/validation/conus/missed_cells_1980/county_missed_1980.csv
+09:18:09 INFO   input bupr            results/hisdac_uncertainty/county_record_uncertainty.csv
+09:18:09 INFO   input split           configs/conus_split.csv
+09:18:09 INFO   input exclusions      results/hisdac_uncertainty/excluded_counties_t070.csv
+09:18:09 INFO   input NobuiltYear source: /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+09:18:10 INFO FEATURES common to the eras of [2010, 1940, 1960, 1980] and their county features (9): ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope', 'nby']; not common: none
+09:18:10 INFO CHECK OK: inputs for [2010, 1940, 1960, 1980] (learn 2010, PLURAL / pq5 in [1940, 1980, 2010]), methods ['v57', 'P_transfer', 'P_scaled', 'B_transfer', 'B_scaled', 'P_direct', 'B_direct'] x scores ['v57', 'plural_inv', 'mixed', 'pq5_unbuilt'], block_rows 512
+== done 2026-11-25T09:18:10-07:00

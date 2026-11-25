@@ -1,0 +1,5 @@
+JobID                       JobName      State    Elapsed     MaxRSS  ReqCPUS   TotalCPU 
+------------ ---------------------- ---------- ---------- ---------- -------- ---------- 
+36340702               cap_transfer  COMPLETED   00:15:47                  12  56:59.831 
+36340702.ba+                  batch  COMPLETED   00:15:47  24613044K       12  56:59.830 
+36340702.ex+                 extern  COMPLETED   00:15:47          0       12  00:00.001 

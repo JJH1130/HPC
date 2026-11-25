@@ -1,0 +1,26 @@
+== 2026-11-25T09:14:03-07:00 host login-ci5 | products: ghs_built_2015 -> /projects/jaju1407/data/raw/external
+isilon1-data.rc.int.colorado.edu:/ifs/curc/projects  250G   85G  166G  34% /projects
+/projects/jaju1407               (B[m       85G (B[m         166G           250G
+===== ghs_built_2015 (09:14:03)
+   downloading https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-built-s/r2023a/54009/100m/2015/GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif
+   1967811165 bytes in 81.271592 s
+== GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif: size ok (1967811165 bytes)
+   downloading https://jrc-ghsl.s3.eu-central-1.amazonaws.com/ghs-built-s-nres/r2023a/54009/100m/2015/GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif
+   308623638 bytes in 13.711777 s
+== GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif: size ok (308623638 bytes)
+   sha256 28077f8b387f7bca2dafcb201b834ad5e3c6ca1321daa7794a565de0c97a8bff  GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif
+   sha256 210edd50a461a7221dfa2687e759d92681f43975dd6999abdfac26749d6474b7  GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif
+   GHS_BUILT_S_E2015_GLOBE_R2023A_54009_100_V1_0.tif: ESRI:54009, 360820 x 180000, res (100.0, 100.0), dtype uint16, nodata 65535.0, tags {'AREA_OR_POINT': 'Area'}
+   GHS_BUILT_S_NRES_E2015_GLOBE_R2023A_54009_100_V1_0.tif: ESRI:54009, 360820 x 180000, res (100.0, 100.0), dtype uint16, nodata 65535.0, tags {'AREA_OR_POINT': 'Area'}
+===== summary (2026-11-25T09:16:02-07:00)
+   ghs_built_2015: ok
+   19M	/projects/jaju1407/data/raw/external/docs
+   2.7G	/projects/jaju1407/data/raw/external/fang_jawitz
+   4.1G	/projects/jaju1407/data/raw/external/ghs_built
+   205M	/projects/jaju1407/data/raw/external/ghs_built_nres
+   20G	/projects/jaju1407/data/raw/external/ghs_pop
+   39M	/projects/jaju1407/data/raw/external/ghs_smod
+   32K	/projects/jaju1407/data/raw/external/gpw4
+   32K	/projects/jaju1407/data/raw/external/grump1
+   9.4G	/projects/jaju1407/data/raw/external/worldpop
+== next: the inventory (headers only, login node): bash sbatch/external_compare.sh inventory
