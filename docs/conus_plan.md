@@ -1714,6 +1714,33 @@ Flags (1-99 % of class and year, ratio_dated): high side 27-33 counties per year
 (median ratio_A_nby 1.0); low side 0-3 % excluded (median ratio_A_nby 0.36-0.51); no-record counties 96-100 % excluded;
 all counties 32-33 % excluded (median ratio_A_nby 0.55). ratio_lower: low side 47-91 % excluded, high side 13-42 %.
 
+### Unit ratios part B: result (job 36354515, 2 min; read 2026-11-26)
+
+Checks passed (v5.7 county sums = census, every BUPR record of the county table on a v5.7 cell). v5.7's allocated
+people per unit, county median by fixed 1980 class (city / town_suburb / rural):
+
+| Year | per dated record on built cells | per built cell | per undated record | US people per household |
+|---|---|---|---|---|
+| 1940 | 3.96 / 2.97 / 3.44 | 136 / 27 / 12 | 0.19 / 0.27 / 0.28 | 3.67 |
+| 1960 | 2.97 / 2.35 / 2.42 | 161 / 33 / 10 | 0.26 / 0.28 / 0.23 | 3.33 |
+| 1980 | 2.31 / 1.91 / 1.72 | 155 / 31 / 8 | 0.45 / 0.41 / 0.30 | 2.76 |
+| 2010 | 2.02 / 1.59 / 1.32 | 146 / 29 / 7 | 0.54 / 0.45 / 0.33 | 2.59 |
+
+Spearman of |log(county ratio / its class-year median)| vs the county's tract MdAPE (counties with >= 5 tracts; 1980
+996-1005 counties, 2010 1952-2009): people per undated cell 0.35 / 0.38 (all; rural 0.38 / 0.41), people per dated
+record on built cells 0.25 / 0.26 (rural 0.30 / 0.31), per built cell 0.16 / 0.20. 1940 / 1960 have few counties
+(70 / 275; rural 1 / 27).
+
+- v5.7's people per dated record fall over time like the household size (city 3.96 -> 2.02; US 3.67 -> 2.59), but sit
+  below it (records include non-residential and multi-unit buildings count as one).
+- Undated records get 0.2-0.5 people each, far less than dated ones.
+- Counties whose allocated ratios are far from their class median have larger tract errors (moderate, 0.2-0.4), most
+  for people per undated cell in rural counties: a usable flag for error-prone counties (Stefan's calibration idea), not
+  yet a correction.
+
+Scratch backup (job 36354478, 2026-11-25, ~1 h): the whole `$HISDAC_SCRATCH` (68.7 GB) copied by rsync to
+`/projects/jaju1407/data/scratch_backup/hisdac/` (78 G on disk). A snapshot: later outputs on scratch are not in it.
+
 ## PLURAL at county level only (request 2026-11-19, `docs/handoff/plural_countymean_request.md`; runbook section 25)
 
 Background ("PLURAL on v5.7: result"): PLURAL improves county CV (-3 to -5 %) but worsens tracts in 1980 / 2010 by 2-6

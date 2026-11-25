@@ -259,7 +259,8 @@ Ideas of the user (2026-11-26, not started):
   same tracts); expect noise from many comparisons. Fits Stefan's points 2 (PLURAL as a related variable, here a
   classifier), 3 (refine only where records are uncertain) and 5 (strata).
 
-Also pending: move the needed rasters off scratch (90-day purge); ask Stefan about BUPR_contemp; the user shares the
+Also pending: scratch backed up 2026-11-25 to `/projects/jaju1407/data/scratch_backup/hisdac/` (snapshot; later outputs
+still on scratch only); ask Stefan about BUPR_contemp; the user shares the
 paper draft with co-authors and the abstract is revised after everyone has read it (Stefan).
 
 ### Meeting with Stefan, 2026-11-17 (done 2026-11-24; results in docs/conus_plan.md)
