@@ -245,8 +245,9 @@ Keep in mind (Stefan, same meeting):
   `metrics_over_time.py` (counties tracted since 1910 / 1920 / 1940 / 1960) already separate part of it.
 
 Ideas of the user (2026-11-26, not started):
-- *NTL as a within-group score* for the uncertain (undated / no-record) cells: the v3_ntl / v3_ntlv versions (2000 /
-  2010, v5.4 base) or the raw NTL / NTLV value as the score inside the v5.7 caps; 2010 tracts are an independent check
+- *NTL as a within-group score* for the uncertain (undated / no-record) cells: no v5.7-based NTL model exists (v3_ntl /
+  v3_ntlv = v5.4 base, 2000 / 2010; no PLURAL + NTL model): quick = their predictions or the raw NTL / NTLV value as the
+  score inside the v5.7 caps; proper = train v5.7 + NTLV and v5.7 + NTLV + PLURAL (2010 only, PLURAL grid years); 2010 tracts are an independent check
   (lights do not use the census). Only from 1992 (DMSP), so no help before 1990.
 - *Strata by PLURAL x cell group*: area type (urban / peri-urban / rural from PLURAL, per era, 1930+) x cell group
   (built / undated / no-record) = 6-9 cells, each with its own score (v5.7 / pq5 / PLURAL / NTL ...). Choose the score
