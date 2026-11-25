@@ -1,0 +1,20 @@
+Wed Nov 25 13:49:50 MST 2026
+
+Number of files: 4,750 (reg: 4,030, dir: 720)
+Number of created files: 4,750 (reg: 4,030, dir: 720)
+Number of deleted files: 0
+Number of regular files transferred: 4,030
+Total file size: 68,724,550,935 bytes
+Total transferred file size: 68,724,550,935 bytes
+Literal data: 68,724,550,935 bytes
+Matched data: 0 bytes
+File list size: 393,204
+File list generation time: 5.381 seconds
+File list transfer time: 0.000 seconds
+Total bytes sent: 68,741,641,039
+Total bytes received: 82,425
+
+sent 68,741,641,039 bytes  received 82,425 bytes  19,039,391.63 bytes/sec
+total size is 68,724,550,935  speedup is 1.00
+78G	/projects/jaju1407/data/scratch_backup/hisdac
+Wed Nov 25 14:50:01 MST 2026

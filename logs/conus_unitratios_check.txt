@@ -1,0 +1,44 @@
+== job local () on login-ci5 at 2026-11-25T13:49:17-07:00
+== cores=1 gpus=none restart=0
+== git 5311a2b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  workers 1  args: --check
+13:50:15 INFO arg mode = job
+13:50:15 INFO arg config = configs/external_grids.yaml
+13:50:15 INFO arg out_dir = results/validation/conus/unit_ratios
+13:50:15 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+13:50:15 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+13:50:15 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+13:50:15 INFO arg workers = 1
+13:50:15 INFO arg block_rows = None
+13:50:15 INFO arg check = True
+13:50:15 INFO   input 1940 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1940.tif
+13:50:15 INFO   input 1940 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1940.csv
+13:50:15 INFO   input 1940 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1940_BUI.tif
+13:50:15 INFO   input 1940 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/1940_BUPR.tif
+13:50:15 INFO   input 1940 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1940.tif
+13:50:15 INFO   input 1940 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1940.csv
+13:50:15 INFO   input 1960 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1960.tif
+13:50:15 INFO   input 1960 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1960.csv
+13:50:15 INFO   input 1960 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1960_BUI.tif
+13:50:15 INFO   input 1960 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/1960_BUPR.tif
+13:50:15 INFO   input 1960 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1960.tif
+13:50:15 INFO   input 1960 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1960.csv
+13:50:15 INFO   input 1980 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.tif
+13:50:15 INFO   input 1980 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.csv
+13:50:15 INFO   input 1980 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+13:50:15 INFO   input 1980 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/1980_BUPR.tif
+13:50:15 INFO   input 1980 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+13:50:15 INFO   input 1980 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1980.csv
+13:50:15 INFO   input 2010 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2010.tif
+13:50:15 INFO   input 2010 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2010.csv
+13:50:15 INFO   input 2010 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+13:50:15 INFO   input 2010 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/2010_BUPR.tif
+13:50:15 INFO   input 2010 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+13:50:15 INFO   input 2010 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_2010.csv
+13:50:15 INFO   input NobuiltYear source: /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+13:50:15 INFO   input bupr            results/hisdac_uncertainty/county_record_uncertainty.csv
+13:50:15 INFO   input county_class    results/validation/conus/missed_cells_1980/county_missed_1980.csv
+13:50:15 INFO   input exclusions      results/hisdac_uncertainty/excluded_counties_t070.csv
+13:50:15 INFO   input household       configs/household_size_hh6.csv
+13:50:16 INFO CHECK OK: inputs for [1940, 1960, 1980, 2010], block_rows 512
+== done 2026-11-25T13:50:17-07:00

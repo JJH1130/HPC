@@ -1,0 +1,104 @@
+== job 36354515 (unit_ratios) on c3cpu-c11-u7-4 at 2026-11-25T13:50:53-07:00
+== cores=8 gpus=none restart=0
+== git 5311a2b
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  workers 8  args: 
+13:51:03 INFO arg mode = job
+13:51:03 INFO arg config = configs/external_grids.yaml
+13:51:03 INFO arg out_dir = results/validation/conus/unit_ratios
+13:51:03 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+13:51:03 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+13:51:03 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+13:51:03 INFO arg workers = 8
+13:51:03 INFO arg block_rows = None
+13:51:03 INFO arg check = False
+13:51:03 INFO   input 1940 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1940.tif
+13:51:03 INFO   input 1940 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1940.csv
+13:51:03 INFO   input 1940 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1940_BUI.tif
+13:51:03 INFO   input 1940 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/1940_BUPR.tif
+13:51:03 INFO   input 1940 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1940.tif
+13:51:03 INFO   input 1940 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1940.csv
+13:51:03 INFO   input 1960 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1960.tif
+13:51:03 INFO   input 1960 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1960.csv
+13:51:03 INFO   input 1960 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1960_BUI.tif
+13:51:03 INFO   input 1960 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/1960_BUPR.tif
+13:51:03 INFO   input 1960 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1960.tif
+13:51:03 INFO   input 1960 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1960.csv
+13:51:03 INFO   input 1980 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.tif
+13:51:03 INFO   input 1980 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.csv
+13:51:03 INFO   input 1980 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+13:51:03 INFO   input 1980 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/1980_BUPR.tif
+13:51:03 INFO   input 1980 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+13:51:03 INFO   input 1980 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1980.csv
+13:51:03 INFO   input 2010 zones         /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2010.tif
+13:51:03 INFO   input 2010 zones_csv     /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_2010.csv
+13:51:03 INFO   input 2010 bui           /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/2010_BUI.tif
+13:51:03 INFO   input 2010 bupr          /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUPR/2010_BUPR.tif
+13:51:03 INFO   input 2010 v57           /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_2010.tif
+13:51:03 INFO   input 2010 tract_errors  results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_2010.csv
+13:51:03 INFO   input NobuiltYear source: /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif (hisdac)
+13:51:03 INFO   input bupr            results/hisdac_uncertainty/county_record_uncertainty.csv
+13:51:03 INFO   input county_class    results/validation/conus/missed_cells_1980/county_missed_1980.csv
+13:51:03 INFO   input exclusions      results/hisdac_uncertainty/excluded_counties_t070.csv
+13:51:03 INFO   input household       configs/household_size_hh6.csv
+13:51:03 INFO RULE allocated ratios per county: people of v5.7 on built cells (BUI_year > 0) / BUPR_year on those cells, / built cells; on undated cells (BUI_year = 0, NobuiltYear > 0) / NobuiltYear on those cells, / undated cells; v5.7 cells only (mask = pop_year.tif not nodata, used counties)
+13:51:03 INFO RULE ratio vs tract: |log(ratio / median of the county's class and year)| vs county tract MdAPE (evaluated tracts of results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_{YEAR}.csv, counties with >= 5), Spearman by class (fixed 1980 labels) and all
+13:51:19 INFO   v5.7 county sums = census 1940: 3087 counties, max |d| / pop 1.19e-08
+13:51:19 INFO   1940: 3087 counties, {'mask_cells_no_county': 0, 'bui_nodata_in_mask': 0, 'bupr_nodata_in_mask': 0}; BUPR on the v5.7 cells 29403263 of 29403263 in the county table (1.0000); people on built / undated / no_record 92139332 / 24000419 / 15390641; counties with >= 5 tracts 70 (15 s)
+13:51:33 INFO   v5.7 county sums = census 1960: 3095 counties, max |d| / pop 8.52e-09
+13:51:33 INFO   1960: 3095 counties, {'mask_cells_no_county': 0, 'bui_nodata_in_mask': 0, 'bupr_nodata_in_mask': 0}; BUPR on the v5.7 cells 58660357 of 58660357 in the county table (1.0000); people on built / undated / no_record 147307872 / 21192591 / 9769885; counties with >= 5 tracts 275 (14 s)
+13:51:51 INFO   v5.7 county sums = census 1980: 3106 counties, max |d| / pop 6.79e-09
+13:51:51 INFO   1980: 3106 counties, {'mask_cells_no_county': 0, 'bui_nodata_in_mask': 0, 'bupr_nodata_in_mask': 0}; BUPR on the v5.7 cells 96687250 of 96687250 in the county table (1.0000); people on built / undated / no_record 193026536 / 25373820 / 6766702; counties with >= 5 tracts 1005 (18 s)
+13:52:12 INFO   v5.7 county sums = census 2010: 3109 counties, max |d| / pop 7.67e-09
+13:52:13 INFO   2010: 3109 counties, {'mask_cells_no_county': 0, 'bui_nodata_in_mask': 0, 'bupr_nodata_in_mask': 0}; BUPR on the v5.7 cells 162061084 of 162061084 in the county table (1.0000); people on built / undated / no_record 276049136 / 24292527 / 6333342; counties with >= 5 tracts 2009 (22 s)
+13:52:22 INFO   wrote results/validation/conus/unit_ratios/ratio_vs_tract.png
+13:52:22 INFO SUMMARY alloc_pop_per_record_built, county median by year and class:
+county_class_1980   city   none  rural  town_suburb
+year                                               
+1940               3.955    NaN  3.436        2.974
+1960               2.972    NaN  2.418        2.354
+1980               2.308    NaN  1.716        1.908
+2010               2.017  1.616  1.320        1.591
+13:52:22 INFO SUMMARY alloc_pop_per_built_cell, county median by year and class:
+county_class_1980     city    none   rural  town_suburb
+year                                                   
+1940               135.638     NaN  11.949       26.652
+1960               160.821     NaN  10.390       33.164
+1980               155.019     NaN   8.434       30.600
+2010               145.943  11.824   6.889       28.751
+13:52:22 INFO SUMMARY alloc_pop_per_record_undated, county median by year and class:
+county_class_1980   city   none  rural  town_suburb
+year                                               
+1940               0.194    NaN  0.283        0.266
+1960               0.255    NaN  0.226        0.278
+1980               0.448    NaN  0.298        0.411
+2010               0.542  0.239  0.331        0.446
+13:52:22 INFO SUMMARY alloc_pop_per_undated_cell, county median by year and class:
+county_class_1980   city   none  rural  town_suburb
+year                                               
+1940               1.917    NaN  0.858        0.994
+1960               2.415    NaN  0.648        0.948
+1980               3.022    NaN  0.789        1.295
+2010               3.514  0.937  0.771        1.299
+13:52:22 INFO SUMMARY Spearman |log(ratio / class median)| vs county tract MdAPE:
+                                               n_counties                        spearman                     
+year                                                 1940   1960    1980    2010     1940   1960   1980   2010
+measure                      county_class_1980                                                                
+alloc_pop_per_built_cell     all                     70.0  275.0   996.0  1952.0    0.204  0.132  0.161  0.199
+                             city                    28.0   42.0    43.0    43.0    0.134  0.443  0.324  0.346
+                             rural                    1.0   27.0   488.0  1387.0      NaN  0.442  0.338  0.213
+                             town_suburb             41.0  206.0   465.0   519.0    0.279  0.038  0.006  0.175
+alloc_pop_per_record_built   all                     70.0  275.0   996.0  1952.0    0.037  0.161  0.247  0.256
+                             city                    28.0   42.0    43.0    43.0   -0.163 -0.060 -0.000  0.140
+                             rural                    1.0   27.0   488.0  1387.0      NaN  0.062  0.302  0.310
+                             town_suburb             41.0  206.0   465.0   519.0    0.229  0.236  0.234  0.208
+alloc_pop_per_record_undated all                     70.0  275.0  1005.0  2009.0   -0.144  0.032  0.158  0.153
+                             city                    28.0   42.0    43.0    43.0    0.005  0.275  0.231  0.023
+                             rural                    1.0   27.0   494.0  1439.0      NaN  0.357  0.276  0.200
+                             town_suburb             41.0  206.0   468.0   524.0   -0.204 -0.029  0.064  0.085
+alloc_pop_per_undated_cell   all                     70.0  275.0  1005.0  2009.0    0.236  0.244  0.354  0.376
+                             city                    28.0   42.0    43.0    43.0    0.187  0.132  0.066  0.074
+                             rural                    1.0   27.0   494.0  1439.0      NaN  0.392  0.380  0.408
+                             town_suburb             41.0  206.0   468.0   524.0    0.224  0.252  0.276  0.266
+13:52:22 INFO wrote results/validation/conus/unit_ratios (2 CSV + 1 PNG), 79 s
+13:52:22 INFO DONE
+== done 2026-11-25T13:52:22-07:00
