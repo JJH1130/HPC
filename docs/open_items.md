@@ -224,6 +224,17 @@ decides the next; nothing beyond step 2 is planned in detail.
 6. *Strata:* county classes vs fine partition, decided on 1-3 (is the missing population spread over counties or
    concentrated at the fringe?).
 
+Keep in mind (Stefan, same meeting):
+- *Road density* would likely help; no usable variable yet. Stefan's group has historical road data: CHRONEX-US (Uhl,
+  Burghardt & Leyk; construction-year estimates per road segment from the USGS National Transportation Dataset +
+  HISDAC-US; 693 metro / micro CBSAs only, not rural areas) and historical county-level road network statistics for
+  CONUS 1900-2015 (same authors). Caution: road years are estimated from HISDAC built years, so not independent of BUI.
+  Register in `docs/data_sources.md` before any use.
+- *Tract validation is biased by era.* Early tracts cover only (large) cities; the further back, the closer the
+  tracted area is to metropolitan areas, so 1910 / 1940 tract MdAPE says little about rural allocation (tracts cover
+  the whole US only from 1990 / 2000). Report tract numbers with that caveat; the fixed county sets of
+  `metrics_over_time.py` (counties tracted since 1910 / 1920 / 1940 / 1960) already separate part of it.
+
 Also pending: move the needed rasters off scratch (90-day purge); ask Stefan about BUPR_contemp; the user shares the
 paper draft with co-authors and the abstract is revised after everyone has read it (Stefan).
 
