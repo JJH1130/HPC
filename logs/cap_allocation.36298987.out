@@ -1,0 +1,241 @@
+== job 36298987 (cap_allocation) on c3cpu-c11-u9-4 at 2026-11-24T20:28:34-07:00
+== cores=12 gpus=none restart=0
+== git 3c54a62
+== python: /projects/jaju1407/software/envs/hisdac/bin/python  workers 12  args: 
+20:28:41 INFO arg mode = run
+20:28:41 INFO arg config = configs/external_grids.yaml
+20:28:41 INFO arg data_root = /projects/jaju1407/data/raw/external
+20:28:41 INFO arg dasym_root = /scratch/alpine/jaju1407/hisdac/dasymetric
+20:28:41 INFO arg cutout_root = /scratch/alpine/jaju1407/hisdac/cutouts
+20:28:41 INFO arg census_dir = /projects/jaju1407/data/processed/census_conus
+20:28:41 INFO arg tract_dir = /projects/jaju1407/data/processed/tract
+20:28:41 INFO arg hisdac_dir = /pl/active/Leyk_Lab/data/HISDAC_US_V2
+20:28:41 INFO arg out_dir = results/validation/conus/cap_allocation_1980
+20:28:41 INFO arg box_check = results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv
+20:28:41 INFO arg workers = 12
+20:28:41 INFO arg block_rows = None
+20:28:41 INFO arg check = False
+20:28:42 INFO   input zones      /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.tif
+20:28:42 INFO   input zones_csv  /scratch/alpine/jaju1407/hisdac/cutouts/conus/zones/zones_1980.csv
+20:28:42 INFO   input bui        /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/BUI/1980_BUI.tif
+20:28:42 INFO   input plural     /scratch/alpine/jaju1407/hisdac/cutouts/conus/layers/PLURAL/1980_PLURAL.tif
+20:28:42 INFO   input counties   /projects/jaju1407/data/processed/census_conus/counties_2010.gpkg
+20:28:42 INFO   input box_check  results/validation/conus/external/degurba_boxes_v57/cell_type_shares.csv
+20:28:42 INFO   input map_v57    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/predictions/pop_1980.tif
+20:28:42 INFO   input map_pq5    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_pq5/predictions/pop_1980.tif
+20:28:42 INFO   input map_v54    /scratch/alpine/jaju1407/hisdac/dasymetric/conus/Dasy_CONUS_RF_v3_all/predictions/pop_1980.tif
+20:28:42 INFO   input ghs_pop    /projects/jaju1407/data/raw/external/ghs_pop/GHS_POP_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+20:28:42 INFO   input ghs_built  /projects/jaju1407/data/raw/external/ghs_built/GHS_BUILT_S_E1980_GLOBE_R2023A_54009_100_V1_0.tif
+20:28:42 INFO   input smod       /projects/jaju1407/data/raw/external/ghs_smod/GHS_SMOD_E1980_GLOBE_R2023A_54009_1000_V2_0.tif
+20:28:42 INFO   input nobuilt    /pl/active/Leyk_Lab/data/HISDAC_US_V2/FBUY/NobuiltYear.tif
+20:28:42 INFO   input NobuiltYear source: hisdac
+20:28:42 INFO   remoteness: no PLACEDIST layers for 1980 in the cutout: PLURAL only (no new layer made)
+20:28:42 INFO   input tracts          /projects/jaju1407/data/processed/tract/tracts_1980.gpkg
+20:28:42 INFO   input missed_table    results/validation/conus/missed_cells_1980/county_missed_1980.csv
+20:28:42 INFO   input tract_errors    results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1980.csv
+20:28:42 INFO   input county_features results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby/Y1980/county_features.csv
+20:28:42 INFO   input plural_features results/dasymetric/conus/Dasy_CONUS_RF_v3_all_nby_plc/Y1980/county_features.csv
+20:28:42 INFO   input split           configs/conus_split.csv
+20:28:42 INFO   input exclusions      results/hisdac_uncertainty/excluded_counties_t070.csv
+20:28:42 INFO RULE allocation: cell = P_c x cap_cg x score_i / sum of the scores of county c, group g (P_c = census 1980); a group without cells -> cap 0, the others scaled up; scores summing to 0 -> even; groups as missed_cells (built BUI > 0 / undated NobuiltYear > 0 / no_record)
+20:28:42 INFO RULE cap model: y1 = log(s_undated / s_built), y2 = log(s_no_record / s_built) of GHS-POP 1980, a 0 share -> eps = 0.0001 (fixed before the results); random forests {'n_estimators': 500, 'min_samples_leaf': 5, 'max_features': 0.5, 'random_state': 42} (fixed, no tuning); out of fold on the folds of configs/conus_split.csv
+20:28:42 INFO RULE tracts: reported only, no selection rule (selection by county CV; the user decides)
+20:29:10 INFO tracts 1980: 45923 in tracts_1980.gpkg, 44586 evaluated (flag ok) in 1772 counties; cells per tract = the file (19 s)
+20:29:10 INFO grid 11615 x 18459, 23 strips of 512 rows, 12 workers, 3106 counties
+20:29:43 INFO   strip rows 0-512 done
+20:29:47 INFO   strip rows 512-1024 done
+20:29:47 INFO   strip rows 1024-1536 done
+20:29:56 INFO   strip rows 1536-2048 done
+20:30:00 INFO   strip rows 2048-2560 done
+20:30:21 INFO   strip rows 2560-3072 done
+20:30:27 INFO   strip rows 3072-3584 done
+20:30:28 INFO   strip rows 3584-4096 done
+20:30:37 INFO   strip rows 4096-4608 done
+20:30:37 INFO   strip rows 4608-5120 done
+20:30:37 INFO   strip rows 5120-5632 done
+20:30:37 INFO   strip rows 5632-6144 done
+20:30:56 INFO   strip rows 6144-6656 done
+20:30:56 INFO   strip rows 6656-7168 done
+20:30:56 INFO   strip rows 7168-7680 done
+20:30:56 INFO   strip rows 7680-8192 done
+20:30:56 INFO   strip rows 8192-8704 done
+20:30:56 INFO   strip rows 8704-9216 done
+20:30:56 INFO   strip rows 9216-9728 done
+20:30:56 INFO   strip rows 9728-10240 done
+20:30:56 INFO   strip rows 10240-10752 done
+20:30:56 INFO   strip rows 10752-11264 done
+20:30:56 INFO   strip rows 11264-11615 done
+20:30:58 INFO cells kept 124200314 (built 7096420, undated 17050378, no_record 100053516); {'mask_cells_no_county': 0, 'pq5_mask_cells_without_value': 0, 'bui_nodata_in_mask': 0, 'tract_cells_outside_mask': 191811}
+20:30:58 INFO checks (a difference stops the run before writing):
+20:30:58 INFO   v5.7 county sums = census 1980: 3106 counties, max |d| / pop 6.79e-09
+20:30:58 INFO   MATCH results/validation/conus/missed_cells_1980/county_missed_1980.csv: 3106 counties x 19 columns (classes, cells, people and group shares of GHS / v5.7 / pq5)
+20:30:58 INFO split configs/conus_split.csv: counties {'train': 2484, 'test': 622}; train folds {0: 498, 1: 497, 2: 497, 3: 495, 4: 497}
+20:30:58 INFO cap model features (13): ['bui', 'bldg_size', 'mu_ratio', 'dist_built', 'res_share', 'rent_share', 'elev', 'slope', 'nby', 'plural', 'cells_built', 'cells_undated', 'cells_no_record']; counties with a group without cells: 153
+20:30:58 INFO   cap ghs: 0 counties without GHS people take the v57 cap
+20:33:10 INFO   cap model model: 13 features, 132 s; OOF RMSE y1 0.683 y2 0.754 (2484 train counties), TEST y1 0.697 y2 0.721 (622)
+20:34:46 INFO   cap model model_noplural: 12 features, 96 s; OOF RMSE y1 0.686 y2 0.752 (2484 train counties), TEST y1 0.705 y2 0.729 (622)
+20:34:47 INFO   tract part all           44586 tracts in 1772 counties
+20:34:47 INFO   tract part city          11939 tracts in   43 counties
+20:34:47 INFO   tract part town_suburb   24279 tracts in  541 counties
+20:34:47 INFO   tract part rural          8368 tracts in 1188 counties
+20:34:47 INFO combinations 4 caps x 5 scores:
+20:34:52 INFO   MATCH cap v57 + score v57 = v5.7 cells x P_c / county sum (rtol 1e-9); max relative difference to v5.7 itself 6.79e-09
+20:34:53 INFO   MATCH results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_1980.csv: 44586 tract sums of cap v57 + score v57 = pop_model x the county factor (rtol 1e-9); max relative difference to pop_model 6.79e-09
+20:34:53 INFO   v57+v57                    county sums = census (max 7.5e-12); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:34:57 INFO   v57+pq5                    county sums = census (max 7.4e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:01 INFO   v57+mixed                  county sums = census (max 7.4e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:05 INFO   v57+even                   county sums = census (max 1.3e-11); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:11 INFO   v57+plural_inv             county sums = census (max 1.9e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:15 INFO   ghs+v57                    county sums = census (max 1.8e-12); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:19 INFO   ghs+pq5                    county sums = census (max 3.8e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:23 INFO   ghs+mixed                  county sums = census (max 4.2e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:27 INFO   ghs+even                   county sums = census (max 1.4e-11); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:33 INFO   ghs+plural_inv             county sums = census (max 2.3e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:37 INFO   model+v57                  county sums = census (max 1.7e-12); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:42 INFO   model+pq5                  county sums = census (max 5.9e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:46 INFO   model+mixed                county sums = census (max 5.8e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:50 INFO   model+even                 county sums = census (max 1.2e-11); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:35:56 INFO   model+plural_inv           county sums = census (max 1.7e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:36:00 INFO   model_noplural+v57         county sums = census (max 1.4e-12); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:36:04 INFO   model_noplural+pq5         county sums = census (max 8.6e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:36:09 INFO   model_noplural+mixed       county sums = census (max 8.7e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:36:13 INFO   model_noplural+even        county sums = census (max 1.4e-11); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:36:19 INFO   model_noplural+plural_inv  county sums = census (max 1.5e-13); {'counties_renormalized': 0, 'groups_even_zero_score': 0, 'counties_even_zero_score': 0}
+20:38:52 INFO   capture: the GHS score >= every other score at every k (4 subset x ranking), random = k
+20:38:52 INFO   capture: the GHS score >= every other score at every k (4 subset x ranking), random = k
+20:38:52 INFO   group capture: the GHS score >= every other score, even = k (undated / no_record x 4 subsets)
+20:38:54 INFO   wrote results/validation/conus/cap_allocation_1980/tract_mdape_1980.png
+20:38:54 INFO SUMMARY cap model (county CV; share MAE vs GHS-POP):
+metric                      rmse         share_mae                  
+target                        y1      y2     built no_record undated
+variant        set                                                  
+model          oof_train  0.6835  0.7539    0.0683    0.0290  0.0601
+               test       0.6968  0.7208    0.0709    0.0301  0.0637
+model_noplural oof_train  0.6855  0.7520    0.0682    0.0290  0.0601
+               test       0.7049  0.7291    0.0710    0.0305  0.0639
+v57            oof_train     NaN     NaN    0.1339    0.1033  0.1320
+               test          NaN     NaN    0.1322    0.1082  0.1329
+20:38:54 INFO SUMMARY cap model permutation importance (OOF, RMSE increase):
+variant           model         model_noplural        
+target               y1      y2             y1      y2
+feature                                               
+bui              1.1166  0.8248         1.1549  0.8692
+bldg_size        0.4054  0.2623         0.4071  0.2418
+mu_ratio         0.0679  0.0321         0.0459  0.0231
+dist_built       0.0240  0.0183         0.0235  0.0204
+res_share        0.0522  0.0182         0.0425  0.0165
+rent_share       0.0179  0.0238         0.0178  0.0236
+elev             0.0554  0.0480         0.0618  0.0588
+slope            0.0215  0.0238         0.0218  0.0242
+nby              0.1520  0.1037         0.1727  0.1109
+plural           0.0191  0.0140            NaN     NaN
+cells_built      0.8396  0.6807         0.8359  0.7075
+cells_undated    0.1409  0.0424         0.1447  0.0456
+cells_no_record  0.0570  0.0451         0.0594  0.0499
+20:38:54 INFO SUMMARY pooled group shares by county class (score does not change them):
+       combination county_class  n_counties  share_built  share_undated  share_no_record  share_unbuilt  gap_median
+           GHS-POP          all        3106       0.7072         0.2336           0.0593         0.2928      0.0000
+           GHS-POP         city          43       0.9041         0.0830           0.0129         0.0959      0.0000
+           GHS-POP  town_suburb         563       0.7094         0.2259           0.0647         0.2906      0.0000
+           GHS-POP        rural        2500       0.5635         0.3529           0.0836         0.4365      0.0000
+              v5.7          all        3106       0.8573         0.1127           0.0301         0.1427      0.0789
+              v5.7         city          43       0.9803         0.0184           0.0012         0.0197      0.0442
+              v5.7  town_suburb         563       0.9011         0.0799           0.0190         0.0989      0.1299
+              v5.7        rural        2500       0.6955         0.2353           0.0691         0.3045      0.0650
+           v57+v57          all        3106       0.8573         0.1127           0.0301         0.1427      0.0789
+           v57+v57         city          43       0.9803         0.0184           0.0012         0.0197      0.0442
+           v57+v57  town_suburb         563       0.9011         0.0799           0.0190         0.0989      0.1299
+           v57+v57        rural        2500       0.6955         0.2353           0.0691         0.3045      0.0650
+           ghs+v57          all        3106       0.7135         0.2297           0.0569         0.2865      0.0000
+           ghs+v57         city          43       0.9047         0.0825           0.0129         0.0953     -0.0000
+           ghs+v57  town_suburb         563       0.7163         0.2216           0.0620         0.2837      0.0000
+           ghs+v57        rural        2500       0.5669         0.3519           0.0812         0.4331      0.0000
+         model+v57          all        3106       0.7275         0.2229           0.0496         0.2725      0.0000
+         model+v57         city          43       0.8904         0.0958           0.0138         0.1096     -0.0097
+         model+v57  town_suburb         563       0.7437         0.2079           0.0484         0.2563     -0.0041
+         model+v57        rural        2500       0.5805         0.3416           0.0779         0.4195      0.0000
+model_noplural+v57          all        3106       0.7272         0.2231           0.0497         0.2728      0.0000
+model_noplural+v57         city          43       0.8887         0.0975           0.0138         0.1113     -0.0105
+model_noplural+v57  town_suburb         563       0.7442         0.2072           0.0486         0.2558     -0.0019
+model_noplural+v57        rural        2500       0.5801         0.3419           0.0781         0.4199      0.0000
+20:38:54 INFO SUMMARY tract MdAPE % by part:
+part                         all  train   test  dens_0_50  dens_50_500  dens_500_2000  dens_2000_plus  kept_t070  excluded_t070  no_gap    gap   city  town_suburb  rural
+combination                                                                                                                                                              
+v5.7                       26.91  26.99  26.73      30.20        26.10          24.89           28.98      25.78          59.57   25.97  71.68  28.80        28.23  20.46
+v57+v57                    26.91  26.99  26.73      30.20        26.10          24.89           28.98      25.78          59.57   25.97  71.68  28.80        28.23  20.46
+v57+pq5                    27.81  27.91  27.40      35.11        27.28          25.39           29.39      26.72          58.14   26.87  69.63  28.26        29.35  22.88
+v57+mixed                  26.91  26.98  26.69      30.34        26.09          24.89           28.98      25.76          59.44   25.95  71.51  28.80        28.28  20.42
+v57+even                   56.81  56.99  56.08      98.27        52.63          54.25           57.04      55.93          73.52   55.94  81.58  42.05        60.78  66.39
+v57+plural_inv             27.11  27.21  26.80      31.36        26.40          24.98           29.04      25.85          66.55   26.06  79.69  28.86        28.42  20.95
+ghs+v57                    32.49  32.91  30.80      50.98        30.13          30.62           33.44      31.47          57.77   31.62  68.55  29.34        35.25  29.27
+ghs+pq5                    33.61  34.10  31.62      53.66        31.06          31.75           34.26      32.61          55.23   32.72  65.98  28.97        36.69  31.39
+ghs+mixed                  32.45  32.88  30.77      50.24        29.89          30.62           33.44      31.45          57.85   31.59  68.46  29.34        35.29  29.09
+ghs+even                   61.49  61.84  59.85     111.61        54.37          60.39           61.83      60.87          72.58   60.87  79.72  44.80        66.32  70.78
+ghs+plural_inv             32.97  33.49  31.15      53.86        30.47          31.15           33.58      31.76          65.47   31.96  77.98  29.52        35.76  30.23
+model+v57                  32.48  32.81  31.00      52.30        29.72          30.42           33.72      31.45          60.61   31.61  72.20  29.48        34.78  29.65
+model+pq5                  33.45  33.90  31.69      55.89        30.74          31.44           34.36      32.44          58.28   32.60  69.65  29.08        36.31  31.69
+model+mixed                32.46  32.83  30.92      52.24        29.58          30.41           33.72      31.40          60.53   31.58  72.20  29.50        34.80  29.38
+model+even                 61.03  61.28  60.04     110.33        54.26          59.56           61.47      60.32          75.44   60.32  83.31  45.33        65.73  70.36
+model+plural_inv           32.89  33.26  31.23      55.58        30.05          30.86           33.86      31.66          68.14   31.89  81.39  29.63        35.31  30.39
+model_noplural+v57         32.46  32.81  30.93      52.27        29.78          30.38           33.67      31.43          60.86   31.59  72.33  29.52        34.84  29.67
+model_noplural+pq5         33.46  33.87  31.69      55.46        30.83          31.33           34.27      32.41          58.38   32.57  69.77  29.07        36.25  31.51
+model_noplural+mixed       32.45  32.79  30.91      52.38        29.66          30.37           33.66      31.40          60.87   31.56  72.32  29.52        34.85  29.45
+model_noplural+even        61.03  61.31  59.88     110.37        54.30          59.51           61.49      60.32          75.43   60.32  83.38  45.39        65.72  70.33
+model_noplural+plural_inv  32.86  33.25  31.17      55.41        30.01          30.77           33.85      31.63          68.18   31.87  81.37  29.67        35.23  30.43
+20:38:54 INFO SUMMARY tract n / counties by part:
+          part     n  counties
+           all 44586      1772
+         train 35414      1418
+          test  9172       354
+     dens_0_50  5351      1118
+   dens_50_500  9344      1229
+ dens_500_2000 15605      1242
+dens_2000_plus 14286       509
+     kept_t070 41819      1437
+ excluded_t070  2767       335
+        no_gap 42871      1582
+           gap  1715       190
+          city 11939        43
+   town_suburb 24279       541
+         rural  8368      1188
+20:38:54 INFO SUMMARY tract d_mdape (combination - v5.7) by part:
+part                         all  train   test  dens_0_50  dens_50_500  dens_500_2000  dens_2000_plus  kept_t070  excluded_t070  no_gap    gap   city  town_suburb  rural
+combination                                                                                                                                                              
+v5.7                        0.00   0.00   0.00       0.00         0.00           0.00            0.00       0.00           0.00    0.00   0.00   0.00         0.00   0.00
+v57+v57                     0.00   0.00  -0.00       0.00         0.00          -0.00           -0.00       0.00          -0.00    0.00  -0.00  -0.00         0.00  -0.00
+v57+pq5                     0.90   0.92   0.67       4.91         1.18           0.50            0.40       0.93          -1.42    0.91  -2.05  -0.54         1.12   2.41
+v57+mixed                  -0.00  -0.01  -0.04       0.14        -0.00           0.00           -0.00      -0.02          -0.13   -0.02  -0.17  -0.00         0.05  -0.05
+v57+even                   29.90  30.00  29.35      68.07        26.54          29.36           28.05      30.15          13.95   29.98   9.90  13.24        32.55  45.92
+v57+plural_inv              0.20   0.22   0.07       1.16         0.31           0.09            0.06       0.07           6.98    0.09   8.01   0.06         0.20   0.48
+ghs+v57                     5.58   5.92   4.07      20.78         4.03           5.73            4.46       5.68          -1.80    5.65  -3.13   0.54         7.02   8.81
+ghs+pq5                     6.70   7.11   4.89      23.46         4.97           6.86            5.28       6.83          -4.34    6.75  -5.70   0.16         8.46  10.93
+ghs+mixed                   5.54   5.89   4.04      20.04         3.79           5.73            4.46       5.67          -1.72    5.62  -3.22   0.54         7.06   8.63
+ghs+even                   34.58  34.85  33.12      81.41        28.27          35.50           32.85      35.09          13.02   34.91   8.04  15.99        38.09  50.32
+ghs+plural_inv              6.06   6.50   4.42      23.66         4.38           6.26            4.60       5.98           5.90    5.99   6.30   0.72         7.53   9.77
+model+v57                   5.57   5.82   4.27      22.10         3.62           5.53            4.74       5.67           1.04    5.65   0.52   0.67         6.55   9.19
+model+pq5                   6.54   6.90   4.96      25.69         4.65           6.55            5.37       6.65          -1.29    6.63  -2.03   0.28         8.08  11.23
+model+mixed                 5.55   5.84   4.19      22.04         3.49           5.52            4.74       5.62           0.96    5.61   0.52   0.70         6.57   8.92
+model+even                 34.12  34.29  33.31      80.13        28.17          34.67           32.49      34.54          15.87   34.35  11.63  16.53        37.51  49.90
+model+plural_inv            5.98   6.27   4.50      25.38         3.95           5.97            4.88       5.88           8.57    5.92   9.71   0.83         7.08   9.93
+model_noplural+v57          5.55   5.82   4.20      22.07         3.68           5.49            4.68       5.64           1.29    5.62   0.64   0.71         6.61   9.21
+model_noplural+pq5          6.55   6.88   4.96      25.26         4.73           6.44            5.29       6.62          -1.19    6.60  -1.91   0.27         8.02  11.05
+model_noplural+mixed        5.54   5.80   4.18      22.18         3.57           5.48            4.68       5.62           1.30    5.60   0.64   0.72         6.62   8.98
+model_noplural+even        34.12  34.32  33.15      80.17        28.21          34.62           32.51      34.54          15.86   34.35  11.70  16.58        37.50  49.87
+model_noplural+plural_inv   5.95   6.26   4.44      25.21         3.92           5.88            4.86       5.85           8.61    5.90   9.69   0.87         7.01   9.96
+20:38:54 INFO SUMMARY group capture (all counties, share of GHS people of the group in the top k % of its cells):
+k                       0.05    0.10    0.20
+group     score                             
+no_record even        0.0500  0.1000  0.2000
+          ghs         0.7549  0.8738  0.9532
+          plural_inv  0.2038  0.3110  0.4657
+          pq5         0.1040  0.1834  0.3325
+          v57         0.1710  0.2482  0.3756
+undated   even        0.0500  0.1000  0.2000
+          ghs         0.4943  0.6577  0.8227
+          nobuilt     0.2634  0.3893  0.5506
+          plural_inv  0.1653  0.2734  0.4302
+          pq5         0.2384  0.3706  0.5425
+          v57         0.2308  0.3698  0.5446
+20:38:54 INFO wrote results/validation/conus/cap_allocation_1980 (6 tables + 1 PNG), 613 s
+20:38:54 INFO DONE
+== done 2026-11-24T20:38:55-07:00
