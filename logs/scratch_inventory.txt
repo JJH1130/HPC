@@ -1,0 +1,30 @@
+Wed Nov 25 11:07:06 MST 2026
+------------------------------------------------------------------------
+                                       Used         Avail    Quota Limit
+------------------------------------------------------------------------
+/home/jaju1407                   (B[m      4.5M (B[m         2.0G           2.0G
+/projects/jaju1407               (B[m       87G (B[m         164G           250G
+/scratch/alpine1                 (B[m       72G (B[m        9465G          9537G
+/pl/active/Leyk_Lab              (B[m     6997G (B[m        3003G         10000G
+Allocated Space: 10T
+Available Space: 3.1T
+Used Space: 7.0T
+	Used by data:		7.0T
+	Used by snapshot:	25M
+
+
+5.6G	/scratch/alpine/jaju1407/hisdac/cutouts
+59G	/scratch/alpine/jaju1407/hisdac/dasymetric
+93M	/scratch/alpine/jaju1407/hisdac/external
+
+93M	/scratch/alpine/jaju1407/hisdac/external/conus
+217M	/scratch/alpine/jaju1407/hisdac/dasymetric/massachusetts
+329M	/scratch/alpine/jaju1407/hisdac/cutouts/massachusetts
+5.2G	/scratch/alpine/jaju1407/hisdac/cutouts/conus
+59G	/scratch/alpine/jaju1407/hisdac/dasymetric/conus
+
+258M	/projects/jaju1407/code-server
+69G	/projects/jaju1407/data
+1.8G	/projects/jaju1407/HPC
+2.1M	/projects/jaju1407/ondemand
+48K	/projects/jaju1407/README.mdwn
