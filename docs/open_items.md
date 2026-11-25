@@ -171,7 +171,7 @@ Last updated: 2026-11-26 (cap transfer written as code, not run: group shares le
   as train (existing rows unchanged) and trained on when the area ratio is within 0.95-1.05 (status `filled_nhgis`);
   outside it they are `filled_nhgis_alloc`, allocated only.
 
-### Meeting with Stefan, 2026-11-25 (ideas; nothing decided or started)
+### Meeting with Stefan, 2026-11-25 (steps 1, 2, 4 run 2026-11-25/26; results in docs/conus_plan.md)
 
 Presented: the follow-up notes of Nov 17 (nby_age, PLURAL on v5.7, PLURAL county-value test, DEGURBA boxes + unbuilt
 overlap, SHAP). Stefan's points (from the live captions; "his deck / his stack" = HISDAC):
@@ -207,7 +207,7 @@ independent check). GHS-SMOD / -POP start in 1975.
 decides the next; nothing beyond step 2 is planned in detail.
 
 1. *1980 missed-cell diagnosis (no model change; code + tests 2026-11-25, `src/validation/missed_cells.py`, runbook
-   section 28, `docs/conus_plan.md` "1980 missed cells"; not run).* Cells populated in GHS-POP 1980 but unbuilt in HISDAC (BUI_1980 =
+   section 28, `docs/conus_plan.md` "1980 missed cells"; run and read 2026-11-25, see "1980 missed cells: result").* Cells populated in GHS-POP 1980 but unbuilt in HISDAC (BUI_1980 =
    0) = "missed cells"; per county and per area type (DEGURBA blocks): GHS-POP people on missed cells vs v5.7's people
    on the same cells / on all unbuilt cells; where they are (rural / peri-urban / metro fringe, clusters). Also
    GHS-BUILT 1980 (Landsat, to download; registered in `docs/data_sources.md` first) vs HISDAC built, as the more
@@ -223,7 +223,10 @@ decides the next; nothing beyond step 2 is planned in detail.
    Next test = *cap transfer* (code + tests 2026-11-26, `cap_allocation.py transfer`, runbook section 30,
    `docs/conus_plan.md` "Cap transfer"; not run): shares learned in 2010 (GHS-POP 2010 / GHS-BUILT-S 2015 residential),
    applied to 1940 / 1960 / 1980 / 2010 with each year's features (+ f_c-scaled variants), PLURAL as a score inside
-   the groups.
+   the groups. Run read 2026-11-26 (`docs/conus_plan.md` "Cap transfer: result"): even GHS-POP 2010's own shares
+   improve 2010 tracts by only 0.2 pp; transferred + f_c-scaled = v5.7 in 1940-1980; PLURAL inside the groups worse,
+   pq5 inside the unbuilt groups -2 pp in gap counties only. Conclusion: v5.7 already sets the group shares about
+   right; caps add almost nothing. To report to Stefan.
 5. *Extend in time:* GHS years 1975-2020 (5-year steps) as checks (from 1990 GHS-POP uses block census: closer to
    truth, but then not a validation reference); before 1975 only by carrying the 1980 locations back and adjusting
    amounts (Stefan: "re-channeling"); the form is open.
