@@ -244,6 +244,16 @@ Keep in mind (Stefan, same meeting):
   the whole US only from 1990 / 2000). Report tract numbers with that caveat; the fixed county sets of
   `metrics_over_time.py` (counties tracted since 1910 / 1920 / 1940 / 1960) already separate part of it.
 
+Ideas of the user (2026-11-26, not started):
+- *NTL as a within-group score* for the uncertain (undated / no-record) cells: the v3_ntl / v3_ntlv versions (2000 /
+  2010, v5.4 base) or the raw NTL / NTLV value as the score inside the v5.7 caps; 2010 tracts are an independent check
+  (lights do not use the census). Only from 1992 (DMSP), so no help before 1990.
+- *Strata by PLURAL x cell group*: area type (urban / peri-urban / rural from PLURAL, per era, 1930+) x cell group
+  (built / undated / no-record) = 6-9 cells, each with its own score (v5.7 / pq5 / PLURAL / NTL ...). Choose the score
+  per cell on the TRAIN counties' tracts only and report on the TEST counties' tracts (never pick and report on the
+  same tracts); expect noise from many comparisons. Fits Stefan's points 2 (PLURAL as a related variable, here a
+  classifier), 3 (refine only where records are uncertain) and 5 (strata).
+
 Also pending: move the needed rasters off scratch (90-day purge); ask Stefan about BUPR_contemp; the user shares the
 paper draft with co-authors and the abstract is revised after everyone has read it (Stefan).
 
