@@ -208,6 +208,44 @@ unit_ratios:
   tract_errors: results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_{YEAR}.csv
   min_tracts: 5
 
+# Strata (src/validation/strata.py; request docs/handoff/strata_request.md; docs/conus_plan.md "Strata (PLURAL area type
+# x cell group)"): v5.7's people per county x area type x cell group kept, only the order of the cells inside each
+# stratum changed by another model's cell people. Rules fixed 2026-11-26 before any result:
+#   area type = PLURAL_Y (cutout layer, bilinear; 0 urban ... 1 rural) with two breaks t1 < t2 fixed ONCE from 2010 and
+#     used for every year: urban PLURAL <= t1, peri_urban t1 < PLURAL <= t2, rural PLURAL > t2 (PLURAL nodata -> type
+#     none, never swapped). t1 = the smallest PLURAL value with share(PLURAL <= t1) >= the GHS-SMOD 2010 urban cell
+#     share, t2 the same for the urban + peri_urban share (quantile matching on cell counts, numpy inverted_cdf) over
+#     the 2010 v5.7 mask cells with a SMOD class (scheme A of rural_boxes.smod, per 250 m cell = the SMOD cell its
+#     centre falls in; water 10 / nodata left out) and a PLURAL value. GHS-SMOD enters only t1 and t2.
+#   cell group = built / undated / no_record (missed_cells / cap_allocation).
+#   selection per year and stratum: swap only that stratum's score (all others v57), tract MdAPE on the TRAIN-county
+#     tracts (conus_split.csv); the lowest-MdAPE score if it beats v57 by more than min_gain_pp, else v57; then one
+#     combined allocation with every chosen score; reported on the TEST-county tracts.
+strata:
+  model_config: configs/conus_rf_v3_all_nby.yaml    # v5.7: mask, people per stratum, study area name
+  base: Dasy_CONUS_RF_v3_all_nby
+  base_label: v57
+  years: [1940, 1980, 2010]
+  calib_year: 2010
+  plural_layer: PLURAL
+  scores:                                           # candidate scores per year (label: version), v57 always first
+    1940: {pq5: Dasy_CONUS_RF_v3_all_nby_pq5}
+    1980: {pq5: Dasy_CONUS_RF_v3_all_nby_pq5}
+    2010: {pq5: Dasy_CONUS_RF_v3_all_nby_pq5, ntl: Dasy_CONUS_RF_v3_all_nby_ntl, ntlv: Dasy_CONUS_RF_v3_all_nby_ntlv,
+           pq5ntl: Dasy_CONUS_RF_v3_all_nby_pq5ntl, pq5ntlv: Dasy_CONUS_RF_v3_all_nby_pq5ntlv}
+  new_versions:                                     # made by `submit_conus.sh strata`: v5.7's era Y2010 + the additions
+    ntl: {config: configs/conus_rf_v3_all_nby_ntl.yaml, add: [ntl]}
+    ntlv: {config: configs/conus_rf_v3_all_nby_ntlv.yaml, add: [ntlv]}
+    pq5ntl: {config: configs/conus_rf_v3_all_nby_pq5ntl.yaml, add: [ntl, plural]}
+    pq5ntlv: {config: configs/conus_rf_v3_all_nby_pq5ntlv.yaml, add: [ntlv, plural]}
+  plural_from: configs/conus_rf_v3_all_nby_pq5.yaml  # the plural block of the + plural versions
+  tract_errors: results/validation/conus/Dasy_CONUS_RF_v3_all_nby/tract_errors_{YEAR}.csv
+  split: configs/conus_split.csv
+  exclusions: results/hisdac_uncertainty/excluded_counties_t070.csv
+  county_class: results/validation/conus/missed_cells_1980/county_missed_1980.csv   # fixed DEGURBA labels (1980 GHS)
+  min_gain_pp: 0.1
+  mape_min: 10
+
 # DEGURBA boxes (src/validation/degurba_boxes.py; request docs/handoff/rural_boxes_request.md, user decision 2026-11-21;
 # docs/conus_plan.md "DEGURBA boxes"): classes and box choice by the EU / UN Degree of Urbanisation (stage I).
 #   scheme A (main): GHS-SMOD R2023A of the year, each 250 m cell = the SMOD 1 km cell its centre falls in, a 1 km block

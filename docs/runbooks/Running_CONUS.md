@@ -2688,6 +2688,92 @@ line: commit the log anyway (same block) and tell Claude.
 What to look for in the log: the BUPR share on the v5.7 cells per year (`BUPR on the v5.7 cells ... of ... in the county
 table`), `SUMMARY alloc_*` (county medians by class), `SUMMARY Spearman ...`.
 
+## 32. Strata: PLURAL area type x cell group, scores inside the strata; v5.7 + NTL / NTLV (+ PLURAL), 2010 (2026-11-26)
+
+Request `docs/handoff/strata_request.md`; design `docs/conus_plan.md` "Strata (PLURAL area type x cell group)". Four
+new versions, 2010 only: `Dasy_CONUS_RF_v3_all_nby_{ntl,ntlv,pq5ntl,pq5ntlv}` = v5.7's era Y2010 + `ntl` / `ntlv` /
+`ntl` + `plural` / `ntlv` + `plural` (the pq5 plural block), every other setting = v5.7's. Then one strata job (1940 /
+1980 / 2010): v5.7's people per county x area type x cell group kept, the cells inside each stratum ordered by another
+model (1940 / 1980: pq5; 2010: pq5 + the four new), the score per stratum chosen on TRAIN-county tracts, reported on
+TEST-county tracts. v5.7 itself is not changed or rerun. GHS-SMOD 2010 enters only the two PLURAL breaks. Needs the
+CONUS cutout with NTL / NTLV / PLURAL / NOBUILT (exist since sections 6 / 7 / 13 / 19), v5.7's era Y2010 and the
+v5.7 / pq5 predictions of 1940 / 1980 / 2010 on scratch, GHS-SMOD 2010 (section 26 block 0), tracts.
+
+| Step | Job | What | Estimate |
+|---|---|---|---|
+| config check | login node, in the pre-check | four configs = v5.7's Y2010 + additions, plural block = pq5's, layers in the study area (`CONFIG OK`); `strata.sh --check` (`CHECK OK`) | seconds |
+| features x 4 | 6 cores, 40 min each, side by side | 2010, v5.7 features + ntl / ntlv (+ plural, quantile breaks) | ~3 min |
+| train x 4 | 16 cores, 2 h each | era Y2010, 60 candidates, compared with v5.7 | ~10 min |
+| predict x 4 | 32 cores, 1 h each | allocation 2010 | ~6 min |
+| validate x 4 | 8 cores, 30 min each | 2010 tracts (gap counties from v5.6) | ~3 min |
+| strata | 12 cores, 3 h | breaks (2010), strata, ~50 stratum swaps + combined + full models per year, TEST report | ~30-60 min |
+| compare_models | 1 core, 20 min | v5.7 / pq5 / the four, 2010: county CV / all TEST, tracts (reference rows) | < 1 min |
+
+18 jobs, one submit; ~1-1.5 h after the first one starts (estimate). Override: `FEATURES_TIME`, `TRAIN_TIME`,
+`PREDICT_TIME`, `VALIDATE_TIME`, `STRATA_TIME`, `STRATA_TASKS`, `SUMMARY_TIME`.
+
+Block 1, pre-check + submit (login node):
+
+```bash
+cd /projects/jaju1407/HPC
+git pull
+git log --oneline -1
+mkdir -p logs
+bash sbatch/submit_conus.sh strata
+squeue -u $USER
+echo "== end of block 1 (success = CONFIG OK, CHECK OK, PRECHECK: 0 missing, one 'ntl features N | ... | strata N | compare_models N' line, 18 jobs)"
+```
+
+Good: `CONFIG OK: [...] = v5.7's era Y2010 + {...}`, `CHECK OK: inputs for [2010, 1940, 1980] (breaks from 2010), ...`,
+four lines `input 2010 score <new> ... (made by this chain)`, `PRECHECK: 0 missing of the inputs (...)`, one line `ntl
+features N train N predict N validate N | ... | strata N | compare_models N` (also in `logs/conus_strata_jobs.txt`), 18
+jobs in `squeue`; `== end of block 1`. `CONFIG DIFFERS` / `MISSING ...` + `ERROR: nothing submitted`: send the output to
+Claude.
+
+Block 2, progress (login node, any time):
+
+```bash
+cd /projects/jaju1407/HPC
+ids=$(grep -oE '[0-9]{6,}' logs/conus_strata_jobs.txt | paste -sd,)
+sacct -j "$ids" -X --format=JobID,JobName%22,State,Elapsed,ReqCPUS
+squeue -u $USER -o "%.10i %.20j %.8T %.30R"
+grep -hE "BREAKS|MATCH|DONE|ERROR" $(ls -t logs/strata.*.out 2>/dev/null | head -1) 2>/dev/null
+echo "== end of block 2 (success = states PENDING / RUNNING / COMPLETED, no FAILED; BREAKS / MATCH lines once strata runs)"
+```
+
+Good: `PENDING` (reason `Dependency`) / `RUNNING` / `COMPLETED`; once the strata job runs, `BREAKS t1 = ..., t2 = ...`
+and `MATCH <year>: score v57 everywhere = v5.7 ...`; `== end of block 2`. A `FAILED` job: the later ones of its chain
+(and strata / compare_models) stay `PENDING (DependencyNeverSatisfied)`; `scancel` them and send the log.
+
+Block 3, close the loop (after every job left `squeue`):
+
+```bash
+cd /projects/jaju1407/HPC
+squeue -u $USER
+ids=$(grep -oE '[0-9]{6,}' logs/conus_strata_jobs.txt | paste -sd,)
+sacct -j "$ids" --format=JobID,JobName%22,State,Elapsed,MaxRSS,ReqCPUS,TotalCPU > logs/conus_strata_sacct.txt
+for j in ${ids//,/ }; do seff "$j"; echo; done > logs/conus_strata_seff.txt
+cat logs/conus_strata_sacct.txt
+grep -hE "BREAKS|agreement|MATCH|RULE|DONE|ERROR" $(ls -t logs/strata.*.out | head -1)
+ls results/validation/conus/strata/
+git add logs/ results/
+git commit -m "run: strata (PLURAL area type x cell group) + v5.7 + NTL / NTLV (+ PLURAL) 2010 (logs + results)"
+git pull --rebase
+git push
+git log --oneline -1
+echo "== end of block 3 (success = every job COMPLETED, BREAKS, 3 MATCH lines, 3 RULE lines, DONE, 7 files in strata/, push main -> main)"
+```
+
+Good: every job `COMPLETED`; `BREAKS t1 = ..., t2 = ... from N cells: ...` + `agreement 0.xxxx`; three `MATCH` lines
+(2010, 1940, 1980); three `RULE` lines; `DONE`; seven files in `results/validation/conus/strata/` (`breaks.csv`,
+`strata_cells.csv`, `stratum_scores.csv`, `chosen.csv`, `test_metrics.csv`, `strata_mdape.png`,
+`model_comparison_2010.csv`); `git push` ends with `main -> main`; `== end of block 3`. Failed jobs: commit anyway
+(same block) and tell Claude.
+
+What to look for in the log: `strata` (the confusion matrix PLURAL type x SMOD class, the area type shares per year,
+one line per stratum with the TRAIN MdAPE of every score and the choice, `SUMMARY` tables: chosen, TRAIN / TEST d MdAPE
+per stratum and score, TEST MdAPE by method and part); `compare_models` (the four new versions next to v5.7 / pq5).
+
 ## If it fails
 
 | Symptom | Fix |
@@ -2767,6 +2853,11 @@ table`), `SUMMARY alloc_*` (county medians by class), `SUMMARY Spearman ...`.
 | v57nbya: `FACTORS DIFFER` / `nby_age factors ... differ` in `v57_nbya_factors` | the new factors are not the NobuiltYear test's (cutout BUPR or `county_record_uncertainty.csv` changed since 2026-11-03): nothing trained; `scancel` the rest, send the log |
 | v57nbya: `county feature <col> differs from v5.7` | more than nby -> nby_age changed (cutout / water / zones since v5.7 ran): nothing trained; `scancel` the rest, send the log |
 | v57nbya compare: `ERROR: ... differs from .../v54_nby_*.csv` or `nobuilt_*.csv` | an earlier version's numbers changed (results or predictions overwritten): nothing written; send the log |
+| strata: `CONFIG DIFFERS ...` | a new config is not v5.7's Y2010 + its additions (edited on the cluster?): `git pull`; send the line |
+| strata: `MISSING .../NTL/2010_NTL.tif` / `NTLV` / `PLURAL` | the cutout layer was purged or never made (scratch backup of 2026-11-25 in `/projects/jaju1407/data/scratch_backup/hisdac`): nothing submitted; send the list |
+| strata: `ERROR: <year>: tract ...: score v57 ..., v5.7 file ...` or `score v57 everywhere != v5.7 cells` | v5.7's prediction on scratch is not the one of its tract file: nothing written; send the log |
+| strata: `ERROR: ... tracts whose part differs from configs/conus_split.csv` | the tract file was made with another split: send the log |
+| strata: `OUT_OF_MEMORY` | resubmit alone with more cores: `sbatch --ntasks=24 --time=04:00:00 sbatch/strata.sh`; send `seff` |
 
 ## Notes
 

@@ -940,8 +940,9 @@ def _transfer_strip(r0: int, r1: int, ctx: dict) -> dict:
     return {"rows": (r0, r1), "acc": acc, "info": info, "cells": cells}
 
 
-def year_pass(args, model, p: dict, year: int, ctx_extra: dict, block_rows: int) -> dict:
-    """One year's strips: used counties, county x group sums, cells, evaluated tracts."""
+def year_pass(args, model, p: dict, year: int, ctx_extra: dict, block_rows: int, fn=None) -> dict:
+    """One year's strips: used counties, county x group sums, cells, evaluated tracts. fn = the strip worker
+    (default transfer_strip; strata.py passes its own, which returns the same acc keys cells / v57)."""
     import common
     used, lut = mcm.counties(p, model, year)
     n = len(used)
@@ -972,7 +973,7 @@ def year_pass(args, model, p: dict, year: int, ctx_extra: dict, block_rows: int)
     log.info("  grid %d x %d, %d strips of %d rows, %d workers, %d counties, products %s", H, W, len(rows), block_rows,
              args.workers, n, list(ctx["products"]))
     acc, info, cl = None, {}, []
-    for res in run_strips(ctx, rows, args.workers, transfer_strip):
+    for res in run_strips(ctx, rows, args.workers, fn or transfer_strip):
         acc = res["acc"] if acc is None else {k: acc[k] + v for k, v in res["acc"].items()}
         for k, v in res["info"].items():
             info[k] = info.get(k, 0) + v

@@ -114,6 +114,10 @@
 #                                       # applied to 1940 / 1960 / 1980 / 2010, tract metrics per year)
 #   bash sbatch/submit_conus.sh unitratios  # unit ratios part B (section 31; part A runs on the laptop): input check ->
 #                                       # one job (v5.7 people per BUPR record / built cell per county, vs tract MdAPE)
+#   bash sbatch/submit_conus.sh strata  # strata (section 32): config + input check -> v5.7 + ntl / ntlv / pq5ntl /
+#                                       # pq5ntlv (2010) features / train / predict / validate side by side -> strata job
+#                                       # (PLURAL area type x cell group, scores inside the strata) + compare_models of
+#                                       # v5.7 / pq5 / the four (2010) after all four; one submit
 #   bash sbatch/submit_conus.sh missed1980  # 1980 missed cells (after the GHS-BUILT-S download, section 28 block 0):
 #                                       # input check -> one job (GHS-POP / GHS-BUILT on BUI = 0 cells per county and
 #                                       # DEGURBA class, v5.7 / pq5 / v5.4 there, PLURAL capture curves)
@@ -185,10 +189,13 @@
 # captransfer: cap1980 (job 36298987: 10 min, 23 GB) + 3 product moves in 2010 + 3 more year passes + ~73 allocations:
 # 12 cores, 4 h (TRANSFER_TIME; TRANSFER_TASKS for more memory; estimates).
 # unitratios: four strip passes without product moves, county sums only: 8 cores, 1 h (RATIOS_TIME; estimate).
+# strata: per new version one year of v57plural's chains (3 years there: features 5 min, train 21 min, predict 14 min,
+# validate 4 min) + one NTL layer; wall times as v57plural; strata job = three cap_transfer-like year passes with up to
+# six score maps + ~50 stratum swaps: 12 cores, 3 h (STRATA_TIME; STRATA_TASKS for more memory; estimates).
 # Job ids go to logs/conus_<mode>_jobs.txt.
 set -euo pipefail
 mode=${1:-}
-[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer|unitratios)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer|unitratios"; exit 1; }
+[[ $mode =~ ^(trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer|unitratios|strata)$ ]] || { echo "usage: bash sbatch/submit_conus.sh trial|pilot|v3v4|bui|models|all|ntl|ntlv|external|y2020|uncertainty|uncfilter|plural|v56all|aggdiag|builtcell|externalv56|citymeeting|nobuilt|v54nby|v57all|v57nbya|v57plural|citydensity|pluralcm|degurbaboxes|unbuiltoverlap|missed1980|cap1980|captransfer|unitratios|strata"; exit 1; }
 cd "$(dirname "$0")/.."
 source sbatch/cluster_env.sh
 mkdir -p logs
@@ -1305,6 +1312,58 @@ elif [[ $mode == unitratios ]]; then
     grep -E "CHECK OK|NobuiltYear source" logs/conus_unitratios_check.txt || true
     ju=$(sub "" --ntasks=8 --time=${RATIOS_TIME:-01:00:00} sbatch/unit_ratios.sh)
     echo "unit_ratios $ju" | tee logs/conus_unitratios_jobs.txt
+elif [[ $mode == strata ]]; then
+    VAL="--name conus --state-prefix= --split configs/conus_split.csv --map-years --gap-share 0.05"
+    V57=Dasy_CONUS_RF_v3_all_nby V56=Dasy_CONUS_RF_v3_u070
+    VARS="ntl ntlv pq5ntl pq5ntlv"
+    D=$HISDAC_SCRATCH/dasymetric/conus
+    CUT=$HISDAC_SCRATCH/cutouts/conus
+    RD=results/dasymetric/conus
+    miss=()  # everything is checked before anything is submitted
+    # each config = v5.7's era Y2010 + its additions, every other setting as v5.7, plural block = pq5's
+    if ( activate_env hisdac && python -u src/validation/strata.py config ) > logs/conus_strata_config.txt 2>&1; then
+        grep -E "CONFIG OK" logs/conus_strata_config.txt
+    else
+        miss+=("config check (logs/conus_strata_config.txt)")
+        grep -E "CONFIG DIFFERS|ERROR" logs/conus_strata_config.txt || tail -5 logs/conus_strata_config.txt
+    fi
+    # the new versions (2010): cutout incl. NTL / NTLV / PLURAL, v5.7's era Y2010 (compare_with), tracts
+    for f in $CUT/zones/zones_2010.tif $CUT/zones/zones_2010.csv $CUT/layers/water_frac/2010_water_frac.tif              $CUT/layers/NTL/2010_NTL.tif $CUT/layers/NTLV/2010_NTLV.tif $CUT/layers/NOBUILT/NOBUILT.tif              $CUT/layers/DEM/DEM.tif $CUT/layers/Land_Use/RO/2010_RO.tif $CUT/window.json              $D/$V57/Y2010/model/rf.joblib $D/$V57/Y2010/model/oof_predictions.csv $D/$V57/Y2010/model/test_predictions.csv              $RD/$V57/Y2010/county_features.csv $RD/$V57/Y2010/folds.csv $DATA_ROOT/processed/tract/tracts_2010.gpkg              $DATA_ROOT/raw/external/ghs_smod/GHS_SMOD_E2010_GLOBE_R2023A_54009_1000_V2_0.tif              results/hisdac_uncertainty/excluded_counties_t070.csv configs/conus_split.csv              results/validation/conus/missed_cells_1980/county_missed_1980.csv; do
+        [[ -f $f ]] || miss+=("$f")
+    done
+    for l in BUI BUPL BUPR BUA; do
+        [[ -f $CUT/layers/$l/2010_$l.tif ]] || miss+=("$CUT/layers/$l/2010_$l.tif")
+    done
+    # the strata job: v5.7 + pq5 of the three years, PLURAL, tracts (strata.sh --check lists every input)
+    for y in 1940 1980 2010; do
+        for f in $D/$V57/predictions/pop_$y.tif $D/${V57}_pq5/predictions/pop_$y.tif $CUT/layers/PLURAL/${y}_PLURAL.tif                  $CUT/layers/BUI/${y}_BUI.tif $CUT/zones/zones_$y.tif $DATA_ROOT/processed/tract/tracts_$y.gpkg                  results/validation/conus/$V57/tract_errors_$y.csv; do
+            [[ -f $f ]] || miss+=("$f")
+        done
+    done
+    if bash sbatch/strata.sh --check > logs/conus_strata_check.txt 2>&1; then
+        grep -E "CHECK OK|NobuiltYear source|made by this chain" logs/conus_strata_check.txt || true
+    else
+        miss+=("strata inputs (logs/conus_strata_check.txt)")
+        grep -E "MISSING|ERROR|CONFIG DIFFERS" logs/conus_strata_check.txt || tail -5 logs/conus_strata_check.txt
+    fi
+    for v in $VARS; do
+        if [[ -e $D/${V57}_$v ]]; then echo "NOTE: $D/${V57}_$v exists already (a rerun overwrites its era)"; fi
+    done
+    echo "PRECHECK: $(( ${#miss[@]} )) missing of the inputs (configs, cutout incl. NTL / NTLV / PLURAL / NOBUILT, v5.7 era Y2010, v5.7 / pq5 predictions 1940 / 1980 / 2010, tracts, GHS-SMOD 2010, tracked tables)"
+    if (( ${#miss[@]} )); then printf 'MISSING %s
+' "${miss[@]}"; echo "ERROR: nothing submitted"; exit 1; fi
+    qs="" ids=""
+    for v in $VARS; do
+        C=configs/conus_rf_v3_all_nby_$v.yaml
+        f=$(sub "" --ntasks=6 --time=${FEATURES_TIME:-00:40:00} --export=ALL,CONFIG=$C sbatch/dasymetric_features.sh)
+        t=$(sub "$f" --ntasks=16 --time=${TRAIN_TIME:-02:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_train.sh)
+        p=$(sub "$t" --ntasks=32 --time=${PREDICT_TIME:-01:00:00} --export=ALL,CONFIG=$C sbatch/dasymetric_predict.sh)
+        q=$(sub "$p" --ntasks=8 --time=${VALIDATE_TIME:-00:30:00} --export=ALL,COVERAGE= sbatch/validate_tract.sh             --version ${V57}_$v --years 2010 $VAL --gap-version $V56)
+        qs="$qs $q" ids="$ids | $v features $f train $t predict $p validate $q"
+    done
+    js=$(sub "${qs# }" --ntasks=${STRATA_TASKS:-12} --time=${STRATA_TIME:-03:00:00} sbatch/strata.sh)
+    jc=$(sub "${qs# }" --time=${SUMMARY_TIME:-00:20:00} sbatch/compare_models.sh --versions $V57 ${V57}_pq5          ${V57}_ntl ${V57}_ntlv ${V57}_pq5ntl ${V57}_pq5ntlv --years 2010 --rank-features ntl ntlv plural          --exclusions results/hisdac_uncertainty/excluded_counties_t070.csv          --out results/validation/conus/strata/model_comparison_2010.csv)
+    echo "${ids# | } | strata $js | compare_models $jc" | tee logs/conus_strata_jobs.txt
 elif [[ $mode == uncertainty ]]; then
     CUT=$HISDAC_SCRATCH/cutouts/conus
     miss=()
